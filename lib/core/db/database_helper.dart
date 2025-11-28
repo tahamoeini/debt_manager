@@ -1,7 +1,13 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
+
+// On web we must initialize the sqflite web database factory.
+// `sqflite_web` provides `databaseFactoryWeb` which must be assigned
+// to the global `databaseFactory` before calling `openDatabase`.
+import 'package:sqflite_web/sqflite_web.dart' as sqflite_web;
 
 import '../../features/loans/models/counterparty.dart';
 import '../../features/loans/models/loan.dart';
@@ -24,6 +30,11 @@ class DatabaseHelper {
   }
 
   Future<Database> _initDatabase() async {
+    // If running on the web, initialize the web-compatible database factory.
+    if (kIsWeb) {
+      databaseFactory = sqflite_web.databaseFactoryWeb;
+    }
+
     final databasesPath = await getDatabasesPath();
     final path = join(databasesPath, _dbName);
 
