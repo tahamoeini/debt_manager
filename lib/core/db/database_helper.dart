@@ -22,6 +22,14 @@ class DatabaseHelper {
   static const _dbVersion = 1;
 
   Database? _db;
+  // In-memory fallback stores for web builds (sqflite is not available on web).
+  final bool _isWeb = kIsWeb;
+  final List<Map<String, dynamic>> _cpStore = [];
+  final List<Map<String, dynamic>> _loanStore = [];
+  final List<Map<String, dynamic>> _installmentStore = [];
+  int _cpId = 0;
+  int _loanId = 0;
+  int _installmentId = 0;
 
   Future<Database> get database async {
     if (_db != null) return _db!;
@@ -30,9 +38,11 @@ class DatabaseHelper {
   }
 
   Future<Database> _initDatabase() async {
-    // If running on the web, initialize the web-compatible database factory.
-    if (kIsWeb) {
-      databaseFactory = sqflite_web.databaseFactoryWeb;
+    if (_isWeb) {
+      // Web: we don't have sqflite available. The in-memory stores will be used
+      // by the CRUD methods directly, so just throw to avoid accidental calls
+      // to sqflite APIs from here.
+      throw UnsupportedError('Database initialization is not supported on web; use in-memory stores.');
     }
 
     final databasesPath = await getDatabasesPath();
