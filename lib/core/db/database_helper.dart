@@ -3,6 +3,10 @@ import 'dart:async';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 
+import '../../features/loans/models/counterparty.dart';
+import '../../features/loans/models/loan.dart';
+import '../../features/loans/models/installment.dart';
+
 class DatabaseHelper {
   static final DatabaseHelper instance = DatabaseHelper._internal();
   DatabaseHelper._internal();
@@ -67,5 +71,117 @@ class DatabaseHelper {
         FOREIGN KEY(loan_id) REFERENCES loans(id)
       )
     ''');
+  }
+
+  // -----------------
+  // Counterparty CRUD
+  // -----------------
+
+  Future<int> insertCounterparty(Counterparty counterparty) async {
+    final db = await database;
+    return await db.insert('counterparties', counterparty.toMap());
+  }
+
+  Future<List<Counterparty>> getAllCounterparties() async {
+    final db = await database;
+    final rows = await db.query('counterparties', orderBy: 'name COLLATE NOCASE');
+    return rows.map((r) => Counterparty.fromMap(r)).toList();
+  }
+
+  // -----------------
+  // Loan CRUD
+  // -----------------
+
+  Future<int> insertLoan(Loan loan) async {
+    final db = await database;
+    return await db.insert('loans', loan.toMap());
+  }
+
+  Future<List<Loan>> getAllLoans({LoanDirection? direction}) async {
+    final db = await database;
+    List<Map<String, dynamic>> rows;
+    if (direction == null) {
+      rows = await db.query('loans', orderBy: 'created_at DESC');
+    } else {
+      final dirStr = direction == LoanDirection.borrowed ? 'borrowed' : 'lent';
+      rows = await db.query('loans', where: 'direction = ?', whereArgs: [dirStr], orderBy: 'created_at DESC');
+    }
+    return rows.map((r) => Loan.fromMap(r)).toList();
+  }
+
+  Future<Loan?> getLoanById(int id) async {
+    final db = await database;
+    final rows = await db.query('loans', where: 'id = ?', whereArgs: [id], limit: 1);
+    if (rows.isEmpty) return null;
+    return Loan.fromMap(rows.first);
+  }
+
+  // -----------------
+  // Installment CRUD
+  // -----------------
+
+  Future<int> insertInstallment(Installment installment) async {
+    final db = await database;
+    return await db.insert('installments', installment.toMap());
+  }
+
+  Future<List<Installment>> getInstallmentsByLoanId(int loanId) async {
+    final db = await database;
+    final rows = await db.query('installments', where: 'loan_id = ?', whereArgs: [loanId], orderBy: 'due_date_jalali ASC');
+    return rows.map((r) => Installment.fromMap(r)).toList();
+  }
+
+  Future<int> updateInstallment(Installment installment) async {
+    final db = await database;
+    if (installment.id == null) throw ArgumentError('Installment.id is null');
+    return await db.update('installments', installment.toMap(), where: 'id = ?', whereArgs: [installment.id]);
+  }
+
+  // -----------------
+  // Reporting / summaries
+  // -----------------
+
+  Future<int> getTotalOutstandingBorrowed() async {
+    final db = await database;
+    final result = await db.rawQuery('''
+      SELECT COALESCE(SUM(i.amount), 0) as total
+      FROM installments i
+      JOIN loans l ON i.loan_id = l.id
+      WHERE l.direction = 'borrowed' AND i.status != 'paid'
+    ''');
+    final value = result.first['total'];
+    if (value is int) return value;
+    if (value is String) return int.tryParse(value) ?? 0;
+    return 0;
+  }
+
+  Future<int> getTotalOutstandingLent() async {
+    final db = await database;
+    final result = await db.rawQuery('''
+      SELECT COALESCE(SUM(i.amount), 0) as total
+      FROM installments i
+      JOIN loans l ON i.loan_id = l.id
+      WHERE l.direction = 'lent' AND i.status != 'paid'
+    ''');
+    final value = result.first['total'];
+    if (value is int) return value;
+    if (value is String) return int.tryParse(value) ?? 0;
+    return 0;
+  }
+
+  Future<List<Installment>> getUpcomingInstallments(DateTime from, DateTime to) async {
+    final db = await database;
+    String fmt(DateTime d) => '${d.year.toString().padLeft(4, '0')}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}';
+    final fromStr = fmt(from);
+    final toStr = fmt(to);
+
+    final rows = await db.query(
+      'installments',
+      where: "status = ? AND due_date_jalali BETWEEN ? AND ?",
+      whereArgs: ['pending', fromStr, toStr],
+      orderBy: 'due_date_jalali ASC',
+    );
+
+    return rows.map((r) => Installment.fromMap(r)).toList();
   }
 }
