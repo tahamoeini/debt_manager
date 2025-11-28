@@ -47,11 +47,7 @@ class _HomeScreenState extends State<HomeScreen> {
     };
   }
 
-  String _toPersianDigits(int value) {
-    final map = {'0': '۰', '1': '۱', '2': '۲', '3': '۳', '4': '۴', '5': '۵', '6': '۶', '7': '۷', '8': '۸', '9': '۹'};
-    final s = value.toString();
-    return s.split('').map((c) => map[c] ?? c).join();
-  }
+  // Persian digit helper removed; formatting is handled by _formatCurrency
 
   String _formatCurrency(int value) {
     final s = value.abs().toString();
@@ -136,7 +132,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                   ),
                 ),
-              ],
+              ),
             ),
             const SizedBox(height: 20),
             const Text('اقساط نزدیک', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
@@ -173,9 +169,9 @@ class _HomeScreenState extends State<HomeScreen> {
                             children: [
                               Text(dueDisplay),
                               Text(_formatCurrency(inst.amount)),
-                            ],
-                          ),
-                        ],
+                            ),
+                          }),
+                        ),
                       ),
                     ),
                   );

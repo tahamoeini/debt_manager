@@ -33,7 +33,6 @@ class _ReportsScreenState extends State<ReportsScreen> {
 
     // Get all loans (filtered by direction if provided) and build map
     final loans = await _db.getAllLoans(direction: _directionFilter);
-    final loanMap = {for (var l in loans) l.id!: l};
 
     // For simplicity, query installments by iterating loans and fetching installments
     final List<Map<String, dynamic>> rows = [];
@@ -75,11 +74,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
     if (picked != null) setState(() => _to = picked);
   }
 
-  String _toPersianDigits(int value) {
-    final map = {'0': '۰', '1': '۱', '2': '۲', '3': '۳', '4': '۴', '5': '۵', '6': '۶', '7': '۷', '8': '۸', '9': '۹'};
-    final s = value.toString();
-    return s.split('').map((c) => map[c] ?? c).join();
-  }
+  // Persian digit conversion is now handled by _formatCurrency; remove unused helper.
   
   String _formatCurrency(int value) {
     final s = value.abs().toString();
@@ -198,7 +193,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
                     trailing: Text(_formatCurrency(inst.amount)),
                   ),
                 );
-              }).toList(),
+              }),
             );
           },
         )

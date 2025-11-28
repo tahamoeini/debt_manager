@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:timezone/timezone.dart' as tz;
+import 'package:timezone/data/latest_all.dart' as tzdata;
+import 'package:flutter_native_timezone/flutter_native_timezone.dart';
 
 class NotificationService {
   static final NotificationService instance = NotificationService._internal();
@@ -38,18 +41,22 @@ class NotificationService {
       importance: Importance.defaultImportance,
     );
 
-    await _plugin
-        .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()
-        ?.createNotificationChannel(channel);
+    await _plugin.resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()?.createNotificationChannel(channel);
 
-    // Request iOS/macOS permissions explicitly as a best practice.
-    await _plugin
-        .resolvePlatformSpecificImplementation<IOSFlutterLocalNotificationsPlugin>()
-        ?.requestPermissions(alert: true, badge: true, sound: true);
+    // Request iOS and macOS permissions explicitly as a best practice.
+    await _plugin.resolvePlatformSpecificImplementation<IOSFlutterLocalNotificationsPlugin>()?.requestPermissions(alert: true, badge: true, sound: true);
+    await _plugin.resolvePlatformSpecificImplementation<MacOSFlutterLocalNotificationsPlugin>()?.requestPermissions(alert: true, badge: true, sound: true);
 
-    await _plugin
-        .resolvePlatformSpecificImplementation<DarwinFlutterLocalNotificationsPlugin>()
-        ?.requestPermissions(alert: true, badge: true, sound: true);
+    // Initialize timezone data for zoned scheduling
+    try {
+      tzdata.initializeTimeZones();
+      final String localTimeZone = await FlutterNativeTimezone.getLocalTimezone();
+      tz.setLocalLocation(tz.getLocation(localTimeZone));
+    } catch (_) {
+      // If timezone initialization fails, fallback to UTC (not ideal but prevents crash).
+      tz.initializeTimeZones();
+      tz.setLocalLocation(tz.getLocation('UTC'));
+    }
   }
 
   /// Schedule a notification for an installment reminder.
@@ -72,14 +79,18 @@ class NotificationService {
 
     final details = NotificationDetails(android: androidDetails, iOS: iosDetails);
 
-    await _plugin.schedule(
+    // Use zonedSchedule for reliable scheduling across timezones and DST
+    final tzScheduled = tz.TZDateTime.from(scheduledTime, tz.local);
+
+    await _plugin.zonedSchedule(
       notificationId,
       title,
       body,
-      scheduledTime,
+      tzScheduled,
       details,
       androidAllowWhileIdle: true,
       uiLocalNotificationDateInterpretation: UILocalNotificationDateInterpretation.absoluteTime,
+      matchDateTimeComponents: null,
     );
   }
 

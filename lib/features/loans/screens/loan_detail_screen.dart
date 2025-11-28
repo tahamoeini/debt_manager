@@ -47,16 +47,11 @@ class _LoanDetailScreenState extends State<LoanDetailScreen> {
       case InstallmentStatus.overdue:
         return 'عقب‌افتاده';
       case InstallmentStatus.pending:
-      default:
         return 'در انتظار';
     }
   }
 
-  String _toPersianDigits(int value) {
-    final map = {'0': '۰', '1': '۱', '2': '۲', '3': '۳', '4': '۴', '5': '۵', '6': '۶', '7': '۷', '8': '۸', '9': '۹'};
-    final s = value.toString();
-    return s.split('').map((c) => map[c] ?? c).join();
-  }
+  // Removed unused Persian digit helper; currency formatting is used instead.
   
   String _formatCurrency(int value) {
     final s = value.abs().toString();
