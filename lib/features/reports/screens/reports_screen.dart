@@ -81,6 +81,16 @@ class _ReportsScreenState extends State<ReportsScreen> {
     final s = value.toString();
     return s.split('').map((c) => map[c] ?? c).join();
   }
+  
+  String _formatCurrency(int value) {
+    final s = value.abs().toString();
+    final withSep = s.replaceAllMapped(RegExp(r"\B(?=(\d{3})+(?!\d))"), (m) => ',');
+    final persian = withSep.split('').map((c) {
+      const map = {'0': '۰', '1': '۱', '2': '۲', '3': '۳', '4': '۴', '5': '۵', '6': '۶', '7': '۷', '8': '۸', '9': '۹', ',': '٬'};
+      return map[c] ?? c;
+    }).join();
+    return '${value < 0 ? '-' : ''}$persian ریال';
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -185,7 +195,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
                   child: ListTile(
                     title: Text(loan.title),
                     subtitle: Text('${formatJalaliForDisplay(parseJalali(inst.dueDateJalali))} · ${inst.status.name}'),
-                    trailing: Text(_toPersianDigits(inst.amount)),
+                        trailing: Text(_formatCurrency(inst.amount)),
                   ),
                 );
               }).toList(),
