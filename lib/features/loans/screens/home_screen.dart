@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 
 import '../../../core/db/database_helper.dart';
+import '../../../core/utils/format_utils.dart';
+import '../../../core/utils/jalali_utils.dart';
+import '../../loans/models/counterparty.dart';
 import '../../loans/models/installment.dart';
 import '../../loans/models/loan.dart';
-import '../../loans/models/counterparty.dart';
-import '../../../core/utils/jalali_utils.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -47,15 +48,7 @@ class _HomeScreenState extends State<HomeScreen> {
     };
   }
 
-  String _formatCurrency(int value) {
-    final s = value.abs().toString();
-    final withSep = s.replaceAllMapped(RegExp(r"\B(?=(\d{3})+(?!\d))"), (m) => ',');
-    final persian = withSep.split('').map((c) {
-      const map = {'0': '۰', '1': '۱', '2': '۲', '3': '۳', '4': '۴', '5': '۵', '6': '۶', '7': '۷', '8': '۸', '9': '۹', ',': '٬'};
-      return map[c] ?? c;
-    }).join();
-    return '${value < 0 ? '-' : ''}$persian ریال';
-  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -92,7 +85,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         children: [
                           const Text('بدهی‌های من', style: TextStyle(fontWeight: FontWeight.w600)),
                           const SizedBox(height: 8),
-                          Text(_formatCurrency(borrowed), style: Theme.of(context).textTheme.headlineSmall),
+                          Text(formatCurrency(borrowed), style: Theme.of(context).textTheme.headlineSmall),
                         ],
                       ),
                     ),
@@ -108,7 +101,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         children: [
                           const Text('طلب‌های من', style: TextStyle(fontWeight: FontWeight.w600)),
                           const SizedBox(height: 8),
-                          Text(_formatCurrency(lent), style: Theme.of(context).textTheme.headlineSmall),
+                          Text(formatCurrency(lent), style: Theme.of(context).textTheme.headlineSmall),
                         ],
                       ),
                     ),
@@ -124,7 +117,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         children: [
                           const Text('وضعیت خالص', style: TextStyle(fontWeight: FontWeight.w600)),
                           const SizedBox(height: 8),
-                          Text(_formatCurrency(net), style: Theme.of(context).textTheme.headlineSmall),
+                          Text(formatCurrency(net), style: Theme.of(context).textTheme.headlineSmall),
                         ],
                       ),
                     ),
@@ -165,7 +158,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text(dueDisplay),
-                            Text(_formatCurrency(inst.amount)),
+                            Text(formatCurrency(inst.amount)),
                           ],
                         ),
                       ],

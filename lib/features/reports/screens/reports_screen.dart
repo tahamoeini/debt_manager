@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../core/db/database_helper.dart';
+import '../../../core/utils/format_utils.dart';
 import '../../../core/utils/jalali_utils.dart';
 import '../../loans/models/installment.dart';
 import '../../loans/models/loan.dart';
@@ -74,17 +75,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
     if (picked != null) setState(() => _to = picked);
   }
 
-  // Persian digit conversion is now handled by _formatCurrency; remove unused helper.
-  
-  String _formatCurrency(int value) {
-    final s = value.abs().toString();
-    final withSep = s.replaceAllMapped(RegExp(r"\B(?=(\d{3})+(?!\d))"), (m) => ',');
-    final persian = withSep.split('').map((c) {
-      const map = {'0': '۰', '1': '۱', '2': '۲', '3': '۳', '4': '۴', '5': '۵', '6': '۶', '7': '۷', '8': '۸', '9': '۹', ',': '٬'};
-      return map[c] ?? c;
-    }).join();
-    return '${value < 0 ? '-' : ''}$persian ریال';
-  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -109,7 +100,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
                       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                         const Text('بدهی‌های معوق (جمع)'),
                         const SizedBox(height: 8),
-                        Text(_formatCurrency(borrowed), style: Theme.of(context).textTheme.headlineSmall),
+                        Text(formatCurrency(borrowed), style: Theme.of(context).textTheme.headlineSmall),
                         const SizedBox(height: 4),
                         const Text('مجموع مبالغی که شما بدهکار هستید')
                       ]),
@@ -124,7 +115,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
                       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                         const Text('طلب‌های معوق (جمع)'),
                         const SizedBox(height: 8),
-                        Text(_formatCurrency(lent), style: Theme.of(context).textTheme.headlineSmall),
+                        Text(formatCurrency(lent), style: Theme.of(context).textTheme.headlineSmall),
                         const SizedBox(height: 4),
                         const Text('مجموع مبالغی که دیگران به شما بدهکار هستند')
                       ]),
@@ -139,7 +130,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
                       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                         const Text('وضعیت خالص'),
                         const SizedBox(height: 8),
-                        Text(_formatCurrency(net), style: Theme.of(context).textTheme.headlineSmall),
+                        Text(formatCurrency(net), style: Theme.of(context).textTheme.headlineSmall),
                         const SizedBox(height: 4),
                         const Text('تفاوت بین طلب و بدهی')
                       ]),
@@ -190,7 +181,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
                   child: ListTile(
                     title: Text(loan.title.isNotEmpty ? loan.title : 'بدون عنوان'),
                     subtitle: Text('${formatJalaliForDisplay(parseJalali(inst.dueDateJalali))} · ${inst.status.name}'),
-                    trailing: Text(_formatCurrency(inst.amount)),
+                    trailing: Text(formatCurrency(inst.amount)),
                   ),
                 );
               }).toList(),

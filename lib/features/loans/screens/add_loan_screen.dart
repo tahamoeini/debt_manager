@@ -173,40 +173,75 @@ class _AddLoanScreenState extends State<AddLoanScreen> {
               const SizedBox(height: 12),
               TextFormField(
                 controller: _counterpartyController,
-                decoration: const InputDecoration(labelText: 'طرف مقابل'),
-                validator: (v) => (v == null || v.trim().isEmpty) ? 'نام طرف مقابل لازم است' : null,
+                decoration: const InputDecoration(
+                  labelText: 'طرف مقابل',
+                  hintText: 'نام شخص یا موسسه',
+                ),
               ),
               const SizedBox(height: 12),
               TextFormField(
                 controller: _titleController,
-                decoration: const InputDecoration(labelText: 'عنوان وام'),
-                validator: (v) => (v == null || v.trim().isEmpty) ? 'عنوان لازم است' : null,
+                decoration: const InputDecoration(
+                  labelText: 'عنوان وام',
+                  hintText: 'مثال: وام خرید خودرو',
+                ),
+                validator: (v) => (v == null || v.trim().isEmpty) ? 'لطفا عنوان وام را وارد کنید' : null,
               ),
               const SizedBox(height: 12),
               TextFormField(
                 controller: _principalController,
-                decoration: const InputDecoration(labelText: 'مبلغ اصلی (عدد)'),
+                decoration: const InputDecoration(
+                  labelText: 'مبلغ اصلی (ریال)',
+                  hintText: 'مثلا: 10000000',
+                ),
                 keyboardType: TextInputType.number,
-                validator: (v) => (v == null || int.tryParse(v.trim()) == null) ? 'مقدار عددی وارد کنید' : null,
+                validator: (v) {
+                  if (v == null || v.trim().isEmpty) return 'لطفا مبلغ را وارد کنید';
+                  final parsed = int.tryParse(v.trim());
+                  if (parsed == null) return 'لطفا عدد معتبر وارد کنید';
+                  if (parsed <= 0) return 'مبلغ باید بیشتر از صفر باشد';
+                  return null;
+                },
               ),
               const SizedBox(height: 12),
               TextFormField(
                 controller: _installmentCountController,
-                decoration: const InputDecoration(labelText: 'تعداد اقساط'),
+                decoration: const InputDecoration(
+                  labelText: 'تعداد اقساط',
+                  hintText: 'مثلا: 12',
+                ),
                 keyboardType: TextInputType.number,
-                validator: (v) => (v == null || int.tryParse(v.trim()) == null) ? 'مقدار عددی وارد کنید' : null,
+                validator: (v) {
+                  if (v == null || v.trim().isEmpty) return 'لطفا تعداد اقساط را وارد کنید';
+                  final parsed = int.tryParse(v.trim());
+                  if (parsed == null) return 'لطفا عدد معتبر وارد کنید';
+                  if (parsed <= 0) return 'تعداد باید حداقل 1 باشد';
+                  return null;
+                },
               ),
               const SizedBox(height: 12),
               TextFormField(
                 controller: _installmentAmountController,
-                decoration: const InputDecoration(labelText: 'مبلغ هر قسط (عدد)'),
+                decoration: const InputDecoration(
+                  labelText: 'مبلغ هر قسط (ریال)',
+                  hintText: 'مثلا: 1000000',
+                ),
                 keyboardType: TextInputType.number,
-                validator: (v) => (v == null || int.tryParse(v.trim()) == null) ? 'مقدار عددی وارد کنید' : null,
+                validator: (v) {
+                  if (v == null || v.trim().isEmpty) return 'لطفا مبلغ قسط را وارد کنید';
+                  final parsed = int.tryParse(v.trim());
+                  if (parsed == null) return 'لطفا عدد معتبر وارد کنید';
+                  if (parsed <= 0) return 'مبلغ باید بیشتر از صفر باشد';
+                  return null;
+                },
               ),
               const SizedBox(height: 12),
               TextFormField(
                 controller: _notesController,
-                decoration: const InputDecoration(labelText: 'یادداشت (اختیاری)'),
+                decoration: const InputDecoration(
+                  labelText: 'یادداشت (اختیاری)',
+                  hintText: 'جزئیات بیشتر درباره وام',
+                ),
                 maxLines: 3,
               ),
               const SizedBox(height: 12),

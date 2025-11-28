@@ -2,10 +2,11 @@ import 'package:flutter/material.dart';
 
 import '../../../core/db/database_helper.dart';
 import '../../../core/notifications/notification_service.dart';
+import '../../../core/utils/format_utils.dart';
 import '../../../core/utils/jalali_utils.dart';
-import '../../loans/models/loan.dart';
 import '../../loans/models/counterparty.dart';
 import '../../loans/models/installment.dart';
+import '../../loans/models/loan.dart';
 
 class LoanDetailScreen extends StatefulWidget {
   const LoanDetailScreen({super.key, required this.loanId});
@@ -49,24 +50,6 @@ class _LoanDetailScreenState extends State<LoanDetailScreen> {
       case InstallmentStatus.pending:
         return 'در انتظار';
     }
-  }
-
-  // Removed unused Persian digit helper; currency formatting is used instead.
-  
-  String _formatCurrency(int value) {
-    final s = value.abs().toString();
-    final withSep = s.replaceAllMapped(RegExp(r"\B(?=(\d{3})+(?!\d))"), (m) => ',');
-    final persian = withSep.split('').map((c) {
-      const map = {'0': '۰', '1': '۱', '2': '۲', '3': '۳', '4': '۴', '5': '۵', '6': '۶', '7': '۷', '8': '۸', '9': '۹', ',': '٬'};
-      return map[c] ?? c;
-    }).join();
-    return '${value < 0 ? '-' : ''}$persian ریال';
-  }
-
-  String _toPersianDigits(int value) {
-    final map = {'0': '۰', '1': '۱', '2': '۲', '3': '۳', '4': '۴', '5': '۵', '6': '۶', '7': '۷', '8': '۸', '9': '۹'};
-    final s = value.toString();
-    return s.split('').map((c) => map[c] ?? c).join();
   }
 
   Future<void> _markPaid(Installment inst) async {
@@ -121,12 +104,12 @@ class _LoanDetailScreenState extends State<LoanDetailScreen> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text('مبلغ اصلی: ${_formatCurrency(loan.principalAmount)}'),
-                          Text('تعداد اقساط: ${_toPersianDigits(loan.installmentCount)}'),
+                          Text('مبلغ اصلی: ${formatCurrency(loan.principalAmount)}'),
+                          Text('تعداد اقساط: ${toPersianDigits(loan.installmentCount)}'),
                         ],
                       ),
                       const SizedBox(height: 8),
-                      Text('مبلغ قسط: ${_formatCurrency(loan.installmentAmount)}'),
+                      Text('مبلغ قسط: ${formatCurrency(loan.installmentAmount)}'),
                       const SizedBox(height: 8),
                       Text('شروع: ${formatJalaliForDisplay(parseJalali(loan.startDateJalali))}'),
                     ],
@@ -143,7 +126,7 @@ class _LoanDetailScreenState extends State<LoanDetailScreen> {
                   child: ListTile(
                     title: Text(due),
                     subtitle: Text(_statusText(inst.status) + (paid && inst.paidAt != null ? ' • ${inst.paidAt}' : '')),
-                    trailing: Text(_formatCurrency(inst.amount)),
+                    trailing: Text(formatCurrency(inst.amount)),
                     leading: IconButton(
                       icon: Icon(paid ? Icons.check_circle : Icons.radio_button_unchecked, color: paid ? Colors.green : null),
                       onPressed: paid
