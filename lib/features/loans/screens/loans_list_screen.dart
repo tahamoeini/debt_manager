@@ -65,6 +65,16 @@ class _LoansListScreenState extends State<LoansListScreen> {
     final s = value.toString();
     return s.split('').map((c) => map[c] ?? c).join();
   }
+  
+  String _formatCurrency(int value) {
+    final s = value.abs().toString();
+    final withSep = s.replaceAllMapped(RegExp(r"\B(?=(\d{3})+(?!\d))"), (m) => ',');
+    final persian = withSep.split('').map((c) {
+      const map = {'0': '۰', '1': '۱', '2': '۲', '3': '۳', '4': '۴', '5': '۵', '6': '۶', '7': '۷', '8': '۸', '9': '۹', ',': '٬'};
+      return map[c] ?? c;
+    }).join();
+    return '${value < 0 ? '-' : ''}$persian ریال';
+  }
 
   Widget _buildTabView(LoanDirection? filter) {
     return FutureBuilder<List<_LoanSummary>>(
@@ -91,7 +101,7 @@ class _LoansListScreenState extends State<LoansListScreen> {
                   children: [
                     Text('${_toPersianDigits(s.remainingCount)} اقساط'),
                     const SizedBox(height: 4),
-                    Text(_toPersianDigits(s.remainingAmount)),
+                    Text(_formatCurrency(s.remainingAmount)),
                   ],
                 ),
                 onTap: () {
