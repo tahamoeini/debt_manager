@@ -4,11 +4,6 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 
-// On web we must initialize the sqflite web database factory.
-// `sqflite_web` provides `databaseFactoryWeb` which must be assigned
-// to the global `databaseFactory` before calling `openDatabase`.
-import 'package:sqflite_web/sqflite_web.dart' as sqflite_web;
-
 import '../../features/loans/models/counterparty.dart';
 import '../../features/loans/models/loan.dart';
 import '../../features/loans/models/installment.dart';
@@ -114,7 +109,7 @@ class DatabaseHelper {
   Future<List<Counterparty>> getAllCounterparties() async {
     if (_isWeb) {
       final rows = List<Map<String, dynamic>>.from(_cpStore);
-      rows.sort((a, b) => (a['name'] as String).toLowerCase().compareTo((b['name'] as String).toLowerCase());
+      rows.sort((a, b) => (a['name'] as String).toLowerCase().compareTo((b['name'] as String).toLowerCase()));
       return rows.map((r) => Counterparty.fromMap(r)).toList();
     }
 
