@@ -4,6 +4,8 @@ import '../../../core/db/database_helper.dart';
 import '../../loans/models/loan.dart';
 import '../../loans/models/installment.dart';
 import '../../loans/models/counterparty.dart';
+import 'loan_detail_screen.dart';
+import 'add_loan_screen.dart';
 
 class LoansListScreen extends StatefulWidget {
   const LoansListScreen({super.key});
@@ -131,8 +133,11 @@ class _LoansListScreenState extends State<LoansListScreen> {
           ],
         ),
         floatingActionButton: FloatingActionButton(
-          onPressed: () {
-            Navigator.of(context).push(MaterialPageRoute(builder: (_) => AddLoanScreen()));
+          onPressed: () async {
+            final result = await Navigator.of(context).push<bool>(MaterialPageRoute(builder: (_) => const AddLoanScreen()));
+            if (result == true) {
+              setState(() {});
+            }
           },
           child: const Icon(Icons.add),
         ),
