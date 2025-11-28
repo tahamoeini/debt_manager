@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'app_shell.dart';
 
 class DebtManagerApp extends StatelessWidget {
 	const DebtManagerApp({super.key});
@@ -16,14 +17,7 @@ class DebtManagerApp extends StatelessWidget {
 					brightness: Brightness.dark,
 				),
 			),
-			home: Scaffold(
-				appBar: AppBar(
-					title: Text('Debt Manager'),
-				),
-				body: Center(
-					child: Text('Debt Manager – placeholder'),
-				),
-			),
+			home: const AppShell(),
 		);
 	}
 }
