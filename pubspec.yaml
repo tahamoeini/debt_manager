@@ -42,7 +42,6 @@ dependencies:
   flutter_local_notifications: any
   timezone: any
   flutter_native_timezone: any
-  sqflite_web: any
 
 dev_dependencies:
   flutter_test:
