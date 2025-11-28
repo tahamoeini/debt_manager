@@ -35,6 +35,12 @@ dependencies:
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.8
 
+  # Database, path utilities, Persian (Shamsi) date handling, and notifications
+  sqflite: any
+  path: any
+  shamsi_date: any
+  flutter_local_notifications: any
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
