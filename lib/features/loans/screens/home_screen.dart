@@ -47,8 +47,6 @@ class _HomeScreenState extends State<HomeScreen> {
     };
   }
 
-  // Persian digit helper removed; formatting is handled by _formatCurrency
-
   String _formatCurrency(int value) {
     final s = value.abs().toString();
     final withSep = s.replaceAllMapped(RegExp(r"\B(?=(\d{3})+(?!\d))"), (m) => ',');
@@ -132,7 +130,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                   ),
                 ),
-              ),
+              ],
             ),
             const SizedBox(height: 20),
             const Text('اقساط نزدیک', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
@@ -143,40 +141,38 @@ class _HomeScreenState extends State<HomeScreen> {
                   padding: EdgeInsets.all(16),
                   child: Text('اقساط نزدیکی یافت نشد'),
                 ),
-              )
-            else
-              Column(
-                children: upcoming.map((inst) {
-                  final loan = loansById[inst.loanId];
-                  final loanTitle = loan?.title ?? 'بدون عنوان';
-                  final cp = loan != null ? cpById[loan.counterpartyId] : null;
-                  final cpName = cp?.name ?? '';
-                  final dueJalali = parseJalali(inst.dueDateJalali);
-                  final dueDisplay = formatJalaliForDisplay(dueJalali);
-
-                  return Card(
-                    child: Padding(
-                      padding: const EdgeInsets.all(12),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(loanTitle, style: const TextStyle(fontWeight: FontWeight.w600)),
-                          const SizedBox(height: 4),
-                          Text(cpName, style: Theme.of(context).textTheme.bodySmall),
-                          const SizedBox(height: 8),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(dueDisplay),
-                              Text(_formatCurrency(inst.amount)),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                  );
-                }).toList(),
               ),
+            if (upcoming.isNotEmpty)
+              ...upcoming.map((inst) {
+                final loan = loansById[inst.loanId];
+                final loanTitle = loan?.title ?? 'بدون عنوان';
+                final cp = loan != null ? cpById[loan.counterpartyId] : null;
+                final cpName = cp?.name ?? '';
+                final dueJalali = parseJalali(inst.dueDateJalali);
+                final dueDisplay = formatJalaliForDisplay(dueJalali);
+
+                return Card(
+                  child: Padding(
+                    padding: const EdgeInsets.all(12),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(loanTitle, style: const TextStyle(fontWeight: FontWeight.w600)),
+                        const SizedBox(height: 4),
+                        Text(cpName, style: Theme.of(context).textTheme.bodySmall),
+                        const SizedBox(height: 8),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(dueDisplay),
+                            Text(_formatCurrency(inst.amount)),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              }),
           ],
         );
       },

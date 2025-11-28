@@ -9,7 +9,7 @@ import '../../loans/models/installment.dart';
 import 'package:shamsi_date/shamsi_date.dart';
 
 class AddLoanScreen extends StatefulWidget {
-  const AddLoanScreen({Key? key}) : super(key: key);
+  const AddLoanScreen({super.key});
 
   @override
   State<AddLoanScreen> createState() => _AddLoanScreenState();
@@ -129,9 +129,11 @@ class _AddLoanScreenState extends State<AddLoanScreen> {
         }
       }
 
-      Navigator.of(context).pop(true);
+      if (mounted) Navigator.of(context).pop(true);
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('خطا هنگام ذخیره')));
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('خطا هنگام ذخیره')));
+      }
     } finally {
       if (mounted) setState(() => _isSubmitting = false);
     }

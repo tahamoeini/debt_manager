@@ -8,7 +8,7 @@ import '../../loans/models/counterparty.dart';
 import '../../loans/models/installment.dart';
 
 class LoanDetailScreen extends StatefulWidget {
-  const LoanDetailScreen({Key? key, required this.loanId}) : super(key: key);
+  const LoanDetailScreen({super.key, required this.loanId});
 
   final int loanId;
 
@@ -154,7 +154,7 @@ class _LoanDetailScreenState extends State<LoanDetailScreen> {
                     ),
                   ),
                 );
-              }).toList(),
+              }),
             ],
           ),
         );

@@ -193,7 +193,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
                     trailing: Text(_formatCurrency(inst.amount)),
                   ),
                 );
-              }),
+              }).toList(),
             );
           },
         )

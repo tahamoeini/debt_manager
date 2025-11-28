@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 // Timezone scheduling is intentionally omitted to avoid package API
 // compatibility issues across flutter_local_notifications versions.
