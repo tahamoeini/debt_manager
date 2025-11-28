@@ -7,7 +7,7 @@ class DebtManagerApp extends StatelessWidget {
 	@override
 	Widget build(BuildContext context) {
 		return MaterialApp(
-			title: 'Debt Manager',
+			title: 'مدیریت اقساط و بدهی‌ها',
 			debugShowCheckedModeBanner: false,
 			themeMode: ThemeMode.dark,
 			theme: ThemeData(
