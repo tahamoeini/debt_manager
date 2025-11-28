@@ -65,8 +65,9 @@ class _AddLoanScreenState extends State<AddLoanScreen> {
 
     setState(() => _isSubmitting = true);
     try {
-      // Insert counterparty
-      final cpName = _counterpartyController.text.trim();
+      // Insert counterparty (fallback if empty)
+      final rawCp = _counterpartyController.text.trim();
+      final cpName = rawCp.isEmpty ? 'نامشخص' : rawCp;
       final cpId = await _db.insertCounterparty(Counterparty(name: cpName));
 
       // Parse numeric fields
@@ -130,7 +131,7 @@ class _AddLoanScreenState extends State<AddLoanScreen> {
 
       Navigator.of(context).pop(true);
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('خطا هنگام ذخیره: $e')));
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('خطا هنگام ذخیره')));
     } finally {
       if (mounted) setState(() => _isSubmitting = false);
     }

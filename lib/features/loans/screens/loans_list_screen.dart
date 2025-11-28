@@ -81,7 +81,7 @@ class _LoansListScreenState extends State<LoansListScreen> {
       future: _loadLoanSummaries(filter),
       builder: (context, snapshot) {
         if (snapshot.connectionState != ConnectionState.done) return const Center(child: CircularProgressIndicator());
-        if (snapshot.hasError) return Center(child: Text('خطا: ${snapshot.error}'));
+        if (snapshot.hasError) return const Center(child: Text('خطا هنگام بارگذاری'));
         final items = snapshot.data ?? [];
         if (items.isEmpty) return const Center(child: Text('هیچ موردی یافت نشد'));
 
@@ -93,8 +93,8 @@ class _LoansListScreenState extends State<LoansListScreen> {
             final s = items[index];
             return Card(
               child: ListTile(
-                title: Text(s.loan.title),
-                subtitle: Text('${s.counterpartyName} · ${_directionLabel(s.loan.direction)}'),
+                title: Text(s.loan.title.isNotEmpty ? s.loan.title : 'بدون عنوان'),
+                subtitle: Text('${s.counterpartyName.isNotEmpty ? s.counterpartyName : 'نامشخص'} · ${_directionLabel(s.loan.direction)}'),
                 trailing: Column(
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.end,

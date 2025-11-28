@@ -4,7 +4,6 @@ import '../../../core/db/database_helper.dart';
 import '../../../core/utils/jalali_utils.dart';
 import '../../loans/models/installment.dart';
 import '../../loans/models/loan.dart';
-import '../../loans/models/counterparty.dart';
 
 class ReportsScreen extends StatefulWidget {
   const ReportsScreen({super.key});
@@ -100,7 +99,8 @@ class _ReportsScreenState extends State<ReportsScreen> {
         FutureBuilder<Map<String, dynamic>>(
           future: _loadSummary(),
           builder: (context, snap) {
-            if (snap.connectionState != ConnectionState.done) return const CircularProgressIndicator();
+            if (snap.connectionState != ConnectionState.done) return const Center(child: CircularProgressIndicator());
+            if (snap.hasError) return const Center(child: Text('خطا هنگام بارگذاری'));
             final borrowed = snap.data?['borrowed'] as int? ?? 0;
             final lent = snap.data?['lent'] as int? ?? 0;
             final net = snap.data?['net'] as int? ?? 0;
@@ -114,7 +114,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
                       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                         const Text('بدهی‌های معوق (جمع)'),
                         const SizedBox(height: 8),
-                        Text(_toPersianDigits(borrowed), style: Theme.of(context).textTheme.headlineSmall),
+                        Text(_formatCurrency(borrowed), style: Theme.of(context).textTheme.headlineSmall),
                         const SizedBox(height: 4),
                         const Text('مجموع مبالغی که شما بدهکار هستید')
                       ]),
@@ -129,7 +129,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
                       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                         const Text('طلب‌های معوق (جمع)'),
                         const SizedBox(height: 8),
-                        Text(_toPersianDigits(lent), style: Theme.of(context).textTheme.headlineSmall),
+                        Text(_formatCurrency(lent), style: Theme.of(context).textTheme.headlineSmall),
                         const SizedBox(height: 4),
                         const Text('مجموع مبالغی که دیگران به شما بدهکار هستند')
                       ]),
@@ -144,7 +144,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
                       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                         const Text('وضعیت خالص'),
                         const SizedBox(height: 8),
-                        Text(_toPersianDigits(net), style: Theme.of(context).textTheme.headlineSmall),
+                        Text(_formatCurrency(net), style: Theme.of(context).textTheme.headlineSmall),
                         const SizedBox(height: 4),
                         const Text('تفاوت بین طلب و بدهی')
                       ]),
@@ -183,7 +183,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
           future: _loadFilteredInstallments(),
           builder: (context, snap) {
             if (snap.connectionState != ConnectionState.done) return const Center(child: CircularProgressIndicator());
-            if (snap.hasError) return Center(child: Text('خطا: ${snap.error}'));
+            if (snap.hasError) return const Center(child: Text('خطا هنگام بارگذاری'));
             final rows = snap.data ?? [];
             if (rows.isEmpty) return const Center(child: Text('هیچ موردی یافت نشد'));
 
@@ -193,9 +193,9 @@ class _ReportsScreenState extends State<ReportsScreen> {
                 final Loan loan = r['loan'] as Loan;
                 return Card(
                   child: ListTile(
-                    title: Text(loan.title),
+                    title: Text(loan.title.isNotEmpty ? loan.title : 'بدون عنوان'),
                     subtitle: Text('${formatJalaliForDisplay(parseJalali(inst.dueDateJalali))} · ${inst.status.name}'),
-                        trailing: Text(_formatCurrency(inst.amount)),
+                    trailing: Text(_formatCurrency(inst.amount)),
                   ),
                 );
               }).toList(),

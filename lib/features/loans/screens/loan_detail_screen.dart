@@ -21,12 +21,13 @@ class _LoanDetailScreenState extends State<LoanDetailScreen> {
 
   Future<Map<String, dynamic>> _loadAll() async {
     final loan = await _db.getLoanById(widget.loanId);
-    if (loan == null) throw Exception('Loan not found');
 
     final cps = await _db.getAllCounterparties();
-    final cp = cps.firstWhere((c) => c.id == loan.counterpartyId, orElse: () => Counterparty(id: null, name: '—'));
+    final cp = loan != null
+        ? cps.firstWhere((c) => c.id == loan.counterpartyId, orElse: () => Counterparty(id: null, name: 'نامشخص'))
+        : Counterparty(id: null, name: 'نامشخص');
 
-    final installments = await _db.getInstallmentsByLoanId(widget.loanId);
+    final installments = loan != null ? await _db.getInstallmentsByLoanId(widget.loanId) : <Installment>[];
 
     return {
       'loan': loan,
@@ -86,14 +87,21 @@ class _LoanDetailScreenState extends State<LoanDetailScreen> {
       future: _loadAll(),
       builder: (context, snapshot) {
         if (snapshot.connectionState != ConnectionState.done) return Scaffold(body: const Center(child: CircularProgressIndicator()));
-        if (snapshot.hasError) return Scaffold(body: Center(child: Text('خطا: ${snapshot.error}')));
+        if (snapshot.hasError) return const Scaffold(body: Center(child: Text('خطا هنگام بارگذاری')));
 
-        final loan = snapshot.data!['loan'] as Loan;
-        final cp = snapshot.data!['counterparty'] as Counterparty;
-        final installments = snapshot.data!['installments'] as List<Installment>;
+        final loan = snapshot.data?['loan'] as Loan?;
+        final cp = snapshot.data?['counterparty'] as Counterparty?;
+        final installments = snapshot.data?['installments'] as List<Installment>? ?? [];
+
+        if (loan == null) {
+          return Scaffold(
+            appBar: AppBar(title: const Text('جزئیات وام')),
+            body: const Center(child: Text('وام یافت نشد')),
+          );
+        }
 
         return Scaffold(
-          appBar: AppBar(title: Text(loan.title)),
+          appBar: AppBar(title: Text(loan.title.isNotEmpty ? loan.title : 'بدون عنوان')),
           body: ListView(
             padding: const EdgeInsets.all(16),
             children: [
@@ -105,7 +113,7 @@ class _LoanDetailScreenState extends State<LoanDetailScreen> {
                     children: [
                       Text(loan.title, style: Theme.of(context).textTheme.headlineSmall),
                       const SizedBox(height: 8),
-                      Text(cp.name, style: Theme.of(context).textTheme.bodyMedium),
+                      Text(cp?.name ?? 'نامشخص', style: Theme.of(context).textTheme.bodyMedium),
                       const SizedBox(height: 8),
                       Text(_directionText(loan.direction)),
                       const SizedBox(height: 12),

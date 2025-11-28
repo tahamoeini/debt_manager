@@ -73,7 +73,7 @@ class _HomeScreenState extends State<HomeScreen> {
         }
 
         if (snapshot.hasError) {
-          return Center(child: Text('خطا: ${snapshot.error}'));
+          return const Center(child: Text('خطا هنگام بارگذاری'));
         }
 
         final data = snapshot.data ?? {};
@@ -184,18 +184,6 @@ class _HomeScreenState extends State<HomeScreen> {
           ],
         );
       },
-    );
-  }
-}
-import 'package:flutter/material.dart';
-
-class HomeScreen extends StatelessWidget {
-  const HomeScreen({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return const Center(
-      child: Text('صفحه اصلی — Placeholder'),
     );
   }
 }
