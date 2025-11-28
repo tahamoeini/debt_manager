@@ -169,8 +169,8 @@ class _HomeScreenState extends State<HomeScreen> {
                             children: [
                               Text(dueDisplay),
                               Text(_formatCurrency(inst.amount)),
-                            ),
-                          }),
+                            ],
+                          ),
                         ),
                       ),
                     ),

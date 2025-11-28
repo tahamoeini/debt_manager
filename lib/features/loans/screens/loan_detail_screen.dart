@@ -63,6 +63,12 @@ class _LoanDetailScreenState extends State<LoanDetailScreen> {
     return '${value < 0 ? '-' : ''}$persian ریال';
   }
 
+  String _toPersianDigits(int value) {
+    final map = {'0': '۰', '1': '۱', '2': '۲', '3': '۳', '4': '۴', '5': '۵', '6': '۶', '7': '۷', '8': '۸', '9': '۹'};
+    final s = value.toString();
+    return s.split('').map((c) => map[c] ?? c).join();
+  }
+
   Future<void> _markPaid(Installment inst) async {
     if (inst.id == null) return;
 
@@ -115,7 +121,7 @@ class _LoanDetailScreenState extends State<LoanDetailScreen> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text('مبلغ اصلی: ${_toPersianDigits(loan.principalAmount)}'),
+                          Text('مبلغ اصلی: ${_formatCurrency(loan.principalAmount)}'),
                           Text('تعداد اقساط: ${_toPersianDigits(loan.installmentCount)}'),
                         ],
                       ),

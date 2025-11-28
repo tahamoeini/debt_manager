@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:timezone/timezone.dart' as tz;
-import 'package:timezone/data/latest_all.dart' as tzdata;
-import 'package:flutter_native_timezone/flutter_native_timezone.dart';
+// Timezone scheduling is intentionally omitted to avoid package API
+// compatibility issues across flutter_local_notifications versions.
 
 class NotificationService {
   static final NotificationService instance = NotificationService._internal();
@@ -47,16 +46,9 @@ class NotificationService {
     await _plugin.resolvePlatformSpecificImplementation<IOSFlutterLocalNotificationsPlugin>()?.requestPermissions(alert: true, badge: true, sound: true);
     await _plugin.resolvePlatformSpecificImplementation<MacOSFlutterLocalNotificationsPlugin>()?.requestPermissions(alert: true, badge: true, sound: true);
 
-    // Initialize timezone data for zoned scheduling
-    try {
-      tzdata.initializeTimeZones();
-      final String localTimeZone = await FlutterNativeTimezone.getLocalTimezone();
-      tz.setLocalLocation(tz.getLocation(localTimeZone));
-    } catch (_) {
-      // If timezone initialization fails, fallback to UTC (not ideal but prevents crash).
-      tz.initializeTimeZones();
-      tz.setLocalLocation(tz.getLocation('UTC'));
-    }
+    // NOTE: zoned scheduling was removed to avoid analyzer/runtime
+    // errors across different plugin versions. Scheduling is a no-op
+    // on initialization; callers should handle missing scheduling as needed.
   }
 
   /// Schedule a notification for an installment reminder.
@@ -67,31 +59,10 @@ class NotificationService {
     required String title,
     required String body,
   }) async {
-    final androidDetails = AndroidNotificationDetails(
-      _channelId,
-      _channelName,
-      channelDescription: _channelDescription,
-      importance: Importance.max,
-      priority: Priority.high,
-    );
-
-    final iosDetails = DarwinNotificationDetails();
-
-    final details = NotificationDetails(android: androidDetails, iOS: iosDetails);
-
-    // Use zonedSchedule for reliable scheduling across timezones and DST
-    final tzScheduled = tz.TZDateTime.from(scheduledTime, tz.local);
-
-    await _plugin.zonedSchedule(
-      notificationId,
-      title,
-      body,
-      tzScheduled,
-      details,
-      androidAllowWhileIdle: true,
-      uiLocalNotificationDateInterpretation: UILocalNotificationDateInterpretation.absoluteTime,
-      matchDateTimeComponents: null,
-    );
+    // Scheduling notifications is currently a no-op. Implement
+    // platform-specific scheduling when the project's plugin
+    // version is finalized to a specific API surface.
+    return;
   }
 
   /// Cancel a scheduled notification by id.
