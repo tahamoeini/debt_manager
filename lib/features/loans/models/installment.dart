@@ -10,6 +10,7 @@ class Installment {
   final int amount;
   final InstallmentStatus status;
   final String? paidAt; // ISO date string or null
+  final int? actualPaidAmount;
   final int? notificationId;
 
   const Installment({
@@ -19,6 +20,7 @@ class Installment {
     required this.amount,
     required this.status,
     this.paidAt,
+    this.actualPaidAmount,
     this.notificationId,
   });
 
@@ -29,6 +31,7 @@ class Installment {
     int? amount,
     InstallmentStatus? status,
     String? paidAt,
+    int? actualPaidAmount,
     int? notificationId,
   }) {
     return Installment(
@@ -38,6 +41,7 @@ class Installment {
       amount: amount ?? this.amount,
       status: status ?? this.status,
       paidAt: paidAt ?? this.paidAt,
+      actualPaidAmount: actualPaidAmount ?? this.actualPaidAmount,
       notificationId: notificationId ?? this.notificationId,
     );
   }
@@ -54,6 +58,7 @@ class Installment {
           ? 'paid'
           : 'overdue',
       'paid_at': paidAt,
+      'actual_paid_amount': actualPaidAmount,
       'notification_id': notificationId,
     };
   }
@@ -79,16 +84,21 @@ class Installment {
           : int.parse(map['amount'].toString()),
       status: status,
       paidAt: map['paid_at'] as String?,
+      actualPaidAmount: map['actual_paid_amount'] is int
+          ? map['actual_paid_amount'] as int
+          : (map['actual_paid_amount'] != null
+            ? int.tryParse(map['actual_paid_amount'].toString())
+            : null),
       notificationId: map['notification_id'] is int
           ? map['notification_id'] as int
           : (map['notification_id'] != null
-                ? int.tryParse(map['notification_id'].toString())
-                : null),
+            ? int.tryParse(map['notification_id'].toString())
+            : null),
     );
   }
 
   @override
   String toString() {
-    return 'Installment(id: $id, loanId: $loanId, dueDateJalali: $dueDateJalali, amount: $amount, status: $status, paidAt: $paidAt, notificationId: $notificationId)';
+    return 'Installment(id: $id, loanId: $loanId, dueDateJalali: $dueDateJalali, amount: $amount, status: $status, paidAt: $paidAt, actualPaidAmount: $actualPaidAmount, notificationId: $notificationId)';
   }
 }

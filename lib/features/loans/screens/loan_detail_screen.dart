@@ -71,6 +71,135 @@ class _LoanDetailScreenState extends State<LoanDetailScreen> {
     setState(() {});
   }
 
+  Future<void> _showEditInstallmentSheet(Installment inst) async {
+    final now = DateTime.now();
+    var isPaid = inst.status == InstallmentStatus.paid;
+    final amountController = TextEditingController(
+      text: inst.actualPaidAmount?.toString() ?? inst.amount.toString(),
+    );
+    // Initial selected Jalali date
+    var selectedJalali = parseJalali(inst.dueDateJalali);
+
+    await showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      builder: (ctx) {
+        return Padding(
+          padding: EdgeInsets.only(
+            bottom: MediaQuery.of(ctx).viewInsets.bottom,
+          ),
+          child: StatefulBuilder(builder: (context, setInnerState) {
+            return Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'ویرایش قسط',
+                    style: Theme.of(context).textTheme.titleLarge,
+                  ),
+                  const SizedBox(height: 12),
+                  SwitchListTile(
+                    title: const Text('نشانه‌گذاری به عنوان پرداخت‌شده'),
+                    value: isPaid,
+                    onChanged: (v) => setInnerState(() => isPaid = v),
+                  ),
+                  const SizedBox(height: 8),
+                  TextField(
+                    controller: amountController,
+                    keyboardType: TextInputType.number,
+                    decoration: const InputDecoration(
+                      labelText: 'مبلغ پرداختی واقعی (اختیاری)',
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Text('تاریخ سررسید: ${formatJalaliForDisplay(selectedJalali)}'),
+                      ),
+                      TextButton(
+                        onPressed: () async {
+                          final initial = jalaliToDateTime(selectedJalali);
+                          final picked = await showDatePicker(
+                            context: context,
+                            initialDate: initial,
+                            firstDate: DateTime(1900),
+                            lastDate: DateTime(2100),
+                          );
+                          if (picked != null) {
+                            setInnerState(() {
+                              selectedJalali = dateTimeToJalali(picked);
+                            });
+                          }
+                        },
+                        child: const Text('تغییر'),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      TextButton(
+                        onPressed: () => Navigator.of(ctx).pop(),
+                        child: const Text('انصراف'),
+                      ),
+                      const SizedBox(width: 8),
+                      ElevatedButton(
+                        onPressed: () async {
+                          // Build updated installment
+                          final entered = amountController.text.trim();
+                          final actualAmt = entered.isEmpty
+                              ? null
+                              : int.tryParse(entered);
+
+                          final dueStr = formatJalali(selectedJalali);
+
+                          // Determine status for unpaid case: overdue if past today
+                          final todayJ = dateTimeToJalali(now);
+                          final todayStr = formatJalali(todayJ);
+
+                          final newStatus = isPaid
+                              ? InstallmentStatus.paid
+                              : (dueStr.compareTo(todayStr) < 0
+                                  ? InstallmentStatus.overdue
+                                  : InstallmentStatus.pending);
+
+                          final updated = inst.copyWith(
+                            dueDateJalali: dueStr,
+                            status: newStatus,
+                            paidAt: isPaid ? DateTime.now().toIso8601String() : null,
+                            actualPaidAmount: actualAmt ?? inst.actualPaidAmount,
+                          );
+
+                          await _db.updateInstallment(updated);
+
+                          // Cancel notification if marking paid
+                          if (isPaid && inst.notificationId != null) {
+                            try {
+                              await NotificationService()
+                                  .cancelNotification(inst.notificationId!);
+                            } catch (_) {}
+                          }
+
+                          if (mounted) setState(() {});
+                          Navigator.of(ctx).pop();
+                        },
+                        child: const Text('ذخیره'),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            );
+          }),
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<Map<String, dynamic>>(
@@ -224,18 +353,33 @@ class _LoanDetailScreenState extends State<LoanDetailScreen> {
                   parseJalali(inst.dueDateJalali),
                 );
                 final paid = inst.status == InstallmentStatus.paid;
+
+                // Friendly paid date display
+                String paidFriendly = '';
+                if (inst.paidAt != null && inst.paidAt!.isNotEmpty) {
+                  try {
+                    final dt = DateTime.parse(inst.paidAt!);
+                    paidFriendly = formatJalaliForDisplay(dateTimeToJalali(dt));
+                  } catch (_) {
+                    paidFriendly = inst.paidAt!;
+                  }
+                }
+
+                // Amount display: show scheduled, and if actual present show it too
+                final scheduled = formatCurrency(inst.amount);
+                final actual = inst.actualPaidAmount != null
+                    ? formatCurrency(inst.actualPaidAmount!)
+                    : null;
+
                 return Card(
                   child: ListTile(
                     title: Text(due),
                     subtitle: Text(
                       _statusText(inst.status) +
-                          (paid && inst.paidAt != null
-                              ? ' • ${inst.paidAt}'
-                              : ''),
-                      style: Theme.of(context).textTheme.bodyMedium,
-                    ),
-                    trailing: Text(
-                      formatCurrency(inst.amount),
+                          (paid && paidFriendly.isNotEmpty
+                              ? ' • پرداخت: $paidFriendly'
+                              : '' ) +
+                          (actual != null ? ' • واقعی: $actual' : ''),
                       style: Theme.of(context).textTheme.bodyMedium,
                     ),
                     leading: IconButton(
@@ -250,6 +394,21 @@ class _LoanDetailScreenState extends State<LoanDetailScreen> {
                           : () async {
                               await _markPaid(inst);
                             },
+                    ),
+                    trailing: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          scheduled,
+                          style: Theme.of(context).textTheme.bodyMedium,
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.edit),
+                          onPressed: () async {
+                            await _showEditInstallmentSheet(inst);
+                          },
+                        ),
+                      ],
                     ),
                   ),
                 );

@@ -17,7 +17,7 @@ class DatabaseHelper {
   factory DatabaseHelper() => instance;
 
   static const _dbName = 'debt_manager.db';
-  static const _dbVersion = 1;
+  static const _dbVersion = 2;
 
   Database? _db;
   // In-memory fallback stores for web builds (sqflite is not available on web).
@@ -48,7 +48,12 @@ class DatabaseHelper {
     final databasesPath = await getDatabasesPath();
     final path = join(databasesPath, _dbName);
 
-    return openDatabase(path, version: _dbVersion, onCreate: _onCreate);
+    return openDatabase(
+      path,
+      version: _dbVersion,
+      onCreate: _onCreate,
+      onUpgrade: _onUpgrade,
+    );
   }
 
   FutureOr<void> _onCreate(Database db, int version) async {
@@ -84,10 +89,25 @@ class DatabaseHelper {
         amount INTEGER NOT NULL,
         status TEXT NOT NULL,
         paid_at TEXT,
+        actual_paid_amount INTEGER,
         notification_id INTEGER,
         FOREIGN KEY(loan_id) REFERENCES loans(id)
       )
     ''');
+  }
+
+  FutureOr<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {
+    if (oldVersion < 2) {
+      // Add the actual_paid_amount column to installments. Use a try/catch
+      // to tolerate existing databases where the column may already exist.
+      try {
+        await db.execute(
+          'ALTER TABLE installments ADD COLUMN actual_paid_amount INTEGER',
+        );
+      } catch (_) {
+        // ignore
+      }
+    }
   }
 
   // -----------------
