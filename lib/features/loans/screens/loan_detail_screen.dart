@@ -5,6 +5,7 @@ import 'package:debt_manager/core/db/database_helper.dart';
 import 'package:debt_manager/core/notifications/notification_service.dart';
 import 'package:debt_manager/core/utils/format_utils.dart';
 import 'package:debt_manager/core/utils/jalali_utils.dart';
+import 'package:debt_manager/core/utils/ui_utils.dart';
 import 'package:debt_manager/features/loans/models/counterparty.dart';
 import 'package:debt_manager/features/loans/models/installment.dart';
 import 'package:debt_manager/features/loans/models/loan.dart';
@@ -214,14 +215,10 @@ class _LoanDetailScreenState extends State<LoanDetailScreen> {
       future: _loadAll(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting)
-          return Scaffold(
-            body: const Center(child: CircularProgressIndicator()),
-          );
+          return Scaffold(body: UIUtils.centeredLoading());
         if (snapshot.hasError) {
           debugPrint('LoanDetailScreen _loadAll error: ${snapshot.error}');
-          return const Scaffold(
-            body: Center(child: Text('خطا در بارگذاری داده‌ها')),
-          );
+          return Scaffold(body: UIUtils.asyncErrorWidget(snapshot.error));
         }
 
         final loan = snapshot.data?['loan'] as Loan?;
@@ -290,9 +287,7 @@ class _LoanDetailScreenState extends State<LoanDetailScreen> {
                       } catch (e) {
                         debugPrint('Failed to delete loan: $e');
                         if (mounted)
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('خطا هنگام حذف')),
-                          );
+                          UIUtils.showAppSnackBar(context, 'خطا هنگام حذف');
                       }
                     }
                   }

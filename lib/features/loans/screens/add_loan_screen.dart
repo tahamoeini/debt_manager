@@ -97,7 +97,7 @@ class _AddLoanScreenState extends State<AddLoanScreen> {
     _titleFocus.dispose();
     super.dispose();
   }
-  
+
   void _markDirty() {
     if (!_isDirty) setState(() => _isDirty = true);
   }
@@ -120,10 +120,8 @@ class _AddLoanScreenState extends State<AddLoanScreen> {
 
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
-    if (_startJalali == null) {
-        UIUtils.showAppSnackBar(context, 'لطفا تاریخ شروع را انتخاب کنید');
-      return;
-    }
+    // Form validators, including start date FormField, will surface errors inline.
+    if (!_formKey.currentState!.validate()) return;
 
     setState(() => _isSubmitting = true);
     try {
@@ -311,8 +309,14 @@ class _AddLoanScreenState extends State<AddLoanScreen> {
             title: const Text('تغییرات ذخیره نشده'),
             content: const Text('تایید می‌کنید که بدون ذخیره خارج شوید؟'),
             actions: [
-              TextButton(onPressed: () => Navigator.of(c).pop(false), child: const Text('لغو')),
-              TextButton(onPressed: () => Navigator.of(c).pop(true), child: const Text('خروج')),
+              TextButton(
+                onPressed: () => Navigator.of(c).pop(false),
+                child: const Text('لغو'),
+              ),
+              TextButton(
+                onPressed: () => Navigator.of(c).pop(true),
+                child: const Text('خروج'),
+              ),
             ],
           ),
         );
@@ -321,173 +325,216 @@ class _AddLoanScreenState extends State<AddLoanScreen> {
       child: GestureDetector(
         onTap: () => FocusScope.of(context).unfocus(),
         child: Scaffold(
-      appBar: AppBar(title: Text(_isEdit ? 'ویرایش وام' : 'افزودن وام')),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Form(
-          key: _formKey,
-          child: ListView(
-            children: [
-              // Direction
-              Row(
+          appBar: AppBar(title: Text(_isEdit ? 'ویرایش وام' : 'افزودن وام')),
+          body: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Form(
+              key: _formKey,
+              child: ListView(
                 children: [
-                  Expanded(
-                    child: RadioListTile<LoanDirection>(
-                      title: const Text('گرفته‌ام'),
-                      value: LoanDirection.borrowed,
-                      groupValue: _direction,
-                      onChanged: (v) => setState(() => _direction = v!),
-                    ),
-                  ),
-                  Expanded(
-                    child: RadioListTile<LoanDirection>(
-                      title: const Text('داده‌ام'),
-                      value: LoanDirection.lent,
-                      groupValue: _direction,
-                      onChanged: (v) => setState(() => _direction = v!),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 12),
-              TextFormField(
-                controller: _counterpartyController,
-                decoration: const InputDecoration(
-                  labelText: 'طرف مقابل',
-                  hintText: 'نام شخص یا موسسه',
-                ),
-                autofocus: !_isEdit,
-                focusNode: _titleFocus,
-                validator: (v) => (v == null || v.trim().isEmpty) ? 'لطفا طرف مقابل را وارد کنید' : null,
-              ),
-              const SizedBox(height: 8),
-              Row(
-                children: [
-                  Expanded(
-                    flex: 1,
-                    child: DropdownButtonFormField<String?>(
-                      value: _counterpartyType,
-                      decoration: const InputDecoration(labelText: 'نوع'),
-                      items: const [
-                        DropdownMenuItem(value: null, child: Text('بدون')),
-                        DropdownMenuItem(value: 'person', child: Text('شخص')),
-                        DropdownMenuItem(value: 'bank', child: Text('بانک')),
-                        DropdownMenuItem(value: 'company', child: Text('شرکت')),
-                      ],
-                      onChanged: (v) => setState(() => _counterpartyType = v),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    flex: 2,
-                    child: TextFormField(
-                      controller: _counterpartyTagController,
-                      decoration: const InputDecoration(
-                        labelText: 'برچسب (اختیاری)',
-                        hintText: 'مثال: کارت اعتباری, خانواده',
+                  // Direction
+                  Row(
+                    children: [
+                      Expanded(
+                        child: RadioListTile<LoanDirection>(
+                          title: const Text('گرفته‌ام'),
+                          value: LoanDirection.borrowed,
+                          groupValue: _direction,
+                          onChanged: (v) => setState(() => _direction = v!),
+                        ),
                       ),
-                    ),
+                      Expanded(
+                        child: RadioListTile<LoanDirection>(
+                          title: const Text('داده‌ام'),
+                          value: LoanDirection.lent,
+                          groupValue: _direction,
+                          onChanged: (v) => setState(() => _direction = v!),
+                        ),
+                      ),
+                    ],
                   ),
-                ],
-              ),
-              const SizedBox(height: 12),
-              TextFormField(
-                controller: _titleController,
-                decoration: const InputDecoration(
-                  labelText: 'عنوان وام',
-                  hintText: 'مثال: وام خرید خودرو',
-                ),
-                validator: (v) => (v == null || v.trim().isEmpty)
-                    ? 'لطفا عنوان وام را وارد کنید'
-                    : null,
-              ),
-              const SizedBox(height: 12),
-              TextFormField(
-                controller: _principalController,
-                decoration: const InputDecoration(
-                  labelText: 'مبلغ اصلی (ریال)',
-                  hintText: 'مثلا: 10000000',
-                ),
-                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                keyboardType: TextInputType.number,
-                validator: (v) {
-                  if (v == null || v.trim().isEmpty)
-                    return 'لطفا مبلغ را وارد کنید';
-                  final parsed = int.tryParse(v.trim());
-                  if (parsed == null) return 'لطفا عدد معتبر وارد کنید';
-                  if (parsed <= 0) return 'مبلغ باید بیشتر از صفر باشد';
-                  return null;
-                },
-              ),
-              const SizedBox(height: 12),
-              TextFormField(
-                controller: _installmentCountController,
-                decoration: const InputDecoration(
-                  labelText: 'تعداد اقساط',
-                  hintText: 'مثلا: 12',
-                ),
-                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                keyboardType: TextInputType.number,
-                validator: (v) {
-                  if (v == null || v.trim().isEmpty)
-                    return 'لطفا تعداد اقساط را وارد کنید';
-                  final parsed = int.tryParse(v.trim());
-                  if (parsed == null) return 'لطفا عدد معتبر وارد کنید';
-                  if (parsed < 1) return 'تعداد باید حداقل 1 باشد';
-                  return null;
-                },
-              ),
-              const SizedBox(height: 12),
-              TextFormField(
-                controller: _installmentAmountController,
-                decoration: const InputDecoration(
-                  labelText: 'مبلغ هر قسط (ریال)',
-                  hintText: 'مثلا: 1000000',
-                ),
-                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                keyboardType: TextInputType.number,
-                validator: (v) {
-                  if (v == null || v.trim().isEmpty)
-                    return 'لطفا مبلغ قسط را وارد کنید';
-                  final parsed = int.tryParse(v.trim());
-                  if (parsed == null) return 'لطفا عدد معتبر وارد کنید';
-                  if (parsed <= 0) return 'مبلغ باید بیشتر از صفر باشد';
-                  return null;
-                },
-              ),
-              const SizedBox(height: 12),
-              TextFormField(
-                controller: _notesController,
-                decoration: const InputDecoration(
-                  labelText: 'یادداشت (اختیاری)',
-                  hintText: 'جزئیات بیشتر درباره وام',
-                ),
-                maxLines: 3,
-              ),
-              const SizedBox(height: 12),
-              Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      _startJalali == null
-                          ? 'تاریخ شروع انتخاب نشده'
-                          : 'شروع: ${formatJalaliForDisplay(_startJalali!)}',
+                  const SizedBox(height: 12),
+                  TextFormField(
+                    controller: _counterpartyController,
+                    decoration: const InputDecoration(
+                      labelText: 'طرف مقابل',
+                      hintText: 'نام شخص یا موسسه',
                     ),
+                    autofocus: !_isEdit,
+                    focusNode: _titleFocus,
+                    validator: (v) => (v == null || v.trim().isEmpty)
+                        ? 'لطفا طرف مقابل را وارد کنید'
+                        : null,
                   ),
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      Expanded(
+                        flex: 1,
+                        child: DropdownButtonFormField<String?>(
+                          value: _counterpartyType,
+                          decoration: const InputDecoration(labelText: 'نوع'),
+                          items: const [
+                            DropdownMenuItem(value: null, child: Text('بدون')),
+                            DropdownMenuItem(
+                              value: 'person',
+                              child: Text('شخص'),
+                            ),
+                            DropdownMenuItem(
+                              value: 'bank',
+                              child: Text('بانک'),
+                            ),
+                            DropdownMenuItem(
+                              value: 'company',
+                              child: Text('شرکت'),
+                            ),
+                          ],
+                          onChanged: (v) =>
+                              setState(() => _counterpartyType = v),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        flex: 2,
+                        child: TextFormField(
+                          controller: _counterpartyTagController,
+                          decoration: const InputDecoration(
+                            labelText: 'برچسب (اختیاری)',
+                            hintText: 'مثال: کارت اعتباری, خانواده',
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  TextFormField(
+                    controller: _titleController,
+                    decoration: const InputDecoration(
+                      labelText: 'عنوان وام',
+                      hintText: 'مثال: وام خرید خودرو',
+                    ),
+                    validator: (v) => (v == null || v.trim().isEmpty)
+                        ? 'لطفا عنوان وام را وارد کنید'
+                        : null,
+                  ),
+                  const SizedBox(height: 12),
+                  TextFormField(
+                    controller: _principalController,
+                    decoration: const InputDecoration(
+                      labelText: 'مبلغ اصلی (ریال)',
+                      hintText: 'مثلا: 10000000',
+                    ),
+                    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                    keyboardType: TextInputType.number,
+                    validator: (v) {
+                      if (v == null || v.trim().isEmpty)
+                        return 'لطفا مبلغ را وارد کنید';
+                      final parsed = int.tryParse(v.trim());
+                      if (parsed == null) return 'لطفا عدد معتبر وارد کنید';
+                      if (parsed <= 0) return 'مبلغ باید بیشتر از صفر باشد';
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: 12),
+                  TextFormField(
+                    controller: _installmentCountController,
+                    decoration: const InputDecoration(
+                      labelText: 'تعداد اقساط',
+                      hintText: 'مثلا: 12',
+                    ),
+                    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                    keyboardType: TextInputType.number,
+                    validator: (v) {
+                      if (v == null || v.trim().isEmpty)
+                        return 'لطفا تعداد اقساط را وارد کنید';
+                      final parsed = int.tryParse(v.trim());
+                      if (parsed == null) return 'لطفا عدد معتبر وارد کنید';
+                      if (parsed < 1) return 'تعداد باید حداقل 1 باشد';
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: 12),
+                  TextFormField(
+                    controller: _installmentAmountController,
+                    decoration: const InputDecoration(
+                      labelText: 'مبلغ هر قسط (ریال)',
+                      hintText: 'مثلا: 1000000',
+                    ),
+                    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                    keyboardType: TextInputType.number,
+                    validator: (v) {
+                      if (v == null || v.trim().isEmpty)
+                        return 'لطفا مبلغ قسط را وارد کنید';
+                      final parsed = int.tryParse(v.trim());
+                      if (parsed == null) return 'لطفا عدد معتبر وارد کنید';
+                      if (parsed <= 0) return 'مبلغ باید بیشتر از صفر باشد';
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: 12),
+                  TextFormField(
+                    controller: _notesController,
+                    decoration: const InputDecoration(
+                      labelText: 'یادداشت (اختیاری)',
+                      hintText: 'جزئیات بیشتر درباره وام',
+                    ),
+                    maxLines: 3,
+                  ),
+                  const SizedBox(height: 12),
+                  FormField<String>(
+                    validator: (v) => _startJalali == null
+                        ? 'لطفا تاریخ شروع را انتخاب کنید'
+                        : null,
+                    builder: (state) {
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  _startJalali == null
+                                      ? 'تاریخ شروع انتخاب نشده'
+                                      : 'شروع: ${formatJalaliForDisplay(_startJalali!)}',
+                                ),
+                              ),
+                              ElevatedButton(
+                                onPressed: () async {
+                                  await _pickStartDate();
+                                  state.validate();
+                                },
+                                child: const Text('انتخاب تاریخ'),
+                              ),
+                            ],
+                          ),
+                          if (state.hasError)
+                            Padding(
+                              padding: const EdgeInsets.only(
+                                top: 6.0,
+                                left: 4.0,
+                              ),
+                              child: Text(
+                                state.errorText ?? '',
+                                style: TextStyle(
+                                  color: Theme.of(context).colorScheme.error,
+                                  fontSize: 12,
+                                ),
+                              ),
+                            ),
+                        ],
+                      );
+                    },
+                  ),
+                  const SizedBox(height: 20),
                   ElevatedButton(
-                    onPressed: _pickStartDate,
-                    child: const Text('انتخاب تاریخ'),
+                    onPressed: _isSubmitting ? null : _submit,
+                    child: _isSubmitting
+                        ? const CircularProgressIndicator()
+                        : const Text('ثبت وام'),
                   ),
                 ],
               ),
-              const SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: _isSubmitting ? null : _submit,
-                child: _isSubmitting
-                    ? const CircularProgressIndicator()
-                    : const Text('ثبت وام'),
-              ),
-            ],
+            ),
           ),
         ),
       ),

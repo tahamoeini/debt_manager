@@ -5,6 +5,7 @@ import 'package:debt_manager/core/db/database_helper.dart';
 import 'package:debt_manager/core/utils/format_utils.dart';
 import 'package:debt_manager/core/utils/jalali_utils.dart';
 import 'package:debt_manager/core/utils/debug_utils.dart';
+import 'package:debt_manager/core/utils/ui_utils.dart';
 import 'package:debt_manager/features/shared/summary_cards.dart';
 import 'package:debt_manager/features/loans/models/counterparty.dart';
 import 'package:debt_manager/features/loans/models/installment.dart';
@@ -72,13 +73,12 @@ class _HomeScreenState extends State<HomeScreen> {
     return FutureBuilder<Map<String, dynamic>>(
       future: _loadData(),
       builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(child: CircularProgressIndicator());
-        }
+        if (snapshot.connectionState == ConnectionState.waiting)
+          return UIUtils.centeredLoading();
 
         if (snapshot.hasError) {
           debugPrint('HomeScreen _loadData error: ${snapshot.error}');
-          return const Center(child: Text('خطا در بارگذاری داده‌ها'));
+          return UIUtils.asyncErrorWidget(snapshot.error);
         }
 
         final data = snapshot.data ?? {};
