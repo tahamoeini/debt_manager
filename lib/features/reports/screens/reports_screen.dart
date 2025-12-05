@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../core/db/database_helper.dart';
 import '../../../core/utils/format_utils.dart';
 import '../../../core/utils/jalali_utils.dart';
+import '../../shared/summary_cards.dart';
 import '../../loans/models/installment.dart';
 import '../../loans/models/loan.dart';
 
@@ -92,54 +93,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
             final lent = snap.data?['lent'] as int? ?? 0;
             final net = snap.data?['net'] as int? ?? 0;
 
-            return Row(
-              children: [
-                Expanded(
-                  child: Card(
-                    child: Padding(
-                      padding: const EdgeInsets.all(12),
-                      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                        const Text('بدهی‌های معوق (جمع)'),
-                        const SizedBox(height: 8),
-                        Text(formatCurrency(borrowed), style: Theme.of(context).textTheme.headlineSmall),
-                        const SizedBox(height: 4),
-                        const Text('مجموع مبالغی که شما بدهکار هستید')
-                      ]),
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Card(
-                    child: Padding(
-                      padding: const EdgeInsets.all(12),
-                      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                        const Text('طلب‌های معوق (جمع)'),
-                        const SizedBox(height: 8),
-                        Text(formatCurrency(lent), style: Theme.of(context).textTheme.headlineSmall),
-                        const SizedBox(height: 4),
-                        const Text('مجموع مبالغی که دیگران به شما بدهکار هستند')
-                      ]),
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Card(
-                    child: Padding(
-                      padding: const EdgeInsets.all(12),
-                      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                        const Text('وضعیت خالص'),
-                        const SizedBox(height: 8),
-                        Text(formatCurrency(net), style: Theme.of(context).textTheme.headlineSmall),
-                        const SizedBox(height: 4),
-                        const Text('تفاوت بین طلب و بدهی')
-                      ]),
-                    ),
-                  ),
-                ),
-              ],
-            );
+            return SummaryCards(borrowed: borrowed, lent: lent, net: net);
           },
         ),
 

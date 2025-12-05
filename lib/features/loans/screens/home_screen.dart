@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../core/db/database_helper.dart';
 import '../../../core/utils/format_utils.dart';
 import '../../../core/utils/jalali_utils.dart';
+import '../../shared/summary_cards.dart';
 import '../../loans/models/counterparty.dart';
 import '../../loans/models/installment.dart';
 import '../../loans/models/loan.dart';
@@ -75,57 +76,7 @@ class _HomeScreenState extends State<HomeScreen> {
         return ListView(
           padding: const EdgeInsets.all(16),
           children: [
-            Row(
-              children: [
-                Expanded(
-                  child: Card(
-                    child: Padding(
-                      padding: const EdgeInsets.all(12),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text('بدهی‌های من', style: TextStyle(fontWeight: FontWeight.w600)),
-                          const SizedBox(height: 8),
-                          Text(formatCurrency(borrowed), style: Theme.of(context).textTheme.headlineSmall),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Card(
-                    child: Padding(
-                      padding: const EdgeInsets.all(12),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text('طلب‌های من', style: TextStyle(fontWeight: FontWeight.w600)),
-                          const SizedBox(height: 8),
-                          Text(formatCurrency(lent), style: Theme.of(context).textTheme.headlineSmall),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Card(
-                    child: Padding(
-                      padding: const EdgeInsets.all(12),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text('وضعیت خالص', style: TextStyle(fontWeight: FontWeight.w600)),
-                          const SizedBox(height: 8),
-                          Text(formatCurrency(net), style: Theme.of(context).textTheme.headlineSmall),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
+            SummaryCards(borrowed: borrowed, lent: lent, net: net),
             const SizedBox(height: 20),
             const Text('اقساط نزدیک', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
             const SizedBox(height: 8),
