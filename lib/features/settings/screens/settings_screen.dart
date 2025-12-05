@@ -62,6 +62,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         const SizedBox(height: 12),
                         Column(
                           children: _options.map((opt) {
+                            // ignore: deprecated_member_use
                             return RadioListTile<int>(
                               title: Text(opt == 0 ? 'روز سررسید' : '$opt روز قبل'),
                               value: opt,
