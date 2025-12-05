@@ -8,6 +8,7 @@ import 'package:debt_manager/core/utils/jalali_utils.dart';
 import 'package:debt_manager/features/loans/models/counterparty.dart';
 import 'package:debt_manager/features/loans/models/installment.dart';
 import 'package:debt_manager/features/loans/models/loan.dart';
+import 'add_loan_screen.dart';
 
 class LoanDetailScreen extends StatefulWidget {
   const LoanDetailScreen({super.key, required this.loanId});
@@ -101,6 +102,68 @@ class _LoanDetailScreenState extends State<LoanDetailScreen> {
         return Scaffold(
           appBar: AppBar(
             title: Text(loan.title.isNotEmpty ? loan.title : 'بدون عنوان'),
+            actions: [
+              PopupMenuButton<String>(
+                onSelected: (v) async {
+                  if (v == 'edit') {
+                    // Navigate to AddLoanScreen in edit mode.
+                    final res = await Navigator.of(context).push<bool?>(
+                      MaterialPageRoute(
+                        builder: (_) => AddLoanScreen(
+                          existingLoan: loan,
+                          existingCounterparty: cp,
+                        ),
+                      ),
+                    );
+
+                    if (res == true) {
+                      // Refresh the screen after editing
+                      setState(() {});
+                    }
+                  } else if (v == 'delete') {
+                    final confirm = await showDialog<bool>(
+                      context: context,
+                      builder: (ctx) => AlertDialog(
+                        title: const Text('حذف وام'),
+                        content: const Text(
+                          'آیا مطمئن هستید؟ این عملیات وام، همه اقساط مرتبط و یادآورها را حذف خواهد کرد.',
+                        ),
+                        actions: [
+                          TextButton(
+                            onPressed: () => Navigator.of(ctx).pop(false),
+                            child: const Text('انصراف'),
+                          ),
+                          TextButton(
+                            onPressed: () => Navigator.of(ctx).pop(true),
+                            child: const Text('حذف'),
+                          ),
+                        ],
+                      ),
+                    );
+
+                    if (confirm == true) {
+                      try {
+                        if (loan.id != null) {
+                          await _db.deleteLoanWithInstallments(loan.id!);
+                        }
+                        // Pop back to previous screen and signal that caller should refresh.
+                        if (mounted) Navigator.of(context).pop(true);
+                      } catch (e) {
+                        debugPrint('Failed to delete loan: $e');
+                        if (mounted)
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('خطا هنگام حذف')),
+                          );
+                      }
+                    }
+                  }
+                },
+                itemBuilder: (ctx) => [
+                  const PopupMenuItem(value: 'edit', child: Text('ویرایش وام')),
+                  const PopupMenuItem(value: 'delete', child: Text('حذف وام')),
+                ],
+              ),
+            ],
           ),
           body: ListView(
             padding: const EdgeInsets.all(16),
