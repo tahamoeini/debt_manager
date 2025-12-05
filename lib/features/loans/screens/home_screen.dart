@@ -94,16 +94,21 @@ class _HomeScreenState extends State<HomeScreen> {
           children: [
             SummaryCards(borrowed: borrowed, lent: lent, net: net),
             const SizedBox(height: 20),
-            const Text(
+            Text(
               'اقساط نزدیک',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+              style: Theme.of(
+                context,
+              ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
             ),
             const SizedBox(height: 8),
             if (upcoming.isEmpty)
-              const Card(
+              Card(
                 child: Padding(
-                  padding: EdgeInsets.all(16),
-                  child: Text('اقساط نزدیکی یافت نشد'),
+                  padding: const EdgeInsets.all(12),
+                  child: Text(
+                    'اقساط نزدیکی یافت نشد',
+                    style: Theme.of(context).textTheme.bodyMedium,
+                  ),
                 ),
               ),
             if (upcoming.isNotEmpty)
@@ -123,7 +128,8 @@ class _HomeScreenState extends State<HomeScreen> {
                       children: [
                         Text(
                           loanTitle,
-                          style: const TextStyle(fontWeight: FontWeight.w600),
+                          style: Theme.of(context).textTheme.titleMedium
+                              ?.copyWith(fontWeight: FontWeight.w600),
                         ),
                         const SizedBox(height: 4),
                         Text(

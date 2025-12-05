@@ -92,7 +92,7 @@ class _LoansListScreenState extends State<LoansListScreen> {
           return const Center(child: Text('هیچ موردی یافت نشد'));
 
         return ListView.separated(
-          padding: const EdgeInsets.all(12),
+          padding: const EdgeInsets.all(16),
           itemCount: items.length,
           separatorBuilder: (context, index) => const SizedBox(height: 8),
           itemBuilder: (context, index) {
@@ -101,17 +101,25 @@ class _LoansListScreenState extends State<LoansListScreen> {
               child: ListTile(
                 title: Text(
                   s.loan.title.isNotEmpty ? s.loan.title : 'بدون عنوان',
+                  style: Theme.of(context).textTheme.titleMedium,
                 ),
                 subtitle: Text(
                   '${s.counterpartyName.isNotEmpty ? s.counterpartyName : 'نامشخص'} · ${_directionLabel(s.loan.direction)}',
+                  style: Theme.of(context).textTheme.bodyMedium,
                 ),
                 trailing: Column(
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
-                    Text('${toPersianDigits(s.remainingCount)} اقساط'),
+                    Text(
+                      '${toPersianDigits(s.remainingCount)} اقساط',
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
                     const SizedBox(height: 4),
-                    Text(formatCurrency(s.remainingAmount)),
+                    Text(
+                      formatCurrency(s.remainingAmount),
+                      style: Theme.of(context).textTheme.bodyMedium,
+                    ),
                   ],
                 ),
                 onTap: () async {
