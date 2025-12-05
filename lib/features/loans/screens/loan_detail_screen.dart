@@ -214,8 +214,9 @@ class _LoanDetailScreenState extends State<LoanDetailScreen> {
     return FutureBuilder<Map<String, dynamic>>(
       future: _loadAll(),
       builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting)
+        if (snapshot.connectionState == ConnectionState.waiting) {
           return Scaffold(body: UIUtils.centeredLoading());
+        }
         if (snapshot.hasError) {
           debugPrint('LoanDetailScreen _loadAll error: ${snapshot.error}');
           return Scaffold(body: UIUtils.asyncErrorWidget(snapshot.error));
@@ -239,9 +240,14 @@ class _LoanDetailScreenState extends State<LoanDetailScreen> {
             actions: [
               PopupMenuButton<String>(
                 onSelected: (v) async {
+                  final messenger = ScaffoldMessenger.of(context);
                   if (v == 'edit') {
+                    // Capture UI helpers tied to this context before awaiting.
+                    final navigator = Navigator.of(context);
+                    final messenger = ScaffoldMessenger.of(context);
+
                     // Navigate to AddLoanScreen in edit mode.
-                    final res = await Navigator.of(context).push<bool?>(
+                    final res = await navigator.push<bool?>(
                       MaterialPageRoute(
                         builder: (_) => AddLoanScreen(
                           existingLoan: loan,
@@ -255,7 +261,7 @@ class _LoanDetailScreenState extends State<LoanDetailScreen> {
                     if (res == true) {
                       // Editing was successful: pop this detail screen and signal
                       // the caller (loans list) to refresh.
-                      Navigator.of(context).pop(true);
+                      navigator.pop(true);
                       return;
                     }
                   } else if (v == 'delete') {
@@ -287,12 +293,16 @@ class _LoanDetailScreenState extends State<LoanDetailScreen> {
 
                         if (!mounted) return;
 
+                        final navigator = Navigator.of(context);
+
                         // Pop back to previous screen and signal that caller should refresh.
-                        Navigator.of(context).pop(true);
+                        navigator.pop(true);
                       } catch (e) {
                         debugPrint('Failed to delete loan: $e');
                         if (mounted) {
-                          UIUtils.showAppSnackBar(context, 'خطا هنگام حذف');
+                          messenger.showSnackBar(
+                            const SnackBar(content: Text('خطا هنگام حذف')),
+                          );
                         }
                       }
                     }
