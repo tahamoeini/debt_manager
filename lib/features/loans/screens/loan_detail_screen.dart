@@ -117,8 +117,10 @@ class _LoanDetailScreenState extends State<LoanDetailScreen> {
                     );
 
                     if (res == true) {
-                      // Refresh the screen after editing
-                      setState(() {});
+                      // Editing was successful: pop this detail screen and signal
+                      // the caller (loans list) to refresh.
+                      if (mounted) Navigator.of(context).pop(true);
+                      return;
                     }
                   } else if (v == 'delete') {
                     final confirm = await showDialog<bool>(
