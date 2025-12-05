@@ -32,6 +32,7 @@ class AddLoanScreen extends StatefulWidget {
 class _AddLoanScreenState extends State<AddLoanScreen> {
   final _formKey = GlobalKey<FormState>();
   final _counterpartyController = TextEditingController();
+  final _counterpartyTagController = TextEditingController();
   final _titleController = TextEditingController();
   final _principalController = TextEditingController();
   final _installmentCountController = TextEditingController();
@@ -41,6 +42,7 @@ class _AddLoanScreenState extends State<AddLoanScreen> {
   LoanDirection _direction = LoanDirection.borrowed;
   Jalali? _startJalali;
   bool _isSubmitting = false;
+  String? _counterpartyType; // 'person' | 'bank' | 'company'
 
   final _db = DatabaseHelper.instance;
 
@@ -67,12 +69,15 @@ class _AddLoanScreenState extends State<AddLoanScreen> {
 
     if (cp != null) {
       _counterpartyController.text = cp.name;
+      _counterpartyType = cp.type;
+      _counterpartyTagController.text = cp.tag ?? '';
     }
   }
 
   @override
   void dispose() {
     _counterpartyController.dispose();
+    _counterpartyTagController.dispose();
     _titleController.dispose();
     _principalController.dispose();
     _installmentCountController.dispose();
@@ -112,6 +117,8 @@ class _AddLoanScreenState extends State<AddLoanScreen> {
       // existing counterparty id if the name was not changed.
       final rawCp = _counterpartyController.text.trim();
       final cpName = rawCp.isEmpty ? 'نامشخص' : rawCp;
+      final cpTagRaw = _counterpartyTagController.text.trim();
+      final cpTag = cpTagRaw.isEmpty ? null : cpTagRaw;
       int cpId;
       if (_isEdit &&
           widget.existingCounterparty != null &&
@@ -119,7 +126,9 @@ class _AddLoanScreenState extends State<AddLoanScreen> {
           widget.existingCounterparty!.id != null) {
         cpId = widget.existingCounterparty!.id!;
       } else {
-        cpId = await _db.insertCounterparty(Counterparty(name: cpName));
+        cpId = await _db.insertCounterparty(
+          Counterparty(name: cpName, type: _counterpartyType, tag: cpTag),
+        );
       }
 
       // Parse numeric fields
@@ -318,6 +327,36 @@ class _AddLoanScreenState extends State<AddLoanScreen> {
                   labelText: 'طرف مقابل',
                   hintText: 'نام شخص یا موسسه',
                 ),
+              ),
+              const SizedBox(height: 8),
+              Row(
+                children: [
+                  Expanded(
+                    flex: 1,
+                    child: DropdownButtonFormField<String?>(
+                      value: _counterpartyType,
+                      decoration: const InputDecoration(labelText: 'نوع'),
+                      items: const [
+                        DropdownMenuItem(value: null, child: Text('بدون')),
+                        DropdownMenuItem(value: 'person', child: Text('شخص')),
+                        DropdownMenuItem(value: 'bank', child: Text('بانک')),
+                        DropdownMenuItem(value: 'company', child: Text('شرکت')),
+                      ],
+                      onChanged: (v) => setState(() => _counterpartyType = v),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    flex: 2,
+                    child: TextFormField(
+                      controller: _counterpartyTagController,
+                      decoration: const InputDecoration(
+                        labelText: 'برچسب (اختیاری)',
+                        hintText: 'مثال: کارت اعتباری, خانواده',
+                      ),
+                    ),
+                  ),
+                ],
               ),
               const SizedBox(height: 12),
               TextFormField(

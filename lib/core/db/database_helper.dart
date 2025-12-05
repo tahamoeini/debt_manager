@@ -17,7 +17,7 @@ class DatabaseHelper {
   factory DatabaseHelper() => instance;
 
   static const _dbName = 'debt_manager.db';
-  static const _dbVersion = 2;
+  static const _dbVersion = 3;
 
   Database? _db;
   // In-memory fallback stores for web builds (sqflite is not available on web).
@@ -61,7 +61,8 @@ class DatabaseHelper {
       CREATE TABLE counterparties (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         name TEXT NOT NULL,
-        type TEXT
+        type TEXT,
+        tag TEXT
       )
     ''');
 
@@ -106,6 +107,15 @@ class DatabaseHelper {
         );
       } catch (_) {
         // ignore
+      }
+    }
+
+    if (oldVersion < 3) {
+      // Add the optional tag column to counterparties.
+      try {
+        await db.execute('ALTER TABLE counterparties ADD COLUMN tag TEXT');
+      } catch (_) {
+        // ignore if it already exists
       }
     }
   }

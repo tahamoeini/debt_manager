@@ -31,6 +31,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
 
   // Counterparty filter: null = all
   int? _counterpartyFilter;
+  String? _counterpartyTypeFilter;
   List<Counterparty> _counterparties = [];
 
   @override
@@ -102,6 +103,15 @@ class _ReportsScreenState extends State<ReportsScreen> {
     for (final loan in loans) {
       // Defensive: skip loans without an id
       if (loan.id == null) continue;
+
+      // If type filter set, look up the loan's counterparty and skip if mismatch
+      if (_counterpartyTypeFilter != null) {
+        final cp = _counterparties.firstWhere(
+          (c) => c.id == loan.counterpartyId,
+          orElse: () => Counterparty(id: null, name: 'نامشخص'),
+        );
+        if (cp.type != _counterpartyTypeFilter) continue;
+      }
 
       // If counterparty filter is set and loan's counterparty doesn't match,
       // skip this loan entirely.
@@ -381,6 +391,21 @@ class _ReportsScreenState extends State<ReportsScreen> {
                 onChanged: (v) => setState(() => _counterpartyFilter = v),
               ),
             ),
+            const SizedBox(width: 12),
+            SizedBox(
+              width: 160,
+              child: DropdownButton<String?>(
+                value: _counterpartyTypeFilter,
+                isExpanded: true,
+                items: const [
+                  DropdownMenuItem(value: null, child: Text('همه انواع')),
+                  DropdownMenuItem(value: 'person', child: Text('شخص')),
+                  DropdownMenuItem(value: 'bank', child: Text('بانک')),
+                  DropdownMenuItem(value: 'company', child: Text('شرکت')),
+                ],
+                onChanged: (v) => setState(() => _counterpartyTypeFilter = v),
+              ),
+            ),
           ],
         ),
 
@@ -495,7 +520,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            '${loan.direction == LoanDirection.borrowed ? 'گرفته‌ام' : 'داده‌ام'} · ${cp.name}',
+                            '${loan.direction == LoanDirection.borrowed ? 'گرفته‌ام' : 'داده‌ام'} · ${cp.name}${cp.type != null ? ' · ${cp.type}' : ''}${cp.tag != null ? ' · ${cp.tag}' : ''}',
                           ),
                           const SizedBox(height: 4),
                           Text(

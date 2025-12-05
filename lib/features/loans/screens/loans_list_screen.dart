@@ -5,6 +5,7 @@ import 'package:debt_manager/core/db/database_helper.dart';
 import 'package:debt_manager/core/utils/format_utils.dart';
 import 'package:debt_manager/features/loans/models/installment.dart';
 import 'package:debt_manager/features/loans/models/loan.dart';
+import 'package:debt_manager/features/loans/models/counterparty.dart';
 import 'add_loan_screen.dart';
 import 'loan_detail_screen.dart';
 
@@ -18,12 +19,16 @@ class LoansListScreen extends StatefulWidget {
 class _LoanSummary {
   final Loan loan;
   final String counterpartyName;
+  final String? counterpartyType;
+  final String? counterpartyTag;
   final int remainingCount;
   final int remainingAmount;
 
   _LoanSummary({
     required this.loan,
     required this.counterpartyName,
+    this.counterpartyType,
+    this.counterpartyTag,
     required this.remainingCount,
     required this.remainingAmount,
   });
@@ -38,7 +43,7 @@ class _LoansListScreenState extends State<LoansListScreen> {
     await _db.refreshOverdueInstallments(DateTime.now());
     final loans = await _db.getAllLoans(direction: direction);
     final cps = await _db.getAllCounterparties();
-    final cpMap = {for (var c in cps) c.id ?? -1: c.name};
+    final Map<int, Counterparty> cpMap = {for (var c in cps) c.id ?? -1: c};
 
     final List<_LoanSummary> result = [];
 
@@ -56,12 +61,17 @@ class _LoansListScreenState extends State<LoansListScreen> {
           .toList();
       final remainingCount = unpaid.length;
       final remainingAmount = unpaid.fold<int>(0, (s, i) => s + i.amount);
-      final cpName = cpMap[loan.counterpartyId] ?? '';
+      final cp = cpMap[loan.counterpartyId];
+      final cpName = cp?.name ?? '';
+      final cpType = cp?.type;
+      final cpTag = cp?.tag;
 
       result.add(
         _LoanSummary(
           loan: loan,
           counterpartyName: cpName,
+          counterpartyType: cpType,
+          counterpartyTag: cpTag,
           remainingCount: remainingCount,
           remainingAmount: remainingAmount,
         ),
@@ -104,7 +114,7 @@ class _LoansListScreenState extends State<LoansListScreen> {
                   style: Theme.of(context).textTheme.titleMedium,
                 ),
                 subtitle: Text(
-                  '${s.counterpartyName.isNotEmpty ? s.counterpartyName : 'نامشخص'} · ${_directionLabel(s.loan.direction)}',
+                  '${s.counterpartyName.isNotEmpty ? s.counterpartyName : 'نامشخص'}${s.counterpartyType != null ? ' · ${s.counterpartyType}' : ''}${s.counterpartyTag != null ? ' · ${s.counterpartyTag}' : ''} · ${_directionLabel(s.loan.direction)}',
                   style: Theme.of(context).textTheme.bodyMedium,
                 ),
                 trailing: Column(

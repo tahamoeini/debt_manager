@@ -5,12 +5,13 @@ class Counterparty {
   final int? id;
   final String name;
   final String? type; // e.g. 'bank', 'company', 'person'
+  final String? tag; // optional category / tag like 'credit card', 'family'
 
-  const Counterparty({this.id, required this.name, this.type});
+  const Counterparty({this.id, required this.name, this.type, this.tag});
 
   /// Convert this model to a map suitable for SQLite insert/update.
   Map<String, dynamic> toMap() {
-    final map = <String, dynamic>{'name': name, 'type': type};
+    final map = <String, dynamic>{'name': name, 'type': type, 'tag': tag};
     if (id != null) {
       map['id'] = id;
     }
@@ -25,18 +26,21 @@ class Counterparty {
           : (map['id'] != null ? int.tryParse(map['id'].toString()) : null),
       name: map['name'] as String? ?? '',
       type: map['type'] as String?,
+      tag: map['tag'] as String?,
     );
   }
 
   /// Create a copy with optional overrides.
-  Counterparty copyWith({int? id, String? name, String? type}) {
+  Counterparty copyWith({int? id, String? name, String? type, String? tag}) {
     return Counterparty(
       id: id ?? this.id,
       name: name ?? this.name,
       type: type ?? this.type,
+      tag: tag ?? this.tag,
     );
   }
 
   @override
-  String toString() => 'Counterparty(id: $id, name: $name, type: $type)';
+  String toString() =>
+      'Counterparty(id: $id, name: $name, type: $type, tag: $tag)';
 }
