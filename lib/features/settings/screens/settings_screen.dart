@@ -1,4 +1,4 @@
-// ignore_for_file: deprecated_member_use
+// ignore_for_file: deprecated_member_use, use_build_context_synchronously
 
 // Settings screen: adjust local app settings like reminder offsets.
 import 'package:flutter/material.dart';
@@ -113,6 +113,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           children: [
                             ElevatedButton(
                               onPressed: () async {
+                                final messenger = ScaffoldMessenger.of(context);
                                 try {
                                   final jsonStr = await BackupService.instance
                                       .exportAll();
@@ -132,23 +133,23 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                                 const Text('Exported JSON'),
                                                 IconButton(
                                                   icon: const Icon(Icons.copy),
-                                                                        onPressed: () async {
-                                                                          final messenger =
-                                                                              ScaffoldMessenger.of(
-                                                                            context,
-                                                                          );
-                                                                          await Clipboard.setData(
-                                                                            ClipboardData(
-                                                                              text: jsonStr,
-                                                                            ),
-                                                                          );
-                                                                          if (!mounted) return;
-                                                                          messenger.showSnackBar(
-                                                                            const SnackBar(
-                                                                              content: Text('کپی شد'),
-                                                                            ),
-                                                                          );
-                                                                        },
+                                                  onPressed: () async {
+                                                    final messenger =
+                                                        ScaffoldMessenger.of(
+                                                          context,
+                                                        );
+                                                    await Clipboard.setData(
+                                                      ClipboardData(
+                                                        text: jsonStr,
+                                                      ),
+                                                    );
+                                                    if (!mounted) return;
+                                                    messenger.showSnackBar(
+                                                      const SnackBar(
+                                                        content: Text('کپی شد'),
+                                                      ),
+                                                    );
+                                                  },
                                                 ),
                                               ],
                                             ),
@@ -178,12 +179,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                     ),
                                   );
                                 } catch (e) {
-                                  if (mounted)
-                                    ScaffoldMessenger.of(context).showSnackBar(
+                                  if (mounted) {
+                                    messenger.showSnackBar(
                                       SnackBar(
                                         content: Text('خطا در صادرات: $e'),
                                       ),
                                     );
+                                  }
                                 }
                               },
                               child: const Text('Export data (JSON)'),
@@ -252,9 +254,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                       ElevatedButton(
                                         onPressed: () async {
                                           final messenger =
-                                              ScaffoldMessenger.of(
-                                            context,
-                                          );
+                                              ScaffoldMessenger.of(context);
                                           final txt = controller.text.trim();
                                           if (txt.isEmpty) return;
                                           try {
