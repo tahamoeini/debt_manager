@@ -132,21 +132,23 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                                 const Text('Exported JSON'),
                                                 IconButton(
                                                   icon: const Icon(Icons.copy),
-                                                  onPressed: () async {
-                                                    await Clipboard.setData(
-                                                      ClipboardData(
-                                                        text: jsonStr,
-                                                      ),
-                                                    );
-                                                    if (!mounted) return;
-                                                    ScaffoldMessenger.of(
-                                                      context,
-                                                    ).showSnackBar(
-                                                      const SnackBar(
-                                                        content: Text('کپی شد'),
-                                                      ),
-                                                    );
-                                                  },
+                                                                        onPressed: () async {
+                                                                          final messenger =
+                                                                              ScaffoldMessenger.of(
+                                                                            context,
+                                                                          );
+                                                                          await Clipboard.setData(
+                                                                            ClipboardData(
+                                                                              text: jsonStr,
+                                                                            ),
+                                                                          );
+                                                                          if (!mounted) return;
+                                                                          messenger.showSnackBar(
+                                                                            const SnackBar(
+                                                                              content: Text('کپی شد'),
+                                                                            ),
+                                                                          );
+                                                                        },
                                                 ),
                                               ],
                                             ),
@@ -249,6 +251,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                       ),
                                       ElevatedButton(
                                         onPressed: () async {
+                                          final messenger =
+                                              ScaffoldMessenger.of(
+                                            context,
+                                          );
                                           final txt = controller.text.trim();
                                           if (txt.isEmpty) return;
                                           try {
@@ -261,9 +267,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                                   clearBefore: true,
                                                 );
                                             if (!mounted) return;
-                                            ScaffoldMessenger.of(
-                                              context,
-                                            ).showSnackBar(
+                                            messenger.showSnackBar(
                                               const SnackBar(
                                                 content: Text(
                                                   'بازیابی با موفقیت انجام شد',
@@ -273,9 +277,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                             Navigator.of(ctx).pop();
                                           } catch (e) {
                                             if (!mounted) return;
-                                            ScaffoldMessenger.of(
-                                              context,
-                                            ).showSnackBar(
+                                            messenger.showSnackBar(
                                               SnackBar(
                                                 content: Text(
                                                   'خطا در واردسازی: $e',

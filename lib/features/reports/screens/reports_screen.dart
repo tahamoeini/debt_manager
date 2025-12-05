@@ -54,8 +54,9 @@ class _ReportsScreenState extends State<ReportsScreen> {
     // Refresh overdue installments before computing totals to ensure
     // totals reflect the latest statuses.
     await _db.refreshOverdueInstallments(DateTime.now());
-    if (kDebugLogging)
+    if (kDebugLogging) {
       debugLog('ReportsScreen: refreshed overdue installments for summary');
+    }
 
     final borrowed = await _db.getTotalOutstandingBorrowed();
     final lent = await _db.getTotalOutstandingLent();
@@ -78,10 +79,11 @@ class _ReportsScreenState extends State<ReportsScreen> {
     // 1) Refresh overdue statuses once up-front so subsequent queries
     //    observe the latest installment states.
     await _db.refreshOverdueInstallments(DateTime.now());
-    if (kDebugLogging)
+    if (kDebugLogging) {
       debugLog(
         'ReportsScreen: refreshed overdue installments for filtered list',
       );
+    }
 
     // 2) Prepare date range filters as Jalali yyyy-MM-dd strings (or null).
     final fromStr = _from != null
@@ -92,10 +94,11 @@ class _ReportsScreenState extends State<ReportsScreen> {
     // 3) Load loans filtered by direction (null = all). This keeps behavior
     //    simple and avoids constructing complex SQL for now.
     final loans = await _db.getAllLoans(direction: _directionFilter);
-    if (kDebugLogging)
+    if (kDebugLogging) {
       debugLog(
         'ReportsScreen: loans loaded count=${loans.length} direction=$_directionFilter',
       );
+    }
 
     // 4) Iterate loans and collect installments that fall within the date range.
     //    This is intentionally straightforward: for each loan we fetch its
@@ -103,7 +106,9 @@ class _ReportsScreenState extends State<ReportsScreen> {
     final List<Map<String, dynamic>> rows = [];
     for (final loan in loans) {
       // Defensive: skip loans without an id
-      if (loan.id == null) continue;
+      if (loan.id == null) {
+        continue;
+      }
 
       // If type filter set, look up the loan's counterparty and skip if mismatch
       if (_counterpartyTypeFilter != null) {
@@ -111,28 +116,38 @@ class _ReportsScreenState extends State<ReportsScreen> {
           (c) => c.id == loan.counterpartyId,
           orElse: () => Counterparty(id: null, name: 'نامشخص'),
         );
-        if (cp.type != _counterpartyTypeFilter) continue;
+        if (cp.type != _counterpartyTypeFilter) {
+          continue;
+        }
       }
 
       // If counterparty filter is set and loan's counterparty doesn't match,
       // skip this loan entirely.
       if (_counterpartyFilter != null &&
-          loan.counterpartyId != _counterpartyFilter)
+          loan.counterpartyId != _counterpartyFilter) {
         continue;
+      }
 
       final installments = await _db.getInstallmentsByLoanId(loan.id!);
       for (final inst in installments) {
         final due = inst.dueDateJalali; // yyyy-MM-dd
 
         var inRange = true;
-        if (fromStr != null && due.compareTo(fromStr) < 0) inRange = false;
-        if (toStr != null && due.compareTo(toStr) > 0) inRange = false;
-        if (!inRange) continue;
+        if (fromStr != null && due.compareTo(fromStr) < 0) {
+          inRange = false;
+        }
+        if (toStr != null && due.compareTo(toStr) > 0) {
+          inRange = false;
+        }
+        if (!inRange) {
+          continue;
+        }
 
         // Respect status filter: if the installment's status is not in the
         // selected set, skip it.
-        if (_statusFilter.isNotEmpty && !_statusFilter.contains(inst.status))
+        if (_statusFilter.isNotEmpty && !_statusFilter.contains(inst.status)) {
           continue;
+        }
 
         rows.add({'installment': inst, 'loan': loan});
       }
@@ -145,8 +160,9 @@ class _ReportsScreenState extends State<ReportsScreen> {
       return aDue.compareTo(bDue);
     });
 
-    if (kDebugLogging)
+    if (kDebugLogging) {
       debugLog('ReportsScreen: filtered installments count=${rows.length}');
+    }
 
     // TODO: For larger datasets consider a single SQL query joining loans and
     // installments with WHERE clauses for direction and due_date_jalali to avoid
@@ -185,22 +201,28 @@ class _ReportsScreenState extends State<ReportsScreen> {
     final loans = await _db.getAllLoans(direction: _directionFilter);
 
     for (final loan in loans) {
-      if (loan.id == null) continue;
-      if (_counterpartyFilter != null &&
-          loan.counterpartyId != _counterpartyFilter)
+      if (loan.id == null) {
         continue;
+      }
+      if (_counterpartyFilter != null &&
+          loan.counterpartyId != _counterpartyFilter) {
+        continue;
+      }
 
       final installments = await _db.getInstallmentsByLoanId(loan.id!);
       for (final inst in installments) {
         // Apply status filter as well
-        if (_statusFilter.isNotEmpty && !_statusFilter.contains(inst.status))
+        if (_statusFilter.isNotEmpty && !_statusFilter.contains(inst.status)) {
           continue;
+        }
 
         // Parse due date and compute bucket
         try {
           final jal = parseJalali(inst.dueDateJalali);
           final key = jal.year * 100 + jal.month;
-          if (!buckets.containsKey(key)) continue;
+          if (!buckets.containsKey(key)) {
+            continue;
+          }
 
           if (loan.direction == LoanDirection.borrowed) {
             // I owe others -> outgoing
@@ -241,7 +263,9 @@ class _ReportsScreenState extends State<ReportsScreen> {
       firstDate: DateTime(now.year - 5),
       lastDate: DateTime(now.year + 5),
     );
-    if (picked != null) setState(() => _from = picked);
+    if (picked != null) {
+      setState(() => _from = picked);
+    }
   }
 
   Future<void> _pickTo() async {
@@ -252,7 +276,9 @@ class _ReportsScreenState extends State<ReportsScreen> {
       firstDate: DateTime(now.year - 5),
       lastDate: DateTime(now.year + 5),
     );
-    if (picked != null) setState(() => _to = picked);
+    if (picked != null) {
+      setState(() => _to = picked);
+    }
   }
 
   @override
@@ -263,8 +289,9 @@ class _ReportsScreenState extends State<ReportsScreen> {
         FutureBuilder<Map<String, dynamic>>(
           future: _loadSummary(),
           builder: (context, snap) {
-            if (snap.connectionState == ConnectionState.waiting)
+            if (snap.connectionState == ConnectionState.waiting) {
               return UIUtils.centeredLoading();
+            }
             if (snap.hasError) {
               debugPrint('ReportsScreen _loadSummary error: ${snap.error}');
               return UIUtils.asyncErrorWidget(snap.error);
@@ -417,8 +444,9 @@ class _ReportsScreenState extends State<ReportsScreen> {
         FutureBuilder<List<Map<String, dynamic>>>(
           future: _loadFilteredInstallments(),
           builder: (context, snap) {
-            if (snap.connectionState == ConnectionState.waiting)
+            if (snap.connectionState == ConnectionState.waiting) {
               return UIUtils.centeredLoading();
+            }
             if (snap.hasError) {
               debugPrint(
                 'ReportsScreen _loadFilteredInstallments error: ${snap.error}',
@@ -426,8 +454,9 @@ class _ReportsScreenState extends State<ReportsScreen> {
               return UIUtils.asyncErrorWidget(snap.error);
             }
             final rows = snap.data ?? [];
-            if (rows.isEmpty)
+            if (rows.isEmpty) {
               return const Center(child: Text('هیچ موردی یافت نشد'));
+            }
 
             // Compute simple analytics for the filtered rows
             final scheduledTotal = rows.fold<int>(0, (sum, r) {
@@ -549,8 +578,9 @@ class _ReportsScreenState extends State<ReportsScreen> {
         FutureBuilder<List<Map<String, dynamic>>>(
           future: _computeMonthlyForecast(),
           builder: (context, snap) {
-            if (snap.connectionState == ConnectionState.waiting)
+            if (snap.connectionState == ConnectionState.waiting) {
               return UIUtils.centeredLoading();
+            }
             if (snap.hasError) {
               debugPrint(
                 'ReportsScreen _computeMonthlyForecast error: ${snap.error}',
@@ -559,7 +589,9 @@ class _ReportsScreenState extends State<ReportsScreen> {
             }
 
             final months = snap.data ?? [];
-            if (months.isEmpty) return const SizedBox.shrink();
+            if (months.isEmpty) {
+              return const SizedBox.shrink();
+            }
 
             return Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -576,7 +608,6 @@ class _ReportsScreenState extends State<ReportsScreen> {
                     child: Column(
                       children: months.map<Widget>((m) {
                         final label = m['label'] as String;
-                        final outgoing = m['outgoing'] as int? ?? 0;
                         final incoming = m['incoming'] as int? ?? 0;
                         final net = m['net'] as int? ?? 0;
 

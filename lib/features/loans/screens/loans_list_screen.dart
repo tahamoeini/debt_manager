@@ -90,8 +90,9 @@ class _LoansListScreenState extends State<LoansListScreen> {
     return FutureBuilder<List<_LoanSummary>>(
       future: _loadLoanSummaries(filter),
       builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting)
+        if (snapshot.connectionState == ConnectionState.waiting) {
           return UIUtils.centeredLoading();
+        }
         if (snapshot.hasError) {
           debugPrint(
             'LoansListScreen _loadLoanSummaries error: ${snapshot.error}',
@@ -99,8 +100,9 @@ class _LoansListScreenState extends State<LoansListScreen> {
           return UIUtils.asyncErrorWidget(snapshot.error);
         }
         final items = snapshot.data ?? [];
-        if (items.isEmpty)
+        if (items.isEmpty) {
           return const Center(child: Text('هیچ موردی یافت نشد'));
+        }
 
         return ListView.separated(
           padding: const EdgeInsets.all(16),

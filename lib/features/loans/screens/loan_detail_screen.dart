@@ -181,6 +181,9 @@ class _LoanDetailScreenState extends State<LoanDetailScreen> {
                                   actualAmt ?? inst.actualPaidAmount,
                             );
 
+                            // Capture navigator for the bottom sheet before awaiting
+                            final sheetNavigator = Navigator.of(ctx);
+
                             await _db.updateInstallment(updated);
 
                             // Cancel notification if marking paid
@@ -193,7 +196,7 @@ class _LoanDetailScreenState extends State<LoanDetailScreen> {
                             }
 
                             if (mounted) setState(() {});
-                            Navigator.of(ctx).pop();
+                            sheetNavigator.pop();
                           },
                           child: const Text('ذخیره'),
                         ),
@@ -240,12 +243,11 @@ class _LoanDetailScreenState extends State<LoanDetailScreen> {
             actions: [
               PopupMenuButton<String>(
                 onSelected: (v) async {
+                  // Capture context-bound helpers once before any awaits
+                  final navigator = Navigator.of(context);
                   final messenger = ScaffoldMessenger.of(context);
-                  if (v == 'edit') {
-                    // Capture UI helpers tied to this context before awaiting.
-                    final navigator = Navigator.of(context);
-                    final messenger = ScaffoldMessenger.of(context);
 
+                  if (v == 'edit') {
                     // Navigate to AddLoanScreen in edit mode.
                     final res = await navigator.push<bool?>(
                       MaterialPageRoute(
@@ -292,8 +294,6 @@ class _LoanDetailScreenState extends State<LoanDetailScreen> {
                         }
 
                         if (!mounted) return;
-
-                        final navigator = Navigator.of(context);
 
                         // Pop back to previous screen and signal that caller should refresh.
                         navigator.pop(true);
