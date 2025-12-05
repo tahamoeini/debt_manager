@@ -7,6 +7,7 @@ import 'package:sqflite/sqflite.dart';
 import '../../features/loans/models/counterparty.dart';
 import '../../features/loans/models/loan.dart';
 import '../../features/loans/models/installment.dart';
+import '../utils/jalali_utils.dart';
 
 class DatabaseHelper {
   static final DatabaseHelper instance = DatabaseHelper._internal();
@@ -212,6 +213,39 @@ class DatabaseHelper {
     return await db.update('installments', installment.toMap(), where: 'id = ?', whereArgs: [installment.id]);
   }
 
+  Future<Map<int, List<Installment>>> getInstallmentsGroupedByLoanId(List<int> loanIds) async {
+    if (loanIds.isEmpty) return {};
+
+    if (_isWeb) {
+      final filtered = _installmentStore.where((r) => loanIds.contains(r['loan_id'] as int)).toList()
+        ..sort((a, b) => (a['due_date_jalali'] as String).compareTo(b['due_date_jalali'] as String));
+
+      final Map<int, List<Installment>> map = {};
+      for (final row in filtered) {
+        final lid = row['loan_id'] as int;
+        map.putIfAbsent(lid, () => []).add(Installment.fromMap(row));
+      }
+      return map;
+    }
+
+    final db = await database;
+    final placeholders = List.filled(loanIds.length, '?').join(', ');
+    final rows = await db.query(
+      'installments',
+      where: 'loan_id IN ($placeholders)',
+      whereArgs: loanIds,
+      orderBy: 'loan_id ASC, due_date_jalali ASC',
+    );
+
+    final Map<int, List<Installment>> map = {};
+    for (final r in rows) {
+      final lid = r['loan_id'] is int ? r['loan_id'] as int : int.parse(r['loan_id'].toString());
+      map.putIfAbsent(lid, () => []).add(Installment.fromMap(r));
+    }
+
+    return map;
+  }
+
   // -----------------
   // Reporting / summaries
   // -----------------
@@ -267,22 +301,26 @@ class DatabaseHelper {
   }
 
   Future<List<Installment>> getUpcomingInstallments(DateTime from, DateTime to) async {
-    final db = await database;
-    String fmt(DateTime d) => '${d.year.toString().padLeft(4, '0')}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}';
-    final fromStr = fmt(from);
-    final toStr = fmt(to);
+    // Convert the provided Gregorian datetimes to Jalali yyyy-MM-dd strings
+    final fromJ = dateTimeToJalali(from);
+    final toJ = dateTimeToJalali(to);
+    final fromStr = formatJalali(fromJ);
+    final toStr = formatJalali(toJ);
 
     if (_isWeb) {
+      // Do not touch sqflite on web; use in-memory store and compare Jalali strings
       final rows = _installmentStore.where((r) {
-        final statusOk = r['status'] == 'pending';
-        final due = r['due_date_jalali'] as String;
-        return statusOk && due.compareTo(fromStr) >= 0 && due.compareTo(toStr) <= 0;
+        final statusOk = (r['status'] as String?) == 'pending';
+        final due = r['due_date_jalali'] as String?;
+        if (!statusOk || due == null) return false;
+        return due.compareTo(fromStr) >= 0 && due.compareTo(toStr) <= 0;
       }).toList()
         ..sort((a, b) => (a['due_date_jalali'] as String).compareTo(b['due_date_jalali'] as String));
 
       return rows.map((r) => Installment.fromMap(r)).toList();
     }
 
+    final db = await database;
     final rows = await db.query(
       'installments',
       where: "status = ? AND due_date_jalali BETWEEN ? AND ?",
@@ -291,5 +329,31 @@ class DatabaseHelper {
     );
 
     return rows.map((r) => Installment.fromMap(r)).toList();
+  }
+
+  /// Refresh installments that are overdue based on a provided Gregorian `now`.
+  /// Converts `now` to Jalali and updates installments whose `due_date_jalali` < today.
+  Future<void> refreshOverdueInstallments(DateTime now) async {
+    final todayJ = dateTimeToJalali(now);
+    final todayStr = formatJalali(todayJ);
+
+    if (_isWeb) {
+      for (var i = 0; i < _installmentStore.length; i++) {
+        final row = _installmentStore[i];
+        final status = row['status'] as String?;
+        final due = row['due_date_jalali'] as String?;
+        if (status == 'pending' && due != null && due.compareTo(todayStr) < 0) {
+          row['status'] = 'overdue';
+          _installmentStore[i] = row;
+        }
+      }
+      return;
+    }
+
+    final db = await database;
+    await db.rawUpdate(
+      "UPDATE installments SET status = 'overdue' WHERE status = 'pending' AND due_date_jalali < ?",
+      [todayStr],
+    );
   }
 }

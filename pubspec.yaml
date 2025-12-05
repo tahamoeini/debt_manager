@@ -40,8 +40,6 @@ dependencies:
   path: any
   shamsi_date: any
   flutter_local_notifications: any
-  timezone: any
-  flutter_native_timezone: any
 
 dev_dependencies:
   flutter_test:

@@ -18,6 +18,7 @@ class _HomeScreenState extends State<HomeScreen> {
   final _db = DatabaseHelper.instance;
 
   Future<Map<String, dynamic>> _loadData() async {
+    await _db.refreshOverdueInstallments(DateTime.now());
     final borrowed = await _db.getTotalOutstandingBorrowed();
     final lent = await _db.getTotalOutstandingLent();
     final net = lent - borrowed;

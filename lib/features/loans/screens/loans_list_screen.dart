@@ -32,14 +32,20 @@ class _LoansListScreenState extends State<LoansListScreen> {
   final _db = DatabaseHelper.instance;
 
   Future<List<_LoanSummary>> _loadLoanSummaries(LoanDirection? direction) async {
+    await _db.refreshOverdueInstallments(DateTime.now());
     final loans = await _db.getAllLoans(direction: direction);
     final cps = await _db.getAllCounterparties();
     final cpMap = {for (var c in cps) c.id ?? -1: c.name};
 
     final List<_LoanSummary> result = [];
+
+    // Extract loan IDs and fetch installments grouped by loan id in a single call
+    final loanIds = loans.where((l) => l.id != null).map((l) => l.id!).toList();
+    final grouped = loanIds.isNotEmpty ? await _db.getInstallmentsGroupedByLoanId(loanIds) : <int, List<Installment>>{};
+
     for (final loan in loans) {
       if (loan.id == null) continue;
-      final installments = await _db.getInstallmentsByLoanId(loan.id!);
+      final installments = grouped[loan.id] ?? const <Installment>[];
       final unpaid = installments.where((i) => i.status != InstallmentStatus.paid).toList();
       final remainingCount = unpaid.length;
       final remainingAmount = unpaid.fold<int>(0, (s, i) => s + i.amount);

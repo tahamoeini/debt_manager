@@ -28,7 +28,8 @@ class _ReportsScreenState extends State<ReportsScreen> {
   }
 
   Future<List<Map<String, dynamic>>> _loadFilteredInstallments() async {
-    // Load all installments within date range and optional direction
+    // Refresh overdue installments, then load all installments within date range and optional direction
+    await _db.refreshOverdueInstallments(DateTime.now());
     final fromStr = _from != null ? formatJalali(dateTimeToJalali(_from!)) : null;
     final toStr = _to != null ? formatJalali(dateTimeToJalali(_to!)) : null;
 

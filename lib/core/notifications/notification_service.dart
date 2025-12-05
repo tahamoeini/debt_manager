@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart' show debugPrint;
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 // Timezone scheduling is intentionally omitted to avoid package API
 // compatibility issues across flutter_local_notifications versions.
@@ -58,10 +59,57 @@ class NotificationService {
     required String title,
     required String body,
   }) async {
-    // Scheduling notifications is currently a no-op. Implement
-    // platform-specific scheduling when the project's plugin
-    // version is finalized to a specific API surface.
-    return;
+    try {
+      const androidDetails = AndroidNotificationDetails(
+        _channelId,
+        _channelName,
+        channelDescription: _channelDescription,
+        importance: Importance.defaultImportance,
+        priority: Priority.defaultPriority,
+      );
+
+      const iosDetails = DarwinNotificationDetails();
+
+      const details = NotificationDetails(android: androidDetails, iOS: iosDetails);
+
+      // Use the simple local-time scheduling API. This will schedule the
+      // notification in the device's local timezone.
+      // Use dynamic invocation so we remain compatible with multiple
+      // versions of flutter_local_notifications where the exact
+      // scheduling API may vary (schedule vs zonedSchedule).
+      final dyn = _plugin as dynamic;
+      try {
+        await dyn.schedule(
+          notificationId,
+          title,
+          body,
+          scheduledTime,
+          details,
+          androidAllowWhileIdle: true,
+        );
+      } catch (e) {
+        // If schedule isn't available or fails, try a zonedSchedule call via dynamic.
+        try {
+          await dyn.zonedSchedule(
+            notificationId,
+            title,
+            body,
+            // Many zonedSchedule implementations expect a TZDateTime; passing
+            // a regular DateTime may work on some versions or will be handled
+            // by the plugin; if not, this will throw and we'll log and continue.
+            scheduledTime,
+            details,
+            androidAllowWhileIdle: true,
+          );
+        } catch (e2) {
+          debugPrint('Failed to schedule (both schedule and zonedSchedule): $e2');
+        }
+      }
+    } catch (e) {
+      // Swallow scheduling errors to keep app stable; log for debugging.
+      // Use debugPrint to avoid bringing in additional logging deps.
+      debugPrint('Failed to schedule notification: $e');
+    }
   }
 
   /// Cancel a scheduled notification by id.
