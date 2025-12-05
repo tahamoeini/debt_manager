@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'features/loans/screens/home_screen.dart';
 import 'features/loans/screens/loans_list_screen.dart';
 import 'features/reports/screens/reports_screen.dart';
+import 'features/settings/screens/settings_screen.dart';
 
 class AppShell extends StatefulWidget {
   const AppShell({super.key});
@@ -27,6 +28,15 @@ class _AppShellState extends State<AppShell> {
     return Scaffold(
       appBar: AppBar(
         title: Text(_titles[_selectedIndex]),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.settings),
+            onPressed: () async {
+              await Navigator.of(context).push(MaterialPageRoute(builder: (_) => const SettingsScreen()));
+              setState(() {});
+            },
+          ),
+        ],
       ),
       body: _pages[_selectedIndex],
       bottomNavigationBar: NavigationBar(

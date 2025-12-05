@@ -57,12 +57,13 @@ class _HomeScreenState extends State<HomeScreen> {
     return FutureBuilder<Map<String, dynamic>>(
       future: _loadData(),
       builder: (context, snapshot) {
-        if (snapshot.connectionState != ConnectionState.done) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: CircularProgressIndicator());
         }
 
         if (snapshot.hasError) {
-          return const Center(child: Text('خطا هنگام بارگذاری'));
+          debugPrint('HomeScreen _loadData error: ${snapshot.error}');
+          return const Center(child: Text('خطا در بارگذاری داده‌ها'));
         }
 
         final data = snapshot.data ?? {};

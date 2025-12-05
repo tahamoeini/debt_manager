@@ -70,8 +70,11 @@ class _LoanDetailScreenState extends State<LoanDetailScreen> {
     return FutureBuilder<Map<String, dynamic>>(
       future: _loadAll(),
       builder: (context, snapshot) {
-        if (snapshot.connectionState != ConnectionState.done) return Scaffold(body: const Center(child: CircularProgressIndicator()));
-        if (snapshot.hasError) return const Scaffold(body: Center(child: Text('خطا هنگام بارگذاری')));
+        if (snapshot.connectionState == ConnectionState.waiting) return Scaffold(body: const Center(child: CircularProgressIndicator()));
+        if (snapshot.hasError) {
+          debugPrint('LoanDetailScreen _loadAll error: ${snapshot.error}');
+          return const Scaffold(body: Center(child: Text('خطا در بارگذاری داده‌ها')));
+        }
 
         final loan = snapshot.data?['loan'] as Loan?;
         final cp = snapshot.data?['counterparty'] as Counterparty?;
@@ -117,7 +120,7 @@ class _LoanDetailScreenState extends State<LoanDetailScreen> {
                 ),
               ),
               const SizedBox(height: 16),
-              const Text('اقساط', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
+              Text('اقساط', style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700)),
               const SizedBox(height: 8),
               ...installments.map((inst) {
                 final due = formatJalaliForDisplay(parseJalali(inst.dueDateJalali));
@@ -125,8 +128,8 @@ class _LoanDetailScreenState extends State<LoanDetailScreen> {
                 return Card(
                   child: ListTile(
                     title: Text(due),
-                    subtitle: Text(_statusText(inst.status) + (paid && inst.paidAt != null ? ' • ${inst.paidAt}' : '')),
-                    trailing: Text(formatCurrency(inst.amount)),
+                    subtitle: Text(_statusText(inst.status) + (paid && inst.paidAt != null ? ' • ${inst.paidAt}' : ''), style: Theme.of(context).textTheme.bodyMedium),
+                    trailing: Text(formatCurrency(inst.amount), style: Theme.of(context).textTheme.bodyMedium),
                     leading: IconButton(
                       icon: Icon(paid ? Icons.check_circle : Icons.radio_button_unchecked, color: paid ? Colors.green : null),
                       onPressed: paid

@@ -28,6 +28,17 @@ class _ReportsScreenState extends State<ReportsScreen> {
     return {'borrowed': borrowed, 'lent': lent, 'net': net};
   }
 
+  String _statusLabel(InstallmentStatus s) {
+    switch (s) {
+      case InstallmentStatus.paid:
+        return 'پرداخت شده';
+      case InstallmentStatus.overdue:
+        return 'عقب‌افتاده';
+      case InstallmentStatus.pending:
+        return 'در انتظار';
+    }
+  }
+
   Future<List<Map<String, dynamic>>> _loadFilteredInstallments() async {
     // Refresh overdue installments, then load all installments within date range and optional direction
     await _db.refreshOverdueInstallments(DateTime.now());
@@ -87,8 +98,11 @@ class _ReportsScreenState extends State<ReportsScreen> {
         FutureBuilder<Map<String, dynamic>>(
           future: _loadSummary(),
           builder: (context, snap) {
-            if (snap.connectionState != ConnectionState.done) return const Center(child: CircularProgressIndicator());
-            if (snap.hasError) return const Center(child: Text('خطا هنگام بارگذاری'));
+            if (snap.connectionState == ConnectionState.waiting) return const Center(child: CircularProgressIndicator());
+            if (snap.hasError) {
+              debugPrint('ReportsScreen _loadSummary error: ${snap.error}');
+              return const Center(child: Text('خطا در بارگذاری داده‌ها'));
+            }
             final borrowed = snap.data?['borrowed'] as int? ?? 0;
             final lent = snap.data?['lent'] as int? ?? 0;
             final net = snap.data?['net'] as int? ?? 0;
@@ -123,8 +137,11 @@ class _ReportsScreenState extends State<ReportsScreen> {
         FutureBuilder<List<Map<String, dynamic>>>(
           future: _loadFilteredInstallments(),
           builder: (context, snap) {
-            if (snap.connectionState != ConnectionState.done) return const Center(child: CircularProgressIndicator());
-            if (snap.hasError) return const Center(child: Text('خطا هنگام بارگذاری'));
+            if (snap.connectionState == ConnectionState.waiting) return const Center(child: CircularProgressIndicator());
+            if (snap.hasError) {
+              debugPrint('ReportsScreen _loadFilteredInstallments error: ${snap.error}');
+              return const Center(child: Text('خطا در بارگذاری داده‌ها'));
+            }
             final rows = snap.data ?? [];
             if (rows.isEmpty) return const Center(child: Text('هیچ موردی یافت نشد'));
 
@@ -134,9 +151,9 @@ class _ReportsScreenState extends State<ReportsScreen> {
                 final Loan loan = r['loan'] as Loan;
                 return Card(
                   child: ListTile(
-                    title: Text(loan.title.isNotEmpty ? loan.title : 'بدون عنوان'),
-                    subtitle: Text('${formatJalaliForDisplay(parseJalali(inst.dueDateJalali))} · ${inst.status.name}'),
-                    trailing: Text(formatCurrency(inst.amount)),
+                    title: Text(loan.title.isNotEmpty ? loan.title : 'بدون عنوان', style: Theme.of(context).textTheme.titleMedium),
+                    subtitle: Text('${formatJalaliForDisplay(parseJalali(inst.dueDateJalali))} · ${_statusLabel(inst.status)}', style: Theme.of(context).textTheme.bodyMedium),
+                    trailing: Text(formatCurrency(inst.amount), style: Theme.of(context).textTheme.bodyMedium),
                   ),
                 );
               }).toList(),

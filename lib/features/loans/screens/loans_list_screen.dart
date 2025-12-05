@@ -70,8 +70,11 @@ class _LoansListScreenState extends State<LoansListScreen> {
     return FutureBuilder<List<_LoanSummary>>(
       future: _loadLoanSummaries(filter),
       builder: (context, snapshot) {
-        if (snapshot.connectionState != ConnectionState.done) return const Center(child: CircularProgressIndicator());
-        if (snapshot.hasError) return const Center(child: Text('خطا هنگام بارگذاری'));
+        if (snapshot.connectionState == ConnectionState.waiting) return const Center(child: CircularProgressIndicator());
+        if (snapshot.hasError) {
+          debugPrint('LoansListScreen _loadLoanSummaries error: ${snapshot.error}');
+          return const Center(child: Text('خطا در بارگذاری داده‌ها'));
+        }
         final items = snapshot.data ?? [];
         if (items.isEmpty) return const Center(child: Text('هیچ موردی یافت نشد'));
 
