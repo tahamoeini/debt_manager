@@ -4,6 +4,10 @@
 import 'package:flutter/material.dart';
 
 import 'package:debt_manager/core/settings/settings_repository.dart';
+import 'package:flutter/services.dart';
+import 'dart:convert';
+
+import 'package:debt_manager/core/backup/backup_service.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -83,6 +87,214 @@ class _SettingsScreenState extends State<SettingsScreen> {
                               },
                             );
                           }).toList(),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Card(
+                  child: Padding(
+                    padding: const EdgeInsets.all(12),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'پشتیبان‌گیری و بازیابی',
+                          style: Theme.of(context).textTheme.titleMedium,
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          'می‌توانید داده‌ها را به صورت JSON صادر یا وارد کنید. این عملیات محلی است.',
+                          style: Theme.of(context).textTheme.bodySmall,
+                        ),
+                        const SizedBox(height: 12),
+                        Row(
+                          children: [
+                            ElevatedButton(
+                              onPressed: () async {
+                                try {
+                                  final jsonStr = await BackupService.instance
+                                      .exportAll();
+                                  await showDialog<void>(
+                                    context: context,
+                                    builder: (ctx) => Dialog(
+                                      child: Column(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Padding(
+                                            padding: const EdgeInsets.all(12.0),
+                                            child: Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment
+                                                      .spaceBetween,
+                                              children: [
+                                                const Text('Exported JSON'),
+                                                IconButton(
+                                                  icon: const Icon(Icons.copy),
+                                                  onPressed: () async {
+                                                    await Clipboard.setData(
+                                                      ClipboardData(
+                                                        text: jsonStr,
+                                                      ),
+                                                    );
+                                                    if (mounted)
+                                                      ScaffoldMessenger.of(
+                                                        context,
+                                                      ).showSnackBar(
+                                                        const SnackBar(
+                                                          content: Text(
+                                                            'کپی شد',
+                                                          ),
+                                                        ),
+                                                      );
+                                                  },
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                          SizedBox(
+                                            height:
+                                                MediaQuery.of(
+                                                  context,
+                                                ).size.height *
+                                                0.6,
+                                            width: double.maxFinite,
+                                            child: SingleChildScrollView(
+                                              padding: const EdgeInsets.all(12),
+                                              child: SelectableText(jsonStr),
+                                            ),
+                                          ),
+                                          Align(
+                                            alignment: Alignment.centerRight,
+                                            child: TextButton(
+                                              onPressed: () =>
+                                                  Navigator.of(ctx).pop(),
+                                              child: const Text('بستن'),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  );
+                                } catch (e) {
+                                  if (mounted)
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text('خطا در صادرات: $e'),
+                                      ),
+                                    );
+                                }
+                              },
+                              child: const Text('Export data (JSON)'),
+                            ),
+                            const SizedBox(width: 12),
+                            ElevatedButton(
+                              onPressed: () async {
+                                // Show a dialog with a multiline TextField to paste JSON
+                                final controller = TextEditingController();
+                                await showDialog<void>(
+                                  context: context,
+                                  builder: (ctx) => AlertDialog(
+                                    title: const Text('Import data (JSON)'),
+                                    content: SizedBox(
+                                      height: 300,
+                                      width: 600,
+                                      child: Column(
+                                        children: [
+                                          Expanded(
+                                            child: TextField(
+                                              controller: controller,
+                                              maxLines: null,
+                                              decoration: const InputDecoration(
+                                                hintText:
+                                                    '{ "counterparties": [...], "loans": [...], "installments": [...] }',
+                                              ),
+                                            ),
+                                          ),
+                                          const SizedBox(height: 8),
+                                          Row(
+                                            children: [
+                                              TextButton(
+                                                onPressed: () async {
+                                                  final data =
+                                                      await Clipboard.getData(
+                                                        'text/plain',
+                                                      );
+                                                  if (data != null &&
+                                                      data.text != null) {
+                                                    controller.text =
+                                                        data.text!;
+                                                  }
+                                                },
+                                                child: const Text(
+                                                  'Paste from clipboard',
+                                                ),
+                                              ),
+                                              const SizedBox(width: 8),
+                                              TextButton(
+                                                onPressed: () {
+                                                  controller.text = '';
+                                                },
+                                                child: const Text('Clear'),
+                                              ),
+                                            ],
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    actions: [
+                                      TextButton(
+                                        onPressed: () =>
+                                            Navigator.of(ctx).pop(),
+                                        child: const Text('Cancel'),
+                                      ),
+                                      ElevatedButton(
+                                        onPressed: () async {
+                                          final txt = controller.text.trim();
+                                          if (txt.isEmpty) return;
+                                          try {
+                                            final parsed =
+                                                json.decode(txt)
+                                                    as Map<String, dynamic>;
+                                            await BackupService.instance
+                                                .importFromMap(
+                                                  parsed,
+                                                  clearBefore: true,
+                                                );
+                                            if (mounted)
+                                              ScaffoldMessenger.of(
+                                                context,
+                                              ).showSnackBar(
+                                                const SnackBar(
+                                                  content: Text(
+                                                    'بازیابی با موفقیت انجام شد',
+                                                  ),
+                                                ),
+                                              );
+                                            Navigator.of(ctx).pop();
+                                          } catch (e) {
+                                            if (mounted)
+                                              ScaffoldMessenger.of(
+                                                context,
+                                              ).showSnackBar(
+                                                SnackBar(
+                                                  content: Text(
+                                                    'خطا در واردسازی: $e',
+                                                  ),
+                                                ),
+                                              );
+                                          }
+                                        },
+                                        child: const Text('Import'),
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              },
+                              child: const Text('Import data (JSON)'),
+                            ),
+                          ],
                         ),
                       ],
                     ),
