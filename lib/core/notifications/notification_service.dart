@@ -1,3 +1,4 @@
+/// Notification service: wrapper over local notifications for installment reminders.
 import 'package:flutter/foundation.dart' show debugPrint, kIsWeb;
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 // Timezone scheduling is intentionally omitted to avoid package API
@@ -8,7 +9,8 @@ class NotificationService {
   NotificationService._internal();
   factory NotificationService() => instance;
 
-  final FlutterLocalNotificationsPlugin _plugin = FlutterLocalNotificationsPlugin();
+  final FlutterLocalNotificationsPlugin _plugin =
+      FlutterLocalNotificationsPlugin();
 
   static const String _channelId = 'installments_channel';
   static const String _channelName = 'Installment Reminders';
@@ -40,11 +42,23 @@ class NotificationService {
       importance: Importance.defaultImportance,
     );
 
-    await _plugin.resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()?.createNotificationChannel(channel);
+    await _plugin
+        .resolvePlatformSpecificImplementation<
+          AndroidFlutterLocalNotificationsPlugin
+        >()
+        ?.createNotificationChannel(channel);
 
     // Request iOS and macOS permissions explicitly as a best practice.
-    await _plugin.resolvePlatformSpecificImplementation<IOSFlutterLocalNotificationsPlugin>()?.requestPermissions(alert: true, badge: true, sound: true);
-    await _plugin.resolvePlatformSpecificImplementation<MacOSFlutterLocalNotificationsPlugin>()?.requestPermissions(alert: true, badge: true, sound: true);
+    await _plugin
+        .resolvePlatformSpecificImplementation<
+          IOSFlutterLocalNotificationsPlugin
+        >()
+        ?.requestPermissions(alert: true, badge: true, sound: true);
+    await _plugin
+        .resolvePlatformSpecificImplementation<
+          MacOSFlutterLocalNotificationsPlugin
+        >()
+        ?.requestPermissions(alert: true, badge: true, sound: true);
 
     // NOTE: zoned scheduling was removed to avoid analyzer/runtime
     // errors across different plugin versions. Scheduling is a no-op
@@ -79,7 +93,10 @@ class NotificationService {
 
       const iosDetails = DarwinNotificationDetails();
 
-      const details = NotificationDetails(android: androidDetails, iOS: iosDetails);
+      const details = NotificationDetails(
+        android: androidDetails,
+        iOS: iosDetails,
+      );
 
       // Use the simple local-time scheduling API. This will schedule the
       // notification in the device's local timezone.
@@ -111,7 +128,9 @@ class NotificationService {
             androidAllowWhileIdle: true,
           );
         } catch (e2) {
-          debugPrint('Failed to schedule (both schedule and zonedSchedule): $e2');
+          debugPrint(
+            'Failed to schedule (both schedule and zonedSchedule): $e2',
+          );
         }
       }
     } catch (e) {

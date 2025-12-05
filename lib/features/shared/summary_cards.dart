@@ -1,5 +1,6 @@
+/// Summary UI cards showing total borrowed, lent and net amounts.
 import 'package:flutter/material.dart';
-import '../../core/utils/format_utils.dart';
+import 'package:debt_manager/core/utils/format_utils.dart';
 
 class SummaryCards extends StatelessWidget {
   final int borrowed;
@@ -38,11 +39,29 @@ class SummaryCards extends StatelessWidget {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Expanded(child: buildCard('بدهی‌های من', borrowed, 'مجموع اقساط پرداخت‌نشده‌ای که شما بدهکار هستید')),
+        Expanded(
+          child: buildCard(
+            'بدهی‌های من',
+            borrowed,
+            'مجموع اقساط پرداخت‌نشده‌ای که شما بدهکار هستید',
+          ),
+        ),
         const SizedBox(width: 12),
-        Expanded(child: buildCard('طلب‌های من', lent, 'مجموع اقساط پرداخت‌نشده‌ای که دیگران به شما بدهکارند')),
+        Expanded(
+          child: buildCard(
+            'طلب‌های من',
+            lent,
+            'مجموع اقساط پرداخت‌نشده‌ای که دیگران به شما بدهکارند',
+          ),
+        ),
         const SizedBox(width: 12),
-        Expanded(child: buildCard('وضعیت خالص', net, 'طلب منفی یعنی بیشتر بدهکار هستید')),
+        Expanded(
+          child: buildCard(
+            'وضعیت خالص',
+            net,
+            'طلب منفی یعنی بیشتر بدهکار هستید',
+          ),
+        ),
       ],
     );
   }

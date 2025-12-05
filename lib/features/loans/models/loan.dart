@@ -72,16 +72,28 @@ class Loan {
 
   factory Loan.fromMap(Map<String, dynamic> map) {
     final dirStr = map['direction'] as String? ?? 'borrowed';
-    final direction = dirStr.toLowerCase() == 'lent' ? LoanDirection.lent : LoanDirection.borrowed;
+    final direction = dirStr.toLowerCase() == 'lent'
+        ? LoanDirection.lent
+        : LoanDirection.borrowed;
 
     return Loan(
-      id: map['id'] is int ? map['id'] as int : (map['id'] != null ? int.tryParse(map['id'].toString()) : null),
-      counterpartyId: map['counterparty_id'] is int ? map['counterparty_id'] as int : int.parse(map['counterparty_id'].toString()),
+      id: map['id'] is int
+          ? map['id'] as int
+          : (map['id'] != null ? int.tryParse(map['id'].toString()) : null),
+      counterpartyId: map['counterparty_id'] is int
+          ? map['counterparty_id'] as int
+          : int.parse(map['counterparty_id'].toString()),
       title: map['title'] as String? ?? '',
       direction: direction,
-      principalAmount: map['principal_amount'] is int ? map['principal_amount'] as int : int.parse(map['principal_amount'].toString()),
-      installmentCount: map['installment_count'] is int ? map['installment_count'] as int : int.parse(map['installment_count'].toString()),
-      installmentAmount: map['installment_amount'] is int ? map['installment_amount'] as int : int.parse(map['installment_amount'].toString()),
+      principalAmount: map['principal_amount'] is int
+          ? map['principal_amount'] as int
+          : int.parse(map['principal_amount'].toString()),
+      installmentCount: map['installment_count'] is int
+          ? map['installment_count'] as int
+          : int.parse(map['installment_count'].toString()),
+      installmentAmount: map['installment_amount'] is int
+          ? map['installment_amount'] as int
+          : int.parse(map['installment_amount'].toString()),
       startDateJalali: map['start_date_jalali'] as String? ?? '',
       notes: map['notes'] as String?,
       createdAt: map['created_at'] as String? ?? '',

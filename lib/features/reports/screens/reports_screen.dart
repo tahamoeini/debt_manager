@@ -1,11 +1,12 @@
+/// Reports screen: shows overall summaries and filtered installment lists.
 import 'package:flutter/material.dart';
 
-import '../../../core/db/database_helper.dart';
-import '../../../core/utils/format_utils.dart';
-import '../../../core/utils/jalali_utils.dart';
-import '../../shared/summary_cards.dart';
-import '../../loans/models/installment.dart';
-import '../../loans/models/loan.dart';
+import 'package:debt_manager/core/db/database_helper.dart';
+import 'package:debt_manager/core/utils/format_utils.dart';
+import 'package:debt_manager/core/utils/jalali_utils.dart';
+import 'package:debt_manager/features/shared/summary_cards.dart';
+import 'package:debt_manager/features/loans/models/installment.dart';
+import 'package:debt_manager/features/loans/models/loan.dart';
 
 class ReportsScreen extends StatefulWidget {
   const ReportsScreen({super.key});
@@ -42,7 +43,9 @@ class _ReportsScreenState extends State<ReportsScreen> {
   Future<List<Map<String, dynamic>>> _loadFilteredInstallments() async {
     // Refresh overdue installments, then load all installments within date range and optional direction
     await _db.refreshOverdueInstallments(DateTime.now());
-    final fromStr = _from != null ? formatJalali(dateTimeToJalali(_from!)) : null;
+    final fromStr = _from != null
+        ? formatJalali(dateTimeToJalali(_from!))
+        : null;
     final toStr = _to != null ? formatJalali(dateTimeToJalali(_to!)) : null;
 
     // Get all loans (filtered by direction if provided) and build map
@@ -59,10 +62,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
         if (toStr != null && due.compareTo(toStr) > 0) inRange = false;
         if (!inRange) continue;
 
-        rows.add({
-          'installment': inst,
-          'loan': loan,
-        });
+        rows.add({'installment': inst, 'loan': loan});
       }
     }
 
@@ -78,17 +78,25 @@ class _ReportsScreenState extends State<ReportsScreen> {
 
   Future<void> _pickFrom() async {
     final now = DateTime.now();
-    final picked = await showDatePicker(context: context, initialDate: now, firstDate: DateTime(now.year - 5), lastDate: DateTime(now.year + 5));
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: now,
+      firstDate: DateTime(now.year - 5),
+      lastDate: DateTime(now.year + 5),
+    );
     if (picked != null) setState(() => _from = picked);
   }
 
   Future<void> _pickTo() async {
     final now = DateTime.now();
-    final picked = await showDatePicker(context: context, initialDate: now, firstDate: DateTime(now.year - 5), lastDate: DateTime(now.year + 5));
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: now,
+      firstDate: DateTime(now.year - 5),
+      lastDate: DateTime(now.year + 5),
+    );
     if (picked != null) setState(() => _to = picked);
   }
-
-
 
   @override
   Widget build(BuildContext context) {
@@ -98,7 +106,8 @@ class _ReportsScreenState extends State<ReportsScreen> {
         FutureBuilder<Map<String, dynamic>>(
           future: _loadSummary(),
           builder: (context, snap) {
-            if (snap.connectionState == ConnectionState.waiting) return const Center(child: CircularProgressIndicator());
+            if (snap.connectionState == ConnectionState.waiting)
+              return const Center(child: CircularProgressIndicator());
             if (snap.hasError) {
               debugPrint('ReportsScreen _loadSummary error: ${snap.error}');
               return const Center(child: Text('خطا در بارگذاری داده‌ها'));
@@ -114,36 +123,62 @@ class _ReportsScreenState extends State<ReportsScreen> {
         const SizedBox(height: 20),
         const Text('فیلترها', style: TextStyle(fontWeight: FontWeight.w700)),
         const SizedBox(height: 8),
-        Row(children: [
-          Expanded(
-            child: DropdownButton<LoanDirection?>(
-              value: _directionFilter,
-              isExpanded: true,
-              items: const [
-                DropdownMenuItem(value: null, child: Text('همه')),
-                DropdownMenuItem(value: LoanDirection.borrowed, child: Text('گرفته‌ام')),
-                DropdownMenuItem(value: LoanDirection.lent, child: Text('داده‌ام')),
-              ],
-              onChanged: (v) => setState(() => _directionFilter = v),
+        Row(
+          children: [
+            Expanded(
+              child: DropdownButton<LoanDirection?>(
+                value: _directionFilter,
+                isExpanded: true,
+                items: const [
+                  DropdownMenuItem(value: null, child: Text('همه')),
+                  DropdownMenuItem(
+                    value: LoanDirection.borrowed,
+                    child: Text('گرفته‌ام'),
+                  ),
+                  DropdownMenuItem(
+                    value: LoanDirection.lent,
+                    child: Text('داده‌ام'),
+                  ),
+                ],
+                onChanged: (v) => setState(() => _directionFilter = v),
+              ),
             ),
-          ),
-          const SizedBox(width: 12),
-          ElevatedButton(onPressed: _pickFrom, child: Text(_from == null ? 'از تاریخ' : formatJalaliForDisplay(dateTimeToJalali(_from!)))),
-          const SizedBox(width: 8),
-          ElevatedButton(onPressed: _pickTo, child: Text(_to == null ? 'تا تاریخ' : formatJalaliForDisplay(dateTimeToJalali(_to!)))),
-        ]),
+            const SizedBox(width: 12),
+            ElevatedButton(
+              onPressed: _pickFrom,
+              child: Text(
+                _from == null
+                    ? 'از تاریخ'
+                    : formatJalaliForDisplay(dateTimeToJalali(_from!)),
+              ),
+            ),
+            const SizedBox(width: 8),
+            ElevatedButton(
+              onPressed: _pickTo,
+              child: Text(
+                _to == null
+                    ? 'تا تاریخ'
+                    : formatJalaliForDisplay(dateTimeToJalali(_to!)),
+              ),
+            ),
+          ],
+        ),
 
         const SizedBox(height: 12),
         FutureBuilder<List<Map<String, dynamic>>>(
           future: _loadFilteredInstallments(),
           builder: (context, snap) {
-            if (snap.connectionState == ConnectionState.waiting) return const Center(child: CircularProgressIndicator());
+            if (snap.connectionState == ConnectionState.waiting)
+              return const Center(child: CircularProgressIndicator());
             if (snap.hasError) {
-              debugPrint('ReportsScreen _loadFilteredInstallments error: ${snap.error}');
+              debugPrint(
+                'ReportsScreen _loadFilteredInstallments error: ${snap.error}',
+              );
               return const Center(child: Text('خطا در بارگذاری داده‌ها'));
             }
             final rows = snap.data ?? [];
-            if (rows.isEmpty) return const Center(child: Text('هیچ موردی یافت نشد'));
+            if (rows.isEmpty)
+              return const Center(child: Text('هیچ موردی یافت نشد'));
 
             return Column(
               children: rows.map((r) {
@@ -151,15 +186,24 @@ class _ReportsScreenState extends State<ReportsScreen> {
                 final Loan loan = r['loan'] as Loan;
                 return Card(
                   child: ListTile(
-                    title: Text(loan.title.isNotEmpty ? loan.title : 'بدون عنوان', style: Theme.of(context).textTheme.titleMedium),
-                    subtitle: Text('${formatJalaliForDisplay(parseJalali(inst.dueDateJalali))} · ${_statusLabel(inst.status)}', style: Theme.of(context).textTheme.bodyMedium),
-                    trailing: Text(formatCurrency(inst.amount), style: Theme.of(context).textTheme.bodyMedium),
+                    title: Text(
+                      loan.title.isNotEmpty ? loan.title : 'بدون عنوان',
+                      style: Theme.of(context).textTheme.titleMedium,
+                    ),
+                    subtitle: Text(
+                      '${formatJalaliForDisplay(parseJalali(inst.dueDateJalali))} · ${_statusLabel(inst.status)}',
+                      style: Theme.of(context).textTheme.bodyMedium,
+                    ),
+                    trailing: Text(
+                      formatCurrency(inst.amount),
+                      style: Theme.of(context).textTheme.bodyMedium,
+                    ),
                   ),
                 );
               }).toList(),
             );
           },
-        )
+        ),
       ],
     );
   }

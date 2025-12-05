@@ -51,8 +51,8 @@ class Installment {
       'status': status == InstallmentStatus.pending
           ? 'pending'
           : status == InstallmentStatus.paid
-              ? 'paid'
-              : 'overdue',
+          ? 'paid'
+          : 'overdue',
       'paid_at': paidAt,
       'notification_id': notificationId,
     };
@@ -62,16 +62,28 @@ class Installment {
     final statusStr = (map['status'] as String?)?.toLowerCase() ?? 'pending';
     final status = statusStr == 'paid'
         ? InstallmentStatus.paid
-        : (statusStr == 'overdue' ? InstallmentStatus.overdue : InstallmentStatus.pending);
+        : (statusStr == 'overdue'
+              ? InstallmentStatus.overdue
+              : InstallmentStatus.pending);
 
     return Installment(
-      id: map['id'] is int ? map['id'] as int : (map['id'] != null ? int.tryParse(map['id'].toString()) : null),
-      loanId: map['loan_id'] is int ? map['loan_id'] as int : int.parse(map['loan_id'].toString()),
+      id: map['id'] is int
+          ? map['id'] as int
+          : (map['id'] != null ? int.tryParse(map['id'].toString()) : null),
+      loanId: map['loan_id'] is int
+          ? map['loan_id'] as int
+          : int.parse(map['loan_id'].toString()),
       dueDateJalali: map['due_date_jalali'] as String? ?? '',
-      amount: map['amount'] is int ? map['amount'] as int : int.parse(map['amount'].toString()),
+      amount: map['amount'] is int
+          ? map['amount'] as int
+          : int.parse(map['amount'].toString()),
       status: status,
       paidAt: map['paid_at'] as String?,
-      notificationId: map['notification_id'] is int ? map['notification_id'] as int : (map['notification_id'] != null ? int.tryParse(map['notification_id'].toString()) : null),
+      notificationId: map['notification_id'] is int
+          ? map['notification_id'] as int
+          : (map['notification_id'] != null
+                ? int.tryParse(map['notification_id'].toString())
+                : null),
     );
   }
 

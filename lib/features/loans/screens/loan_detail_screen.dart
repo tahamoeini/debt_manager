@@ -1,12 +1,13 @@
+/// Loan detail screen: shows loan details and its installments and actions.
 import 'package:flutter/material.dart';
 
-import '../../../core/db/database_helper.dart';
-import '../../../core/notifications/notification_service.dart';
-import '../../../core/utils/format_utils.dart';
-import '../../../core/utils/jalali_utils.dart';
-import '../../loans/models/counterparty.dart';
-import '../../loans/models/installment.dart';
-import '../../loans/models/loan.dart';
+import 'package:debt_manager/core/db/database_helper.dart';
+import 'package:debt_manager/core/notifications/notification_service.dart';
+import 'package:debt_manager/core/utils/format_utils.dart';
+import 'package:debt_manager/core/utils/jalali_utils.dart';
+import 'package:debt_manager/features/loans/models/counterparty.dart';
+import 'package:debt_manager/features/loans/models/installment.dart';
+import 'package:debt_manager/features/loans/models/loan.dart';
 
 class LoanDetailScreen extends StatefulWidget {
   const LoanDetailScreen({super.key, required this.loanId});
@@ -25,16 +26,17 @@ class _LoanDetailScreenState extends State<LoanDetailScreen> {
 
     final cps = await _db.getAllCounterparties();
     final cp = loan != null
-        ? cps.firstWhere((c) => c.id == loan.counterpartyId, orElse: () => Counterparty(id: null, name: 'نامشخص'))
+        ? cps.firstWhere(
+            (c) => c.id == loan.counterpartyId,
+            orElse: () => Counterparty(id: null, name: 'نامشخص'),
+          )
         : Counterparty(id: null, name: 'نامشخص');
 
-    final installments = loan != null ? await _db.getInstallmentsByLoanId(widget.loanId) : <Installment>[];
+    final installments = loan != null
+        ? await _db.getInstallmentsByLoanId(widget.loanId)
+        : <Installment>[];
 
-    return {
-      'loan': loan,
-      'counterparty': cp,
-      'installments': installments,
-    };
+    return {'loan': loan, 'counterparty': cp, 'installments': installments};
   }
 
   String _directionText(LoanDirection dir) {
@@ -55,7 +57,10 @@ class _LoanDetailScreenState extends State<LoanDetailScreen> {
   Future<void> _markPaid(Installment inst) async {
     if (inst.id == null) return;
 
-    final updated = inst.copyWith(status: InstallmentStatus.paid, paidAt: DateTime.now().toIso8601String());
+    final updated = inst.copyWith(
+      status: InstallmentStatus.paid,
+      paidAt: DateTime.now().toIso8601String(),
+    );
     await _db.updateInstallment(updated);
 
     if (inst.notificationId != null) {
@@ -70,15 +75,21 @@ class _LoanDetailScreenState extends State<LoanDetailScreen> {
     return FutureBuilder<Map<String, dynamic>>(
       future: _loadAll(),
       builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) return Scaffold(body: const Center(child: CircularProgressIndicator()));
+        if (snapshot.connectionState == ConnectionState.waiting)
+          return Scaffold(
+            body: const Center(child: CircularProgressIndicator()),
+          );
         if (snapshot.hasError) {
           debugPrint('LoanDetailScreen _loadAll error: ${snapshot.error}');
-          return const Scaffold(body: Center(child: Text('خطا در بارگذاری داده‌ها')));
+          return const Scaffold(
+            body: Center(child: Text('خطا در بارگذاری داده‌ها')),
+          );
         }
 
         final loan = snapshot.data?['loan'] as Loan?;
         final cp = snapshot.data?['counterparty'] as Counterparty?;
-        final installments = snapshot.data?['installments'] as List<Installment>? ?? [];
+        final installments =
+            snapshot.data?['installments'] as List<Installment>? ?? [];
 
         if (loan == null) {
           return Scaffold(
@@ -88,7 +99,9 @@ class _LoanDetailScreenState extends State<LoanDetailScreen> {
         }
 
         return Scaffold(
-          appBar: AppBar(title: Text(loan.title.isNotEmpty ? loan.title : 'بدون عنوان')),
+          appBar: AppBar(
+            title: Text(loan.title.isNotEmpty ? loan.title : 'بدون عنوان'),
+          ),
           body: ListView(
             padding: const EdgeInsets.all(16),
             children: [
@@ -98,40 +111,75 @@ class _LoanDetailScreenState extends State<LoanDetailScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(loan.title, style: Theme.of(context).textTheme.headlineSmall),
+                      Text(
+                        loan.title,
+                        style: Theme.of(context).textTheme.headlineSmall,
+                      ),
                       const SizedBox(height: 8),
-                      Text(cp?.name ?? 'نامشخص', style: Theme.of(context).textTheme.bodyMedium),
+                      Text(
+                        cp?.name ?? 'نامشخص',
+                        style: Theme.of(context).textTheme.bodyMedium,
+                      ),
                       const SizedBox(height: 8),
                       Text(_directionText(loan.direction)),
                       const SizedBox(height: 12),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text('مبلغ اصلی: ${formatCurrency(loan.principalAmount)}'),
-                          Text('تعداد اقساط: ${toPersianDigits(loan.installmentCount)}'),
+                          Text(
+                            'مبلغ اصلی: ${formatCurrency(loan.principalAmount)}',
+                          ),
+                          Text(
+                            'تعداد اقساط: ${toPersianDigits(loan.installmentCount)}',
+                          ),
                         ],
                       ),
                       const SizedBox(height: 8),
-                      Text('مبلغ قسط: ${formatCurrency(loan.installmentAmount)}'),
+                      Text(
+                        'مبلغ قسط: ${formatCurrency(loan.installmentAmount)}',
+                      ),
                       const SizedBox(height: 8),
-                      Text('شروع: ${formatJalaliForDisplay(parseJalali(loan.startDateJalali))}'),
+                      Text(
+                        'شروع: ${formatJalaliForDisplay(parseJalali(loan.startDateJalali))}',
+                      ),
                     ],
                   ),
                 ),
               ),
               const SizedBox(height: 16),
-              Text('اقساط', style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700)),
+              Text(
+                'اقساط',
+                style: Theme.of(
+                  context,
+                ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
+              ),
               const SizedBox(height: 8),
               ...installments.map((inst) {
-                final due = formatJalaliForDisplay(parseJalali(inst.dueDateJalali));
+                final due = formatJalaliForDisplay(
+                  parseJalali(inst.dueDateJalali),
+                );
                 final paid = inst.status == InstallmentStatus.paid;
                 return Card(
                   child: ListTile(
                     title: Text(due),
-                    subtitle: Text(_statusText(inst.status) + (paid && inst.paidAt != null ? ' • ${inst.paidAt}' : ''), style: Theme.of(context).textTheme.bodyMedium),
-                    trailing: Text(formatCurrency(inst.amount), style: Theme.of(context).textTheme.bodyMedium),
+                    subtitle: Text(
+                      _statusText(inst.status) +
+                          (paid && inst.paidAt != null
+                              ? ' • ${inst.paidAt}'
+                              : ''),
+                      style: Theme.of(context).textTheme.bodyMedium,
+                    ),
+                    trailing: Text(
+                      formatCurrency(inst.amount),
+                      style: Theme.of(context).textTheme.bodyMedium,
+                    ),
                     leading: IconButton(
-                      icon: Icon(paid ? Icons.check_circle : Icons.radio_button_unchecked, color: paid ? Colors.green : null),
+                      icon: Icon(
+                        paid
+                            ? Icons.check_circle
+                            : Icons.radio_button_unchecked,
+                        color: paid ? Colors.green : null,
+                      ),
                       onPressed: paid
                           ? null
                           : () async {

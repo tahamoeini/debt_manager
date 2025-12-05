@@ -32,7 +32,9 @@ class _AppShellState extends State<AppShell> {
           IconButton(
             icon: const Icon(Icons.settings),
             onPressed: () async {
-              await Navigator.of(context).push(MaterialPageRoute(builder: (_) => const SettingsScreen()));
+              await Navigator.of(
+                context,
+              ).push(MaterialPageRoute(builder: (_) => const SettingsScreen()));
               setState(() {});
             },
           ),
@@ -48,7 +50,10 @@ class _AppShellState extends State<AppShell> {
         },
         destinations: const [
           NavigationDestination(icon: Icon(Icons.home), label: 'خانه'),
-          NavigationDestination(icon: Icon(Icons.account_balance_wallet), label: 'وام‌ها'),
+          NavigationDestination(
+            icon: Icon(Icons.account_balance_wallet),
+            label: 'وام‌ها',
+          ),
           NavigationDestination(icon: Icon(Icons.analytics), label: 'گزارش‌ها'),
         ],
       ),

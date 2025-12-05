@@ -1,8 +1,9 @@
 // ignore_for_file: deprecated_member_use
 
+/// Settings screen: adjust local app settings like reminder offsets.
 import 'package:flutter/material.dart';
 
-import '../../../core/settings/settings_repository.dart';
+import 'package:debt_manager/core/settings/settings_repository.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -58,14 +59,22 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('یادآوری اقساط', style: Theme.of(context).textTheme.titleMedium),
+                        Text(
+                          'یادآوری اقساط',
+                          style: Theme.of(context).textTheme.titleMedium,
+                        ),
                         const SizedBox(height: 8),
-                        Text('فاصله زمانی ارسال یادآوری قبل از سررسید', style: Theme.of(context).textTheme.bodySmall),
+                        Text(
+                          'فاصله زمانی ارسال یادآوری قبل از سررسید',
+                          style: Theme.of(context).textTheme.bodySmall,
+                        ),
                         const SizedBox(height: 12),
                         Column(
                           children: _options.map((opt) {
                             return RadioListTile<int>(
-                              title: Text(opt == 0 ? 'روز سررسید' : '$opt روز قبل'),
+                              title: Text(
+                                opt == 0 ? 'روز سررسید' : '$opt روز قبل',
+                              ),
                               value: opt,
                               groupValue: _offset,
                               onChanged: (v) async {
@@ -74,7 +83,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                               },
                             );
                           }).toList(),
-                        )
+                        ),
                       ],
                     ),
                   ),

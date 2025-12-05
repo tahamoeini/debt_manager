@@ -1,9 +1,11 @@
+/// Jalali date utilities: parse/format and schedule helpers for Jalali dates.
 import 'package:shamsi_date/shamsi_date.dart';
 
 /// Parse a Jalali date string in the format `yyyy-MM-dd` into a [Jalali].
 Jalali parseJalali(String value) {
   final parts = value.split('-');
-  if (parts.length != 3) throw FormatException('Invalid Jalali date format, expected yyyy-MM-dd');
+  if (parts.length != 3)
+    throw FormatException('Invalid Jalali date format, expected yyyy-MM-dd');
   final year = int.parse(parts[0]);
   final month = int.parse(parts[1]);
   final day = int.parse(parts[2]);

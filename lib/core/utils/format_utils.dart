@@ -12,7 +12,7 @@ String toPersianDigits(int value) {
     '6': '۶',
     '7': '۷',
     '8': '۸',
-    '9': '۹'
+    '9': '۹',
   };
   final s = value.toString();
   return s.split('').map((c) => map[c] ?? c).join();
@@ -22,7 +22,10 @@ String toPersianDigits(int value) {
 /// Example: formatCurrency(1234567) => "۱٬۲۳۴٬۵۶۷ ریال"
 String formatCurrency(int value) {
   final s = value.abs().toString();
-  final withSep = s.replaceAllMapped(RegExp(r"\B(?=(\d{3})+(?!\d))"), (m) => ',');
+  final withSep = s.replaceAllMapped(
+    RegExp(r"\B(?=(\d{3})+(?!\d))"),
+    (m) => ',',
+  );
   final persian = withSep.split('').map((c) {
     const map = {
       '0': '۰',
@@ -35,7 +38,7 @@ String formatCurrency(int value) {
       '7': '۷',
       '8': '۸',
       '9': '۹',
-      ',': '٬'
+      ',': '٬',
     };
     return map[c] ?? c;
   }).join();

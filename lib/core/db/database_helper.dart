@@ -1,13 +1,14 @@
+/// Database helper: CRUD and reporting utilities for counterparties, loans and installments.
 import 'dart:async';
 
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 
-import '../../features/loans/models/counterparty.dart';
-import '../../features/loans/models/loan.dart';
-import '../../features/loans/models/installment.dart';
-import '../utils/jalali_utils.dart';
+import 'package:debt_manager/features/loans/models/counterparty.dart';
+import 'package:debt_manager/features/loans/models/loan.dart';
+import 'package:debt_manager/features/loans/models/installment.dart';
+import 'package:debt_manager/core/utils/jalali_utils.dart';
 
 class DatabaseHelper {
   static final DatabaseHelper instance = DatabaseHelper._internal();
@@ -38,17 +39,15 @@ class DatabaseHelper {
       // Web: we don't have sqflite available. The in-memory stores will be used
       // by the CRUD methods directly, so just throw to avoid accidental calls
       // to sqflite APIs from here.
-      throw UnsupportedError('Database initialization is not supported on web; use in-memory stores.');
+      throw UnsupportedError(
+        'Database initialization is not supported on web; use in-memory stores.',
+      );
     }
 
     final databasesPath = await getDatabasesPath();
     final path = join(databasesPath, _dbName);
 
-    return openDatabase(
-      path,
-      version: _dbVersion,
-      onCreate: _onCreate,
-    );
+    return openDatabase(path, version: _dbVersion, onCreate: _onCreate);
   }
 
   FutureOr<void> _onCreate(Database db, int version) async {
@@ -110,12 +109,19 @@ class DatabaseHelper {
   Future<List<Counterparty>> getAllCounterparties() async {
     if (_isWeb) {
       final rows = List<Map<String, dynamic>>.from(_cpStore);
-      rows.sort((a, b) => (a['name'] as String).toLowerCase().compareTo((b['name'] as String).toLowerCase()));
+      rows.sort(
+        (a, b) => (a['name'] as String).toLowerCase().compareTo(
+          (b['name'] as String).toLowerCase(),
+        ),
+      );
       return rows.map((r) => Counterparty.fromMap(r)).toList();
     }
 
     final db = await database;
-    final rows = await db.query('counterparties', orderBy: 'name COLLATE NOCASE');
+    final rows = await db.query(
+      'counterparties',
+      orderBy: 'name COLLATE NOCASE',
+    );
     return rows.map((r) => Counterparty.fromMap(r)).toList();
   }
 
@@ -140,10 +146,15 @@ class DatabaseHelper {
     if (_isWeb) {
       var rows = List<Map<String, dynamic>>.from(_loanStore);
       if (direction != null) {
-        final dirStr = direction == LoanDirection.borrowed ? 'borrowed' : 'lent';
+        final dirStr = direction == LoanDirection.borrowed
+            ? 'borrowed'
+            : 'lent';
         rows = rows.where((r) => r['direction'] == dirStr).toList();
       }
-      rows.sort((a, b) => (b['created_at'] as String).compareTo(a['created_at'] as String));
+      rows.sort(
+        (a, b) =>
+            (b['created_at'] as String).compareTo(a['created_at'] as String),
+      );
       return rows.map((r) => Loan.fromMap(r)).toList();
     }
 
@@ -153,7 +164,12 @@ class DatabaseHelper {
       rows = await db.query('loans', orderBy: 'created_at DESC');
     } else {
       final dirStr = direction == LoanDirection.borrowed ? 'borrowed' : 'lent';
-      rows = await db.query('loans', where: 'direction = ?', whereArgs: [dirStr], orderBy: 'created_at DESC');
+      rows = await db.query(
+        'loans',
+        where: 'direction = ?',
+        whereArgs: [dirStr],
+        orderBy: 'created_at DESC',
+      );
     }
     return rows.map((r) => Loan.fromMap(r)).toList();
   }
@@ -166,7 +182,12 @@ class DatabaseHelper {
     }
 
     final db = await database;
-    final rows = await db.query('loans', where: 'id = ?', whereArgs: [id], limit: 1);
+    final rows = await db.query(
+      'loans',
+      where: 'id = ?',
+      whereArgs: [id],
+      limit: 1,
+    );
     if (rows.isEmpty) return null;
     return Loan.fromMap(rows.first);
   }
@@ -190,35 +211,60 @@ class DatabaseHelper {
 
   Future<List<Installment>> getInstallmentsByLoanId(int loanId) async {
     if (_isWeb) {
-      final rows = _installmentStore.where((r) => r['loan_id'] == loanId).toList()
-        ..sort((a, b) => (a['due_date_jalali'] as String).compareTo(b['due_date_jalali'] as String));
+      final rows =
+          _installmentStore.where((r) => r['loan_id'] == loanId).toList()..sort(
+            (a, b) => (a['due_date_jalali'] as String).compareTo(
+              b['due_date_jalali'] as String,
+            ),
+          );
       return rows.map((r) => Installment.fromMap(r)).toList();
     }
 
     final db = await database;
-    final rows = await db.query('installments', where: 'loan_id = ?', whereArgs: [loanId], orderBy: 'due_date_jalali ASC');
+    final rows = await db.query(
+      'installments',
+      where: 'loan_id = ?',
+      whereArgs: [loanId],
+      orderBy: 'due_date_jalali ASC',
+    );
     return rows.map((r) => Installment.fromMap(r)).toList();
   }
 
   Future<int> updateInstallment(Installment installment) async {
     if (installment.id == null) throw ArgumentError('Installment.id is null');
     if (_isWeb) {
-      final idx = _installmentStore.indexWhere((r) => r['id'] == installment.id);
+      final idx = _installmentStore.indexWhere(
+        (r) => r['id'] == installment.id,
+      );
       if (idx == -1) throw ArgumentError('Installment not found');
       _installmentStore[idx] = installment.toMap();
       return 1;
     }
 
     final db = await database;
-    return await db.update('installments', installment.toMap(), where: 'id = ?', whereArgs: [installment.id]);
+    return await db.update(
+      'installments',
+      installment.toMap(),
+      where: 'id = ?',
+      whereArgs: [installment.id],
+    );
   }
 
-  Future<Map<int, List<Installment>>> getInstallmentsGroupedByLoanId(List<int> loanIds) async {
+  Future<Map<int, List<Installment>>> getInstallmentsGroupedByLoanId(
+    List<int> loanIds,
+  ) async {
     if (loanIds.isEmpty) return {};
 
     if (_isWeb) {
-      final filtered = _installmentStore.where((r) => loanIds.contains(r['loan_id'] as int)).toList()
-        ..sort((a, b) => (a['due_date_jalali'] as String).compareTo(b['due_date_jalali'] as String));
+      final filtered =
+          _installmentStore
+              .where((r) => loanIds.contains(r['loan_id'] as int))
+              .toList()
+            ..sort(
+              (a, b) => (a['due_date_jalali'] as String).compareTo(
+                b['due_date_jalali'] as String,
+              ),
+            );
 
       final Map<int, List<Installment>> map = {};
       for (final row in filtered) {
@@ -239,7 +285,9 @@ class DatabaseHelper {
 
     final Map<int, List<Installment>> map = {};
     for (final r in rows) {
-      final lid = r['loan_id'] is int ? r['loan_id'] as int : int.parse(r['loan_id'].toString());
+      final lid = r['loan_id'] is int
+          ? r['loan_id'] as int
+          : int.parse(r['loan_id'].toString());
       map.putIfAbsent(lid, () => []).add(Installment.fromMap(r));
     }
 
@@ -254,8 +302,13 @@ class DatabaseHelper {
     if (_isWeb) {
       int total = 0;
       for (final i in _installmentStore) {
-        final loan = _loanStore.firstWhere((l) => l['id'] == i['loan_id'], orElse: () => {});
-        if (loan.isNotEmpty && loan['direction'] == 'borrowed' && i['status'] != 'paid') {
+        final loan = _loanStore.firstWhere(
+          (l) => l['id'] == i['loan_id'],
+          orElse: () => {},
+        );
+        if (loan.isNotEmpty &&
+            loan['direction'] == 'borrowed' &&
+            i['status'] != 'paid') {
           total += (i['amount'] as int);
         }
       }
@@ -279,8 +332,13 @@ class DatabaseHelper {
     if (_isWeb) {
       int total = 0;
       for (final i in _installmentStore) {
-        final loan = _loanStore.firstWhere((l) => l['id'] == i['loan_id'], orElse: () => {});
-        if (loan.isNotEmpty && loan['direction'] == 'lent' && i['status'] != 'paid') {
+        final loan = _loanStore.firstWhere(
+          (l) => l['id'] == i['loan_id'],
+          orElse: () => {},
+        );
+        if (loan.isNotEmpty &&
+            loan['direction'] == 'lent' &&
+            i['status'] != 'paid') {
           total += (i['amount'] as int);
         }
       }
@@ -300,7 +358,10 @@ class DatabaseHelper {
     return 0;
   }
 
-  Future<List<Installment>> getUpcomingInstallments(DateTime from, DateTime to) async {
+  Future<List<Installment>> getUpcomingInstallments(
+    DateTime from,
+    DateTime to,
+  ) async {
     // Convert the provided Gregorian datetimes to Jalali yyyy-MM-dd strings
     final fromJ = dateTimeToJalali(from);
     final toJ = dateTimeToJalali(to);
@@ -309,13 +370,17 @@ class DatabaseHelper {
 
     if (_isWeb) {
       // Do not touch sqflite on web; use in-memory store and compare Jalali strings
-      final rows = _installmentStore.where((r) {
-        final statusOk = (r['status'] as String?) == 'pending';
-        final due = r['due_date_jalali'] as String?;
-        if (!statusOk || due == null) return false;
-        return due.compareTo(fromStr) >= 0 && due.compareTo(toStr) <= 0;
-      }).toList()
-        ..sort((a, b) => (a['due_date_jalali'] as String).compareTo(b['due_date_jalali'] as String));
+      final rows =
+          _installmentStore.where((r) {
+            final statusOk = (r['status'] as String?) == 'pending';
+            final due = r['due_date_jalali'] as String?;
+            if (!statusOk || due == null) return false;
+            return due.compareTo(fromStr) >= 0 && due.compareTo(toStr) <= 0;
+          }).toList()..sort(
+            (a, b) => (a['due_date_jalali'] as String).compareTo(
+              b['due_date_jalali'] as String,
+            ),
+          );
 
       return rows.map((r) => Installment.fromMap(r)).toList();
     }

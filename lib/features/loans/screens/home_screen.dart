@@ -1,12 +1,13 @@
+/// Home screen: dashboard showing summaries and upcoming installments.
 import 'package:flutter/material.dart';
 
-import '../../../core/db/database_helper.dart';
-import '../../../core/utils/format_utils.dart';
-import '../../../core/utils/jalali_utils.dart';
-import '../../shared/summary_cards.dart';
-import '../../loans/models/counterparty.dart';
-import '../../loans/models/installment.dart';
-import '../../loans/models/loan.dart';
+import 'package:debt_manager/core/db/database_helper.dart';
+import 'package:debt_manager/core/utils/format_utils.dart';
+import 'package:debt_manager/core/utils/jalali_utils.dart';
+import 'package:debt_manager/features/shared/summary_cards.dart';
+import 'package:debt_manager/features/loans/models/counterparty.dart';
+import 'package:debt_manager/features/loans/models/installment.dart';
+import 'package:debt_manager/features/loans/models/loan.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -50,8 +51,6 @@ class _HomeScreenState extends State<HomeScreen> {
     };
   }
 
-
-
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<Map<String, dynamic>>(
@@ -79,7 +78,10 @@ class _HomeScreenState extends State<HomeScreen> {
           children: [
             SummaryCards(borrowed: borrowed, lent: lent, net: net),
             const SizedBox(height: 20),
-            const Text('اقساط نزدیک', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
+            const Text(
+              'اقساط نزدیک',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+            ),
             const SizedBox(height: 8),
             if (upcoming.isEmpty)
               const Card(
@@ -103,9 +105,15 @@ class _HomeScreenState extends State<HomeScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(loanTitle, style: const TextStyle(fontWeight: FontWeight.w600)),
+                        Text(
+                          loanTitle,
+                          style: const TextStyle(fontWeight: FontWeight.w600),
+                        ),
                         const SizedBox(height: 4),
-                        Text(cpName, style: Theme.of(context).textTheme.bodySmall),
+                        Text(
+                          cpName,
+                          style: Theme.of(context).textTheme.bodySmall,
+                        ),
                         const SizedBox(height: 8),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
