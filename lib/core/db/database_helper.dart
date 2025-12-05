@@ -9,6 +9,7 @@ import 'package:debt_manager/features/loans/models/counterparty.dart';
 import 'package:debt_manager/features/loans/models/loan.dart';
 import 'package:debt_manager/features/loans/models/installment.dart';
 import 'package:debt_manager/core/utils/jalali_utils.dart';
+import 'package:debt_manager/core/notifications/notification_service.dart';
 
 class DatabaseHelper {
   static final DatabaseHelper instance = DatabaseHelper._internal();
@@ -209,6 +210,17 @@ class DatabaseHelper {
     return await db.insert('installments', installment.toMap());
   }
 
+  /// Delete all installments for a given loan id.
+  Future<int> deleteInstallmentsByLoanId(int loanId) async {
+    if (_isWeb) {
+      _installmentStore.removeWhere((r) => r['loan_id'] == loanId);
+      return 1;
+    }
+
+    final db = await database;
+    return await db.delete('installments', where: 'loan_id = ?', whereArgs: [loanId]);
+  }
+
   Future<List<Installment>> getInstallmentsByLoanId(int loanId) async {
     if (_isWeb) {
       final rows =
@@ -248,6 +260,53 @@ class DatabaseHelper {
       where: 'id = ?',
       whereArgs: [installment.id],
     );
+  }
+
+  /// Update an existing loan row. Requires loan.id to be non-null.
+  Future<int> updateLoan(Loan loan) async {
+    if (loan.id == null) throw ArgumentError('Loan.id is null');
+    if (_isWeb) {
+      final idx = _loanStore.indexWhere((r) => r['id'] == loan.id);
+      if (idx == -1) throw ArgumentError('Loan not found');
+      _loanStore[idx] = loan.toMap();
+      return 1;
+    }
+
+    final db = await database;
+    return await db.update('loans', loan.toMap(), where: 'id = ?', whereArgs: [loan.id]);
+  }
+
+  /// Delete a loan row by id.
+  Future<int> deleteLoan(int loanId) async {
+    if (_isWeb) {
+      _loanStore.removeWhere((r) => r['id'] == loanId);
+      return 1;
+    }
+
+    final db = await database;
+    return await db.delete('loans', where: 'id = ?', whereArgs: [loanId]);
+  }
+
+  /// Delete a loan and all its installments. This method will cancel any
+  /// scheduled notifications associated with the installments before deleting
+  /// them and the loan itself.
+  Future<void> deleteLoanWithInstallments(int loanId) async {
+    // Fetch installments to cancel notifications
+    final installments = await getInstallmentsByLoanId(loanId);
+
+    for (final inst in installments) {
+      if (inst.notificationId != null) {
+        try {
+          await NotificationService().cancelNotification(inst.notificationId!);
+        } catch (_) {
+          // ignore cancellation errors
+        }
+      }
+    }
+
+    // Delete installments first, then the loan
+    await deleteInstallmentsByLoanId(loanId);
+    await deleteLoan(loanId);
   }
 
   Future<Map<int, List<Installment>>> getInstallmentsGroupedByLoanId(
