@@ -9,6 +9,7 @@ import 'package:debt_manager/features/loans/models/installment.dart';
 import 'package:debt_manager/features/loans/models/loan.dart';
 import 'package:debt_manager/features/loans/models/counterparty.dart';
 import 'package:debt_manager/core/utils/debug_utils.dart';
+import 'package:debt_manager/core/utils/ui_utils.dart';
 
 class ReportsScreen extends StatefulWidget {
   const ReportsScreen({super.key});
@@ -263,10 +264,10 @@ class _ReportsScreenState extends State<ReportsScreen> {
           future: _loadSummary(),
           builder: (context, snap) {
             if (snap.connectionState == ConnectionState.waiting)
-              return const Center(child: CircularProgressIndicator());
+              return UIUtils.centeredLoading();
             if (snap.hasError) {
               debugPrint('ReportsScreen _loadSummary error: ${snap.error}');
-              return const Center(child: Text('خطا در بارگذاری داده‌ها'));
+              return UIUtils.asyncErrorWidget(snap.error);
             }
             final borrowed = snap.data?['borrowed'] as int? ?? 0;
             final lent = snap.data?['lent'] as int? ?? 0;
@@ -414,12 +415,12 @@ class _ReportsScreenState extends State<ReportsScreen> {
           future: _loadFilteredInstallments(),
           builder: (context, snap) {
             if (snap.connectionState == ConnectionState.waiting)
-              return const Center(child: CircularProgressIndicator());
+              return UIUtils.centeredLoading();
             if (snap.hasError) {
               debugPrint(
                 'ReportsScreen _loadFilteredInstallments error: ${snap.error}',
               );
-              return const Center(child: Text('خطا در بارگذاری داده‌ها'));
+              return UIUtils.asyncErrorWidget(snap.error);
             }
             final rows = snap.data ?? [];
             if (rows.isEmpty)
@@ -546,12 +547,12 @@ class _ReportsScreenState extends State<ReportsScreen> {
           future: _computeMonthlyForecast(),
           builder: (context, snap) {
             if (snap.connectionState == ConnectionState.waiting)
-              return const Center(child: CircularProgressIndicator());
+              return UIUtils.centeredLoading();
             if (snap.hasError) {
               debugPrint(
                 'ReportsScreen _computeMonthlyForecast error: ${snap.error}',
               );
-              return const SizedBox.shrink();
+              return UIUtils.asyncErrorWidget(snap.error);
             }
 
             final months = snap.data ?? [];

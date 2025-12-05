@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 
 import 'package:debt_manager/core/db/database_helper.dart';
 import 'package:debt_manager/core/utils/format_utils.dart';
+import 'package:debt_manager/core/utils/ui_utils.dart';
 import 'package:debt_manager/features/loans/models/installment.dart';
 import 'package:debt_manager/features/loans/models/loan.dart';
 import 'package:debt_manager/features/loans/models/counterparty.dart';
@@ -90,12 +91,12 @@ class _LoansListScreenState extends State<LoansListScreen> {
       future: _loadLoanSummaries(filter),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting)
-          return const Center(child: CircularProgressIndicator());
+          return UIUtils.centeredLoading();
         if (snapshot.hasError) {
           debugPrint(
             'LoansListScreen _loadLoanSummaries error: ${snapshot.error}',
           );
-          return const Center(child: Text('خطا در بارگذاری داده‌ها'));
+          return UIUtils.asyncErrorWidget(snapshot.error);
         }
         final items = snapshot.data ?? [];
         if (items.isEmpty)

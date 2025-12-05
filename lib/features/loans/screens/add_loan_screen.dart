@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 
 import 'package:debt_manager/core/db/database_helper.dart';
 import 'package:debt_manager/core/utils/jalali_utils.dart';
+import 'package:debt_manager/core/utils/ui_utils.dart';
 import 'package:debt_manager/core/notifications/notification_service.dart';
 import 'package:debt_manager/core/settings/settings_repository.dart';
 import 'package:debt_manager/features/loans/models/counterparty.dart';
@@ -43,6 +44,8 @@ class _AddLoanScreenState extends State<AddLoanScreen> {
   Jalali? _startJalali;
   bool _isSubmitting = false;
   String? _counterpartyType; // 'person' | 'bank' | 'company'
+  late FocusNode _titleFocus;
+  bool _isDirty = false;
 
   final _db = DatabaseHelper.instance;
 
@@ -72,6 +75,14 @@ class _AddLoanScreenState extends State<AddLoanScreen> {
       _counterpartyType = cp.type;
       _counterpartyTagController.text = cp.tag ?? '';
     }
+    _titleFocus = FocusNode();
+    _counterpartyController.addListener(() => _markDirty());
+    _titleController.addListener(() => _markDirty());
+    _principalController.addListener(() => _markDirty());
+    _installmentCountController.addListener(() => _markDirty());
+    _installmentAmountController.addListener(() => _markDirty());
+    _notesController.addListener(() => _markDirty());
+    _counterpartyTagController.addListener(() => _markDirty());
   }
 
   @override
@@ -83,7 +94,12 @@ class _AddLoanScreenState extends State<AddLoanScreen> {
     _installmentCountController.dispose();
     _installmentAmountController.dispose();
     _notesController.dispose();
+    _titleFocus.dispose();
     super.dispose();
+  }
+  
+  void _markDirty() {
+    if (!_isDirty) setState(() => _isDirty = true);
   }
 
   Future<void> _pickStartDate() async {
@@ -105,9 +121,7 @@ class _AddLoanScreenState extends State<AddLoanScreen> {
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
     if (_startJalali == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('لطفا تاریخ شروع را انتخاب کنید')),
-      );
+        UIUtils.showAppSnackBar(context, 'لطفا تاریخ شروع را انتخاب کنید');
       return;
     }
 
@@ -279,11 +293,8 @@ class _AddLoanScreenState extends State<AddLoanScreen> {
 
       if (mounted) Navigator.of(context).pop(true);
     } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(const SnackBar(content: Text('خطا هنگام ذخیره')));
-      }
+      debugPrint('AddLoanScreen _submit error: $e');
+      if (mounted) UIUtils.showAppSnackBar(context, 'خطا هنگام ذخیره');
     } finally {
       if (mounted) setState(() => _isSubmitting = false);
     }
@@ -291,7 +302,25 @@ class _AddLoanScreenState extends State<AddLoanScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return WillPopScope(
+      onWillPop: () async {
+        if (!_isDirty) return true;
+        final res = await showDialog<bool>(
+          context: context,
+          builder: (c) => AlertDialog(
+            title: const Text('تغییرات ذخیره نشده'),
+            content: const Text('تایید می‌کنید که بدون ذخیره خارج شوید؟'),
+            actions: [
+              TextButton(onPressed: () => Navigator.of(c).pop(false), child: const Text('لغو')),
+              TextButton(onPressed: () => Navigator.of(c).pop(true), child: const Text('خروج')),
+            ],
+          ),
+        );
+        return res == true;
+      },
+      child: GestureDetector(
+        onTap: () => FocusScope.of(context).unfocus(),
+        child: Scaffold(
       appBar: AppBar(title: Text(_isEdit ? 'ویرایش وام' : 'افزودن وام')),
       body: Padding(
         padding: const EdgeInsets.all(16),
@@ -327,6 +356,9 @@ class _AddLoanScreenState extends State<AddLoanScreen> {
                   labelText: 'طرف مقابل',
                   hintText: 'نام شخص یا موسسه',
                 ),
+                autofocus: !_isEdit,
+                focusNode: _titleFocus,
+                validator: (v) => (v == null || v.trim().isEmpty) ? 'لطفا طرف مقابل را وارد کنید' : null,
               ),
               const SizedBox(height: 8),
               Row(
@@ -401,7 +433,7 @@ class _AddLoanScreenState extends State<AddLoanScreen> {
                     return 'لطفا تعداد اقساط را وارد کنید';
                   final parsed = int.tryParse(v.trim());
                   if (parsed == null) return 'لطفا عدد معتبر وارد کنید';
-                  if (parsed <= 0) return 'تعداد باید حداقل 1 باشد';
+                  if (parsed < 1) return 'تعداد باید حداقل 1 باشد';
                   return null;
                 },
               ),
