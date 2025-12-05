@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:debt_manager/core/db/database_helper.dart';
 import 'package:debt_manager/core/utils/format_utils.dart';
 import 'package:debt_manager/core/utils/jalali_utils.dart';
+import 'package:debt_manager/core/utils/debug_utils.dart';
 import 'package:debt_manager/features/shared/summary_cards.dart';
 import 'package:debt_manager/features/loans/models/counterparty.dart';
 import 'package:debt_manager/features/loans/models/installment.dart';
@@ -20,7 +21,11 @@ class _HomeScreenState extends State<HomeScreen> {
   final _db = DatabaseHelper.instance;
 
   Future<Map<String, dynamic>> _loadData() async {
+    // Ensure overdue statuses are refreshed once before querying totals.
     await _db.refreshOverdueInstallments(DateTime.now());
+
+    if (kDebugLogging) debugLog('HomeScreen: refreshed overdue installments');
+
     final borrowed = await _db.getTotalOutstandingBorrowed();
     final lent = await _db.getTotalOutstandingLent();
     final net = lent - borrowed;
@@ -28,9 +33,15 @@ class _HomeScreenState extends State<HomeScreen> {
     final today = DateTime.now();
     final to = today.add(const Duration(days: 7));
 
+    // Fetch upcoming installments for the next 7 days (keeps existing behavior).
     final upcoming = await _db.getUpcomingInstallments(today, to);
 
+    if (kDebugLogging)
+      debugLog('HomeScreen: upcoming installments count=${upcoming.length}');
+
     // Fetch related loans and counterparties to show titles and names.
+    // Load related loans and counterparties once to avoid repeated DB calls
+    // while rendering the upcoming list.
     final loanIds = upcoming.map((i) => i.loanId).toSet();
     final Map<int, Loan> loansById = {};
     for (final id in loanIds) {
@@ -40,6 +51,11 @@ class _HomeScreenState extends State<HomeScreen> {
 
     final cps = await _db.getAllCounterparties();
     final Map<int, Counterparty> cpById = {for (var c in cps) c.id ?? -1: c};
+
+    if (kDebugLogging)
+      debugLog(
+        'HomeScreen: loansById=${loansById.length}, counterparties=${cpById.length}',
+      );
 
     return {
       'borrowed': borrowed,

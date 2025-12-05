@@ -7,6 +7,7 @@ import 'package:debt_manager/core/utils/jalali_utils.dart';
 import 'package:debt_manager/features/shared/summary_cards.dart';
 import 'package:debt_manager/features/loans/models/installment.dart';
 import 'package:debt_manager/features/loans/models/loan.dart';
+import 'package:debt_manager/core/utils/debug_utils.dart';
 
 class ReportsScreen extends StatefulWidget {
   const ReportsScreen({super.key});
@@ -23,6 +24,12 @@ class _ReportsScreenState extends State<ReportsScreen> {
   DateTime? _to;
 
   Future<Map<String, dynamic>> _loadSummary() async {
+    // Refresh overdue installments before computing totals to ensure
+    // totals reflect the latest statuses.
+    await _db.refreshOverdueInstallments(DateTime.now());
+    if (kDebugLogging)
+      debugLog('ReportsScreen: refreshed overdue installments for summary');
+
     final borrowed = await _db.getTotalOutstandingBorrowed();
     final lent = await _db.getTotalOutstandingLent();
     final net = lent - borrowed;
@@ -41,22 +48,40 @@ class _ReportsScreenState extends State<ReportsScreen> {
   }
 
   Future<List<Map<String, dynamic>>> _loadFilteredInstallments() async {
-    // Refresh overdue installments, then load all installments within date range and optional direction
+    // 1) Refresh overdue statuses once up-front so subsequent queries
+    //    observe the latest installment states.
     await _db.refreshOverdueInstallments(DateTime.now());
+    if (kDebugLogging)
+      debugLog(
+        'ReportsScreen: refreshed overdue installments for filtered list',
+      );
+
+    // 2) Prepare date range filters as Jalali yyyy-MM-dd strings (or null).
     final fromStr = _from != null
         ? formatJalali(dateTimeToJalali(_from!))
         : null;
     final toStr = _to != null ? formatJalali(dateTimeToJalali(_to!)) : null;
 
-    // Get all loans (filtered by direction if provided) and build map
+    // 3) Load loans filtered by direction (null = all). This keeps behavior
+    //    simple and avoids constructing complex SQL for now.
     final loans = await _db.getAllLoans(direction: _directionFilter);
+    if (kDebugLogging)
+      debugLog(
+        'ReportsScreen: loans loaded count=${loans.length} direction=$_directionFilter',
+      );
 
-    // For simplicity, query installments by iterating loans and fetching installments
+    // 4) Iterate loans and collect installments that fall within the date range.
+    //    This is intentionally straightforward: for each loan we fetch its
+    //    installments and apply the date filters in-memory.
     final List<Map<String, dynamic>> rows = [];
     for (final loan in loans) {
+      // Defensive: skip loans without an id
+      if (loan.id == null) continue;
+
       final installments = await _db.getInstallmentsByLoanId(loan.id!);
       for (final inst in installments) {
         final due = inst.dueDateJalali; // yyyy-MM-dd
+
         var inRange = true;
         if (fromStr != null && due.compareTo(fromStr) < 0) inRange = false;
         if (toStr != null && due.compareTo(toStr) > 0) inRange = false;
@@ -66,12 +91,19 @@ class _ReportsScreenState extends State<ReportsScreen> {
       }
     }
 
-    // Sort by due date
+    // 5) Sort by due date to present results chronologically.
     rows.sort((a, b) {
       final aDue = (a['installment'] as Installment).dueDateJalali;
       final bDue = (b['installment'] as Installment).dueDateJalali;
       return aDue.compareTo(bDue);
     });
+
+    if (kDebugLogging)
+      debugLog('ReportsScreen: filtered installments count=${rows.length}');
+
+    // TODO: For larger datasets consider a single SQL query joining loans and
+    // installments with WHERE clauses for direction and due_date_jalali to avoid
+    // loading all loans/installments into memory.
 
     return rows;
   }
