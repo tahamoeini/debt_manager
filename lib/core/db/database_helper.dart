@@ -238,7 +238,11 @@ class DatabaseHelper {
     }
 
     final db = await database;
-    return await db.delete('installments', where: 'loan_id = ?', whereArgs: [loanId]);
+    return await db.delete(
+      'installments',
+      where: 'loan_id = ?',
+      whereArgs: [loanId],
+    );
   }
 
   Future<List<Installment>> getInstallmentsByLoanId(int loanId) async {
@@ -293,7 +297,12 @@ class DatabaseHelper {
     }
 
     final db = await database;
-    return await db.update('loans', loan.toMap(), where: 'id = ?', whereArgs: [loan.id]);
+    return await db.update(
+      'loans',
+      loan.toMap(),
+      where: 'id = ?',
+      whereArgs: [loan.id],
+    );
   }
 
   /// Delete a loan row by id.
