@@ -1,6 +1,6 @@
 // Formatting utilities for currency and Persian digit conversion.
 
-/// Convert an integer to Persian digits (۰-۹).
+// Convert an integer to Persian digits (۰-۹).
 String toPersianDigits(int value) {
   const map = {
     '0': '۰',
@@ -18,8 +18,8 @@ String toPersianDigits(int value) {
   return s.split('').map((c) => map[c] ?? c).join();
 }
 
-/// Format a currency value with thousand separators and Persian digits.
-/// Example: formatCurrency(1234567) => "۱٬۲۳۴٬۵۶۷ ریال"
+// Format a currency value with thousand separators and Persian digits.
+// Example: formatCurrency(1234567) => "۱٬۲۳۴٬۵۶۷ ریال"
 String formatCurrency(int value) {
   final s = value.abs().toString();
   final withSep = s.replaceAllMapped(

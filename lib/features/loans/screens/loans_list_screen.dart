@@ -1,4 +1,4 @@
-/// Loans list screen: displays loans grouped by direction and supports add/open.
+// Loans list screen: displays loans grouped by direction and supports add/open.
 import 'package:flutter/material.dart';
 
 import 'package:debt_manager/core/db/database_helper.dart';

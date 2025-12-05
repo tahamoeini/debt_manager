@@ -1,6 +1,6 @@
 import 'package:flutter/foundation.dart';
 
-/// Direction of the loan: whether the user borrowed or lent money.
+// Direction of the loan: whether the user borrowed or lent money.
 enum LoanDirection { borrowed, lent }
 
 @immutable

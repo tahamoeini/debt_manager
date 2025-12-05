@@ -1,4 +1,4 @@
-/// Database helper: CRUD and reporting utilities for counterparties, loans and installments.
+// Database helper: CRUD and reporting utilities for counterparties, loans and installments.
 import 'dart:async';
 
 import 'package:flutter/foundation.dart' show kIsWeb;

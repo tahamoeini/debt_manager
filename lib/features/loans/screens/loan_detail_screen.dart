@@ -1,4 +1,4 @@
-/// Loan detail screen: shows loan details and its installments and actions.
+// Loan detail screen: shows loan details and its installments and actions.
 import 'package:flutter/material.dart';
 
 import 'package:debt_manager/core/db/database_helper.dart';
@@ -250,10 +250,12 @@ class _LoanDetailScreenState extends State<LoanDetailScreen> {
                       ),
                     );
 
+                    if (!mounted) return;
+
                     if (res == true) {
                       // Editing was successful: pop this detail screen and signal
                       // the caller (loans list) to refresh.
-                      if (mounted) Navigator.of(context).pop(true);
+                      Navigator.of(context).pop(true);
                       return;
                     }
                   } else if (v == 'delete') {
@@ -282,12 +284,16 @@ class _LoanDetailScreenState extends State<LoanDetailScreen> {
                         if (loan.id != null) {
                           await _db.deleteLoanWithInstallments(loan.id!);
                         }
+
+                        if (!mounted) return;
+
                         // Pop back to previous screen and signal that caller should refresh.
-                        if (mounted) Navigator.of(context).pop(true);
+                        Navigator.of(context).pop(true);
                       } catch (e) {
                         debugPrint('Failed to delete loan: $e');
-                        if (mounted)
+                        if (mounted) {
                           UIUtils.showAppSnackBar(context, 'خطا هنگام حذف');
+                        }
                       }
                     }
                   }

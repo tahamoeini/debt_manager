@@ -1,6 +1,6 @@
 // ignore_for_file: deprecated_member_use, use_build_context_synchronously
 
-/// Add loan screen: form for creating a loan and its installments.
+// Add loan screen: form for creating a loan and its installments.
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -427,11 +427,16 @@ class _AddLoanScreenState extends State<AddLoanScreen> {
                     inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                     keyboardType: TextInputType.number,
                     validator: (v) {
-                      if (v == null || v.trim().isEmpty)
+                      if (v == null || v.trim().isEmpty) {
                         return 'لطفا مبلغ را وارد کنید';
+                      }
                       final parsed = int.tryParse(v.trim());
-                      if (parsed == null) return 'لطفا عدد معتبر وارد کنید';
-                      if (parsed <= 0) return 'مبلغ باید بیشتر از صفر باشد';
+                      if (parsed == null) {
+                        return 'لطفا عدد معتبر وارد کنید';
+                      }
+                      if (parsed <= 0) {
+                        return 'مبلغ باید بیشتر از صفر باشد';
+                      }
                       return null;
                     },
                   ),
@@ -445,11 +450,16 @@ class _AddLoanScreenState extends State<AddLoanScreen> {
                     inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                     keyboardType: TextInputType.number,
                     validator: (v) {
-                      if (v == null || v.trim().isEmpty)
+                      if (v == null || v.trim().isEmpty) {
                         return 'لطفا تعداد اقساط را وارد کنید';
+                      }
                       final parsed = int.tryParse(v.trim());
-                      if (parsed == null) return 'لطفا عدد معتبر وارد کنید';
-                      if (parsed < 1) return 'تعداد باید حداقل 1 باشد';
+                      if (parsed == null) {
+                        return 'لطفا عدد معتبر وارد کنید';
+                      }
+                      if (parsed < 1) {
+                        return 'تعداد باید حداقل 1 باشد';
+                      }
                       return null;
                     },
                   ),
@@ -463,11 +473,16 @@ class _AddLoanScreenState extends State<AddLoanScreen> {
                     inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                     keyboardType: TextInputType.number,
                     validator: (v) {
-                      if (v == null || v.trim().isEmpty)
+                      if (v == null || v.trim().isEmpty) {
                         return 'لطفا مبلغ قسط را وارد کنید';
+                      }
                       final parsed = int.tryParse(v.trim());
-                      if (parsed == null) return 'لطفا عدد معتبر وارد کنید';
-                      if (parsed <= 0) return 'مبلغ باید بیشتر از صفر باشد';
+                      if (parsed == null) {
+                        return 'لطفا عدد معتبر وارد کنید';
+                      }
+                      if (parsed <= 0) {
+                        return 'مبلغ باید بیشتر از صفر باشد';
+                      }
                       return null;
                     },
                   ),

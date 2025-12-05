@@ -1,4 +1,4 @@
-/// Reports screen: shows overall summaries and filtered installment lists.
+// Reports screen: shows overall summaries and filtered installment lists.
 import 'package:flutter/material.dart';
 
 import 'package:debt_manager/core/db/database_helper.dart';
@@ -348,30 +348,33 @@ class _ReportsScreenState extends State<ReportsScreen> {
                     label: const Text('در انتظار'),
                     selected: _statusFilter.contains(InstallmentStatus.pending),
                     onSelected: (v) => setState(() {
-                      if (v)
+                      if (v) {
                         _statusFilter.add(InstallmentStatus.pending);
-                      else
+                      } else {
                         _statusFilter.remove(InstallmentStatus.pending);
+                      }
                     }),
                   ),
                   FilterChip(
                     label: const Text('عقب‌افتاده'),
                     selected: _statusFilter.contains(InstallmentStatus.overdue),
                     onSelected: (v) => setState(() {
-                      if (v)
+                      if (v) {
                         _statusFilter.add(InstallmentStatus.overdue);
-                      else
+                      } else {
                         _statusFilter.remove(InstallmentStatus.overdue);
+                      }
                     }),
                   ),
                   FilterChip(
                     label: const Text('پرداخت شده'),
                     selected: _statusFilter.contains(InstallmentStatus.paid),
                     onSelected: (v) => setState(() {
-                      if (v)
+                      if (v) {
                         _statusFilter.add(InstallmentStatus.paid);
-                      else
+                      } else {
                         _statusFilter.remove(InstallmentStatus.paid);
+                      }
                     }),
                   ),
                 ],
@@ -537,7 +540,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
                       ),
                     ),
                   );
-                }).toList(),
+                }),
               ],
             );
           },
@@ -582,12 +585,6 @@ class _ReportsScreenState extends State<ReportsScreen> {
                           child: Row(
                             children: [
                               Expanded(flex: 2, child: Text(label)),
-                              Expanded(
-                                flex: 3,
-                                child: Text(
-                                  'خروجی: ${formatCurrency(outgoing)}',
-                                ),
-                              ),
                               Expanded(
                                 flex: 3,
                                 child: Text(

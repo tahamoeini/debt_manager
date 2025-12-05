@@ -1,4 +1,4 @@
-/// Notification service: wrapper over local notifications for installment reminders.
+// Notification service: wrapper over local notifications for installment reminders.
 import 'package:flutter/foundation.dart' show debugPrint, kIsWeb;
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 // Timezone scheduling is intentionally omitted to avoid package API

@@ -1,6 +1,6 @@
 // ignore_for_file: deprecated_member_use
 
-/// Settings screen: adjust local app settings like reminder offsets.
+// Settings screen: adjust local app settings like reminder offsets.
 import 'package:flutter/material.dart';
 
 import 'package:debt_manager/core/settings/settings_repository.dart';
@@ -138,16 +138,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                                         text: jsonStr,
                                                       ),
                                                     );
-                                                    if (mounted)
-                                                      ScaffoldMessenger.of(
-                                                        context,
-                                                      ).showSnackBar(
-                                                        const SnackBar(
-                                                          content: Text(
-                                                            'کپی شد',
-                                                          ),
-                                                        ),
-                                                      );
+                                                    if (!mounted) return;
+                                                    ScaffoldMessenger.of(
+                                                      context,
+                                                    ).showSnackBar(
+                                                      const SnackBar(
+                                                        content: Text('کپی شد'),
+                                                      ),
+                                                    );
                                                   },
                                                 ),
                                               ],
@@ -262,28 +260,28 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                                   parsed,
                                                   clearBefore: true,
                                                 );
-                                            if (mounted)
-                                              ScaffoldMessenger.of(
-                                                context,
-                                              ).showSnackBar(
-                                                const SnackBar(
-                                                  content: Text(
-                                                    'بازیابی با موفقیت انجام شد',
-                                                  ),
+                                            if (!mounted) return;
+                                            ScaffoldMessenger.of(
+                                              context,
+                                            ).showSnackBar(
+                                              const SnackBar(
+                                                content: Text(
+                                                  'بازیابی با موفقیت انجام شد',
                                                 ),
-                                              );
+                                              ),
+                                            );
                                             Navigator.of(ctx).pop();
                                           } catch (e) {
-                                            if (mounted)
-                                              ScaffoldMessenger.of(
-                                                context,
-                                              ).showSnackBar(
-                                                SnackBar(
-                                                  content: Text(
-                                                    'خطا در واردسازی: $e',
-                                                  ),
+                                            if (!mounted) return;
+                                            ScaffoldMessenger.of(
+                                              context,
+                                            ).showSnackBar(
+                                              SnackBar(
+                                                content: Text(
+                                                  'خطا در واردسازی: $e',
                                                 ),
-                                              );
+                                              ),
+                                            );
                                           }
                                         },
                                         child: const Text('Import'),

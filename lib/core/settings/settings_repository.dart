@@ -1,4 +1,4 @@
-/// Settings repository: stores and retrieves simple user settings.
+// Settings repository: stores and retrieves simple user settings.
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SettingsRepository {

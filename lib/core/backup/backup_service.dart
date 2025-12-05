@@ -1,4 +1,4 @@
-/// Backup service: export/import app data as JSON (counterparties, loans, installments).
+// Backup service: export/import app data as JSON (counterparties, loans, installments).
 import 'dart:convert';
 
 import 'package:debt_manager/core/db/database_helper.dart';

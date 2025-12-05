@@ -1,4 +1,4 @@
-/// Summary UI cards showing total borrowed, lent and net amounts.
+// Summary UI cards showing total borrowed, lent and net amounts.
 import 'package:flutter/material.dart';
 import 'package:debt_manager/core/utils/format_utils.dart';
 

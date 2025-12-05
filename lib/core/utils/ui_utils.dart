@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-/// Small UI helpers used across screens for consistent SnackBar and async
-/// error/waiting states.
+// Small UI helpers used across screens for consistent SnackBar and async
+// error/waiting states.
 class UIUtils {
   static const snackBarDuration = Duration(seconds: 3);
 

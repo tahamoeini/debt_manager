@@ -1,4 +1,4 @@
-/// Home screen: dashboard showing summaries and upcoming installments.
+// Home screen: dashboard showing summaries and upcoming installments.
 import 'package:flutter/material.dart';
 
 import 'package:debt_manager/core/db/database_helper.dart';
@@ -25,7 +25,9 @@ class _HomeScreenState extends State<HomeScreen> {
     // Ensure overdue statuses are refreshed once before querying totals.
     await _db.refreshOverdueInstallments(DateTime.now());
 
-    if (kDebugLogging) debugLog('HomeScreen: refreshed overdue installments');
+    if (kDebugLogging) {
+      debugLog('HomeScreen: refreshed overdue installments');
+    }
 
     final borrowed = await _db.getTotalOutstandingBorrowed();
     final lent = await _db.getTotalOutstandingLent();
@@ -37,8 +39,9 @@ class _HomeScreenState extends State<HomeScreen> {
     // Fetch upcoming installments for the next 7 days (keeps existing behavior).
     final upcoming = await _db.getUpcomingInstallments(today, to);
 
-    if (kDebugLogging)
+    if (kDebugLogging) {
       debugLog('HomeScreen: upcoming installments count=${upcoming.length}');
+    }
 
     // Fetch related loans and counterparties to show titles and names.
     // Load related loans and counterparties once to avoid repeated DB calls
@@ -53,10 +56,11 @@ class _HomeScreenState extends State<HomeScreen> {
     final cps = await _db.getAllCounterparties();
     final Map<int, Counterparty> cpById = {for (var c in cps) c.id ?? -1: c};
 
-    if (kDebugLogging)
+    if (kDebugLogging) {
       debugLog(
         'HomeScreen: loansById=${loansById.length}, counterparties=${cpById.length}',
       );
+    }
 
     return {
       'borrowed': borrowed,
@@ -73,8 +77,9 @@ class _HomeScreenState extends State<HomeScreen> {
     return FutureBuilder<Map<String, dynamic>>(
       future: _loadData(),
       builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting)
+        if (snapshot.connectionState == ConnectionState.waiting) {
           return UIUtils.centeredLoading();
+        }
 
         if (snapshot.hasError) {
           debugPrint('HomeScreen _loadData error: ${snapshot.error}');
