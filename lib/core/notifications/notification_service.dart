@@ -1,4 +1,4 @@
-import 'package:flutter/foundation.dart' show debugPrint;
+import 'package:flutter/foundation.dart' show debugPrint, kIsWeb;
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 // Timezone scheduling is intentionally omitted to avoid package API
 // compatibility issues across flutter_local_notifications versions.
@@ -59,6 +59,15 @@ class NotificationService {
     required String title,
     required String body,
   }) async {
+    // Skip scheduling on web: flutter_local_notifications has limited
+    // scheduling support on web and dynamic invocation above produced
+    // runtime errors during web runs. Keep scheduling a no-op on web
+    // while still allowing mobile/desktop platforms to schedule.
+    if (kIsWeb) {
+      debugPrint('scheduleInstallmentReminder: skipping scheduling on web');
+      return;
+    }
+
     try {
       const androidDetails = AndroidNotificationDetails(
         _channelId,
