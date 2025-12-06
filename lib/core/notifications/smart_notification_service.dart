@@ -175,7 +175,7 @@ class SmartNotificationService {
 
       await _plugin.show(
         30000, // Fixed ID for monthly summary
-        '📊 Monthly Budget Summary',
+        '📊 خلاصه بودجه ماهانه',
         message,
         details,
       );

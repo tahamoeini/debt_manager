@@ -4,6 +4,7 @@ import 'package:debt_manager/core/db/database_helper.dart';
 import 'package:debt_manager/features/loans/models/loan.dart';
 import 'package:debt_manager/features/loans/models/installment.dart';
 import 'package:debt_manager/core/utils/jalali_utils.dart';
+import 'package:debt_manager/core/utils/format_utils.dart';
 
 /// Represents a detected subscription pattern
 class SubscriptionInsight {
@@ -78,10 +79,10 @@ class SmartInsightsService {
             final occurrences = amountEntry.value;
             
             subscriptions.add(SubscriptionInsight(
-              payee: commonPayee ?? 'Unknown',
+              payee: commonPayee ?? 'ناشناس',
               amount: amount,
               occurrences: occurrences,
-              description: 'Recurring payment of ${(amount / 100).toStringAsFixed(2)} for $occurrences months',
+              description: 'پرداخت تکراری ${formatCurrency(amount)} برای $occurrences ماه',
             ));
           }
         }
@@ -140,7 +141,7 @@ class SmartInsightsService {
                 previousAmount: prevAmount,
                 currentAmount: currentAmount,
                 percentageChange: percentageChange,
-                description: '${loan.title} increased by ${percentageChange.toStringAsFixed(1)}% compared to last month',
+                description: '${loan.title} ${percentageChange.toStringAsFixed(1)}٪ نسبت به ماه قبل افزایش یافت',
               ));
             }
           }
@@ -168,10 +169,10 @@ class SmartInsightsService {
 
   /// Generate a smart suggestion message for detected patterns
   String generateSuggestionMessage(SubscriptionInsight subscription) {
-    return '💡 It looks like you have a subscription: ${(subscription.amount / 100).toStringAsFixed(2)}/mo for ${subscription.payee}. Still using this?';
+    return '💡 به نظر می‌رسد شما یک اشتراک دارید: ${formatCurrency(subscription.amount)} در ماه برای ${subscription.payee}. هنوز استفاده می‌کنید؟';
   }
 
   String generateBillChangeMessage(BillChangeInsight change) {
-    return '📈 Your ${change.payee} bill increased by ${change.percentageChange.toStringAsFixed(0)}% compared to last month';
+    return '📈 قبض ${change.payee} شما ${change.percentageChange.toStringAsFixed(0)}٪ نسبت به ماه قبل افزایش یافته است';
   }
 }
