@@ -243,10 +243,8 @@ class LoadingDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
-    return WillPopScope(
-      onWillPop: () async => false, // Prevent dismissal
+    return PopScope(
+      canPop: false,
       child: AlertDialog(
         shape: RoundedRectangleBorder(
           borderRadius: AppRadius.dialog,

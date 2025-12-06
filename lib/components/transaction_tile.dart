@@ -133,7 +133,7 @@ class TransactionTile extends StatelessWidget {
     // Wrap with Dismissible if swipe actions are provided
     if (onDelete != null || onEdit != null) {
       return Dismissible(
-        key: ValueKey(title + amount.toString() + DateTime.now().millisecondsSinceEpoch.toString()),
+        key: ValueKey('$title-$amount-${payee ?? ""}-${category ?? ""}'),
         background: Container(
           decoration: BoxDecoration(
             color: colorScheme.danger,

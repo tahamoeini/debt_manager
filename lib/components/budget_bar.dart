@@ -14,7 +14,7 @@ class BudgetBar extends StatelessWidget {
   /// Budget limit/maximum
   final int limit;
 
-  /// Optional custom height (default: 8)
+  /// Optional custom height (default: AppRadius.sm)
   final double? height;
 
   /// Whether to show the percentage label
@@ -64,9 +64,9 @@ class BudgetBar extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         ClipRRect(
-          borderRadius: BorderRadius.circular(height ?? 8),
+          borderRadius: BorderRadius.circular(height ?? AppRadius.sm),
           child: SizedBox(
-            height: height ?? 8,
+            height: height ?? AppRadius.sm,
             child: LinearProgressIndicator(
               value: percentage,
               backgroundColor: barColor.withOpacity(0.2),
