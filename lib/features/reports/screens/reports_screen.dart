@@ -328,7 +328,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
               ),
             ),
             const SizedBox(width: 12),
-            ElevatedButton(
+            FilledButton(
               onPressed: _pickFrom,
               child: Text(
                 _from == null
@@ -337,7 +337,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
               ),
             ),
             const SizedBox(width: 8),
-            ElevatedButton(
+            FilledButton(
               onPressed: _pickTo,
               child: Text(
                 _to == null

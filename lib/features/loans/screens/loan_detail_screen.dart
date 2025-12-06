@@ -151,7 +151,7 @@ class _LoanDetailScreenState extends State<LoanDetailScreen> {
                           child: const Text('انصراف'),
                         ),
                         const SizedBox(width: 8),
-                        ElevatedButton(
+                        FilledButton(
                           onPressed: () async {
                             // Build updated installment
                             final entered = amountController.text.trim();

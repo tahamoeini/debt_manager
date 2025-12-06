@@ -14,11 +14,20 @@ Color colorForCategory(String? tag, {required Brightness brightness}) {
   if (tag == null || tag.trim().isEmpty) return Colors.grey;
   final key = tag.toLowerCase().trim();
   final c = _categoryMap[key] ?? Colors.grey;
-  // In dark mode, increase lightness for visibility
+  // Adjust lightness slightly to ensure visibility on different backgrounds.
+  final hsl = HSLColor.fromColor(c);
   if (brightness == Brightness.dark) {
-    return HSLColor.fromColor(c).withLightness(
-      (HSLColor.fromColor(c).lightness + 0.25).clamp(0.0, 1.0),
-    ).toColor();
+    final lighter = hsl.withLightness((hsl.lightness + 0.28).clamp(0.0, 1.0));
+    // If still too dark for dark backgrounds, bump more
+    if (lighter.toColor().computeLuminance() < 0.12) {
+      return hsl.withLightness((hsl.lightness + 0.45).clamp(0.0, 1.0)).toColor();
+    }
+    return lighter.toColor();
+  } else {
+    // For light backgrounds, avoid colors that are too pale (low contrast).
+    if (hsl.lightness > 0.9) {
+      return hsl.withLightness(0.75).toColor();
+    }
+    return c;
   }
-  return c;
 }

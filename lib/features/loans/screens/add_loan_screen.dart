@@ -513,7 +513,7 @@ class _AddLoanScreenState extends State<AddLoanScreen> {
                                       : 'شروع: ${formatJalaliForDisplay(_startJalali!)}',
                                 ),
                               ),
-                              ElevatedButton(
+                              FilledButton(
                                 onPressed: () async {
                                   await _pickStartDate();
                                   state.validate();
@@ -541,7 +541,7 @@ class _AddLoanScreenState extends State<AddLoanScreen> {
                     },
                   ),
                   const SizedBox(height: 20),
-                  ElevatedButton(
+                  FilledButton(
                     onPressed: _isSubmitting ? null : _submit,
                     child: _isSubmitting
                         ? const CircularProgressIndicator()

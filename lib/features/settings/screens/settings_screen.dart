@@ -161,7 +161,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         const SizedBox(height: 12),
                         Row(
                           children: [
-                            ElevatedButton(
+                            FilledButton(
                               onPressed: () async {
                                 final messenger = ScaffoldMessenger.of(context);
                                 try {
@@ -241,7 +241,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                               child: const Text('Export data (JSON)'),
                             ),
                             const SizedBox(width: 12),
-                            ElevatedButton(
+                            FilledButton(
                               onPressed: () async {
                                 // Show a dialog with a multiline TextField to paste JSON
                                 final controller = TextEditingController();
@@ -301,7 +301,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                             Navigator.of(ctx).pop(),
                                         child: const Text('Cancel'),
                                       ),
-                                      ElevatedButton(
+                                      FilledButton(
                                         onPressed: () async {
                                           final messenger =
                                               ScaffoldMessenger.of(context);
