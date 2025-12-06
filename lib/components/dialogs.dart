@@ -243,6 +243,8 @@ class LoadingDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    
     return PopScope(
       canPop: false,
       child: AlertDialog(
