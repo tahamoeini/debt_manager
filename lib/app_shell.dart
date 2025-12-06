@@ -30,7 +30,7 @@ class _AppShellState extends State<AppShell> {
         title: Text(_titles[_selectedIndex]),
         actions: [
           IconButton(
-            icon: const Icon(Icons.settings),
+            icon: const Icon(Icons.settings_outlined),
             onPressed: () async {
               await Navigator.of(
                 context,
@@ -49,12 +49,12 @@ class _AppShellState extends State<AppShell> {
           });
         },
         destinations: const [
-          NavigationDestination(icon: Icon(Icons.home), label: 'خانه'),
+          NavigationDestination(icon: Icon(Icons.home_outlined), label: 'خانه'),
           NavigationDestination(
-            icon: Icon(Icons.account_balance_wallet),
+            icon: Icon(Icons.account_balance_wallet_outlined),
             label: 'وام‌ها',
           ),
-          NavigationDestination(icon: Icon(Icons.analytics), label: 'گزارش‌ها'),
+          NavigationDestination(icon: Icon(Icons.analytics_outlined), label: 'گزارش‌ها'),
         ],
       ),
     );

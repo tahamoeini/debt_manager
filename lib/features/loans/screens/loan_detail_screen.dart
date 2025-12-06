@@ -403,9 +403,7 @@ class _LoanDetailScreenState extends State<LoanDetailScreen> {
                     ),
                     leading: IconButton(
                       icon: Icon(
-                        paid
-                            ? Icons.check_circle
-                            : Icons.radio_button_unchecked,
+                        paid ? Icons.check_circle_outline : Icons.radio_button_unchecked,
                         color: paid ? Colors.green : null,
                       ),
                       onPressed: paid
@@ -422,7 +420,7 @@ class _LoanDetailScreenState extends State<LoanDetailScreen> {
                           style: Theme.of(context).textTheme.bodyMedium,
                         ),
                         IconButton(
-                          icon: const Icon(Icons.edit),
+                          icon: const Icon(Icons.edit_outlined),
                           onPressed: () async {
                             await _showEditInstallmentSheet(inst);
                           },

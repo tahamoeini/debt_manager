@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 
 import 'package:debt_manager/core/db/database_helper.dart';
 import 'package:debt_manager/core/utils/format_utils.dart';
+import 'package:debt_manager/core/utils/category_colors.dart';
 import 'package:debt_manager/core/utils/ui_utils.dart';
 import 'package:debt_manager/features/loans/models/installment.dart';
 import 'package:debt_manager/features/loans/models/loan.dart';
@@ -101,7 +102,11 @@ class _LoansListScreenState extends State<LoansListScreen> {
         }
         final items = snapshot.data ?? [];
         if (items.isEmpty) {
-          return const Center(child: Text('هیچ موردی یافت نشد'));
+          return UIUtils.animatedEmptyState(
+            context: context,
+            title: 'هیچ موردی یافت نشد',
+            subtitle: 'برای شروع می‌توانید یک مورد جدید اضافه کنید',
+          );
         }
 
         return ListView.separated(
@@ -112,6 +117,14 @@ class _LoansListScreenState extends State<LoansListScreen> {
             final s = items[index];
             return Card(
               child: ListTile(
+                leading: Container(
+                  width: 12,
+                  height: 12,
+                  decoration: BoxDecoration(
+                    color: colorForCategory(s.counterpartyTag, brightness: Theme.of(context).brightness),
+                    shape: BoxShape.circle,
+                  ),
+                ),
                 title: Text(
                   s.loan.title.isNotEmpty ? s.loan.title : 'بدون عنوان',
                   style: Theme.of(context).textTheme.titleMedium,
@@ -191,7 +204,7 @@ class _LoansListScreenState extends State<LoansListScreen> {
               setState(() {});
             }
           },
-          child: const Icon(Icons.add),
+          child: const Icon(Icons.add_outlined),
         ),
       ),
     );

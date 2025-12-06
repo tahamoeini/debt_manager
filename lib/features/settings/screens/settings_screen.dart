@@ -19,6 +19,7 @@ class SettingsScreen extends StatefulWidget {
 class _SettingsScreenState extends State<SettingsScreen> {
   final _repo = SettingsRepository();
   int _offset = 3;
+  ThemeMode _themeMode = ThemeMode.system;
   bool _loading = true;
 
   final List<int> _options = const [0, 1, 3, 7];
@@ -31,9 +32,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   Future<void> _load() async {
     final v = await _repo.getReminderOffsetDays();
+    final tm = await _repo.getThemeMode();
     if (mounted) {
       setState(() {
         _offset = v;
+        _themeMode = tm;
         _loading = false;
       });
     }
@@ -44,6 +47,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
     if (mounted) {
       setState(() {
         _offset = v;
+      });
+    }
+  }
+
+  Future<void> _saveTheme(ThemeMode m) async {
+    await _repo.setThemeMode(m);
+    if (mounted) {
+      setState(() {
+        _themeMode = m;
       });
     }
   }
@@ -100,6 +112,44 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
+                          'نمایش و رنگ‌ها',
+                          style: Theme.of(context).textTheme.titleMedium,
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          'حالت تم برنامه را انتخاب کنید',
+                          style: Theme.of(context).textTheme.bodySmall,
+                        ),
+                        const SizedBox(height: 12),
+                        RadioListTile<ThemeMode>(
+                          title: const Text('Auto (پیش‌فرض سیستم)'),
+                          value: ThemeMode.system,
+                          groupValue: _themeMode,
+                          onChanged: (v) async {
+                            if (v == null) return;
+                            await _saveTheme(v);
+                          },
+                        ),
+                        RadioListTile<ThemeMode>(
+                          title: const Text('Light'),
+                          value: ThemeMode.light,
+                          groupValue: _themeMode,
+                          onChanged: (v) async {
+                            if (v == null) return;
+                            await _saveTheme(v);
+                          },
+                        ),
+                        RadioListTile<ThemeMode>(
+                          title: const Text('Dark'),
+                          value: ThemeMode.dark,
+                          groupValue: _themeMode,
+                          onChanged: (v) async {
+                            if (v == null) return;
+                            await _saveTheme(v);
+                          },
+                        ),
+                        const SizedBox(height: 12),
+                        Text(
                           'پشتیبان‌گیری و بازیابی',
                           style: Theme.of(context).textTheme.titleMedium,
                         ),
@@ -132,7 +182,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                               children: [
                                                 const Text('Exported JSON'),
                                                 IconButton(
-                                                  icon: const Icon(Icons.copy),
+                                                  icon: const Icon(Icons.copy_outlined),
                                                   onPressed: () async {
                                                     final messenger =
                                                         ScaffoldMessenger.of(

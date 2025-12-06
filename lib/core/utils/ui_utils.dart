@@ -29,4 +29,33 @@ class UIUtils {
 
   static Widget centeredLoading() =>
       const Center(child: CircularProgressIndicator());
+
+  // Small animated empty state used across lists. Keeps no extra assets/deps.
+  static Widget animatedEmptyState({
+    required BuildContext context,
+    required String title,
+    String? subtitle,
+    IconData icon = Icons.inbox_outlined,
+  }) {
+    final color = Theme.of(context).colorScheme.onSurface.withOpacity(0.6);
+    return Center(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          AnimatedScale(
+            scale: 1.0,
+            duration: const Duration(milliseconds: 600),
+            curve: Curves.easeOutBack,
+            child: Icon(icon, size: 72, color: color),
+          ),
+          const SizedBox(height: 12),
+          Text(title, style: Theme.of(context).textTheme.titleMedium),
+          if (subtitle != null) ...[
+            const SizedBox(height: 6),
+            Text(subtitle, style: Theme.of(context).textTheme.bodySmall),
+          ]
+        ],
+      ),
+    );
+  }
 }
