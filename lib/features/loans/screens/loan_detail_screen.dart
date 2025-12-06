@@ -10,6 +10,7 @@ import 'package:debt_manager/features/loans/models/counterparty.dart';
 import 'package:debt_manager/features/loans/models/installment.dart';
 import 'package:debt_manager/features/loans/models/loan.dart';
 import 'add_loan_screen.dart';
+import 'package:debt_manager/features/budget/budgets_repository.dart';
 
 class LoanDetailScreen extends StatefulWidget {
   const LoanDetailScreen({super.key, required this.loanId});
@@ -183,6 +184,65 @@ class _LoanDetailScreenState extends State<LoanDetailScreen> {
 
                             // Capture navigator for the bottom sheet before awaiting
                             final sheetNavigator = Navigator.of(ctx);
+
+                            // If marking as paid, check budgets for the paid period
+                            if (isPaid) {
+                              try {
+                                final paidDate = DateTime.now();
+                                final j = dateTimeToJalali(paidDate);
+                                final period = '${j.year.toString().padLeft(4, '0')}-${j.month.toString().padLeft(2, '0')}';
+
+                                final repo = BudgetsRepository();
+                                final budgets = await repo.getBudgetsByPeriod(period);
+
+                                final amountPaid = actualAmt ?? inst.actualPaidAmount ?? inst.amount;
+
+                                final exceeded = <Budget>[];
+                                for (final b in budgets) {
+                                  final used = await repo.computeUtilization(b);
+                                  if ((used + amountPaid) > b.amount) {
+                                    exceeded.add(b);
+                                  }
+                                }
+
+                                if (exceeded.isNotEmpty) {
+                                  final b = exceeded.first;
+                                  final title = b.category ?? 'عمومی';
+                                  final used = await repo.computeUtilization(b);
+                                  final projected = used + amountPaid;
+                                  final proceed = await showDialog<bool>(
+                                    context: ctx,
+                                    builder: (dctx) => AlertDialog(
+                                      title: const Text('هشدار بودجه'),
+                                      content: Text(
+                                        'این پرداخت باعث می‌شود بودجه "$title" از حد تعیین‌شده فراتر رود:\n\n' +
+                                            'بودجه: ${formatCurrency(b.amount)}\n' +
+                                            'استفاده تا کنون: ${formatCurrency(used)}\n' +
+                                            'پس از پرداخت: ${formatCurrency(projected)}\n\n' +
+                                            'آیا مایل به ادامه هستید؟',
+                                      ),
+                                      actions: [
+                                        TextButton(
+                                          onPressed: () => Navigator.of(dctx).pop(false),
+                                          child: const Text('انصراف'),
+                                        ),
+                                        FilledButton(
+                                          onPressed: () => Navigator.of(dctx).pop(true),
+                                          child: const Text('ادامه'),
+                                        ),
+                                      ],
+                                    ),
+                                  );
+
+                                  if (proceed != true) {
+                                    // User cancelled; do not save
+                                    return;
+                                  }
+                                }
+                              } catch (_) {
+                                // On any error, fall back to saving without blocking.
+                              }
+                            }
 
                             await _db.updateInstallment(updated);
 
