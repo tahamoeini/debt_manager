@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 
 import 'package:debt_manager/core/db/database_helper.dart';
 import 'package:debt_manager/core/notifications/notification_service.dart';
+import 'package:debt_manager/core/notifications/smart_notification_service.dart';
 import 'package:debt_manager/core/utils/format_utils.dart';
 import 'package:debt_manager/core/utils/jalali_utils.dart';
 import 'package:debt_manager/core/utils/ui_utils.dart';
@@ -68,6 +69,15 @@ class _LoanDetailScreenState extends State<LoanDetailScreen> {
 
     if (inst.notificationId != null) {
       await NotificationService().cancelNotification(inst.notificationId!);
+    }
+
+    // Check budget thresholds after marking payment
+    try {
+      final jalaliNow = dateTimeToJalali(DateTime.now());
+      final currentPeriod = '${jalaliNow.year.toString().padLeft(4, '0')}-${jalaliNow.month.toString().padLeft(2, '0')}';
+      await SmartNotificationService.instance.checkBudgetThresholds(currentPeriod);
+    } catch (_) {
+      // Silently fail if budget check fails
     }
 
     setState(() {});

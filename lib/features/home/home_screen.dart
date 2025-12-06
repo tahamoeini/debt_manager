@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:debt_manager/features/loans/screens/loans_list_screen.dart';
 import 'package:debt_manager/features/reports/screens/reports_screen.dart';
+import 'package:debt_manager/features/insights/smart_insights_widget.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -72,6 +73,7 @@ class HomeScreen extends StatelessWidget {
             ),
           ),
         ),
+        const SmartInsightsWidget(),
       ],
     );
   }
