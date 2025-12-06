@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:debt_manager/core/theme/app_dimensions.dart';
 import 'package:debt_manager/core/theme/app_colors.dart';
+import 'package:debt_manager/core/utils/category_colors.dart';
+import 'package:debt_manager/core/utils/format_utils.dart';
 
 /// A reusable list tile widget for displaying transaction/installment information.
 /// Provides consistent formatting with proper color coding for income/expense.
@@ -104,19 +106,15 @@ class TransactionTile extends StatelessWidget {
   }
 
   Color _getCategoryColor(BuildContext context) {
-    // Import the existing category_colors utility
-    // For now, return a basic color
     final colorScheme = Theme.of(context).colorScheme;
-    return colorScheme.primary;
+    if (category == null) return colorScheme.primary;
+    
+    // Use the existing category color utility
+    return colorForCategory(category, brightness: Theme.of(context).brightness);
   }
 
   String _formatAmount(int amount) {
-    // Basic formatting - actual app should use formatCurrency from format_utils
-    final s = amount.abs().toString();
-    final withSep = s.replaceAllMapped(
-      RegExp(r"\B(?=(\d{3})+(?!\d))"),
-      (m) => ',',
-    );
-    return '$withSep ریال';
+    // Use the existing formatCurrency utility for consistency
+    return formatCurrency(amount);
   }
 }

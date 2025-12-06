@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:debt_manager/core/theme/app_dimensions.dart';
 import 'package:debt_manager/core/theme/app_colors.dart';
+import 'package:debt_manager/core/utils/format_utils.dart';
 
 /// A reusable progress bar widget for displaying budget utilization.
 /// Changes color based on utilization thresholds (green < 60%, orange < 90%, red >= 90%).
@@ -89,12 +90,7 @@ class BudgetProgressBar extends StatelessWidget {
   }
 
   String _formatAmount(int amount) {
-    // Basic formatting - should use formatCurrency from format_utils
-    final s = amount.abs().toString();
-    final withSep = s.replaceAllMapped(
-      RegExp(r"\B(?=(\d{3})+(?!\d))"),
-      (m) => ',',
-    );
-    return '$withSep ریال';
+    // Use the existing formatCurrency utility for consistency
+    return formatCurrency(amount);
   }
 }
