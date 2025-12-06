@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 
 import 'package:debt_manager/core/settings/settings_repository.dart';
 import 'package:debt_manager/core/notifications/notification_service.dart';
+import 'package:debt_manager/features/categories/screens/manage_categories_screen.dart';
 import 'package:flutter/services.dart';
 import 'dart:convert';
 
@@ -387,6 +388,39 @@ class _SettingsScreenState extends State<SettingsScreen> {
                               },
                             );
                           }).toList(),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                // Category Management Card
+                Card(
+                  child: Padding(
+                    padding: const EdgeInsets.all(12),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'مدیریت دسته‌بندی‌ها',
+                          style: Theme.of(context).textTheme.titleMedium,
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          'افزودن، ویرایش یا حذف دسته‌بندی‌های سفارشی',
+                          style: Theme.of(context).textTheme.bodySmall,
+                        ),
+                        const SizedBox(height: 12),
+                        FilledButton.icon(
+                          onPressed: () {
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (_) => const ManageCategoriesScreen(),
+                              ),
+                            );
+                          },
+                          icon: const Icon(Icons.category_outlined),
+                          label: const Text('مدیریت دسته‌بندی‌ها'),
                         ),
                       ],
                     ),
