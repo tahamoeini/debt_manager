@@ -1,6 +1,7 @@
 // Summary UI cards showing total borrowed, lent and net amounts.
 import 'package:flutter/material.dart';
 import 'package:debt_manager/core/utils/format_utils.dart';
+import 'package:debt_manager/components/components.dart';
 
 class SummaryCards extends StatelessWidget {
   final int borrowed;
@@ -16,50 +17,38 @@ class SummaryCards extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final textTheme = Theme.of(context).textTheme;
-
-    Widget buildCard(String title, int value, String subtitle) {
-      return Card(
-        child: Padding(
-          padding: const EdgeInsets.all(12),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(title, style: const TextStyle(fontWeight: FontWeight.w600)),
-              const SizedBox(height: 8),
-              Text(formatCurrency(value), style: textTheme.headlineSmall),
-              const SizedBox(height: 4),
-              Text(subtitle, style: textTheme.bodySmall),
-            ],
-          ),
-        ),
-      );
-    }
+    final theme = Theme.of(context);
 
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Expanded(
-          child: buildCard(
-            'بدهی‌های من',
-            borrowed,
-            'مجموع اقساط پرداخت‌نشده‌ای که شما بدهکار هستید',
+          child: DashboardCard(
+            title: 'بدهی‌های من',
+            value: formatCurrency(borrowed),
+            subtitle: 'مجموع اقساط پرداخت‌نشده‌ای که شما بدهکار هستید',
+            icon: Icons.arrow_upward,
+            accentColor: theme.expenseColor,
           ),
         ),
-        const SizedBox(width: 12),
+        const SizedBox(width: AppSpacing.md),
         Expanded(
-          child: buildCard(
-            'طلب‌های من',
-            lent,
-            'مجموع اقساط پرداخت‌نشده‌ای که دیگران به شما بدهکارند',
+          child: DashboardCard(
+            title: 'طلب‌های من',
+            value: formatCurrency(lent),
+            subtitle: 'مجموع اقساط پرداخت‌نشده‌ای که دیگران به شما بدهکارند',
+            icon: Icons.arrow_downward,
+            accentColor: theme.incomeColor,
           ),
         ),
-        const SizedBox(width: 12),
+        const SizedBox(width: AppSpacing.md),
         Expanded(
-          child: buildCard(
-            'وضعیت خالص',
-            net,
-            'طلب منفی یعنی بیشتر بدهکار هستید',
+          child: DashboardCard(
+            title: 'وضعیت خالص',
+            value: formatCurrency(net),
+            subtitle: 'طلب منفی یعنی بیشتر بدهکار هستید',
+            icon: Icons.account_balance_wallet,
+            accentColor: net >= 0 ? theme.successColor : theme.dangerColor,
           ),
         ),
       ],
