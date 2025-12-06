@@ -88,8 +88,8 @@ class SmartNotificationService {
           await _sendBudgetAlert(
             budget,
             percentage,
-            '⚠️ Budget Exceeded',
-            'You\'ve exceeded your ${budget.category ?? 'general'} budget for this period.',
+            '⚠️ بودجه تمام شد',
+            'شما از بودجه ${budget.category ?? 'عمومی'} در این دوره فراتر رفته‌اید.',
           );
         }
         // Check 90% threshold (but not if already at 100%)
@@ -97,8 +97,8 @@ class SmartNotificationService {
           await _sendBudgetAlert(
             budget,
             percentage,
-            '⚠️ Budget Warning',
-            'You\'ve used ${(percentage * 100).toStringAsFixed(0)}% of your ${budget.category ?? 'general'} budget.',
+            '⚠️ هشدار بودجه',
+            'شما ${(percentage * 100).toStringAsFixed(0)}٪ از بودجه ${budget.category ?? 'عمومی'} خود را استفاده کرده‌اید.',
           );
         }
       }
@@ -151,11 +151,11 @@ class SmartNotificationService {
 
       String message;
       if (total == 0) {
-        message = 'No budgets tracked this month.';
+        message = 'هیچ بودجه‌ای در این ماه ثبت نشده است.';
       } else if (underBudget == total) {
-        message = 'Great job! You stayed under budget in all $total categories! 🎉';
+        message = 'عالی! شما در همه $total دسته زیر بودجه ماندید! 🎉';
       } else {
-        message = 'You stayed under budget in $underBudget of $total categories.';
+        message = 'شما در $underBudget از $total دسته زیر بودجه ماندید.';
       }
 
       const androidDetails = AndroidNotificationDetails(

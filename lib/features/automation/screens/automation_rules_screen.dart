@@ -5,7 +5,7 @@ import 'package:debt_manager/features/automation/models/automation_rule.dart';
 import 'package:debt_manager/core/utils/ui_utils.dart';
 
 class AutomationRulesScreen extends StatefulWidget {
-  const AutomationRulesScreen({Key? key}) : super(key: key);
+  const AutomationRulesScreen({super.key});
 
   @override
   State<AutomationRulesScreen> createState() => _AutomationRulesScreenState();

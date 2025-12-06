@@ -4,7 +4,7 @@ import 'package:debt_manager/core/insights/smart_insights_service.dart';
 import 'package:debt_manager/core/settings/settings_repository.dart';
 
 class SmartInsightsWidget extends StatefulWidget {
-  const SmartInsightsWidget({Key? key}) : super(key: key);
+  const SmartInsightsWidget({super.key});
 
   @override
   State<SmartInsightsWidget> createState() => _SmartInsightsWidgetState();
