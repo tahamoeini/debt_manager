@@ -1,5 +1,6 @@
 // Export service: export data as CSV and handle file sharing
 import 'dart:io';
+import 'dart:convert';
 import 'package:csv/csv.dart';
 import 'package:debt_manager/core/db/database_helper.dart';
 import 'package:debt_manager/features/loans/models/installment.dart';
@@ -99,7 +100,7 @@ class ExportService {
     final timestamp = DateTime.now().millisecondsSinceEpoch;
     final filePath = '${directory.path}/installments_export_$timestamp.csv';
     final file = File(filePath);
-    await file.writeAsString(csv, encoding: const Utf8Codec());
+    await file.writeAsString(csv, encoding: utf8);
     
     return filePath;
   }
@@ -140,7 +141,7 @@ class ExportService {
     final timestamp = DateTime.now().millisecondsSinceEpoch;
     final filePath = '${directory.path}/budgets_export_$timestamp.csv';
     final file = File(filePath);
-    await file.writeAsString(csv, encoding: const Utf8Codec());
+    await file.writeAsString(csv, encoding: utf8);
     
     return filePath;
   }
