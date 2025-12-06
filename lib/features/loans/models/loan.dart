@@ -15,6 +15,9 @@ class Loan {
   final String startDateJalali; // formatted as "yyyy-MM-dd"
   final String? notes;
   final String createdAt; // ISO 8601 datetime string
+  final double? interestRate; // annual percentage (e.g., 5.5)
+  final int? monthlyPayment;
+  final int? termMonths;
 
   const Loan({
     this.id,
@@ -26,6 +29,9 @@ class Loan {
     required this.installmentAmount,
     required this.startDateJalali,
     this.notes,
+    this.interestRate,
+    this.monthlyPayment,
+    this.termMonths,
     required this.createdAt,
   });
 
@@ -39,6 +45,9 @@ class Loan {
     int? installmentAmount,
     String? startDateJalali,
     String? notes,
+    double? interestRate,
+    int? monthlyPayment,
+    int? termMonths,
     String? createdAt,
   }) {
     return Loan(
@@ -51,6 +60,9 @@ class Loan {
       installmentAmount: installmentAmount ?? this.installmentAmount,
       startDateJalali: startDateJalali ?? this.startDateJalali,
       notes: notes ?? this.notes,
+      interestRate: interestRate ?? this.interestRate,
+      monthlyPayment: monthlyPayment ?? this.monthlyPayment,
+      termMonths: termMonths ?? this.termMonths,
       createdAt: createdAt ?? this.createdAt,
     );
   }
@@ -66,6 +78,9 @@ class Loan {
       'installment_amount': installmentAmount,
       'start_date_jalali': startDateJalali,
       'notes': notes,
+      'interest_rate': interestRate,
+      'monthly_payment': monthlyPayment,
+      'term_months': termMonths,
       'created_at': createdAt,
     };
   }
@@ -96,6 +111,9 @@ class Loan {
           : int.parse(map['installment_amount'].toString()),
       startDateJalali: map['start_date_jalali'] as String? ?? '',
       notes: map['notes'] as String?,
+      interestRate: map['interest_rate'] is num ? (map['interest_rate'] as num).toDouble() : (map['interest_rate'] is String ? double.tryParse(map['interest_rate']) : null),
+      monthlyPayment: map['monthly_payment'] is int ? map['monthly_payment'] as int : (map['monthly_payment'] != null ? int.tryParse(map['monthly_payment'].toString()) : null),
+      termMonths: map['term_months'] is int ? map['term_months'] as int : (map['term_months'] != null ? int.tryParse(map['term_months'].toString()) : null),
       createdAt: map['created_at'] as String? ?? '',
     );
   }

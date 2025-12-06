@@ -17,7 +17,7 @@ class DatabaseHelper {
   factory DatabaseHelper() => instance;
 
   static const _dbName = 'debt_manager.db';
-  static const _dbVersion = 3;
+  static const _dbVersion = 4;
 
   Database? _db;
   // In-memory fallback stores for web builds (sqflite is not available on web).
@@ -76,9 +76,23 @@ class DatabaseHelper {
         installment_count INTEGER NOT NULL,
         installment_amount INTEGER NOT NULL,
         start_date_jalali TEXT NOT NULL,
+        interest_rate REAL,
+        monthly_payment INTEGER,
+        term_months INTEGER,
         notes TEXT,
         created_at TEXT NOT NULL,
         FOREIGN KEY(counterparty_id) REFERENCES counterparties(id)
+      )
+    ''');
+
+    await db.execute('''
+      CREATE TABLE budgets (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        category TEXT,
+        amount INTEGER NOT NULL,
+        period TEXT NOT NULL, -- stored as yyyy-MM
+        rollover INTEGER NOT NULL DEFAULT 0,
+        created_at TEXT NOT NULL
       )
     ''');
 
@@ -117,6 +131,32 @@ class DatabaseHelper {
       } catch (_) {
         // ignore if it already exists
       }
+    }
+
+    if (oldVersion < 4) {
+      // Add loan financial columns and create budgets table for upgrades
+      try {
+        await db.execute('ALTER TABLE loans ADD COLUMN interest_rate REAL');
+      } catch (_) {}
+      try {
+        await db.execute('ALTER TABLE loans ADD COLUMN monthly_payment INTEGER');
+      } catch (_) {}
+      try {
+        await db.execute('ALTER TABLE loans ADD COLUMN term_months INTEGER');
+      } catch (_) {}
+
+      try {
+        await db.execute('''
+          CREATE TABLE IF NOT EXISTS budgets (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            category TEXT,
+            amount INTEGER NOT NULL,
+            period TEXT NOT NULL,
+            rollover INTEGER NOT NULL DEFAULT 0,
+            created_at TEXT NOT NULL
+          )
+        ''');
+      } catch (_) {}
     }
   }
 

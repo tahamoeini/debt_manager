@@ -4,6 +4,7 @@ import 'features/home/home_screen.dart';
 import 'features/accounts/screens/accounts_screen.dart';
 import 'features/budget/screens/budget_screen.dart';
 import 'features/loans/screens/add_loan_screen.dart';
+import 'features/budget/screens/add_budget_screen.dart';
 import 'features/reports/screens/reports_screen.dart';
 import 'features/settings/screens/settings_screen.dart';
 
@@ -75,11 +76,13 @@ class _AppShellState extends State<AppShell> {
           },
           child: const Icon(Icons.add_outlined),
         );
-      case 2: // Budget: add budget placeholder
+      case 2: // Budget: add budget
         return FloatingActionButton.large(
           onPressed: () async {
-            // TODO: implement AddBudget screen
-            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('افزودن بودجه (در دست توسعه)')));
+            final res = await Navigator.of(context).push<bool>(
+              MaterialPageRoute(builder: (_) => const AddBudgetScreen()),
+            );
+            if (res == true) setState(() {});
           },
           child: const Icon(Icons.add_outlined),
         );
