@@ -346,6 +346,81 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             ),
                           ],
                         ),
+                        const SizedBox(height: 16),
+                        const Divider(),
+                        const SizedBox(height: 16),
+                        Text(
+                          'مدیریت داده‌ها',
+                          style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                            color: Theme.of(context).colorScheme.error,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          'با احتیاط استفاده کنید! این عملیات غیرقابل بازگشت است.',
+                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            color: Theme.of(context).colorScheme.error,
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        FilledButton.icon(
+                          onPressed: () async {
+                            final confirmed = await showDialog<bool>(
+                              context: context,
+                              builder: (ctx) => AlertDialog(
+                                title: const Text('پاک کردن تمام داده‌ها'),
+                                content: const Text(
+                                  'آیا مطمئن هستید که می‌خواهید تمام داده‌های برنامه را پاک کنید؟ این عملیات غیرقابل بازگشت است و تمام وام‌ها، اقساط و بودجه‌ها حذف خواهند شد.',
+                                ),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () => Navigator.of(ctx).pop(false),
+                                    child: const Text('لغو'),
+                                  ),
+                                  FilledButton(
+                                    onPressed: () => Navigator.of(ctx).pop(true),
+                                    style: FilledButton.styleFrom(
+                                      backgroundColor: Theme.of(context).colorScheme.error,
+                                    ),
+                                    child: const Text('بله، پاک کن'),
+                                  ),
+                                ],
+                              ),
+                            );
+                            
+                            if (confirmed == true) {
+                              final messenger = ScaffoldMessenger.of(context);
+                              try {
+                                // Delete all loans (which also deletes installments)
+                                final loans = await BackupService.instance._db.getAllLoans();
+                                for (final loan in loans) {
+                                  if (loan.id != null) {
+                                    await BackupService.instance._db.deleteLoanWithInstallments(loan.id!);
+                                  }
+                                }
+                                
+                                // Delete all budgets
+                                final db = await BackupService.instance._db.database;
+                                await db.delete('budgets');
+                                
+                                if (!mounted) return;
+                                messenger.showSnackBar(
+                                  const SnackBar(content: Text('تمام داده‌ها با موفقیت پاک شدند')),
+                                );
+                              } catch (e) {
+                                if (!mounted) return;
+                                messenger.showSnackBar(
+                                  SnackBar(content: Text('خطا در پاک کردن داده‌ها: $e')),
+                                );
+                              }
+                            }
+                          },
+                          icon: const Icon(Icons.delete_forever),
+                          style: FilledButton.styleFrom(
+                            backgroundColor: Theme.of(context).colorScheme.error,
+                          ),
+                          child: const Text('پاک کردن تمام داده‌ها'),
+                        ),
                       ],
                     ),
                   ),

@@ -42,6 +42,15 @@ dependencies:
   flutter_local_notifications: any
   shared_preferences: any
   flutter_svg: ^1.1.4
+  
+  # Charts and visualizations
+  fl_chart: ^0.69.0
+  
+  # Data export (CSV, PDF)
+  csv: ^6.0.0
+  pdf: ^3.11.1
+  path_provider: ^2.1.4
+  share_plus: ^10.1.2
 
 dev_dependencies:
   flutter_test:
