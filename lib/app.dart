@@ -70,7 +70,10 @@ class _DebtManagerAppState extends State<DebtManagerApp> {
           ),
           elevatedButtonTheme: ElevatedButtonThemeData(style: ElevatedButton.styleFrom(shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)), elevation: 0)),
           outlinedButtonTheme: OutlinedButtonThemeData(style: OutlinedButton.styleFrom(shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)))),
-          floatingActionButtonTheme: FloatingActionButtonThemeData(backgroundColor: lightScheme.primary, foregroundColor: lightScheme.onPrimary),
+          floatingActionButtonTheme: FloatingActionButtonThemeData(
+            backgroundColor: lightScheme.secondaryContainer,
+            foregroundColor: lightScheme.onSecondaryContainer,
+          ),
         );
 
         final darkTheme = ThemeData(
@@ -88,7 +91,10 @@ class _DebtManagerAppState extends State<DebtManagerApp> {
           ),
           elevatedButtonTheme: ElevatedButtonThemeData(style: ElevatedButton.styleFrom(shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)), elevation: 0)),
           outlinedButtonTheme: OutlinedButtonThemeData(style: OutlinedButton.styleFrom(shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)))),
-          floatingActionButtonTheme: FloatingActionButtonThemeData(backgroundColor: darkScheme.primary, foregroundColor: darkScheme.onPrimary),
+          floatingActionButtonTheme: FloatingActionButtonThemeData(
+            backgroundColor: darkScheme.secondaryContainer,
+            foregroundColor: darkScheme.onSecondaryContainer,
+          ),
         );
 
         return MaterialApp(
