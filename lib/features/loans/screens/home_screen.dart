@@ -6,6 +6,7 @@ import 'package:debt_manager/core/utils/format_utils.dart';
 import 'package:debt_manager/core/utils/jalali_utils.dart';
 import 'package:debt_manager/core/utils/debug_utils.dart';
 import 'package:debt_manager/core/utils/ui_utils.dart';
+import 'package:debt_manager/core/theme/app_constants.dart';
 import 'package:debt_manager/features/shared/summary_cards.dart';
 import 'package:debt_manager/features/loans/models/counterparty.dart';
 import 'package:debt_manager/features/loans/models/installment.dart';
@@ -95,21 +96,24 @@ class _HomeScreenState extends State<HomeScreen> {
         final cpById = data['counterparties'] as Map<int, Counterparty>? ?? {};
 
         return ListView(
-          padding: const EdgeInsets.all(16),
+          padding: AppConstants.pagePadding,
           children: [
             SummaryCards(borrowed: borrowed, lent: lent, net: net),
-            const SizedBox(height: 20),
+            const SizedBox(height: AppConstants.spaceXLarge),
             Text(
               'اقساط نزدیک',
               style: Theme.of(
                 context,
               ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: AppConstants.spaceSmall),
             if (upcoming.isEmpty)
               Card(
+                shape: RoundedRectangleBorder(
+                  borderRadius: AppConstants.borderRadiusSmall,
+                ),
                 child: Padding(
-                  padding: const EdgeInsets.all(12),
+                  padding: AppConstants.cardPadding,
                   child: Text(
                     'اقساط نزدیکی یافت نشد',
                     style: Theme.of(context).textTheme.bodyMedium,
@@ -126,8 +130,12 @@ class _HomeScreenState extends State<HomeScreen> {
                 final dueDisplay = formatJalaliForDisplay(dueJalali);
 
                 return Card(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: AppConstants.borderRadiusSmall,
+                  ),
+                  margin: const EdgeInsets.only(bottom: AppConstants.spaceSmall),
                   child: Padding(
-                    padding: const EdgeInsets.all(12),
+                    padding: AppConstants.cardPadding,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -136,12 +144,12 @@ class _HomeScreenState extends State<HomeScreen> {
                           style: Theme.of(context).textTheme.titleMedium
                               ?.copyWith(fontWeight: FontWeight.w600),
                         ),
-                        const SizedBox(height: 4),
+                        const SizedBox(height: AppConstants.spaceXSmall),
                         Text(
                           cpName,
                           style: Theme.of(context).textTheme.bodySmall,
                         ),
-                        const SizedBox(height: 8),
+                        const SizedBox(height: AppConstants.spaceSmall),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [

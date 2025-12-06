@@ -3,6 +3,8 @@ import 'package:debt_manager/features/budget/budgets_repository.dart';
 import 'package:debt_manager/features/budget/models/budget.dart';
 import 'package:debt_manager/core/utils/jalali_utils.dart';
 import 'package:debt_manager/core/utils/ui_utils.dart';
+import 'package:debt_manager/core/widgets/form_inputs.dart';
+import 'package:debt_manager/core/theme/app_constants.dart';
 
 class AddBudgetScreen extends StatefulWidget {
   final Budget? budget;
@@ -85,31 +87,33 @@ class _AddBudgetScreenState extends State<AddBudgetScreen> {
     return Scaffold(
       appBar: AppBar(title: Text(isEditing ? 'ویرایش بودجه' : 'افزودن بودجه')),
       body: Padding(
-        padding: const EdgeInsets.all(12.0),
+        padding: AppConstants.pagePadding,
         child: Form(
           key: _formKey,
           child: ListView(
             children: [
-              TextFormField(
+              FormInput(
                 controller: _categoryCtrl,
-                decoration: const InputDecoration(labelText: 'دسته‌بندی (اختیاری)'),
-                textInputAction: TextInputAction.next,
+                label: 'دسته‌بندی (اختیاری)',
+                icon: Icons.category,
               ),
-              const SizedBox(height: 12),
-              TextFormField(
+              const SizedBox(height: AppConstants.spaceMedium),
+              FormInput(
                 controller: _amountCtrl,
-                decoration: const InputDecoration(labelText: 'مبلغ (واحد اصلی)'),
-                keyboardType: TextInputType.numberWithOptions(decimal: true),
+                label: 'مبلغ (واحد اصلی)',
+                icon: Icons.attach_money,
+                keyboardType: const TextInputType.numberWithOptions(decimal: true),
                 validator: (v) {
                   final d = double.tryParse(v?.replaceAll(',', '') ?? '');
                   if (d == null || d <= 0) return 'مبلغ نامعتبر است';
                   return null;
                 },
               ),
-              const SizedBox(height: 12),
-              TextFormField(
+              const SizedBox(height: AppConstants.spaceMedium),
+              FormInput(
                 controller: _periodCtrl,
-                decoration: const InputDecoration(labelText: 'بازه (yyyy-MM)'),
+                label: 'بازه (yyyy-MM)',
+                icon: Icons.calendar_month,
                 validator: (v) {
                   if (v == null || v.isEmpty) return 'بازه را وارد کنید';
                   final parts = v.split('-');
@@ -117,13 +121,13 @@ class _AddBudgetScreenState extends State<AddBudgetScreen> {
                   return null;
                 },
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: AppConstants.spaceMedium),
               SwitchListTile(
                 value: _rollover,
                 onChanged: (v) => setState(() => _rollover = v),
                 title: const Text('انتقال به دوره بعدی'),
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: AppConstants.spaceXLarge),
               Row(
                 children: [
                   Expanded(
@@ -132,7 +136,7 @@ class _AddBudgetScreenState extends State<AddBudgetScreen> {
                       child: const Text('ذخیره'),
                     ),
                   ),
-                  const SizedBox(width: 12),
+                  const SizedBox(width: AppConstants.spaceMedium),
                   Expanded(
                     child: OutlinedButton(
                       onPressed: () => Navigator.of(context).pop(),
