@@ -1,0 +1,144 @@
+// Automation rules screen: manage categorization rules
+import 'package:flutter/material.dart';
+import 'package:debt_manager/features/automation/automation_rules_repository.dart';
+import 'package:debt_manager/features/automation/models/automation_rule.dart';
+import 'package:debt_manager/core/utils/ui_utils.dart';
+
+class AutomationRulesScreen extends StatefulWidget {
+  const AutomationRulesScreen({Key? key}) : super(key: key);
+
+  @override
+  State<AutomationRulesScreen> createState() => _AutomationRulesScreenState();
+}
+
+class _AutomationRulesScreenState extends State<AutomationRulesScreen> {
+  final _repo = AutomationRulesRepository();
+  late Future<List<AutomationRule>> _rulesFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _refresh();
+  }
+
+  void _refresh() {
+    setState(() {
+      _rulesFuture = _repo.getAllRules();
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('قوانین خودکارسازی')),
+      body: FutureBuilder<List<AutomationRule>>(
+        future: _rulesFuture,
+        builder: (context, snap) {
+          if (snap.connectionState != ConnectionState.done) {
+            return UIUtils.centeredLoading();
+          }
+          if (snap.hasError) {
+            return UIUtils.asyncErrorWidget(snap.error);
+          }
+          final rules = snap.data ?? [];
+          
+          return ListView(
+            padding: const EdgeInsets.all(16),
+            children: [
+              Card(
+                color: Theme.of(context).colorScheme.tertiaryContainer,
+                child: Padding(
+                  padding: const EdgeInsets.all(12),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Icon(
+                            Icons.info_outline,
+                            color: Theme.of(context).colorScheme.onTertiaryContainer,
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            'درباره قوانین خودکار',
+                            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                              color: Theme.of(context).colorScheme.onTertiaryContainer,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        'برنامه به طور خودکار از یک فرهنگ لغت داخلی برای شناسایی دسته‌های رایج استفاده می‌کند. قوانین سفارشی را می‌توانید در نسخه‌های بعدی اضافه کنید.',
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          color: Theme.of(context).colorScheme.onTertiaryContainer,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+              Text(
+                'دسته‌های داخلی',
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
+              const SizedBox(height: 8),
+              ...BuiltInCategories.payeePatterns.entries.map(
+                (entry) => Card(
+                  child: ListTile(
+                    leading: const Icon(Icons.rule_outlined),
+                    title: Text('اگر شامل "${entry.key}" باشد'),
+                    subtitle: Text('دسته: ${entry.value}'),
+                    dense: true,
+                  ),
+                ),
+              ),
+              if (rules.isNotEmpty) ...[
+                const SizedBox(height: 16),
+                Text(
+                  'قوانین سفارشی',
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
+                const SizedBox(height: 8),
+                ...rules.map(
+                  (rule) => Card(
+                    child: ListTile(
+                      leading: Icon(
+                        rule.enabled ? Icons.check_circle : Icons.cancel,
+                        color: rule.enabled ? Colors.green : Colors.grey,
+                      ),
+                      title: Text(rule.name),
+                      subtitle: Text('${_getRuleTypeLabel(rule.ruleType)}: ${rule.pattern} → ${rule.actionValue}'),
+                      trailing: Switch(
+                        value: rule.enabled,
+                        onChanged: (v) async {
+                          final updated = rule.copyWith(enabled: v);
+                          await _repo.updateRule(updated);
+                          _refresh();
+                        },
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ],
+          );
+        },
+      ),
+    );
+  }
+
+  String _getRuleTypeLabel(String type) {
+    switch (type) {
+      case 'payee_contains':
+        return 'پرداخت‌گیرنده شامل';
+      case 'description_contains':
+        return 'توضیحات شامل';
+      case 'amount_equals':
+        return 'مبلغ برابر';
+      default:
+        return type;
+    }
+  }
+}

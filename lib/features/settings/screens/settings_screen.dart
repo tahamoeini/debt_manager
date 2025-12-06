@@ -9,6 +9,7 @@ import 'dart:convert';
 
 import 'package:debt_manager/core/backup/backup_service.dart';
 import 'package:debt_manager/features/help/help_screen.dart';
+import 'package:debt_manager/features/automation/screens/automation_rules_screen.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -265,6 +266,20 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                 _monthEndSummary = v;
                               });
                             }
+                          },
+                        ),
+                        const Divider(height: 24),
+                        ListTile(
+                          leading: const Icon(Icons.rule_outlined),
+                          title: const Text('قوانین خودکارسازی'),
+                          subtitle: const Text('مدیریت دسته‌بندی خودکار تراکنش‌ها'),
+                          trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+                          onTap: () {
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (_) => const AutomationRulesScreen(),
+                              ),
+                            );
                           },
                         ),
                       ],
