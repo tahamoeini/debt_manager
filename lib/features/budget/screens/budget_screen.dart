@@ -3,6 +3,9 @@ import 'package:debt_manager/features/budget/budgets_repository.dart';
 import 'package:debt_manager/features/budget/models/budget.dart';
 import 'package:debt_manager/core/utils/jalali_utils.dart';
 import 'package:debt_manager/core/utils/ui_utils.dart';
+import 'package:debt_manager/core/widgets/budget_bar.dart';
+import 'package:debt_manager/core/widgets/category_icon.dart';
+import 'package:debt_manager/core/theme/app_constants.dart';
 import 'add_budget_screen.dart';
 
 class BudgetScreen extends StatefulWidget {
@@ -58,56 +61,63 @@ class _BudgetScreenState extends State<BudgetScreen> {
           }
 
           return ListView.separated(
-            padding: const EdgeInsets.all(12),
+            padding: AppConstants.paddingMedium,
             itemCount: budgets.length,
-            separatorBuilder: (_, __) => const SizedBox(height: 8),
+            separatorBuilder: (_, __) => const SizedBox(height: AppConstants.spaceSmall),
             itemBuilder: (context, index) {
               final b = budgets[index];
               return Card(
-                child: ListTile(
-                  title: Text(b.category ?? 'عمومی'),
-                  subtitle: Text('${(b.amount / 100).toStringAsFixed(2)}'),
-                  trailing: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      FutureBuilder<int>(
-                        future: _repo.computeUtilization(b),
-                        builder: (c, s) {
-                          final used = s.data ?? 0;
-                          final pct = b.amount > 0 ? (used / b.amount).clamp(0, 1) : 0.0;
-                          Color color;
-                          if (pct < 0.6) color = Colors.green;
-                          else if (pct < 0.9) color = Colors.orange;
-                          else color = Colors.red;
-
-                          return Column(
-                            mainAxisSize: MainAxisSize.min,
-                            crossAxisAlignment: CrossAxisAlignment.end,
+                shape: RoundedRectangleBorder(
+                  borderRadius: AppConstants.borderRadiusSmall,
+                ),
+                child: Padding(
+                  padding: AppConstants.cardPadding,
+                  child: InkWell(
+                    onTap: () async {
+                      // Edit
+                      await Navigator.of(context).push(MaterialPageRoute(
+                        builder: (_) => AddBudgetScreen(budget: b),
+                      ));
+                      _refresh();
+                    },
+                    child: Row(
+                      children: [
+                        // Category icon
+                        CategoryIcon(
+                          category: b.category,
+                          size: 40,
+                        ),
+                        const SizedBox(width: AppConstants.spaceMedium),
+                        // Budget info and progress bar
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              SizedBox(
-                                width: 100,
-                                child: LinearProgressIndicator(
-                                  value: pct,
-                                  color: color,
-                                  backgroundColor: color.withOpacity(0.2),
+                              Text(
+                                b.category ?? 'عمومی',
+                                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                                  fontWeight: FontWeight.w600,
                                 ),
                               ),
-                              const SizedBox(height: 6),
-                              Text('${(pct * 100).toStringAsFixed(0)}%')
+                              const SizedBox(height: AppConstants.spaceXSmall),
+                              FutureBuilder<int>(
+                                future: _repo.computeUtilization(b),
+                                builder: (c, s) {
+                                  final used = s.data ?? 0;
+                                  return BudgetBar(
+                                    current: used,
+                                    limit: b.amount,
+                                    showPercentage: true,
+                                    showAmount: false,
+                                  );
+                                },
+                              ),
                             ],
-                          );
-                        },
-                      ),
-                    ],
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
-                  onTap: () async {
-                    // Edit
-                    await Navigator.of(context).push(MaterialPageRoute(
-                      builder: (_) => AddBudgetScreen(budget: b),
-                    ));
-                    _refresh();
-                  },
                 ),
               );
             },
