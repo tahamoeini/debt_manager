@@ -38,7 +38,9 @@ class CategoryService {
     if (trimmed.isEmpty) return;
     
     final custom = await getCustomCategories();
-    if (custom.contains(trimmed) || defaultCategories.contains(trimmed)) {
+    // Combine all categories and check for duplicates more efficiently
+    final allCategories = {...defaultCategories, ...custom};
+    if (allCategories.contains(trimmed)) {
       throw Exception('Category already exists');
     }
     
@@ -58,7 +60,9 @@ class CategoryService {
       throw Exception('Category not found');
     }
     
-    if (custom.contains(trimmed) || defaultCategories.contains(trimmed)) {
+    // Check if new name conflicts with any existing category
+    final allCategories = {...defaultCategories, ...custom};
+    if (allCategories.contains(trimmed)) {
       throw Exception('New category name already exists');
     }
     

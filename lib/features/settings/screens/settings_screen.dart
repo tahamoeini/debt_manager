@@ -110,8 +110,22 @@ class _SettingsScreenState extends State<SettingsScreen> {
   Future<void> _saveNotificationsEnabled(bool enabled) async {
     await _repo.setNotificationsEnabled(enabled);
     if (!enabled) {
+      // Show loading indicator while canceling all notifications
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('در حال لغو اعلان‌ها...'),
+            duration: Duration(seconds: 1),
+          ),
+        );
+      }
       // Cancel all notifications when master toggle is turned off
       await NotificationService.instance.cancelAllNotifications();
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('تمام اعلان‌ها لغو شدند')),
+        );
+      }
     }
     if (mounted) {
       setState(() {

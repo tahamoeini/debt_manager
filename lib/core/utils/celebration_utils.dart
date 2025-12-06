@@ -2,6 +2,9 @@
 import 'package:flutter/material.dart';
 import 'dart:math' as math;
 
+// Duration for auto-dismissing celebration dialogs
+const Duration _autoDismissDuration = Duration(seconds: 3);
+
 /// Shows a celebration animation when a debt is fully paid off
 Future<void> showDebtCompletionCelebration(BuildContext context) async {
   await showDialog(
@@ -48,8 +51,8 @@ class _CelebrationDialogState extends State<_CelebrationDialog>
 
     _controller.forward();
 
-    // Auto-dismiss after 3 seconds
-    Future.delayed(const Duration(seconds: 3), () {
+    // Auto-dismiss after configured duration
+    Future.delayed(_autoDismissDuration, () {
       if (mounted) {
         Navigator.of(context).pop();
       }
