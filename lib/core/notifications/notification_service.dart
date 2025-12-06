@@ -1,6 +1,7 @@
 // Notification service: wrapper over local notifications for installment reminders.
 import 'package:flutter/foundation.dart' show debugPrint, kIsWeb;
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:debt_manager/core/settings/settings_repository.dart';
 // Timezone scheduling is intentionally omitted to avoid package API
 // compatibility issues across flutter_local_notifications versions.
 
@@ -73,6 +74,16 @@ class NotificationService {
     required String title,
     required String body,
   }) async {
+    // Check if notifications are enabled in settings
+    final settings = SettingsRepository();
+    final notificationsEnabled = await settings.getNotificationsEnabled();
+    final billRemindersEnabled = await settings.getBillRemindersEnabled();
+    
+    if (!notificationsEnabled || !billRemindersEnabled) {
+      debugPrint('scheduleInstallmentReminder: notifications disabled in settings');
+      return;
+    }
+    
     // Skip scheduling on web: flutter_local_notifications has limited
     // scheduling support on web and dynamic invocation above produced
     // runtime errors during web runs. Keep scheduling a no-op on web
@@ -143,5 +154,10 @@ class NotificationService {
   /// Cancel a scheduled notification by id.
   Future<void> cancelNotification(int notificationId) async {
     await _plugin.cancel(notificationId);
+  }
+
+  /// Cancel all scheduled notifications.
+  Future<void> cancelAllNotifications() async {
+    await _plugin.cancelAll();
   }
 }

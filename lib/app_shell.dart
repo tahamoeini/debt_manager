@@ -52,11 +52,31 @@ class _AppShellState extends State<AppShell> {
             });
           },
           destinations: const [
-            NavigationDestination(icon: Icon(Icons.home_outlined), label: 'خانه'),
-            NavigationDestination(icon: Icon(Icons.account_balance_wallet_outlined), label: 'حساب‌ها'),
-            NavigationDestination(icon: Icon(Icons.pie_chart_outline), label: 'بودجه'),
-            NavigationDestination(icon: Icon(Icons.analytics_outlined), label: 'گزارش‌ها'),
-            NavigationDestination(icon: Icon(Icons.settings_outlined), label: 'تنظیمات'),
+            NavigationDestination(
+              icon: Icon(Icons.home_outlined),
+              label: 'خانه',
+              tooltip: 'Home screen',
+            ),
+            NavigationDestination(
+              icon: Icon(Icons.account_balance_wallet_outlined),
+              label: 'حساب‌ها',
+              tooltip: 'Accounts and loans',
+            ),
+            NavigationDestination(
+              icon: Icon(Icons.pie_chart_outline),
+              label: 'بودجه',
+              tooltip: 'Budget management',
+            ),
+            NavigationDestination(
+              icon: Icon(Icons.analytics_outlined),
+              label: 'گزارش‌ها',
+              tooltip: 'Reports and analytics',
+            ),
+            NavigationDestination(
+              icon: Icon(Icons.settings_outlined),
+              label: 'تنظیمات',
+              tooltip: 'Settings',
+            ),
           ],
         ),
         floatingActionButton: _buildFabForIndex(_selectedIndex),
@@ -74,7 +94,11 @@ class _AppShellState extends State<AppShell> {
             final res = await Navigator.of(context).push<bool>(MaterialPageRoute(builder: (_) => const AddLoanScreen()));
             if (res == true) setState(() {});
           },
-          child: const Icon(Icons.add_outlined),
+          tooltip: 'Add new loan or account',
+          child: const Semantics(
+            label: 'Add new loan button',
+            child: Icon(Icons.add_outlined),
+          ),
         );
       case 2: // Budget: add budget
         return FloatingActionButton.large(
@@ -84,7 +108,11 @@ class _AppShellState extends State<AppShell> {
             );
             if (res == true) setState(() {});
           },
-          child: const Icon(Icons.add_outlined),
+          tooltip: 'Add new budget',
+          child: const Semantics(
+            label: 'Add new budget button',
+            child: Icon(Icons.add_outlined),
+          ),
         );
       default:
         return null;
