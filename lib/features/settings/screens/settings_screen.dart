@@ -6,8 +6,11 @@ import 'package:flutter/material.dart';
 import 'package:debt_manager/core/settings/settings_repository.dart';
 import 'package:flutter/services.dart';
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:debt_manager/core/backup/backup_service.dart';
+import 'package:share_plus/share_plus.dart';
+import 'package:path_provider/path_provider.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -159,6 +162,126 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           style: Theme.of(context).textTheme.bodySmall,
                         ),
                         const SizedBox(height: 12),
+                        Row(
+                          children: [
+                            FilledButton(
+                              onPressed: () async {
+                                final messenger = ScaffoldMessenger.of(context);
+                                try {
+                                  final jsonStr = await BackupService.instance
+                                      .exportAll();
+                                  await showDialog<void>(
+                                    context: context,
+                                    builder: (ctx) => Dialog(
+                                      child: Column(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Padding(
+                                            padding: const EdgeInsets.all(12.0),
+                                            child: Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment
+                                                      .spaceBetween,
+                                              children: [
+                                                const Text('Exported JSON'),
+                                                IconButton(
+                                                  icon: const Icon(Icons.copy_outlined),
+                                                  onPressed: () async {
+                                                    final messenger =
+                                                        ScaffoldMessenger.of(
+                                                          context,
+                                                        );
+                                                    await Clipboard.setData(
+                                                      ClipboardData(
+                                                        text: jsonStr,
+                                                      ),
+                                                    );
+                                                    if (!mounted) return;
+                                                    messenger.showSnackBar(
+                                                      const SnackBar(
+                                                        content: Text('کپی شد'),
+                                                      ),
+                                                    );
+                                                  },
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                          SizedBox(
+                                            height:
+                                                MediaQuery.of(
+                                                  context,
+                                                ).size.height *
+                                                0.6,
+                                            width: double.maxFinite,
+                                            child: SingleChildScrollView(
+                                              padding: const EdgeInsets.all(12),
+                                              child: SelectableText(jsonStr),
+                                            ),
+                                          ),
+                                          Align(
+                                            alignment: Alignment.centerRight,
+                                            child: TextButton(
+                                              onPressed: () =>
+                                                  Navigator.of(ctx).pop(),
+                                              child: const Text('بستن'),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  );
+                                } catch (e) {
+                                  if (mounted) {
+                                    messenger.showSnackBar(
+                                      SnackBar(
+                                        content: Text('خطا در صادرات: $e'),
+                                      ),
+                                    );
+                                  }
+                                }
+                              },
+                              child: const Text('Export data (JSON)'),
+                            ),
+                            const SizedBox(width: 12),
+                            FilledButton.icon(
+                              onPressed: () async {
+                                final messenger = ScaffoldMessenger.of(context);
+                                try {
+                                  final jsonStr = await BackupService.instance.exportAll();
+                                  
+                                  // Save to file
+                                  final directory = await getApplicationDocumentsDirectory();
+                                  final timestamp = DateTime.now().millisecondsSinceEpoch;
+                                  final filePath = '${directory.path}/backup_$timestamp.json';
+                                  final file = File(filePath);
+                                  await file.writeAsString(jsonStr);
+                                  
+                                  // Share the file
+                                  if (!mounted) return;
+                                  await Share.shareXFiles(
+                                    [XFile(filePath)],
+                                    text: 'پشتیبان داده‌های برنامه',
+                                  );
+                                  
+                                  if (!mounted) return;
+                                  messenger.showSnackBar(
+                                    const SnackBar(content: Text('فایل پشتیبان ایجاد و اشتراک‌گذاری شد')),
+                                  );
+                                } catch (e) {
+                                  if (mounted) {
+                                    messenger.showSnackBar(
+                                      SnackBar(content: Text('خطا در ایجاد پشتیبان: $e')),
+                                    );
+                                  }
+                                }
+                              },
+                              icon: const Icon(Icons.share),
+                              child: const Text('اشتراک‌گذاری پشتیبان'),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 8),
                         Row(
                           children: [
                             FilledButton(

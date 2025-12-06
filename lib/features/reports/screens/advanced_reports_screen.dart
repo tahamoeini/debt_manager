@@ -6,6 +6,8 @@ import 'package:debt_manager/core/utils/format_utils.dart';
 import 'package:debt_manager/core/utils/jalali_utils.dart';
 import 'package:debt_manager/core/utils/category_colors.dart';
 import 'package:debt_manager/core/export/export_service.dart';
+import 'package:debt_manager/features/budget/screens/budget_comparison_screen.dart';
+import 'package:debt_manager/features/reports/screens/debt_payoff_projection_screen.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:shamsi_date/shamsi_date.dart';
 
@@ -74,6 +76,40 @@ class _AdvancedReportsScreenState extends State<AdvancedReportsScreen> {
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
+          // Quick action buttons
+          Row(
+            children: [
+              Expanded(
+                child: FilledButton.icon(
+                  onPressed: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (_) => const BudgetComparisonScreen(),
+                      ),
+                    );
+                  },
+                  icon: const Icon(Icons.pie_chart_outline),
+                  label: const Text('مقایسه بودجه'),
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: FilledButton.icon(
+                  onPressed: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (_) => const DebtPayoffProjectionScreen(),
+                      ),
+                    );
+                  },
+                  icon: const Icon(Icons.timeline),
+                  label: const Text('پیش‌بینی بدهی'),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          
           // Month selector
           Card(
             child: Padding(
