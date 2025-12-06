@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:debt_manager/core/categories/category_service.dart';
 import 'package:debt_manager/core/utils/category_colors.dart';
+import 'package:debt_manager/features/budget/budgets_repository.dart';
 
 class ManageCategoriesScreen extends StatefulWidget {
   const ManageCategoriesScreen({super.key});
@@ -140,11 +141,25 @@ class _ManageCategoriesScreenState extends State<ManageCategoriesScreen> {
       return;
     }
 
+    // Check if any budgets use this category
+    final budgetsRepo = BudgetsRepository();
+    final allBudgets = await budgetsRepo.getAllBudgets();
+    final categoryBudgets = allBudgets.where(
+      (b) => b.category?.toLowerCase() == category.toLowerCase(),
+    ).toList();
+
+    String warningText = 'آیا مطمئن هستید که می‌خواهید "$category" را حذف کنید؟';
+    if (categoryBudgets.isNotEmpty) {
+      warningText = 'هشدار: ${categoryBudgets.length} بودجه از این دسته‌بندی استفاده می‌کند.\n\n'
+          'حذف این دسته‌بندی باعث نمی‌شود بودجه‌ها حذف شوند، اما آنها با دسته‌بندی حذف‌شده نمایش داده خواهند شد.\n\n'
+          'آیا مطمئن هستید که می‌خواهید ادامه دهید؟';
+    }
+
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
         title: const Text('حذف دسته‌بندی'),
-        content: Text('آیا مطمئن هستید که می‌خواهید "$category" را حذف کنید؟'),
+        content: Text(warningText),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(false),

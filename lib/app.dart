@@ -72,14 +72,43 @@ class _DebtManagerAppState extends State<DebtManagerApp> {
               textTheme: lightTextTheme,
               appBarTheme: AppBarTheme(backgroundColor: lightScheme.surface, foregroundColor: lightScheme.onSurface, elevation: 1),
               listTileTheme: const ListTileThemeData(contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 8)),
+              // Ensure minimum touch target size for accessibility (48dp)
+              materialTapTargetSize: MaterialTapTargetSize.padded,
               inputDecorationTheme: InputDecorationTheme(
                 filled: true,
                 fillColor: lightScheme.surfaceVariant,
                 border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
                 floatingLabelStyle: const TextStyle(fontWeight: FontWeight.w600),
               ),
-              elevatedButtonTheme: ElevatedButtonThemeData(style: ElevatedButton.styleFrom(shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)), elevation: 0)),
-              outlinedButtonTheme: OutlinedButtonThemeData(style: OutlinedButton.styleFrom(shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)))),
+              elevatedButtonTheme: ElevatedButtonThemeData(
+                style: ElevatedButton.styleFrom(
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                  elevation: 0,
+                  minimumSize: const Size(48, 48),
+                ),
+              ),
+              outlinedButtonTheme: OutlinedButtonThemeData(
+                style: OutlinedButton.styleFrom(
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                  minimumSize: const Size(48, 48),
+                ),
+              ),
+              filledButtonTheme: FilledButtonThemeData(
+                style: FilledButton.styleFrom(
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                  minimumSize: const Size(48, 48),
+                ),
+              ),
+              textButtonTheme: TextButtonThemeData(
+                style: TextButton.styleFrom(
+                  minimumSize: const Size(48, 48),
+                ),
+              ),
+              iconButtonTheme: IconButtonThemeData(
+                style: IconButton.styleFrom(
+                  minimumSize: const Size(48, 48),
+                ),
+              ),
               floatingActionButtonTheme: FloatingActionButtonThemeData(
                 backgroundColor: lightScheme.secondaryContainer,
                 foregroundColor: lightScheme.onSecondaryContainer,
@@ -93,14 +122,43 @@ class _DebtManagerAppState extends State<DebtManagerApp> {
               textTheme: darkTextTheme,
               appBarTheme: AppBarTheme(backgroundColor: darkScheme.surface, foregroundColor: darkScheme.onSurface, elevation: 1),
               listTileTheme: const ListTileThemeData(contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 8)),
+              // Ensure minimum touch target size for accessibility (48dp)
+              materialTapTargetSize: MaterialTapTargetSize.padded,
               inputDecorationTheme: InputDecorationTheme(
                 filled: true,
                 fillColor: darkScheme.surfaceVariant,
                 border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
                 floatingLabelStyle: const TextStyle(fontWeight: FontWeight.w600),
               ),
-              elevatedButtonTheme: ElevatedButtonThemeData(style: ElevatedButton.styleFrom(shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)), elevation: 0)),
-              outlinedButtonTheme: OutlinedButtonThemeData(style: OutlinedButton.styleFrom(shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)))),
+              elevatedButtonTheme: ElevatedButtonThemeData(
+                style: ElevatedButton.styleFrom(
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                  elevation: 0,
+                  minimumSize: const Size(48, 48),
+                ),
+              ),
+              outlinedButtonTheme: OutlinedButtonThemeData(
+                style: OutlinedButton.styleFrom(
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                  minimumSize: const Size(48, 48),
+                ),
+              ),
+              filledButtonTheme: FilledButtonThemeData(
+                style: FilledButton.styleFrom(
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                  minimumSize: const Size(48, 48),
+                ),
+              ),
+              textButtonTheme: TextButtonThemeData(
+                style: TextButton.styleFrom(
+                  minimumSize: const Size(48, 48),
+                ),
+              ),
+              iconButtonTheme: IconButtonThemeData(
+                style: IconButton.styleFrom(
+                  minimumSize: const Size(48, 48),
+                ),
+              ),
               floatingActionButtonTheme: FloatingActionButtonThemeData(
                 backgroundColor: darkScheme.secondaryContainer,
                 foregroundColor: darkScheme.onSecondaryContainer,
