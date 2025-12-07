@@ -6,9 +6,6 @@ import 'package:debt_manager/core/utils/ui_utils.dart';
 import 'package:debt_manager/core/widgets/budget_bar.dart';
 import 'package:debt_manager/core/widgets/category_icon.dart';
 import 'package:debt_manager/core/theme/app_constants.dart';
-import 'package:debt_manager/core/widgets/budget_progress_bar.dart';
-import 'package:debt_manager/core/theme/app_dimensions.dart';
-import 'package:debt_manager/components/components.dart';
 import 'package:debt_manager/core/notifications/smart_notification_service.dart';
 import 'add_budget_screen.dart';
 
@@ -84,21 +81,22 @@ class _BudgetScreenState extends State<BudgetScreen> {
                 shape: RoundedRectangleBorder(
                   borderRadius: AppConstants.borderRadiusSmall,
                 ),
-                child: Padding(
-                  padding: AppConstants.cardPadding,
-                  child: InkWell(
-                    onTap: () async {
-                      // Edit
-                      await Navigator.of(context).push(MaterialPageRoute(
-                        builder: (_) => AddBudgetScreen(budget: b),
-                      ));
-                      _refresh();
-                    },
+                child: InkWell(
+                  onTap: () async {
+                    // Edit
+                    await Navigator.of(context).push(MaterialPageRoute(
+                      builder: (_) => AddBudgetScreen(budget: b),
+                    ));
+                    _refresh();
+                  },
+                  child: Padding(
+                    padding: AppConstants.cardPadding,
                     child: Row(
                       children: [
                         // Category icon
                         CategoryIcon(
                           category: b.category,
+                          icon: Icons.category,
                           size: 40,
                         ),
                         const SizedBox(width: AppConstants.spaceMedium),
@@ -128,70 +126,11 @@ class _BudgetScreenState extends State<BudgetScreen> {
                               ),
                             ],
                           ),
-            padding: AppDimensions.pagePadding,
-            itemCount: budgets.length,
-            separatorBuilder: (_, __) => const SizedBox(height: AppDimensions.spacingS),
-            itemBuilder: (context, index) {
-              final b = budgets[index];
-              return Card(
-                child: InkWell(
-                  onTap: () async {
-                    // Edit
-                    await Navigator.of(context).push(MaterialPageRoute(
-                      builder: (_) => AddBudgetScreen(budget: b),
-                    ));
-                    _refresh();
-                  },
-                  borderRadius: AppDimensions.cardBorderRadius,
-                  child: Padding(
-                    padding: AppDimensions.cardPadding,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          b.category ?? 'عمومی',
-                          style: Theme.of(context).textTheme.titleMedium,
-                        ),
-                        const SizedBox(height: AppDimensions.spacingS),
-                        FutureBuilder<int>(
-                          future: _repo.computeUtilization(b),
-                          builder: (c, s) {
-                            final used = s.data ?? 0;
-                            return BudgetProgressBar(
-                              current: used,
-                              limit: b.amount,
-                              showPercentage: true,
-                              showAmounts: false,
-                            );
-                          },
                         ),
                       ],
                     ),
                   ),
                 ),
-            padding: AppSpacing.listItemPadding,
-            itemCount: budgets.length,
-            separatorBuilder: (_, __) => const SizedBox(height: AppSpacing.sm),
-            itemBuilder: (context, index) {
-              final b = budgets[index];
-              return FutureBuilder<int>(
-                future: _repo.computeUtilization(b),
-                builder: (c, s) {
-                  final used = s.data ?? 0;
-                  return BudgetProgressCard(
-                    category: b.category ?? 'عمومی',
-                    current: used,
-                    limit: b.amount,
-                    icon: CategoryIcons.getIcon(b.category),
-                    onTap: () async {
-                      // Edit
-                      await Navigator.of(context).push(MaterialPageRoute(
-                        builder: (_) => AddBudgetScreen(budget: b),
-                      ));
-                      _refresh();
-                    },
-                  );
-                },
               );
             },
           );
