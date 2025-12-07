@@ -225,6 +225,7 @@ class _LoanDetailScreenState extends State<LoanDetailScreen> {
                                   final title = b.category ?? 'عمومی';
                                   final used = await repo.computeUtilization(b);
                                   final projected = used + amountPaid;
+                                  if (!mounted) return;
                                   final proceed = await showDialog<bool>(
                                     context: ctx,
                                     builder: (dctx) => AlertDialog(
@@ -275,10 +276,12 @@ class _LoanDetailScreenState extends State<LoanDetailScreen> {
                               final allInst = await _db.getInstallmentsByLoanId(widget.loanId);
                               final allPaid = allInst.every((i) => i.status == InstallmentStatus.paid);
                               if (allPaid && mounted) {
+                                // Capture context before async gap
+                                final celebrationContext = context;
                                 // Show celebration after a short delay so the UI updates first
                                 Future.delayed(_celebrationDelay, () {
                                   if (mounted) {
-                                    showDebtCompletionCelebration(context);
+                                    showDebtCompletionCelebration(celebrationContext);
                                   }
                                 });
                               }
