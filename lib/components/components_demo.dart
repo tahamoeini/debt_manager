@@ -316,13 +316,14 @@ class _ComponentsDemoState extends State<ComponentsDemo> {
               children: [
                 ElevatedButton(
                   onPressed: () async {
+                    final messenger = ScaffoldMessenger.of(context);
                     final confirmed = await ConfirmDialog.show(
                       context,
                       title: 'Confirm Action',
                       message: 'Are you sure you want to proceed?',
                     );
                     if (!mounted) return;
-                    ScaffoldMessenger.of(context).showSnackBar(
+                    messenger.showSnackBar(
                       SnackBar(
                         content: Text(confirmed ? 'Confirmed' : 'Cancelled'),
                       ),
@@ -333,6 +334,7 @@ class _ComponentsDemoState extends State<ComponentsDemo> {
                 const SizedBox(height: AppSpacing.sm),
                 ElevatedButton(
                   onPressed: () async {
+                    final messenger = ScaffoldMessenger.of(context);
                     final confirmed = await ConfirmDialog.show(
                       context,
                       title: 'Delete Item',
@@ -340,7 +342,7 @@ class _ComponentsDemoState extends State<ComponentsDemo> {
                       isDestructive: true,
                     );
                     if (!mounted) return;
-                    ScaffoldMessenger.of(context).showSnackBar(
+                    messenger.showSnackBar(
                       SnackBar(
                         content: Text(confirmed ? 'Deleted' : 'Cancelled'),
                       ),
@@ -363,10 +365,11 @@ class _ComponentsDemoState extends State<ComponentsDemo> {
                 const SizedBox(height: AppSpacing.sm),
                 ElevatedButton(
                   onPressed: () async {
-                    LoadingDialog.show(context, message: 'Loading...');
+                    final ctx = context;
+                    LoadingDialog.show(ctx, message: 'Loading...');
                     await Future.delayed(const Duration(seconds: 2));
                     if (!mounted) return;
-                    LoadingDialog.dismiss(context);
+                    LoadingDialog.dismiss(ctx);
                   },
                   child: const Text('Show Loading Dialog'),
                 ),
