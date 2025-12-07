@@ -4,7 +4,7 @@
 /// Provides consistent styling with Material 3 design principles.
 
 import 'package:flutter/material.dart';
-import 'design_system.dart';
+import 'package:debt_manager/components/design_system.dart';
 
 /// A card widget for displaying a statistic or metric on the dashboard
 class DashboardCard extends StatelessWidget {

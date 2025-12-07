@@ -96,7 +96,7 @@ class _BudgetScreenState extends State<BudgetScreen> {
                         // Category icon
                         CategoryIcon(
                           category: b.category,
-                          icon: Icons.category,
+                          icon: Icons.category, // Fallback, widget should handle category-specific icon
                           size: 40,
                         ),
                         const SizedBox(width: AppConstants.spaceMedium),
