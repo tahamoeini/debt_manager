@@ -39,7 +39,7 @@ class Budget {
       category: map['category'] as String?,
       amount: map['amount'] is int ? map['amount'] as int : int.parse(map['amount'].toString()),
       period: map['period'] as String? ?? '',
-      rollover: (map['rollover'] is int ? (map['rollover'] as int) : int.tryParse(map['rollover'].toString() ?? '0')) == 1,
+      rollover: (map['rollover'] is int ? (map['rollover'] as int) : int.tryParse(map['rollover'].toString())) == 1,
       createdAt: map['created_at'] as String? ?? '',
     );
   }

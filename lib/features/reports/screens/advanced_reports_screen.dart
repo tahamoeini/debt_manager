@@ -341,7 +341,6 @@ class _AdvancedReportsScreenState extends State<AdvancedReportsScreen> {
               child: PieChart(
                 PieChartData(
                   sections: entries.asMap().entries.map((e) {
-                    final index = e.key;
                     final entry = e.value;
                     final percentage = ((entry.value / total) * 100);
                     final color = colorForCategory(

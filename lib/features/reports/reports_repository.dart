@@ -216,9 +216,6 @@ class ReportsRepository {
       }
     }
     
-    final now = DateTime.now();
-    final nowJ = dateTimeToJalali(now);
-    
     for (final inst in installments) {
       if (inst.status == InstallmentStatus.paid) continue;
       
