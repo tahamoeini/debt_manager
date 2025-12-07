@@ -68,7 +68,7 @@ class _DebtManagerAppState extends State<DebtManagerApp> {
             final lightTheme = ThemeData(
               useMaterial3: true,
               colorScheme: lightScheme,
-              scaffoldBackgroundColor: lightScheme.background,
+              scaffoldBackgroundColor: lightScheme.surface,
               textTheme: lightTextTheme,
               appBarTheme: AppBarTheme(backgroundColor: lightScheme.surface, foregroundColor: lightScheme.onSurface, elevation: 1),
               listTileTheme: const ListTileThemeData(contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 8)),
@@ -76,7 +76,7 @@ class _DebtManagerAppState extends State<DebtManagerApp> {
               materialTapTargetSize: MaterialTapTargetSize.padded,
               inputDecorationTheme: InputDecorationTheme(
                 filled: true,
-                fillColor: lightScheme.surfaceVariant,
+                fillColor: lightScheme.surfaceContainerHighest,
                 border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
                 floatingLabelStyle: const TextStyle(fontWeight: FontWeight.w600),
               ),
@@ -118,7 +118,7 @@ class _DebtManagerAppState extends State<DebtManagerApp> {
             final darkTheme = ThemeData(
               useMaterial3: true,
               colorScheme: darkScheme,
-              scaffoldBackgroundColor: darkScheme.background,
+              scaffoldBackgroundColor: darkScheme.surface,
               textTheme: darkTextTheme,
               appBarTheme: AppBarTheme(backgroundColor: darkScheme.surface, foregroundColor: darkScheme.onSurface, elevation: 1),
               listTileTheme: const ListTileThemeData(contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 8)),
@@ -126,7 +126,7 @@ class _DebtManagerAppState extends State<DebtManagerApp> {
               materialTapTargetSize: MaterialTapTargetSize.padded,
               inputDecorationTheme: InputDecorationTheme(
                 filled: true,
-                fillColor: darkScheme.surfaceVariant,
+                fillColor: darkScheme.surfaceContainerHighest,
                 border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
                 floatingLabelStyle: const TextStyle(fontWeight: FontWeight.w600),
               ),

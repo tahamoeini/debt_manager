@@ -95,7 +95,7 @@ class _AccountsScreenState extends State<AccountsScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const SizedBox(height: 4),
-            LinearProgressIndicator(value: ratio, minHeight: 6, color: Theme.of(context).colorScheme.primary, backgroundColor: Theme.of(context).colorScheme.surfaceVariant),
+            LinearProgressIndicator(value: ratio, minHeight: 6, color: Theme.of(context).colorScheme.primary, backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest),
             const SizedBox(height: 6),
             Text('${toPersianDigits((ratio * 100).round())}% پرداخت شده · باقی‌مانده: ${formatCurrency(remaining)}', style: Theme.of(context).textTheme.bodySmall),
           ],

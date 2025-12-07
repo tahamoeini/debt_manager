@@ -29,15 +29,13 @@ class _AppShellState extends State<AppShell> {
 
   @override
   Widget build(BuildContext context) {
-    return WillPopScope(
-      onWillPop: () async {
+    return PopScope(
+      canPop: !Navigator.of(context).canPop(),
+      onPopInvoked: (bool didPop) async {
         // If there are pages on the navigator stack, pop them first.
-        if (Navigator.of(context).canPop()) {
+        if (!didPop && Navigator.of(context).canPop()) {
           Navigator.of(context).pop();
-          return false;
         }
-        // At root of app: allow system to handle (exit app)
-        return true;
       },
       child: Scaffold(
         appBar: AppBar(

@@ -1,4 +1,4 @@
-// ignore_for_file: deprecated_member_use, use_build_context_synchronously
+// ignore_for_file: use_build_context_synchronously
 
 // Add loan screen: form for creating a loan and its installments.
 import 'package:flutter/material.dart';
@@ -300,27 +300,31 @@ class _AddLoanScreenState extends State<AddLoanScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return WillPopScope(
-      onWillPop: () async {
-        if (!_isDirty) return true;
-        final res = await showDialog<bool>(
-          context: context,
-          builder: (c) => AlertDialog(
-            title: const Text('تغییرات ذخیره نشده'),
-            content: const Text('تایید می‌کنید که بدون ذخیره خارج شوید؟'),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.of(c).pop(false),
-                child: const Text('لغو'),
-              ),
-              TextButton(
-                onPressed: () => Navigator.of(c).pop(true),
-                child: const Text('خروج'),
-              ),
-            ],
-          ),
-        );
-        return res == true;
+    return PopScope(
+      canPop: !_isDirty,
+      onPopInvoked: (bool didPop) async {
+        if (!didPop && _isDirty) {
+          final res = await showDialog<bool>(
+            context: context,
+            builder: (c) => AlertDialog(
+              title: const Text('تغییرات ذخیره نشده'),
+              content: const Text('تایید می‌کنید که بدون ذخیره خارج شوید؟'),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.of(c).pop(false),
+                  child: const Text('لغو'),
+                ),
+                TextButton(
+                  onPressed: () => Navigator.of(c).pop(true),
+                  child: const Text('خروج'),
+                ),
+              ],
+            ),
+          );
+          if (res == true && context.mounted) {
+            Navigator.of(context).pop();
+          }
+        }
       },
       child: GestureDetector(
         onTap: () => FocusScope.of(context).unfocus(),

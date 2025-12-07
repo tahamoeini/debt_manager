@@ -116,8 +116,8 @@ class FormInput extends StatelessWidget {
         suffixIcon: suffixIcon,
         filled: true,
         fillColor: enabled
-            ? colorScheme.surfaceVariant
-            : colorScheme.surfaceVariant.withOpacity(0.5),
+            ? colorScheme.surfaceContainerHighest
+            : colorScheme.surfaceContainerHighest.withOpacity(0.5),
         border: OutlineInputBorder(
           borderRadius: AppRadius.input,
         ),
@@ -210,8 +210,8 @@ class DropdownField<T> extends StatelessWidget {
         prefixIcon: leadingIcon != null ? Icon(leadingIcon) : null,
         filled: true,
         fillColor: enabled
-            ? colorScheme.surfaceVariant
-            : colorScheme.surfaceVariant.withOpacity(0.5),
+            ? colorScheme.surfaceContainerHighest
+            : colorScheme.surfaceContainerHighest.withOpacity(0.5),
         border: OutlineInputBorder(
           borderRadius: AppRadius.input,
         ),
