@@ -165,6 +165,8 @@ class SettingsRepository {
       default:
         return 1.0;
     }
+  }
+
   // Budget alerts settings
   Future<bool> getBudgetAlertsEnabled() async {
     final prefs = await SharedPreferences.getInstance();

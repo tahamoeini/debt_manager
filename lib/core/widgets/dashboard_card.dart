@@ -1,66 +1,33 @@
-// Reusable dashboard card widget for displaying statistics and metrics.
-import 'package:flutter/material.dart';
-import 'package:debt_manager/core/theme/app_constants.dart';
-
-/// A reusable card widget for displaying dashboard statistics.
-///
-/// This widget provides a consistent style for all dashboard cards with:
-/// - Material 3 elevated container
-/// - Rounded corners
-/// - Optional icon
-/// - Title, value, and optional subtitle
-///
-/// Example usage:
-/// ```dart
-/// DashboardCard(
-///   title: 'Total Balance',
-///   value: '۱٬۲۳۴٬۵۶۷ ریال',
-///   subtitle: 'As of today',
-///   icon: Icons.account_balance_wallet,
-///   color: Theme.of(context).colorScheme.primary,
-/// )
-/// ```
-class DashboardCard extends StatelessWidget {
-  /// The title text displayed at the top of the card
-  final String title;
-
-  /// The main value/metric displayed prominently
-  final String value;
-
-  /// Optional subtitle or description text
-  final String? subtitle;
-
-  /// Optional icon displayed at the top
-  final IconData? icon;
-
-  /// Optional color for the icon and accent
-  final Color? color;
-
-  /// Custom action widget (e.g., a button)
-  final Widget? action;
-import 'package:flutter/material.dart';
-import 'package:debt_manager/core/theme/app_dimensions.dart';
-
-/// A reusable card widget for dashboard statistics.
-/// Displays a title, value, and optional subtitle with consistent Material 3 styling.
+/// Dashboard Card Widget
 /// 
-/// Example usage:
-/// ```dart
-/// DashboardCard(
-///   title: 'موجودی کل',
-///   value: '۱۲۳٬۴۵۶ ریال',
-///   subtitle: 'دارایی‌ها منهای بدهی‌ها',
-///   icon: Icons.account_balance_wallet,
-///   color: Colors.blue,
-/// )
-/// ```
+/// A reusable card widget for displaying stats and metrics on dashboard screens.
+/// Provides consistent styling with Material 3 design principles.
+
+import 'package:flutter/material.dart';
+import 'design_system.dart';
+
+/// A card widget for displaying a statistic or metric on the dashboard
 class DashboardCard extends StatelessWidget {
+  /// The title/label of the stat
   final String title;
+
+  /// The main value to display
   final String value;
+
+  /// Optional subtitle text
   final String? subtitle;
+
+  /// Optional icon to display
   final IconData? icon;
-  final Color? color;
+
+  /// Optional color for the card accent
+  final Color? accentColor;
+
+  /// Whether the card is tappable
   final VoidCallback? onTap;
+
+  /// Whether to show a loading indicator instead of the value
+  final bool isLoading;
 
   const DashboardCard({
     super.key,
@@ -68,9 +35,9 @@ class DashboardCard extends StatelessWidget {
     required this.value,
     this.subtitle,
     this.icon,
-    this.color,
-    this.action,
+    this.accentColor,
     this.onTap,
+    this.isLoading = false,
   });
 
   @override
@@ -78,54 +45,66 @@ class DashboardCard extends StatelessWidget {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
     final textTheme = theme.textTheme;
-    final accentColor = color ?? colorScheme.primary;
 
-    return Card(
-      elevation: 1,
-      shape: RoundedRectangleBorder(
-        borderRadius: AppConstants.borderRadiusMedium,
+    final cardContent = Container(
+      decoration: BoxDecoration(
+        color: colorScheme.surface,
+        borderRadius: AppRadius.card,
+        border: Border.all(
+          color: accentColor?.withOpacity(0.3) ?? 
+                 colorScheme.outline.withOpacity(0.2),
+          width: 1,
+        ),
       ),
       child: Padding(
-        padding: AppConstants.cardPadding,
+        padding: AppSpacing.cardPadding,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
-            // Icon and title row
             Row(
               children: [
                 if (icon != null) ...[
                   Icon(
                     icon,
-                    size: AppConstants.iconSizeSmall,
-                    color: accentColor,
+                    size: AppIconSize.md,
+                    color: accentColor ?? colorScheme.primary,
                   ),
-                  const SizedBox(width: AppConstants.spaceSmall),
+                  const SizedBox(width: AppSpacing.sm),
                 ],
                 Expanded(
                   child: Text(
                     title,
-                    style: textTheme.titleSmall?.copyWith(
+                    style: textTheme.bodySmall?.copyWith(
                       fontWeight: FontWeight.w600,
                       color: colorScheme.onSurface.withOpacity(0.7),
                     ),
                   ),
                 ),
-                if (action != null) action!,
               ],
             ),
-            const SizedBox(height: AppConstants.spaceSmall),
-            // Value
-            Text(
-              value,
-              style: textTheme.headlineSmall?.copyWith(
-                fontWeight: FontWeight.bold,
-                color: accentColor,
+            const SizedBox(height: AppSpacing.sm),
+            if (isLoading)
+              const SizedBox(
+                height: 28,
+                child: Center(
+                  child: SizedBox(
+                    height: 20,
+                    width: 20,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  ),
+                ),
+              )
+            else
+              Text(
+                value,
+                style: textTheme.headlineSmall?.copyWith(
+                  fontWeight: FontWeight.bold,
+                  color: accentColor ?? colorScheme.onSurface,
+                ),
               ),
-            ),
-            // Subtitle
             if (subtitle != null) ...[
-              const SizedBox(height: AppConstants.spaceXSmall),
+              const SizedBox(height: AppSpacing.xs),
               Text(
                 subtitle!,
                 style: textTheme.bodySmall?.copyWith(
@@ -136,79 +115,54 @@ class DashboardCard extends StatelessWidget {
           ],
         ),
       ),
-    final effectiveColor = color ?? colorScheme.primary;
-
-    Widget content = Container(
-      padding: AppDimensions.cardPadding,
-      decoration: BoxDecoration(
-        borderRadius: AppDimensions.cardBorderRadius,
-        color: theme.cardColor,
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Row(
-            children: [
-              if (icon != null) ...[
-                Icon(
-                  icon,
-                  size: AppDimensions.iconSizeSmall,
-                  color: effectiveColor,
-                ),
-                const SizedBox(width: AppDimensions.spacingS),
-              ],
-              Expanded(
-                child: Text(
-                  title,
-                  style: theme.textTheme.bodyMedium?.copyWith(
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: AppDimensions.spacingS),
-          Text(
-            value,
-            style: theme.textTheme.headlineSmall?.copyWith(
-              color: effectiveColor,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          if (subtitle != null) ...[
-            const SizedBox(height: AppDimensions.spacingXs),
-            Text(
-              subtitle!,
-              style: theme.textTheme.bodySmall?.copyWith(
-                color: colorScheme.onSurface.withOpacity(0.6),
-              ),
-            ),
-          ],
-        ],
-      ),
     );
 
     if (onTap != null) {
-      return Card(
-        elevation: 2,
-        shape: RoundedRectangleBorder(
-          borderRadius: AppDimensions.cardBorderRadius,
-        ),
-        child: InkWell(
-          onTap: onTap,
-          borderRadius: AppDimensions.cardBorderRadius,
-          child: content,
-        ),
+      return InkWell(
+        onTap: onTap,
+        borderRadius: AppRadius.card,
+        child: cardContent,
       );
     }
 
-    return Card(
-      elevation: 2,
-      shape: RoundedRectangleBorder(
-        borderRadius: AppDimensions.cardBorderRadius,
-      ),
-      child: content,
+    return cardContent;
+  }
+}
+
+/// A simplified stat card for quick metrics display
+class StatCard extends StatelessWidget {
+  /// The title/label of the stat
+  final String title;
+
+  /// The main value to display
+  final String value;
+
+  /// The color theme for this stat
+  final Color color;
+
+  /// Optional icon
+  final IconData? icon;
+
+  /// Optional tap handler
+  final VoidCallback? onTap;
+
+  const StatCard({
+    super.key,
+    required this.title,
+    required this.value,
+    required this.color,
+    this.icon,
+    this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return DashboardCard(
+      title: title,
+      value: value,
+      icon: icon,
+      accentColor: color,
+      onTap: onTap,
     );
   }
 }
