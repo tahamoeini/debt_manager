@@ -6,6 +6,10 @@ import 'package:debt_manager/core/utils/ui_utils.dart';
 import 'package:debt_manager/core/widgets/budget_bar.dart';
 import 'package:debt_manager/core/widgets/category_icon.dart';
 import 'package:debt_manager/core/theme/app_constants.dart';
+import 'package:debt_manager/core/widgets/budget_progress_bar.dart';
+import 'package:debt_manager/core/theme/app_dimensions.dart';
+import 'package:debt_manager/components/components.dart';
+import 'package:debt_manager/core/notifications/smart_notification_service.dart';
 import 'add_budget_screen.dart';
 
 class BudgetScreen extends StatefulWidget {
@@ -30,12 +34,22 @@ class _BudgetScreenState extends State<BudgetScreen> {
   void initState() {
     super.initState();
     _budgetsFuture = _repo.getBudgetsByPeriod(_currentPeriod());
+    _checkBudgetThresholds();
   }
 
   void _refresh() {
     setState(() {
       _budgetsFuture = _repo.getBudgetsByPeriod(_currentPeriod());
     });
+    _checkBudgetThresholds();
+  }
+
+  Future<void> _checkBudgetThresholds() async {
+    try {
+      await SmartNotificationService.instance.checkBudgetThresholds(_currentPeriod());
+    } catch (e) {
+      // Silently fail - don't disrupt the UI if notifications fail
+    }
   }
 
   @override
@@ -114,11 +128,70 @@ class _BudgetScreenState extends State<BudgetScreen> {
                               ),
                             ],
                           ),
+            padding: AppDimensions.pagePadding,
+            itemCount: budgets.length,
+            separatorBuilder: (_, __) => const SizedBox(height: AppDimensions.spacingS),
+            itemBuilder: (context, index) {
+              final b = budgets[index];
+              return Card(
+                child: InkWell(
+                  onTap: () async {
+                    // Edit
+                    await Navigator.of(context).push(MaterialPageRoute(
+                      builder: (_) => AddBudgetScreen(budget: b),
+                    ));
+                    _refresh();
+                  },
+                  borderRadius: AppDimensions.cardBorderRadius,
+                  child: Padding(
+                    padding: AppDimensions.cardPadding,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          b.category ?? 'عمومی',
+                          style: Theme.of(context).textTheme.titleMedium,
+                        ),
+                        const SizedBox(height: AppDimensions.spacingS),
+                        FutureBuilder<int>(
+                          future: _repo.computeUtilization(b),
+                          builder: (c, s) {
+                            final used = s.data ?? 0;
+                            return BudgetProgressBar(
+                              current: used,
+                              limit: b.amount,
+                              showPercentage: true,
+                              showAmounts: false,
+                            );
+                          },
                         ),
                       ],
                     ),
                   ),
                 ),
+            padding: AppSpacing.listItemPadding,
+            itemCount: budgets.length,
+            separatorBuilder: (_, __) => const SizedBox(height: AppSpacing.sm),
+            itemBuilder: (context, index) {
+              final b = budgets[index];
+              return FutureBuilder<int>(
+                future: _repo.computeUtilization(b),
+                builder: (c, s) {
+                  final used = s.data ?? 0;
+                  return BudgetProgressCard(
+                    category: b.category ?? 'عمومی',
+                    current: used,
+                    limit: b.amount,
+                    icon: CategoryIcons.getIcon(b.category),
+                    onTap: () async {
+                      // Edit
+                      await Navigator.of(context).push(MaterialPageRoute(
+                        builder: (_) => AddBudgetScreen(budget: b),
+                      ));
+                      _refresh();
+                    },
+                  );
+                },
               );
             },
           );
