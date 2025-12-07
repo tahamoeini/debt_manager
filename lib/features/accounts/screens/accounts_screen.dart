@@ -58,6 +58,18 @@ class _AccountsScreenState extends State<AccountsScreen> {
         if (snap.connectionState == ConnectionState.waiting) {
           return const Center(child: CircularProgressIndicator());
         }
+        if (snap.hasError) {
+          return Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(Icons.error_outline, size: 48, color: Colors.red),
+                const SizedBox(height: 16),
+                Text('خطا در بارگذاری داده‌ها: ${snap.error}'),
+              ],
+            ),
+          );
+        }
         return ListView(
           padding: const EdgeInsets.all(16),
           children: [
