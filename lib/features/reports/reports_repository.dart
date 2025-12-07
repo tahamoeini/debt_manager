@@ -96,25 +96,31 @@ class ReportsRepository {
   }
 
   Future<int> _getTotalPaidInRange(String startDate, String endDate, LoanDirection direction) async {
-    final loans = await _db.getAllLoans(direction: direction);
-    var total = 0;
-    
-    for (final loan in loans) {
-      if (loan.id == null) continue;
-      
-      final installments = await _db.getInstallmentsByLoanId(loan.id!);
-      
-      for (final inst in installments) {
-        if (inst.status != InstallmentStatus.paid) continue;
-        if (inst.paidAt == null) continue;
-        
-        final paidDate = inst.paidAt!;
-        if (paidDate.compareTo(startDate) >= 0 && paidDate.compareTo(endDate) <= 0) {
-          total += inst.actualPaidAmount ?? inst.amount;
-        }
-      }
+    // Fetch all paid installments for loans with the given direction and paidAt in range
+    final db = _db.database;
+    final directionValue = direction.index; // assuming LoanDirection is an enum
+    final List<Map<String, dynamic>> rows = await db.rawQuery('''
+      SELECT i.actualPaidAmount, i.amount
+      FROM installments i
+      JOIN loans l ON i.loanId = l.id
+      WHERE l.direction = ?
+        AND i.status = ?
+        AND i.paidAt IS NOT NULL
+        AND i.paidAt >= ?
+        AND i.paidAt <= ?
+    ''', [
+      directionValue,
+      InstallmentStatus.paid.index,
+      startDate,
+      endDate,
+    ]);
+
+    int total = 0;
+    for (final row in rows) {
+      final actualPaidAmount = row['actualPaidAmount'] as int?;
+      final amount = row['amount'] as int;
+      total += actualPaidAmount ?? amount;
     }
-    
     return total;
   }
 
