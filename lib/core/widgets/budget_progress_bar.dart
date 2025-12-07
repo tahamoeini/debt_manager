@@ -60,7 +60,7 @@ class BudgetProgressBar extends StatelessWidget {
           child: LinearProgressIndicator(
             value: utilization,
             color: progressColor,
-            backgroundColor: progressColor.withOpacity(0.2),
+            backgroundColor: progressColor.withValues(alpha: 0.2),
             minHeight: height,
           ),
         ),
@@ -72,7 +72,7 @@ class BudgetProgressBar extends StatelessWidget {
               Text(
                 '${_formatAmount(current)} / ${_formatAmount(limit)}',
                 style: theme.textTheme.bodySmall?.copyWith(
-                  color: colorScheme.onSurface.withOpacity(0.6),
+                  color: colorScheme.onSurface.withValues(alpha: 0.6),
                 ),
               ),
             if (showPercentage)

@@ -92,7 +92,7 @@ class TransactionTile extends StatelessWidget {
         color: colorScheme.surface,
         borderRadius: AppRadius.card,
         border: Border.all(
-          color: colorScheme.outline.withOpacity(0.2),
+          color: colorScheme.outline.withValues(alpha: 0.2),
         ),
       ),
       child: ListTile(
@@ -117,7 +117,7 @@ class TransactionTile extends StatelessWidget {
             ? Text(
                 effectiveSubtitle,
                 style: textTheme.bodySmall?.copyWith(
-                  color: colorScheme.onSurface.withOpacity(0.6),
+                  color: colorScheme.onSurface.withValues(alpha: 0.6),
                 ),
               )
             : null,

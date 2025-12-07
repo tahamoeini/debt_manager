@@ -207,7 +207,7 @@ class _DebtPayoffProjectionScreenState extends State<DebtPayoffProjectionScreen>
                       dotData: const FlDotData(show: true),
                       belowBarData: BarAreaData(
                         show: true,
-                        color: Theme.of(context).colorScheme.error.withOpacity(0.1),
+                        color: Theme.of(context).colorScheme.error.withValues(alpha: 0.1),
                       ),
                     ),
                   ],

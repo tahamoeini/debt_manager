@@ -53,8 +53,8 @@ class DashboardCard extends StatelessWidget {
         color: colorScheme.surface,
         borderRadius: AppRadius.card,
         border: Border.all(
-          color: accentColor?.withOpacity(0.3) ?? 
-                 colorScheme.outline.withOpacity(0.2),
+          color: accentColor?.withValues(alpha: 0.3) ?? 
+                 colorScheme.outline.withValues(alpha: 0.2),
           width: 1,
         ),
       ),
@@ -79,7 +79,7 @@ class DashboardCard extends StatelessWidget {
                     title,
                     style: textTheme.bodySmall?.copyWith(
                       fontWeight: FontWeight.w600,
-                      color: colorScheme.onSurface.withOpacity(0.7),
+                      color: colorScheme.onSurface.withValues(alpha: 0.7),
                     ),
                   ),
                 ),
@@ -110,7 +110,7 @@ class DashboardCard extends StatelessWidget {
               Text(
                 subtitle!,
                 style: textTheme.bodySmall?.copyWith(
-                  color: colorScheme.onSurface.withOpacity(0.6),
+                  color: colorScheme.onSurface.withValues(alpha: 0.6),
                 ),
               ),
             ],
