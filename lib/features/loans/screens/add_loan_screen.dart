@@ -1,4 +1,4 @@
-// ignore_for_file: deprecated_member_use, use_build_context_synchronously
+// ignore_for_file: use_build_context_synchronously
 
 // Add loan screen: form for creating a loan and its installments.
 import 'package:flutter/material.dart';
@@ -300,9 +300,16 @@ class _AddLoanScreenState extends State<AddLoanScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return WillPopScope(
-      onWillPop: () async {
-        if (!_isDirty) return true;
+    return PopScope(
+      canPop: !_isDirty,
+      onPopInvoked: (bool didPop) async {
+        // If already popped (clean form), nothing to do
+        if (didPop) return;
+        
+        // Check if still mounted before showing dialog
+        if (!mounted) return;
+        
+        // If dirty, show confirmation dialog
         final res = await showDialog<bool>(
           context: context,
           builder: (c) => AlertDialog(
@@ -320,7 +327,11 @@ class _AddLoanScreenState extends State<AddLoanScreen> {
             ],
           ),
         );
-        return res == true;
+        
+        // If user confirmed exit, pop the screen
+        if (res == true && mounted) {
+          Navigator.of(context).pop();
+        }
       },
       child: GestureDetector(
         onTap: () => FocusScope.of(context).unfocus(),

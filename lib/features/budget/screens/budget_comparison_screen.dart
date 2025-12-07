@@ -293,7 +293,7 @@ class _BudgetComparisonScreenState extends State<BudgetComparisonScreen> {
                   value: percentage / 100,
                   minHeight: 8,
                   color: progressColor,
-                  backgroundColor: cs.surfaceVariant,
+                  backgroundColor: cs.surfaceContainerHighest,
                 ),
                 const SizedBox(height: 8),
                 Row(

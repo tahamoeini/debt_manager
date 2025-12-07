@@ -1,4 +1,4 @@
-// ignore_for_file: deprecated_member_use, use_build_context_synchronously
+// ignore_for_file: use_build_context_synchronously
 
 // Settings screen: adjust local app settings like reminder offsets.
 import 'package:flutter/material.dart';
@@ -34,7 +34,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
   bool _billReminders = true;
   bool _budgetAlerts = true;
   bool _loading = true;
-  bool _budgetAlerts = true;
   bool _smartSuggestions = true;
   bool _financeCoach = true;
   bool _monthEndSummary = true;
