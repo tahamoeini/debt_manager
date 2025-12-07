@@ -13,6 +13,7 @@ import 'package:debt_manager/features/loans/models/installment.dart';
 import 'package:debt_manager/features/loans/models/loan.dart';
 import 'add_loan_screen.dart';
 import 'package:debt_manager/features/budget/budgets_repository.dart';
+import 'package:debt_manager/features/budget/models/budget.dart';
 
 // Delay before showing celebration to allow UI to update
 const Duration _celebrationDelay = Duration(milliseconds: 300);

@@ -49,7 +49,7 @@ class CategoryIcon extends StatelessWidget {
   const CategoryIcon({
     super.key,
     this.category,
-    required this.icon,
+    this.icon,
     this.size = AppDimensions.categoryIconSize,
     this.backgroundColor,
     this.iconColor,
@@ -59,6 +59,11 @@ class CategoryIcon extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final brightness = theme.brightness;
+    
+    // Get icon from category map or use provided icon, default to general icon
+    final effectiveIcon = icon ?? 
+        (category != null ? _categoryIcons[category] : null) ?? 
+        Icons.category;
     
     // Use category color if available, otherwise use theme color
     final bgColor = backgroundColor ?? 
@@ -75,7 +80,7 @@ class CategoryIcon extends StatelessWidget {
       radius: size / 2,
       backgroundColor: bgColor,
       child: Icon(
-        icon,
+        effectiveIcon,
         size: size * 0.5,
         color: fgColor,
       ),

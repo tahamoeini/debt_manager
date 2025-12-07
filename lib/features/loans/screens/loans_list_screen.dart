@@ -120,7 +120,6 @@ class _LoansListScreenState extends State<LoansListScreen> {
                 contentPadding: AppSpacing.listItemPadding,
                 leading: CategoryIcon(
                   category: s.counterpartyTag,
-                  style: CategoryIconStyle.dot,
                   size: AppIconSize.sm,
                 ),
                 title: Text(

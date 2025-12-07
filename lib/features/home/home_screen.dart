@@ -22,7 +22,6 @@ class HomeScreen extends StatelessWidget {
               child: StatCard(
                 title: 'موجودی خالص',
                 value: '—',
-                subtitle: 'دارایی‌ها منهای بدهی‌ها',
                 icon: Icons.account_balance_wallet,
                 onTap: () => Navigator.of(context).push(
                   MaterialPageRoute(builder: (_) => const LoansListScreen()),
@@ -34,7 +33,6 @@ class HomeScreen extends StatelessWidget {
               child: StatCard(
                 title: 'هزینه این ماه',
                 value: '—',
-                subtitle: 'هزینه در مقابل بودجه',
                 icon: Icons.receipt_long,
                 onTap: () => Navigator.of(context).push(
                   MaterialPageRoute(builder: (_) => const ReportsScreen()),
