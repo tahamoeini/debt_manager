@@ -11,6 +11,8 @@ import 'dart:io';
 import 'package:debt_manager/core/backup/backup_service.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:debt_manager/features/help/help_screen.dart';
+import 'package:debt_manager/features/automation/screens/automation_rules_screen.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -24,6 +26,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
   int _offset = 3;
   ThemeMode _themeMode = ThemeMode.system;
   bool _loading = true;
+  bool _budgetAlerts = true;
+  bool _smartSuggestions = true;
+  bool _financeCoach = true;
+  bool _monthEndSummary = true;
 
   final List<int> _options = const [0, 1, 3, 7];
 
@@ -36,10 +42,18 @@ class _SettingsScreenState extends State<SettingsScreen> {
   Future<void> _load() async {
     final v = await _repo.getReminderOffsetDays();
     final tm = await _repo.getThemeMode();
+    final ba = await _repo.getBudgetAlertsEnabled();
+    final ss = await _repo.getSmartSuggestionsEnabled();
+    final fc = await _repo.getFinanceCoachEnabled();
+    final mes = await _repo.getMonthEndSummaryEnabled();
     if (mounted) {
       setState(() {
         _offset = v;
         _themeMode = tm;
+        _budgetAlerts = ba;
+        _smartSuggestions = ss;
+        _financeCoach = fc;
+        _monthEndSummary = mes;
         _loading = false;
       });
     }
@@ -72,6 +86,39 @@ class _SettingsScreenState extends State<SettingsScreen> {
           : ListView(
               padding: const EdgeInsets.all(16),
               children: [
+                Card(
+                  color: Theme.of(context).colorScheme.secondaryContainer,
+                  child: ListTile(
+                    leading: Icon(
+                      Icons.help_outline,
+                      color: Theme.of(context).colorScheme.onSecondaryContainer,
+                    ),
+                    title: Text(
+                      'راهنمای ویژگی‌های هوشمند',
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.onSecondaryContainer,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    subtitle: Text(
+                      'درباره یادآورها، هشدارها و پیشنهادهای هوشمند بیشتر بدانید',
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.onSecondaryContainer,
+                      ),
+                    ),
+                    trailing: Icon(
+                      Icons.arrow_forward_ios,
+                      color: Theme.of(context).colorScheme.onSecondaryContainer,
+                      size: 16,
+                    ),
+                    onTap: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(builder: (_) => const HelpScreen()),
+                      );
+                    },
+                  ),
+                ),
+                const SizedBox(height: 12),
                 Card(
                   child: Padding(
                     padding: const EdgeInsets.all(12),
@@ -151,6 +198,104 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             await _saveTheme(v);
                           },
                         ),
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Card(
+                  child: Padding(
+                    padding: const EdgeInsets.all(12),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'هوش مالی و پیشنهادها',
+                          style: Theme.of(context).textTheme.titleMedium,
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          'تنظیمات مربوط به یادآورها و پیشنهادهای هوشمند',
+                          style: Theme.of(context).textTheme.bodySmall,
+                        ),
+                        const SizedBox(height: 12),
+                        SwitchListTile(
+                          title: const Text('هشدارهای بودجه'),
+                          subtitle: const Text('اطلاع‌رسانی وقتی بودجه به حد آستانه رسید'),
+                          value: _budgetAlerts,
+                          onChanged: (v) async {
+                            await _repo.setBudgetAlertsEnabled(v);
+                            if (mounted) {
+                              setState(() {
+                                _budgetAlerts = v;
+                              });
+                            }
+                          },
+                        ),
+                        SwitchListTile(
+                          title: const Text('پیشنهادهای هوشمند'),
+                          subtitle: const Text('تشخیص اشتراک‌ها و تغییرات قبوض'),
+                          value: _smartSuggestions,
+                          onChanged: (v) async {
+                            await _repo.setSmartSuggestionsEnabled(v);
+                            if (mounted) {
+                              setState(() {
+                                _smartSuggestions = v;
+                              });
+                            }
+                          },
+                        ),
+                        SwitchListTile(
+                          title: const Text('مشاور مالی'),
+                          subtitle: const Text('نکات و راهنمایی‌های مالی در برنامه'),
+                          value: _financeCoach,
+                          onChanged: (v) async {
+                            await _repo.setFinanceCoachEnabled(v);
+                            if (mounted) {
+                              setState(() {
+                                _financeCoach = v;
+                              });
+                            }
+                          },
+                        ),
+                        SwitchListTile(
+                          title: const Text('خلاصه پایان ماه'),
+                          subtitle: const Text('گزارش عملکرد بودجه در پایان ماه'),
+                          value: _monthEndSummary,
+                          onChanged: (v) async {
+                            await _repo.setMonthEndSummaryEnabled(v);
+                            if (mounted) {
+                              setState(() {
+                                _monthEndSummary = v;
+                              });
+                            }
+                          },
+                        ),
+                        const Divider(height: 24),
+                        ListTile(
+                          leading: const Icon(Icons.rule_outlined),
+                          title: const Text('قوانین خودکارسازی'),
+                          subtitle: const Text('مدیریت دسته‌بندی خودکار تراکنش‌ها'),
+                          trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+                          onTap: () {
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (_) => const AutomationRulesScreen(),
+                              ),
+                            );
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Card(
+                  child: Padding(
+                    padding: const EdgeInsets.all(12),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
                         const SizedBox(height: 12),
                         Text(
                           'پشتیبان‌گیری و بازیابی',

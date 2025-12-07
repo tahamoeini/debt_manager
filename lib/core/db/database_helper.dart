@@ -17,7 +17,7 @@ class DatabaseHelper {
   factory DatabaseHelper() => instance;
 
   static const _dbName = 'debt_manager.db';
-  static const _dbVersion = 4;
+  static const _dbVersion = 5;
 
   Database? _db;
   // In-memory fallback stores for web builds (sqflite is not available on web).
@@ -109,6 +109,19 @@ class DatabaseHelper {
         FOREIGN KEY(loan_id) REFERENCES loans(id)
       )
     ''');
+
+    await db.execute('''
+      CREATE TABLE automation_rules (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT NOT NULL,
+        rule_type TEXT NOT NULL,
+        pattern TEXT NOT NULL,
+        action TEXT NOT NULL,
+        action_value TEXT NOT NULL,
+        enabled INTEGER NOT NULL DEFAULT 1,
+        created_at TEXT NOT NULL
+      )
+    ''');
   }
 
   FutureOr<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {
@@ -153,6 +166,24 @@ class DatabaseHelper {
             amount INTEGER NOT NULL,
             period TEXT NOT NULL,
             rollover INTEGER NOT NULL DEFAULT 0,
+            created_at TEXT NOT NULL
+          )
+        ''');
+      } catch (_) {}
+    }
+
+    if (oldVersion < 5) {
+      // Add automation_rules table for smart features
+      try {
+        await db.execute('''
+          CREATE TABLE IF NOT EXISTS automation_rules (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT NOT NULL,
+            rule_type TEXT NOT NULL,
+            pattern TEXT NOT NULL,
+            action TEXT NOT NULL,
+            action_value TEXT NOT NULL,
+            enabled INTEGER NOT NULL DEFAULT 1,
             created_at TEXT NOT NULL
           )
         ''');
