@@ -29,11 +29,13 @@ class _AppShellState extends State<AppShell> {
 
   @override
   Widget build(BuildContext context) {
+    // Allow system back when at root (no pages to pop), intercept when there are pages
+    final hasPagesToPop = Navigator.of(context).canPop();
     return PopScope(
-      canPop: !Navigator.of(context).canPop(),
-      onPopInvoked: (bool didPop) async {
-        // If there are pages on the navigator stack, pop them first.
-        if (!didPop && Navigator.of(context).canPop()) {
+      canPop: !hasPagesToPop,
+      onPopInvoked: (bool didPop) {
+        // If pop was not performed (canPop was false), and there are pages, pop them
+        if (!didPop && hasPagesToPop) {
           Navigator.of(context).pop();
         }
       },

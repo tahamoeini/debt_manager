@@ -303,27 +303,31 @@ class _AddLoanScreenState extends State<AddLoanScreen> {
     return PopScope(
       canPop: !_isDirty,
       onPopInvoked: (bool didPop) async {
-        if (!didPop && _isDirty) {
-          final res = await showDialog<bool>(
-            context: context,
-            builder: (c) => AlertDialog(
-              title: const Text('تغییرات ذخیره نشده'),
-              content: const Text('تایید می‌کنید که بدون ذخیره خارج شوید؟'),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.of(c).pop(false),
-                  child: const Text('لغو'),
-                ),
-                TextButton(
-                  onPressed: () => Navigator.of(c).pop(true),
-                  child: const Text('خروج'),
-                ),
-              ],
-            ),
-          );
-          if (res == true && context.mounted) {
-            Navigator.of(context).pop();
-          }
+        // If already popped (clean form), nothing to do
+        if (didPop) return;
+        
+        // If dirty, show confirmation dialog
+        final res = await showDialog<bool>(
+          context: context,
+          builder: (c) => AlertDialog(
+            title: const Text('تغییرات ذخیره نشده'),
+            content: const Text('تایید می‌کنید که بدون ذخیره خارج شوید؟'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(c).pop(false),
+                child: const Text('لغو'),
+              ),
+              TextButton(
+                onPressed: () => Navigator.of(c).pop(true),
+                child: const Text('خروج'),
+              ),
+            ],
+          ),
+        );
+        
+        // If user confirmed exit, pop the screen
+        if (res == true && context.mounted) {
+          Navigator.of(context).pop();
         }
       },
       child: GestureDetector(
