@@ -7,11 +7,15 @@ import 'package:debt_manager/core/notifications/smart_notification_service.dart'
 import 'package:debt_manager/core/utils/format_utils.dart';
 import 'package:debt_manager/core/utils/jalali_utils.dart';
 import 'package:debt_manager/core/utils/ui_utils.dart';
+import 'package:debt_manager/core/utils/celebration_utils.dart';
 import 'package:debt_manager/features/loans/models/counterparty.dart';
 import 'package:debt_manager/features/loans/models/installment.dart';
 import 'package:debt_manager/features/loans/models/loan.dart';
 import 'add_loan_screen.dart';
 import 'package:debt_manager/features/budget/budgets_repository.dart';
+
+// Delay before showing celebration to allow UI to update
+const Duration _celebrationDelay = Duration(milliseconds: 300);
 
 class LoanDetailScreen extends StatefulWidget {
   const LoanDetailScreen({super.key, required this.loanId});
@@ -263,6 +267,20 @@ class _LoanDetailScreenState extends State<LoanDetailScreen> {
                                   inst.notificationId!,
                                 );
                               } catch (_) {}
+                            }
+
+                            // Check if all installments are now paid and celebrate!
+                            if (isPaid) {
+                              final allInst = await _db.getInstallmentsByLoanId(widget.loanId);
+                              final allPaid = allInst.every((i) => i.status == InstallmentStatus.paid);
+                              if (allPaid && mounted) {
+                                // Show celebration after a short delay so the UI updates first
+                                Future.delayed(_celebrationDelay, () {
+                                  if (mounted) {
+                                    showDebtCompletionCelebration(context);
+                                  }
+                                });
+                              }
                             }
 
                             if (mounted) setState(() {});

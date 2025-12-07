@@ -110,6 +110,22 @@ class DatabaseHelper {
       )
     ''');
 
+    // Create indices for better query performance
+    await db.execute(
+      'CREATE INDEX IF NOT EXISTS idx_installments_loan_id ON installments(loan_id)',
+    );
+    await db.execute(
+      'CREATE INDEX IF NOT EXISTS idx_installments_due_date ON installments(due_date_jalali)',
+    );
+    await db.execute(
+      'CREATE INDEX IF NOT EXISTS idx_installments_status ON installments(status)',
+    );
+    await db.execute(
+      'CREATE INDEX IF NOT EXISTS idx_loans_counterparty ON loans(counterparty_id)',
+    );
+    await db.execute(
+      'CREATE INDEX IF NOT EXISTS idx_budgets_period ON budgets(period)',
+    );
     await db.execute('''
       CREATE TABLE automation_rules (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -172,6 +188,25 @@ class DatabaseHelper {
       } catch (_) {}
     }
 
+    // Add indices for better query performance (safe to run multiple times)
+    try {
+      await db.execute(
+        'CREATE INDEX IF NOT EXISTS idx_installments_loan_id ON installments(loan_id)',
+      );
+      await db.execute(
+        'CREATE INDEX IF NOT EXISTS idx_installments_due_date ON installments(due_date_jalali)',
+      );
+      await db.execute(
+        'CREATE INDEX IF NOT EXISTS idx_installments_status ON installments(status)',
+      );
+      await db.execute(
+        'CREATE INDEX IF NOT EXISTS idx_loans_counterparty ON loans(counterparty_id)',
+      );
+      await db.execute(
+        'CREATE INDEX IF NOT EXISTS idx_budgets_period ON budgets(period)',
+      );
+    } catch (_) {
+      // Indices creation errors are non-fatal
     if (oldVersion < 5) {
       // Add automation_rules table for smart features
       try {
