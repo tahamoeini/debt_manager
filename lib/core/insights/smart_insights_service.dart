@@ -1,8 +1,8 @@
 // Smart insights service: detects subscriptions, spending patterns, and bill changes
 import 'package:flutter/foundation.dart' show debugPrint;
+import 'package:shamsi_date/shamsi_date.dart';
 import 'package:debt_manager/core/db/database_helper.dart';
 import 'package:debt_manager/features/loans/models/loan.dart';
-import 'package:debt_manager/features/loans/models/installment.dart';
 import 'package:debt_manager/core/utils/jalali_utils.dart';
 import 'package:debt_manager/core/utils/format_utils.dart';
 
