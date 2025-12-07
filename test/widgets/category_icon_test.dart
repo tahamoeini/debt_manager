@@ -100,6 +100,7 @@ void main() {
             body: CategoryIconWithLabel(
               category: 'food',
               label: 'Food & Dining',
+              icon: Icons.restaurant,
             ),
           ),
         ),
@@ -116,6 +117,7 @@ void main() {
             body: CategoryIconWithLabel(
               category: 'transport',
               label: 'Transportation',
+              icon: Icons.directions_car,
             ),
           ),
         ),

@@ -15,6 +15,7 @@ import 'package:share_plus/share_plus.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:debt_manager/features/help/help_screen.dart';
 import 'package:debt_manager/features/automation/screens/automation_rules_screen.dart';
+import 'package:debt_manager/core/db/database_helper.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -940,7 +941,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           style: FilledButton.styleFrom(
                             backgroundColor: Theme.of(context).colorScheme.error,
                           ),
-                          child: const Text('پاک کردن تمام داده‌ها'),
+                          label: const Text('پاک کردن تمام داده‌ها'),
                         ),
                       ],
                     ),

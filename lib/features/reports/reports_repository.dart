@@ -42,9 +42,9 @@ class ReportsRepository {
       // Filter by date range and status
       allInstallments.addAll(installments.where((inst) =>
           inst.status == InstallmentStatus.paid &&
-          inst.paidDate != null &&
-          inst.paidDate!.compareTo(startDate) >= 0 &&
-          inst.paidDate!.compareTo(endDate) <= 0));
+          inst.paidAt != null &&
+          inst.paidAt!.compareTo(startDate) >= 0 &&
+          inst.paidAt!.compareTo(endDate) <= 0));
     }
 
     for (final inst in allInstallments) {
