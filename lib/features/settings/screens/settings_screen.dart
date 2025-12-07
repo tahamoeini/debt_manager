@@ -6,8 +6,11 @@ import 'package:flutter/material.dart';
 import 'package:debt_manager/core/settings/settings_repository.dart';
 import 'package:flutter/services.dart';
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:debt_manager/core/backup/backup_service.dart';
+import 'package:share_plus/share_plus.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:debt_manager/features/help/help_screen.dart';
 import 'package:debt_manager/features/automation/screens/automation_rules_screen.dart';
 
@@ -386,6 +389,126 @@ class _SettingsScreenState extends State<SettingsScreen> {
                               child: const Text('Export data (JSON)'),
                             ),
                             const SizedBox(width: 12),
+                            FilledButton.icon(
+                              onPressed: () async {
+                                final messenger = ScaffoldMessenger.of(context);
+                                try {
+                                  final jsonStr = await BackupService.instance.exportAll();
+                                  
+                                  // Save to file
+                                  final directory = await getApplicationDocumentsDirectory();
+                                  final timestamp = DateTime.now().millisecondsSinceEpoch;
+                                  final filePath = '${directory.path}/backup_$timestamp.json';
+                                  final file = File(filePath);
+                                  await file.writeAsString(jsonStr);
+                                  
+                                  // Share the file
+                                  if (!mounted) return;
+                                  await Share.shareXFiles(
+                                    [XFile(filePath)],
+                                    text: 'پشتیبان داده‌های برنامه',
+                                  );
+                                  
+                                  if (!mounted) return;
+                                  messenger.showSnackBar(
+                                    const SnackBar(content: Text('فایل پشتیبان ایجاد و اشتراک‌گذاری شد')),
+                                  );
+                                } catch (e) {
+                                  if (mounted) {
+                                    messenger.showSnackBar(
+                                      SnackBar(content: Text('خطا در ایجاد پشتیبان: $e')),
+                                    );
+                                  }
+                                }
+                              },
+                              icon: const Icon(Icons.share),
+                              child: const Text('اشتراک‌گذاری پشتیبان'),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 8),
+                        Row(
+                          children: [
+                            FilledButton(
+                              onPressed: () async {
+                                final messenger = ScaffoldMessenger.of(context);
+                                try {
+                                  final jsonStr = await BackupService.instance
+                                      .exportAll();
+                                  await showDialog<void>(
+                                    context: context,
+                                    builder: (ctx) => Dialog(
+                                      child: Column(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Padding(
+                                            padding: const EdgeInsets.all(12.0),
+                                            child: Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment
+                                                      .spaceBetween,
+                                              children: [
+                                                const Text('Exported JSON'),
+                                                IconButton(
+                                                  icon: const Icon(Icons.copy_outlined),
+                                                  onPressed: () async {
+                                                    final messenger =
+                                                        ScaffoldMessenger.of(
+                                                          context,
+                                                        );
+                                                    await Clipboard.setData(
+                                                      ClipboardData(
+                                                        text: jsonStr,
+                                                      ),
+                                                    );
+                                                    if (!mounted) return;
+                                                    messenger.showSnackBar(
+                                                      const SnackBar(
+                                                        content: Text('کپی شد'),
+                                                      ),
+                                                    );
+                                                  },
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                          SizedBox(
+                                            height:
+                                                MediaQuery.of(
+                                                  context,
+                                                ).size.height *
+                                                0.6,
+                                            width: double.maxFinite,
+                                            child: SingleChildScrollView(
+                                              padding: const EdgeInsets.all(12),
+                                              child: SelectableText(jsonStr),
+                                            ),
+                                          ),
+                                          Align(
+                                            alignment: Alignment.centerRight,
+                                            child: TextButton(
+                                              onPressed: () =>
+                                                  Navigator.of(ctx).pop(),
+                                              child: const Text('بستن'),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  );
+                                } catch (e) {
+                                  if (mounted) {
+                                    messenger.showSnackBar(
+                                      SnackBar(
+                                        content: Text('خطا در صادرات: $e'),
+                                      ),
+                                    );
+                                  }
+                                }
+                              },
+                              child: const Text('Export data (JSON)'),
+                            ),
+                            const SizedBox(width: 12),
                             FilledButton(
                               onPressed: () async {
                                 // Show a dialog with a multiline TextField to paste JSON
@@ -490,6 +613,81 @@ class _SettingsScreenState extends State<SettingsScreen> {
                               child: const Text('Import data (JSON)'),
                             ),
                           ],
+                        ),
+                        const SizedBox(height: 16),
+                        const Divider(),
+                        const SizedBox(height: 16),
+                        Text(
+                          'مدیریت داده‌ها',
+                          style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                            color: Theme.of(context).colorScheme.error,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          'با احتیاط استفاده کنید! این عملیات غیرقابل بازگشت است.',
+                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            color: Theme.of(context).colorScheme.error,
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        FilledButton.icon(
+                          onPressed: () async {
+                            final confirmed = await showDialog<bool>(
+                              context: context,
+                              builder: (ctx) => AlertDialog(
+                                title: const Text('پاک کردن تمام داده‌ها'),
+                                content: const Text(
+                                  'آیا مطمئن هستید که می‌خواهید تمام داده‌های برنامه را پاک کنید؟ این عملیات غیرقابل بازگشت است و تمام وام‌ها، اقساط و بودجه‌ها حذف خواهند شد.',
+                                ),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () => Navigator.of(ctx).pop(false),
+                                    child: const Text('لغو'),
+                                  ),
+                                  FilledButton(
+                                    onPressed: () => Navigator.of(ctx).pop(true),
+                                    style: FilledButton.styleFrom(
+                                      backgroundColor: Theme.of(context).colorScheme.error,
+                                    ),
+                                    child: const Text('بله، پاک کن'),
+                                  ),
+                                ],
+                              ),
+                            );
+                            
+                            if (confirmed == true) {
+                              final messenger = ScaffoldMessenger.of(context);
+                              try {
+                                // Delete all loans (which also deletes installments)
+                                final loans = await DatabaseHelper.instance.getAllLoans();
+                                for (final loan in loans) {
+                                  if (loan.id != null) {
+                                    await DatabaseHelper.instance.deleteLoanWithInstallments(loan.id!);
+                                  }
+                                }
+                                
+                                // Delete all budgets
+                                final db = await DatabaseHelper.instance.database;
+                                await db.delete('budgets');
+                                
+                                if (!mounted) return;
+                                messenger.showSnackBar(
+                                  const SnackBar(content: Text('تمام داده‌ها با موفقیت پاک شدند')),
+                                );
+                              } catch (e) {
+                                if (!mounted) return;
+                                messenger.showSnackBar(
+                                  SnackBar(content: Text('خطا در پاک کردن داده‌ها: $e')),
+                                );
+                              }
+                            }
+                          },
+                          icon: const Icon(Icons.delete_forever),
+                          style: FilledButton.styleFrom(
+                            backgroundColor: Theme.of(context).colorScheme.error,
+                          ),
+                          child: const Text('پاک کردن تمام داده‌ها'),
                         ),
                       ],
                     ),
