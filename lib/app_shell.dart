@@ -94,9 +94,9 @@ class _AppShellState extends State<AppShell> {
             if (res == true) setState(() {});
           },
           tooltip: 'Add new loan or account',
-          child: const Semantics(
+          child: Semantics(
             label: 'Add new loan button',
-            child: Icon(Icons.add_outlined),
+            child: const Icon(Icons.add_outlined),
           ),
         );
       case 2: // Budget: add budget
@@ -108,9 +108,9 @@ class _AppShellState extends State<AppShell> {
             if (res == true) setState(() {});
           },
           tooltip: 'Add new budget',
-          child: const Semantics(
+          child: Semantics(
             label: 'Add new budget button',
-            child: Icon(Icons.add_outlined),
+            child: const Icon(Icons.add_outlined),
           ),
         );
       default:
