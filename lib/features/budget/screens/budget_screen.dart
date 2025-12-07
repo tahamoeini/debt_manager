@@ -3,6 +3,7 @@ import 'package:debt_manager/features/budget/budgets_repository.dart';
 import 'package:debt_manager/features/budget/models/budget.dart';
 import 'package:debt_manager/core/utils/jalali_utils.dart';
 import 'package:debt_manager/core/utils/ui_utils.dart';
+import 'package:debt_manager/components/components.dart';
 import 'package:debt_manager/core/notifications/smart_notification_service.dart';
 import 'add_budget_screen.dart';
 
@@ -69,57 +70,29 @@ class _BudgetScreenState extends State<BudgetScreen> {
           }
 
           return ListView.separated(
-            padding: const EdgeInsets.all(12),
+            padding: AppSpacing.listItemPadding,
             itemCount: budgets.length,
-            separatorBuilder: (_, __) => const SizedBox(height: 8),
+            separatorBuilder: (_, __) => const SizedBox(height: AppSpacing.sm),
             itemBuilder: (context, index) {
               final b = budgets[index];
-              return Card(
-                child: ListTile(
-                  title: Text(b.category ?? 'عمومی'),
-                  subtitle: Text('${(b.amount / 100).toStringAsFixed(2)}'),
-                  trailing: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      FutureBuilder<int>(
-                        future: _repo.computeUtilization(b),
-                        builder: (c, s) {
-                          final used = s.data ?? 0;
-                          final pct = b.amount > 0 ? (used / b.amount).clamp(0, 1) : 0.0;
-                          Color color;
-                          if (pct < 0.6) color = Colors.green;
-                          else if (pct < 0.9) color = Colors.orange;
-                          else color = Colors.red;
-
-                          return Column(
-                            mainAxisSize: MainAxisSize.min,
-                            crossAxisAlignment: CrossAxisAlignment.end,
-                            children: [
-                              SizedBox(
-                                width: 100,
-                                child: LinearProgressIndicator(
-                                  value: pct,
-                                  color: color,
-                                  backgroundColor: color.withOpacity(0.2),
-                                ),
-                              ),
-                              const SizedBox(height: 6),
-                              Text('${(pct * 100).toStringAsFixed(0)}%')
-                            ],
-                          );
-                        },
-                      ),
-                    ],
-                  ),
-                  onTap: () async {
-                    // Edit
-                    await Navigator.of(context).push(MaterialPageRoute(
-                      builder: (_) => AddBudgetScreen(budget: b),
-                    ));
-                    _refresh();
-                  },
-                ),
+              return FutureBuilder<int>(
+                future: _repo.computeUtilization(b),
+                builder: (c, s) {
+                  final used = s.data ?? 0;
+                  return BudgetProgressCard(
+                    category: b.category ?? 'عمومی',
+                    current: used,
+                    limit: b.amount,
+                    icon: CategoryIcons.getIcon(b.category),
+                    onTap: () async {
+                      // Edit
+                      await Navigator.of(context).push(MaterialPageRoute(
+                        builder: (_) => AddBudgetScreen(budget: b),
+                      ));
+                      _refresh();
+                    },
+                  );
+                },
               );
             },
           );
