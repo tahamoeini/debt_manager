@@ -677,70 +677,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                 label: const Text('Export'),
                               ),
                             ),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: FilledButton.icon(
-                                onPressed: () async {
-                                  // Show a dialog with a multiline TextField to paste JSON
-                                  final controller = TextEditingController();
-                                  await showDialog<void>(
-                                    context: context,
-                                    builder: (ctx) => AlertDialog(
-                                      title: const Text('Import data (JSON)'),
-                                      content: SizedBox(
-                                        height: 300,
-                                        width: 600,
-                                        child: Column(
-                                          children: [
-                                            Expanded(
-                                              child: TextField(
-                                                controller: controller,
-                                                maxLines: null,
-                                                decoration: const InputDecoration(
-                                                  hintText:
-                                                      '{ "counterparties": [...], "loans": [...], "installments": [...] }',
-                                                ),
-                            FilledButton.icon(
-                              onPressed: () async {
-                                final messenger = ScaffoldMessenger.of(context);
-                                try {
-                                  final jsonStr = await BackupService.instance.exportAll();
-                                  
-                                  // Save to file
-                                  final directory = await getApplicationDocumentsDirectory();
-                                  final timestamp = DateTime.now().millisecondsSinceEpoch;
-                                  final filePath = '${directory.path}/backup_$timestamp.json';
-                                  final file = File(filePath);
-                                  await file.writeAsString(jsonStr);
-                                  
-                                  // Share the file
-                                  if (!mounted) return;
-                                  await Share.shareXFiles(
-                                    [XFile(filePath)],
-                                    text: 'پشتیبان داده‌های برنامه',
-                                  );
-                                  
-                                  if (!mounted) return;
-                                  messenger.showSnackBar(
-                                    const SnackBar(content: Text('فایل پشتیبان ایجاد و اشتراک‌گذاری شد')),
-                                  );
-                                } catch (e) {
-                                  if (mounted) {
-                                    messenger.showSnackBar(
-                                      SnackBar(content: Text('خطا در ایجاد پشتیبان: $e')),
-                                    );
-                                  }
-                                }
-                              },
-                              icon: const Icon(Icons.share),
-                              child: const Text('اشتراک‌گذاری پشتیبان'),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 8),
+
                         Row(
                           children: [
-                            FilledButton(
+                            FilledButton.icon(
                               onPressed: () async {
                                 final messenger = ScaffoldMessenger.of(context);
                                 try {
@@ -817,10 +757,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                   }
                                 }
                               },
-                              child: const Text('Export data (JSON)'),
+                              icon: const Icon(Icons.upload_outlined),
+                              label: const Text('Export data (JSON)'),
                             ),
                             const SizedBox(width: 12),
-                            FilledButton(
+                            FilledButton.icon(
                               onPressed: () async {
                                 // Show a dialog with a multiline TextField to paste JSON
                                 final controller = TextEditingController();
@@ -842,87 +783,87 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                                     '{ "counterparties": [...], "loans": [...], "installments": [...] }',
                                               ),
                                             ),
-                                            const SizedBox(height: 8),
-                                            Row(
-                                              children: [
-                                                TextButton(
-                                                  onPressed: () async {
-                                                    final data =
-                                                        await Clipboard.getData(
-                                                          'text/plain',
-                                                        );
-                                                    if (data != null &&
-                                                        data.text != null) {
-                                                      controller.text =
-                                                          data.text!;
-                                                    }
-                                                  },
-                                                  child: const Text(
-                                                    'Paste from clipboard',
-                                                  ),
+                                          ),
+                                          const SizedBox(height: 8),
+                                          Row(
+                                            children: [
+                                              TextButton(
+                                                onPressed: () async {
+                                                  final data =
+                                                      await Clipboard.getData(
+                                                        'text/plain',
+                                                      );
+                                                  if (data != null &&
+                                                      data.text != null) {
+                                                    controller.text =
+                                                        data.text!;
+                                                  }
+                                                },
+                                                child: const Text(
+                                                  'Paste from clipboard',
                                                 ),
-                                                const SizedBox(width: 8),
-                                                TextButton(
-                                                  onPressed: () {
-                                                    controller.text = '';
-                                                  },
-                                                  child: const Text('Clear'),
-                                                ),
-                                              ],
-                                            ),
-                                          ],
-                                        ),
+                                              ),
+                                              const SizedBox(width: 8),
+                                              TextButton(
+                                                onPressed: () {
+                                                  controller.text = '';
+                                                },
+                                                child: const Text('Clear'),
+                                              ),
+                                            ],
+                                          ),
+                                        ],
                                       ),
-                                      actions: [
-                                        TextButton(
-                                          onPressed: () =>
-                                              Navigator.of(ctx).pop(),
-                                          child: const Text('Cancel'),
-                                        ),
-                                        FilledButton(
-                                          onPressed: () async {
-                                            final messenger =
-                                                ScaffoldMessenger.of(context);
-                                            final txt = controller.text.trim();
-                                            if (txt.isEmpty) return;
-                                            try {
-                                              final parsed =
-                                                  json.decode(txt)
-                                                      as Map<String, dynamic>;
-                                              await BackupService.instance
-                                                  .importFromMap(
-                                                    parsed,
-                                                    clearBefore: true,
-                                                  );
-                                              if (!mounted) return;
-                                              messenger.showSnackBar(
-                                                const SnackBar(
-                                                  content: Text(
-                                                    'بازیابی با موفقیت انجام شد',
-                                                  ),
-                                                ),
-                                              );
-                                              Navigator.of(ctx).pop();
-                                            } catch (e) {
-                                              if (!mounted) return;
-                                              messenger.showSnackBar(
-                                                SnackBar(
-                                                  content: Text(
-                                                    'خطا در واردسازی: $e',
-                                                  ),
-                                                ),
-                                              );
-                                            }
-                                          },
-                                          child: const Text('Import'),
-                                        ),
-                                      ],
                                     ),
-                                  );
-                                },
-                                icon: const Icon(Icons.download_outlined),
-                                label: const Text('Import'),
-                              ),
+                                    actions: [
+                                      TextButton(
+                                        onPressed: () =>
+                                            Navigator.of(ctx).pop(),
+                                        child: const Text('Cancel'),
+                                      ),
+                                      FilledButton(
+                                        onPressed: () async {
+                                          final messenger =
+                                              ScaffoldMessenger.of(context);
+                                          final txt = controller.text.trim();
+                                          if (txt.isEmpty) return;
+                                          try {
+                                            final parsed =
+                                                json.decode(txt)
+                                                    as Map<String, dynamic>;
+                                            await BackupService.instance
+                                                .importFromMap(
+                                                  parsed,
+                                                  clearBefore: true,
+                                                );
+                                            if (!mounted) return;
+                                            messenger.showSnackBar(
+                                              const SnackBar(
+                                                content: Text(
+                                                  'بازیابی با موفقیت انجام شد',
+                                                ),
+                                              ),
+                                            );
+                                            Navigator.of(ctx).pop();
+                                          } catch (e) {
+                                            if (!mounted) return;
+                                            messenger.showSnackBar(
+                                              SnackBar(
+                                                content: Text(
+                                                  'خطا در واردسازی: $e',
+                                                ),
+                                              ),
+                                            );
+                                          }
+                                        },
+                                        child: const Text('Import'),
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              },
+                              icon: const Icon(Icons.download_outlined),
+                              label: const Text('Import'),
                             ),
                           ],
                         ),

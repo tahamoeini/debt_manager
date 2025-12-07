@@ -207,6 +207,7 @@ class DatabaseHelper {
       );
     } catch (_) {
       // Indices creation errors are non-fatal
+    }
     if (oldVersion < 5) {
       // Add automation_rules table for smart features
       try {
