@@ -10,7 +10,7 @@ import 'package:debt_manager/core/notifications/smart_notification_service.dart'
 import 'add_budget_screen.dart';
 
 class BudgetScreen extends StatefulWidget {
-  const BudgetScreen({Key? key}) : super(key: key);
+  const BudgetScreen({super.key});
 
   @override
   State<BudgetScreen> createState() => _BudgetScreenState();
@@ -74,7 +74,7 @@ class _BudgetScreenState extends State<BudgetScreen> {
           return ListView.separated(
             padding: AppConstants.paddingMedium,
             itemCount: budgets.length,
-            separatorBuilder: (_, __) => const SizedBox(height: AppConstants.spaceSmall),
+            separatorBuilder: (_, _) => const SizedBox(height: AppConstants.spaceSmall),
             itemBuilder: (context, index) {
               final b = budgets[index];
               return Card(

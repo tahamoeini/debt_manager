@@ -8,7 +8,7 @@ import 'package:debt_manager/core/theme/app_constants.dart';
 
 class AddBudgetScreen extends StatefulWidget {
   final Budget? budget;
-  const AddBudgetScreen({Key? key, this.budget}) : super(key: key);
+  const AddBudgetScreen({super.key, this.budget});
 
   @override
   State<AddBudgetScreen> createState() => _AddBudgetScreenState();
