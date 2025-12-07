@@ -1,0 +1,16 @@
+/// Export file for all reusable UI components.
+/// Import this file to access all custom widgets in one line:
+/// 
+/// ```dart
+/// import 'package:debt_manager/core/widgets/widgets.dart';
+/// ```
+library;
+
+export 'dashboard_card.dart';
+export 'stat_card.dart';
+export 'transaction_tile.dart';
+export 'budget_progress_bar.dart';
+export 'category_icon.dart';
+export 'app_dialog.dart';
+export 'form_input.dart';
+export 'dropdown_field.dart';
