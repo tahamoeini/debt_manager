@@ -364,13 +364,12 @@ class _ComponentsDemoState extends State<ComponentsDemo> {
                 ),
                 const SizedBox(height: AppSpacing.sm),
                 ElevatedButton(
-                  onPressed: () {
+                  onPressed: () async {
                     LoadingDialog.show(context, message: 'Loading...');
-                    Future.delayed(const Duration(seconds: 2), () {
-                      if (mounted) {
-                        LoadingDialog.dismiss(context);
-                      }
-                    });
+                    await Future.delayed(const Duration(seconds: 2));
+                    if (mounted) {
+                      LoadingDialog.dismiss(context);
+                    }
                   },
                   child: const Text('Show Loading Dialog'),
                 ),

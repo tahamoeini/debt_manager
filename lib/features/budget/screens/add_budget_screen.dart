@@ -70,13 +70,17 @@ class _AddBudgetScreenState extends State<AddBudgetScreen> {
     try {
       if (widget.budget == null) {
         await _repo.insertBudget(budget);
+        if (!mounted) return;
         UIUtils.showAppSnackBar(context, 'بودجه ذخیره شد');
       } else {
         await _repo.updateBudget(budget);
+        if (!mounted) return;
         UIUtils.showAppSnackBar(context, 'تغییرات ذخیره شد');
       }
+      if (!mounted) return;
       Navigator.of(context).pop(true);
     } catch (e) {
+      if (!mounted) return;
       UIUtils.showAppSnackBar(context, 'خطا در ذخیره‌سازی بودجه');
     }
   }
