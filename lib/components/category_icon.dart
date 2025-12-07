@@ -1,3 +1,5 @@
+library;
+
 /// Category Icon Widget
 /// 
 /// A reusable widget for displaying category icons with consistent styling.

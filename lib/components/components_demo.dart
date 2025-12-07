@@ -1,3 +1,5 @@
+library;
+
 /// Component Examples and Demos
 /// 
 /// This file demonstrates how to use all the reusable components in the design system.

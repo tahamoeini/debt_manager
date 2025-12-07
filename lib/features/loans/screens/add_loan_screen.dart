@@ -383,7 +383,7 @@ class _AddLoanScreenState extends State<AddLoanScreen> {
                       Expanded(
                         flex: 1,
                         child: DropdownButtonFormField<String?>(
-                          value: _counterpartyType,
+                          initialValue: _counterpartyType,
                           decoration: const InputDecoration(labelText: 'نوع'),
                           items: const [
                             DropdownMenuItem(value: null, child: Text('بدون')),

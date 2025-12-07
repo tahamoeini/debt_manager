@@ -1,3 +1,5 @@
+library;
+
 /// Reusable Dialog Widgets
 /// 
 /// Consistent dialog layouts with Material 3 design.

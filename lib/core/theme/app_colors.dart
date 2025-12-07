@@ -39,5 +39,5 @@ extension AppColors on ColorScheme {
   /// Subtle background for cards and containers
   Color get cardBackground => brightness == Brightness.light
       ? surface
-      : surfaceVariant;
+      : surfaceContainerHighest;
 }
