@@ -302,7 +302,7 @@ class _AddLoanScreenState extends State<AddLoanScreen> {
   Widget build(BuildContext context) {
     return PopScope(
       canPop: !_isDirty,
-      onPopInvoked: (bool didPop) async {
+      onPopInvokedWithResult: (bool didPop, dynamic result) async {
         // If already popped (clean form), nothing to do
         if (didPop) return;
         
