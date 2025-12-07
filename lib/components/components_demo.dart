@@ -365,11 +365,10 @@ class _ComponentsDemoState extends State<ComponentsDemo> {
                 const SizedBox(height: AppSpacing.sm),
                 ElevatedButton(
                   onPressed: () async {
-                    final ctx = context;
-                    LoadingDialog.show(ctx, message: 'Loading...');
+                    LoadingDialog.show(context, message: 'Loading...');
                     await Future.delayed(const Duration(seconds: 2));
                     if (!mounted) return;
-                    LoadingDialog.dismiss(ctx);
+                    LoadingDialog.dismiss(context);
                   },
                   child: const Text('Show Loading Dialog'),
                 ),
