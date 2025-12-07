@@ -515,15 +515,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
                               final messenger = ScaffoldMessenger.of(context);
                               try {
                                 // Delete all loans (which also deletes installments)
-                                final loans = await BackupService.instance._db.getAllLoans();
+                                final loans = await DatabaseHelper.instance.getAllLoans();
                                 for (final loan in loans) {
                                   if (loan.id != null) {
-                                    await BackupService.instance._db.deleteLoanWithInstallments(loan.id!);
+                                    await DatabaseHelper.instance.deleteLoanWithInstallments(loan.id!);
                                   }
                                 }
                                 
                                 // Delete all budgets
-                                final db = await BackupService.instance._db.database;
+                                final db = await DatabaseHelper.instance.database;
                                 await db.delete('budgets');
                                 
                                 if (!mounted) return;
