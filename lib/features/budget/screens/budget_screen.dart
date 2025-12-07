@@ -5,6 +5,8 @@ import 'package:debt_manager/core/utils/jalali_utils.dart';
 import 'package:debt_manager/core/utils/ui_utils.dart';
 import 'package:debt_manager/core/widgets/budget_progress_bar.dart';
 import 'package:debt_manager/core/theme/app_dimensions.dart';
+import 'package:debt_manager/components/components.dart';
+import 'package:debt_manager/core/notifications/smart_notification_service.dart';
 import 'add_budget_screen.dart';
 
 class BudgetScreen extends StatefulWidget {
@@ -29,12 +31,22 @@ class _BudgetScreenState extends State<BudgetScreen> {
   void initState() {
     super.initState();
     _budgetsFuture = _repo.getBudgetsByPeriod(_currentPeriod());
+    _checkBudgetThresholds();
   }
 
   void _refresh() {
     setState(() {
       _budgetsFuture = _repo.getBudgetsByPeriod(_currentPeriod());
     });
+    _checkBudgetThresholds();
+  }
+
+  Future<void> _checkBudgetThresholds() async {
+    try {
+      await SmartNotificationService.instance.checkBudgetThresholds(_currentPeriod());
+    } catch (e) {
+      // Silently fail - don't disrupt the UI if notifications fail
+    }
   }
 
   @override
@@ -101,6 +113,29 @@ class _BudgetScreenState extends State<BudgetScreen> {
                     ),
                   ),
                 ),
+            padding: AppSpacing.listItemPadding,
+            itemCount: budgets.length,
+            separatorBuilder: (_, __) => const SizedBox(height: AppSpacing.sm),
+            itemBuilder: (context, index) {
+              final b = budgets[index];
+              return FutureBuilder<int>(
+                future: _repo.computeUtilization(b),
+                builder: (c, s) {
+                  final used = s.data ?? 0;
+                  return BudgetProgressCard(
+                    category: b.category ?? 'عمومی',
+                    current: used,
+                    limit: b.amount,
+                    icon: CategoryIcons.getIcon(b.category),
+                    onTap: () async {
+                      // Edit
+                      await Navigator.of(context).push(MaterialPageRoute(
+                        builder: (_) => AddBudgetScreen(budget: b),
+                      ));
+                      _refresh();
+                    },
+                  );
+                },
               );
             },
           );

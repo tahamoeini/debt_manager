@@ -5,6 +5,7 @@ import 'package:debt_manager/core/db/database_helper.dart';
 import 'package:debt_manager/core/utils/format_utils.dart';
 import 'package:debt_manager/core/utils/category_colors.dart';
 import 'package:debt_manager/core/utils/ui_utils.dart';
+import 'package:debt_manager/components/components.dart';
 import 'package:debt_manager/features/loans/models/installment.dart';
 import 'package:debt_manager/features/loans/models/loan.dart';
 import 'package:debt_manager/features/loans/models/counterparty.dart';
@@ -110,20 +111,18 @@ class _LoansListScreenState extends State<LoansListScreen> {
         }
 
         return ListView.separated(
-          padding: const EdgeInsets.all(16),
+          padding: AppSpacing.pagePadding,
           itemCount: items.length,
-          separatorBuilder: (context, index) => const SizedBox(height: 8),
+          separatorBuilder: (context, index) => const SizedBox(height: AppSpacing.sm),
           itemBuilder: (context, index) {
             final s = items[index];
             return Card(
               child: ListTile(
-                leading: Container(
-                  width: 12,
-                  height: 12,
-                  decoration: BoxDecoration(
-                    color: colorForCategory(s.counterpartyTag, brightness: Theme.of(context).brightness),
-                    shape: BoxShape.circle,
-                  ),
+                contentPadding: AppSpacing.listItemPadding,
+                leading: CategoryIcon(
+                  category: s.counterpartyTag,
+                  style: CategoryIconStyle.dot,
+                  size: AppIconSize.sm,
                 ),
                 title: Text(
                   s.loan.title.isNotEmpty ? s.loan.title : 'بدون عنوان',

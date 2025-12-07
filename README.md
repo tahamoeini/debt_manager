@@ -1,15 +1,150 @@
-# debt_manager
+# Debt Manager
 
 A Flutter application for managing debts, loans, budgets, and installments with a focus on Persian/Farsi localization.
+A comprehensive Flutter application for managing debts, loans, budgets, and financial tracking with Persian (Jalali) calendar support.
+
+## Features
+
+### 💰 Financial Management
+- **Loan Tracking**: Track loans and debts with installment schedules
+- **Budget Management**: Set and monitor monthly budgets by category
+- **Counterparty Management**: Manage relationships with lenders and borrowers
+- **Payment Tracking**: Record and track payments with automatic status updates
+
+### 🎨 Appearance & Personalization
+- **Theme Options**: Light, Dark, and Auto (system) themes
+- **Font Size Settings**: Small, Default, and Large text options for accessibility
+- **Custom Categories**: Add, rename, and delete custom budget categories
+- **Responsive Design**: Material 3 design with adaptive layouts
+
+### 🌍 Localization & Calendar
+- **Dual Calendar Support**: Switch between Gregorian and Jalali (Persian) calendars
+- **Multi-language Ready**: Support for English and Persian (Farsi)
+- **Jalali Date Handling**: Native support for Persian calendar dates
+
+### 🔔 Smart Notifications
+- **Bill Reminders**: Automatic reminders for upcoming installments
+- **Budget Alerts**: Notifications when approaching budget limits
+- **Flexible Controls**: Master toggle and individual notification preferences
+- **Configurable Timing**: Set reminder offset (0, 1, 3, or 7 days before due date)
+
+### ♿ Accessibility
+- **Screen Reader Support**: Semantic labels for all interactive elements
+- **Touch Target Compliance**: Minimum 48dp touch targets on all buttons
+- **Tooltip Support**: Helpful tooltips on important actions
+- **High Contrast**: Works well with system accessibility settings
+- **Font Scaling**: Respects user font size preferences
+
+### 🎉 Delightful Experience
+- **Celebration Animations**: Confetti animation when completing a debt
+- **Progress Tracking**: Visual indicators for budget utilization
+- **Smooth Transitions**: Animated UI elements and state changes
+
+### 📊 Data Management
+- **Local Storage**: All data stored locally with SQLite
+- **Backup & Restore**: Export and import data as JSON
+- **Performance Optimized**: Database indices for fast queries
+- **Offline First**: Works completely offline
+
+## Technical Highlights
+
+### Architecture
+- **Clean Code**: Separation of concerns with feature-based organization
+- **Repository Pattern**: Data access through repositories
+- **State Management**: ValueNotifiers for reactive UI updates
+- **Settings Management**: SharedPreferences for user preferences
+
+### Performance
+- **Database Indices**: Optimized queries for installments, loans, and budgets
+- **Lazy Loading**: Efficient data loading and caching
+- **Minimal Rebuilds**: ValueListenableBuilder for targeted updates
+
+### Platform Support
+- ✅ Android
+- ✅ iOS
+- ✅ Web (with fallback for native features)
+- ✅ Desktop (Linux, macOS, Windows)
 
 ## Getting Started
 
-This project is a starting point for a Flutter application.
+### Prerequisites
+- Flutter SDK (version 3.10.1 or higher)
+- Dart SDK (included with Flutter)
 
-A few resources to get you started if this is your first Flutter project:
+### Installation
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+1. Clone the repository:
+```bash
+git clone https://github.com/tahamoeini/debt_manager.git
+cd debt_manager
+```
+
+2. Install dependencies:
+```bash
+flutter pub get
+```
+
+3. Run the app:
+```bash
+flutter run
+```
+
+### Building for Production
+
+```bash
+# Android
+flutter build apk --release
+
+# iOS
+flutter build ios --release
+
+# Web
+flutter build web --release
+```
+
+## Project Structure
+
+```
+lib/
+├── app.dart                    # Main app configuration
+├── app_shell.dart             # Navigation shell
+├── main.dart                  # Entry point
+├── core/
+│   ├── backup/               # Backup and restore services
+│   ├── categories/           # Category management
+│   ├── db/                   # Database helper and queries
+│   ├── notifications/        # Notification services
+│   ├── settings/            # Settings repository
+│   └── utils/               # Utility functions
+└── features/
+    ├── accounts/            # Account management screens
+    ├── budget/              # Budget management
+    ├── categories/          # Category management UI
+    ├── home/                # Home screen
+    ├── loans/               # Loan and installment management
+    ├── reports/             # Financial reports
+    ├── settings/            # Settings UI
+    └── shared/              # Shared widgets
+```
+
+## Key Technologies
+
+- **Flutter**: Cross-platform UI framework
+- **SQLite**: Local database (via sqflite package)
+- **shamsi_date**: Jalali calendar support
+- **flutter_local_notifications**: Notification scheduling
+- **shared_preferences**: Settings storage
+- **Material 3**: Modern design system
+
+## Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+## License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
+
+## Acknowledgments
 
 For help getting started with Flutter development, view the
 [online documentation](https://docs.flutter.dev/), which offers tutorials,
@@ -82,3 +217,6 @@ When adding new features:
 2. Follow the design system guidelines
 3. Add widget tests for new components
 4. Document component usage in code comments
+- Persian calendar implementation using shamsi_date package
+- Material 3 design guidelines
+- Flutter team for the excellent framework

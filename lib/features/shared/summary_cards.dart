@@ -4,6 +4,7 @@ import 'package:debt_manager/core/utils/format_utils.dart';
 import 'package:debt_manager/core/widgets/dashboard_card.dart';
 import 'package:debt_manager/core/theme/app_dimensions.dart';
 import 'package:debt_manager/core/theme/app_colors.dart';
+import 'package:debt_manager/components/components.dart';
 
 class SummaryCards extends StatelessWidget {
   final int borrowed;
@@ -20,6 +21,7 @@ class SummaryCards extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    final theme = Theme.of(context);
 
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -34,6 +36,11 @@ class SummaryCards extends StatelessWidget {
           ),
         ),
         const SizedBox(width: AppDimensions.spacingM),
+            icon: Icons.arrow_upward,
+            accentColor: theme.expenseColor,
+          ),
+        ),
+        const SizedBox(width: AppSpacing.md),
         Expanded(
           child: DashboardCard(
             title: 'طلب‌های من',
@@ -44,6 +51,11 @@ class SummaryCards extends StatelessWidget {
           ),
         ),
         const SizedBox(width: AppDimensions.spacingM),
+            icon: Icons.arrow_downward,
+            accentColor: theme.incomeColor,
+          ),
+        ),
+        const SizedBox(width: AppSpacing.md),
         Expanded(
           child: DashboardCard(
             title: 'وضعیت خالص',
@@ -51,6 +63,8 @@ class SummaryCards extends StatelessWidget {
             subtitle: 'طلب منفی یعنی بیشتر بدهکار هستید',
             icon: Icons.account_balance,
             color: net >= 0 ? colorScheme.success : colorScheme.danger,
+            icon: Icons.account_balance_wallet,
+            accentColor: net >= 0 ? theme.successColor : theme.dangerColor,
           ),
         ),
       ],
