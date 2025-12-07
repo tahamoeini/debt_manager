@@ -1,5 +1,4 @@
 // Settings repository: stores and retrieves simple user settings.
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -18,7 +17,6 @@ class SettingsRepository {
   static const _keyNotificationsEnabled = 'notifications_enabled';
   static const _keyBillReminders = 'bill_reminders_enabled';
   static const _keyBudgetAlerts = 'budget_alerts_enabled';
-  static const _keyBudgetAlertsEnabled = 'budget_alerts_enabled';
   static const _keyBudgetThreshold90 = 'budget_threshold_90';
   static const _keyBudgetThreshold100 = 'budget_threshold_100';
   static const _keySmartSuggestionsEnabled = 'smart_suggestions_enabled';
@@ -162,20 +160,8 @@ class SettingsRepository {
       case FontSizeOption.large:
         return 1.15;
       case FontSizeOption.defaultSize:
-      default:
         return 1.0;
     }
-  }
-
-  // Budget alerts settings
-  Future<bool> getBudgetAlertsEnabled() async {
-    final prefs = await SharedPreferences.getInstance();
-    return prefs.getBool(_keyBudgetAlertsEnabled) ?? true;
-  }
-
-  Future<void> setBudgetAlertsEnabled(bool enabled) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool(_keyBudgetAlertsEnabled, enabled);
   }
 
   Future<bool> getBudgetThreshold90Enabled() async {

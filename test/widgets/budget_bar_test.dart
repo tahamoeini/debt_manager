@@ -2,7 +2,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:debt_manager/core/widgets/budget_bar.dart';
-import 'package:debt_manager/core/theme/app_theme_extensions.dart';
 
 void main() {
   group('BudgetBar', () {

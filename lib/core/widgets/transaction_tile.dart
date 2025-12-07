@@ -98,7 +98,6 @@ class TransactionTile extends StatelessWidget {
         leading: showCategoryIcon && category != null
             ? CategoryIcon(
                 category: category,
-                style: CategoryIconStyle.circle,
                 size: AppIconSize.lg,
               )
             : Icon(

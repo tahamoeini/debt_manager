@@ -1,4 +1,4 @@
-// Widget tests for AppDialog and ConfirmDialog components.
+// Widget tests for AppDialog and ConfirmationDialog components.
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:debt_manager/core/widgets/app_dialog.dart';
@@ -82,12 +82,12 @@ void main() {
     });
   });
 
-  group('ConfirmDialog', () {
+  group('ConfirmationDialog', () {
     testWidgets('displays title and message', (WidgetTester tester) async {
       await tester.pumpWidget(
         const MaterialApp(
           home: Scaffold(
-            body: ConfirmDialog(
+            body: ConfirmationDialog(
               title: 'Confirm Delete',
               message: 'Are you sure you want to delete this item?',
             ),
@@ -103,7 +103,7 @@ void main() {
       await tester.pumpWidget(
         const MaterialApp(
           home: Scaffold(
-            body: ConfirmDialog(
+            body: ConfirmationDialog(
               title: 'Confirm',
               message: 'Are you sure?',
             ),
@@ -119,7 +119,7 @@ void main() {
       await tester.pumpWidget(
         const MaterialApp(
           home: Scaffold(
-            body: ConfirmDialog(
+            body: ConfirmationDialog(
               title: 'Delete Item',
               message: 'Are you sure?',
               confirmText: 'Delete',
@@ -145,7 +145,7 @@ void main() {
                   onPressed: () async {
                     result = await showDialog<bool>(
                       context: context,
-                      builder: (context) => const ConfirmDialog(
+                      builder: (context) => const ConfirmationDialog(
                         title: 'Test',
                         message: 'Test message',
                       ),
@@ -180,7 +180,7 @@ void main() {
                   onPressed: () async {
                     result = await showDialog<bool>(
                       context: context,
-                      builder: (context) => const ConfirmDialog(
+                      builder: (context) => const ConfirmationDialog(
                         title: 'Test',
                         message: 'Test message',
                       ),
@@ -207,7 +207,7 @@ void main() {
       await tester.pumpWidget(
         const MaterialApp(
           home: Scaffold(
-            body: ConfirmDialog(
+            body: ConfirmationDialog(
               title: 'Delete',
               message: 'This cannot be undone',
               isDestructive: true,

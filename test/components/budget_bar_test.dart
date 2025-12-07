@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:debt_manager/components/budget_bar.dart';
-import 'package:debt_manager/components/design_system.dart';
 
 void main() {
   group('BudgetBar', () {

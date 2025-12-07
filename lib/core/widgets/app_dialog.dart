@@ -1,7 +1,6 @@
 // Reusable dialog widgets with consistent Material 3 styling.
 import 'package:flutter/material.dart';
 import 'package:debt_manager/core/theme/app_dimensions.dart';
-import 'package:debt_manager/core/theme/app_constants.dart';
 
 /// A reusable dialog wrapper that provides consistent Material 3 styling.
 /// Use this as a base for all dialogs in the app to maintain consistency.

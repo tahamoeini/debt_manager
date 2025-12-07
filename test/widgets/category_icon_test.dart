@@ -81,7 +81,7 @@ void main() {
             body: CategoryIcon(
               category: 'food',
               size: 40,
-              color: customColor,
+              backgroundColor: customColor,
             ),
           ),
         ),

@@ -36,13 +36,16 @@ class ReportsRepository {
     }
 
     // Fetch all paid installments for borrowed loans in the date range
-    final loanIds = loanMap.keys.toList();
-    final allInstallments = await _db.getInstallmentsByLoanIdsAndDateRange(
-      loanIds,
-      startDate,
-      endDate,
-      status: InstallmentStatus.paid,
-    );
+    final allInstallments = <Installment>[];
+    for (final loanId in loanMap.keys) {
+      final installments = await _db.getInstallmentsByLoanId(loanId);
+      // Filter by date range and status
+      allInstallments.addAll(installments.where((inst) =>
+          inst.status == InstallmentStatus.paid &&
+          inst.paidDate != null &&
+          inst.paidDate!.compareTo(startDate) >= 0 &&
+          inst.paidDate!.compareTo(endDate) <= 0));
+    }
 
     for (final inst in allInstallments) {
       final loan = loanMap[inst.loanId];
@@ -50,7 +53,7 @@ class ReportsRepository {
       final cp = cpMap[loan.counterpartyId];
       final category = cp?.type ?? cp?.tag ?? 'سایر';
       final amount = inst.actualPaidAmount ?? inst.amount;
-      categoryTotals[category] = (categoryTotals[category] ?? 0) + amount;
+      categoryTotals[category] = (categoryTotals[category] ?? 0) + amount.toInt();
     }
 
     return categoryTotals;
@@ -100,7 +103,7 @@ class ReportsRepository {
 
   Future<int> _getTotalPaidInRange(String startDate, String endDate, LoanDirection direction) async {
     // Fetch all paid installments for loans with the given direction and paidAt in range
-    final db = _db.database;
+    final db = await _db.database;
     final directionValue = direction.index; // assuming LoanDirection is an enum
     final List<Map<String, dynamic>> rows = await db.rawQuery('''
       SELECT i.actualPaidAmount, i.amount
@@ -212,9 +215,6 @@ class ReportsRepository {
         balance += inst.amount;
       }
     }
-    
-    final now = DateTime.now();
-    final nowJ = dateTimeToJalali(now);
     
     for (final inst in installments) {
       if (inst.status == InstallmentStatus.paid) continue;

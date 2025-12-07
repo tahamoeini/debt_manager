@@ -200,7 +200,6 @@ class _ManageCategoriesScreenState extends State<ManageCategoriesScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('مدیریت دسته‌بندی‌ها'),
-        semanticLabel: 'Manage categories screen',
       ),
       body: _loading
           ? const Center(child: CircularProgressIndicator())

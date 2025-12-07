@@ -70,7 +70,7 @@ class AutomationRule {
       actionValue: map['action_value'] as String? ?? '',
       enabled: (map['enabled'] is int
               ? (map['enabled'] as int)
-              : int.tryParse(map['enabled'].toString() ?? '1')) ==
+              : int.tryParse(map['enabled'].toString())) ==
           1,
       createdAt: map['created_at'] as String? ?? '',
     );

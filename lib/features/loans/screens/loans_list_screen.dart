@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 
 import 'package:debt_manager/core/db/database_helper.dart';
 import 'package:debt_manager/core/utils/format_utils.dart';
-import 'package:debt_manager/core/utils/category_colors.dart';
 import 'package:debt_manager/core/utils/ui_utils.dart';
 import 'package:debt_manager/components/components.dart';
 import 'package:debt_manager/features/loans/models/installment.dart';
@@ -121,7 +120,6 @@ class _LoansListScreenState extends State<LoansListScreen> {
                 contentPadding: AppSpacing.listItemPadding,
                 leading: CategoryIcon(
                   category: s.counterpartyTag,
-                  style: CategoryIconStyle.dot,
                   size: AppIconSize.sm,
                 ),
                 title: Text(
