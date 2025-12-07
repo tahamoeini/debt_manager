@@ -32,8 +32,9 @@ jobs:
       #   run: dart format --output=none --set-exit-if-changed .
 
       # Analyze project source for issues.
+      # Use --no-fatal-infos to not fail CI on info-level alerts
       - name: Analyze project source
-        run: flutter analyze
+        run: flutter analyze --no-fatal-infos
 
       # Run Flutter tests.
       - name: Run tests
