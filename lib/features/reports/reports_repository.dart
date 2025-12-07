@@ -42,9 +42,9 @@ class ReportsRepository {
       // Filter by date range and status
       allInstallments.addAll(installments.where((inst) =>
           inst.status == InstallmentStatus.paid &&
-          inst.paidDate != null &&
-          inst.paidDate!.compareTo(startDate) >= 0 &&
-          inst.paidDate!.compareTo(endDate) <= 0));
+          inst.paidAt != null &&
+          inst.paidAt!.compareTo(startDate) >= 0 &&
+          inst.paidAt!.compareTo(endDate) <= 0));
     }
 
     for (final inst in allInstallments) {
@@ -91,7 +91,7 @@ class ReportsRepository {
       results.add({
         'year': targetYear,
         'month': targetMonth,
-        'label': '$targetYear/${mm}',
+        'label': '$targetYear/$mm',
         'spending': borrowed,
         'income': lent,
         'net': lent - borrowed,
@@ -161,7 +161,7 @@ class ReportsRepository {
       results.add({
         'year': targetYear,
         'month': targetMonth,
-        'label': '$targetYear/${mm}',
+        'label': '$targetYear/$mm',
         'assets': assets,
         'debts': debts,
         'netWorth': assets - debts,
@@ -285,7 +285,7 @@ class ReportsRepository {
       if (entries.isNotEmpty && thisTotal > 0) {
         final topCategory = entries.first;
         final percentage = ((topCategory.value / thisTotal) * 100).round();
-        insights.add('${percentage}% از هزینه‌های شما در دسته ${topCategory.key} بوده است.');
+        insights.add('$percentage% از هزینه‌های شما در دسته ${topCategory.key} بوده است.');
       }
     }
     

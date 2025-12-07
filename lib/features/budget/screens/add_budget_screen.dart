@@ -8,7 +8,7 @@ import 'package:debt_manager/core/theme/app_constants.dart';
 
 class AddBudgetScreen extends StatefulWidget {
   final Budget? budget;
-  const AddBudgetScreen({Key? key, this.budget}) : super(key: key);
+  const AddBudgetScreen({super.key, this.budget});
 
   @override
   State<AddBudgetScreen> createState() => _AddBudgetScreenState();
@@ -70,13 +70,17 @@ class _AddBudgetScreenState extends State<AddBudgetScreen> {
     try {
       if (widget.budget == null) {
         await _repo.insertBudget(budget);
+        if (!mounted) return;
         UIUtils.showAppSnackBar(context, 'بودجه ذخیره شد');
       } else {
         await _repo.updateBudget(budget);
+        if (!mounted) return;
         UIUtils.showAppSnackBar(context, 'تغییرات ذخیره شد');
       }
+      if (!mounted) return;
       Navigator.of(context).pop(true);
     } catch (e) {
+      if (!mounted) return;
       UIUtils.showAppSnackBar(context, 'خطا در ذخیره‌سازی بودجه');
     }
   }

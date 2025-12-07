@@ -168,7 +168,7 @@ class _ConfettiPainter extends CustomPainter {
       final color = colors[i % colors.length];
 
       final paint = Paint()
-        ..color = color.withOpacity(1.0 - progress * 0.5)
+        ..color = color.withValues(alpha: 1.0 - progress * 0.5)
         ..style = PaintingStyle.fill;
 
       canvas.save();

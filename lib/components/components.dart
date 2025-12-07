@@ -1,3 +1,5 @@
+library;
+
 /// Components Library
 /// 
 /// Export all reusable UI components for easy importing.

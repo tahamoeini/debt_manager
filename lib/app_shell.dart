@@ -32,7 +32,7 @@ class _AppShellState extends State<AppShell> {
     return PopScope(
       // Allow system back when at root, block when there are pages to pop
       canPop: !Navigator.of(context).canPop(),
-      onPopInvoked: (bool didPop) {
+      onPopInvokedWithResult: (bool didPop, dynamic result) {
         // If pop was not performed and there are pages to pop, pop them now
         if (!didPop && Navigator.of(context).canPop()) {
           Navigator.of(context).pop();

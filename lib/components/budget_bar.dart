@@ -1,3 +1,5 @@
+library;
+
 /// Budget Progress Bar Widget
 /// 
 /// A reusable widget for displaying budget utilization with a progress bar.
@@ -69,7 +71,7 @@ class BudgetBar extends StatelessWidget {
             height: height ?? AppRadius.sm,
             child: LinearProgressIndicator(
               value: percentage,
-              backgroundColor: barColor.withOpacity(0.2),
+              backgroundColor: barColor.withValues(alpha: 0.2),
               valueColor: AlwaysStoppedAnimation<Color>(barColor),
             ),
           ),
@@ -83,7 +85,7 @@ class BudgetBar extends StatelessWidget {
                 Text(
                   '$current / $limit',
                   style: textTheme.bodySmall?.copyWith(
-                    color: colorScheme.onSurface.withOpacity(0.7),
+                    color: colorScheme.onSurface.withValues(alpha: 0.7),
                   ),
                 ),
                 if (showPercentage) const SizedBox(width: AppSpacing.sm),
@@ -152,7 +154,7 @@ class BudgetProgressCard extends StatelessWidget {
         color: colorScheme.surface,
         borderRadius: AppRadius.card,
         border: Border.all(
-          color: colorScheme.outline.withOpacity(0.2),
+          color: colorScheme.outline.withValues(alpha: 0.2),
         ),
       ),
       child: Padding(

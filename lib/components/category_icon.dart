@@ -1,3 +1,5 @@
+library;
+
 /// Category Icon Widget
 /// 
 /// A reusable widget for displaying category icons with consistent styling.
@@ -72,7 +74,7 @@ class CategoryIcon extends StatelessWidget {
           width: effectiveSize,
           height: effectiveSize,
           decoration: BoxDecoration(
-            color: color.withOpacity(0.15),
+            color: color.withValues(alpha: 0.15),
             shape: BoxShape.circle,
           ),
           child: Icon(
@@ -87,7 +89,7 @@ class CategoryIcon extends StatelessWidget {
           width: effectiveSize,
           height: effectiveSize,
           decoration: BoxDecoration(
-            color: color.withOpacity(0.15),
+            color: color.withValues(alpha: 0.15),
             borderRadius: BorderRadius.circular(AppRadius.sm),
           ),
           child: Icon(
@@ -144,11 +146,11 @@ class CategoryChip extends StatelessWidget {
     
     final color = customColor ?? CategoryIcons.getColor(category, brightness: brightness);
     final backgroundColor = isSelected
-        ? color.withOpacity(0.2)
+        ? color.withValues(alpha: 0.2)
         : colorScheme.surface;
     final borderColor = isSelected
         ? color
-        : colorScheme.outline.withOpacity(0.3);
+        : colorScheme.outline.withValues(alpha: 0.3);
 
     final content = Container(
       padding: const EdgeInsets.symmetric(

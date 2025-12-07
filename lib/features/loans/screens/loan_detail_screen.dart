@@ -230,10 +230,10 @@ class _LoanDetailScreenState extends State<LoanDetailScreen> {
                                     builder: (dctx) => AlertDialog(
                                       title: const Text('هشدار بودجه'),
                                       content: Text(
-                                        'این پرداخت باعث می‌شود بودجه "$title" از حد تعیین‌شده فراتر رود:\n\n' +
-                                            'بودجه: ${formatCurrency(b.amount)}\n' +
-                                            'استفاده تا کنون: ${formatCurrency(used)}\n' +
-                                            'پس از پرداخت: ${formatCurrency(projected)}\n\n' +
+                                        'این پرداخت باعث می‌شود بودجه "$title" از حد تعیین‌شده فراتر رود:\n\n'
+                                            'بودجه: ${formatCurrency(b.amount)}\n'
+                                            'استفاده تا کنون: ${formatCurrency(used)}\n'
+                                            'پس از پرداخت: ${formatCurrency(projected)}\n\n'
                                             'آیا مایل به ادامه هستید؟',
                                       ),
                                       actions: [

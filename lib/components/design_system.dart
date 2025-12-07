@@ -1,3 +1,5 @@
+library;
+
 /// Design System Constants
 /// 
 /// This file contains all design constants used throughout the app to maintain

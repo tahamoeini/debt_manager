@@ -302,7 +302,7 @@ class _AddLoanScreenState extends State<AddLoanScreen> {
   Widget build(BuildContext context) {
     return PopScope(
       canPop: !_isDirty,
-      onPopInvoked: (bool didPop) async {
+      onPopInvokedWithResult: (bool didPop, dynamic result) async {
         // If already popped (clean form), nothing to do
         if (didPop) return;
         
@@ -383,7 +383,7 @@ class _AddLoanScreenState extends State<AddLoanScreen> {
                       Expanded(
                         flex: 1,
                         child: DropdownButtonFormField<String?>(
-                          value: _counterpartyType,
+                          initialValue: _counterpartyType,
                           decoration: const InputDecoration(labelText: 'نوع'),
                           items: const [
                             DropdownMenuItem(value: null, child: Text('بدون')),
