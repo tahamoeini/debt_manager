@@ -169,6 +169,10 @@ class _LoanDetailScreenState extends State<LoanDetailScreen> {
                         const SizedBox(width: 8),
                         FilledButton(
                           onPressed: () async {
+                            // Capture context before any async operations
+                            final dialogContext = ctx;
+                            final widgetContext = context;
+                            
                             // Build updated installment
                             final entered = amountController.text.trim();
                             final actualAmt = entered.isEmpty
@@ -227,7 +231,7 @@ class _LoanDetailScreenState extends State<LoanDetailScreen> {
                                   final projected = used + amountPaid;
                                   if (!mounted) return;
                                   final proceed = await showDialog<bool>(
-                                    context: ctx,
+                                    context: dialogContext,
                                     builder: (dctx) => AlertDialog(
                                       title: const Text('هشدار بودجه'),
                                       content: Text(
@@ -276,11 +280,10 @@ class _LoanDetailScreenState extends State<LoanDetailScreen> {
                               final allInst = await _db.getInstallmentsByLoanId(widget.loanId);
                               final allPaid = allInst.every((i) => i.status == InstallmentStatus.paid);
                               if (allPaid && mounted) {
-                                final celebrationContext = context;
                                 // Show celebration after a short delay so the UI updates first
                                 Future.delayed(_celebrationDelay, () {
                                   if (mounted) {
-                                    showDebtCompletionCelebration(celebrationContext);
+                                    showDebtCompletionCelebration(widgetContext);
                                   }
                                 });
                               }
