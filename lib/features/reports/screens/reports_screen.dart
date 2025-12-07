@@ -10,6 +10,9 @@ import 'package:debt_manager/features/loans/models/loan.dart';
 import 'package:debt_manager/features/loans/models/counterparty.dart';
 import 'package:debt_manager/core/utils/debug_utils.dart';
 import 'package:debt_manager/core/utils/ui_utils.dart';
+import 'package:debt_manager/features/reports/screens/advanced_reports_screen.dart';
+import 'package:debt_manager/core/export/export_service.dart';
+import 'package:share_plus/share_plus.dart';
 
 class ReportsScreen extends StatefulWidget {
   const ReportsScreen({super.key});
@@ -20,6 +23,7 @@ class ReportsScreen extends StatefulWidget {
 
 class _ReportsScreenState extends State<ReportsScreen> {
   final _db = DatabaseHelper.instance;
+  final _exportService = ExportService.instance;
 
   LoanDirection? _directionFilter; // null = all
   DateTime? _from;
@@ -281,11 +285,63 @@ class _ReportsScreenState extends State<ReportsScreen> {
     }
   }
 
+  Future<void> _exportCSV() async {
+    try {
+      final filePath = await _exportService.exportInstallmentsCSV(
+        fromDate: _from,
+        toDate: _to,
+      );
+      
+      if (!mounted) return;
+      
+      await Share.shareXFiles(
+        [XFile(filePath)],
+        text: 'خروجی اقساط',
+      );
+      
+      if (!mounted) return;
+      
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('فایل CSV با موفقیت ایجاد و اشتراک‌گذاری شد')),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('خطا در ایجاد فایل: $e')),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
+        // Quick actions row
+        Row(
+          children: [
+            Expanded(
+              child: FilledButton.icon(
+                onPressed: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (_) => const AdvancedReportsScreen(),
+                    ),
+                  );
+                },
+                icon: const Icon(Icons.analytics_outlined),
+                label: const Text('گزارش‌های پیشرفته'),
+              ),
+            ),
+            const SizedBox(width: 8),
+            FilledButton.icon(
+              onPressed: _exportCSV,
+              icon: const Icon(Icons.file_download),
+              label: const Text('خروجی CSV'),
+            ),
+          ],
+        ),
+        const SizedBox(height: 16),
         FutureBuilder<Map<String, dynamic>>(
           future: _loadSummary(),
           builder: (context, snap) {

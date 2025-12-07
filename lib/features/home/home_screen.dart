@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:debt_manager/features/loans/screens/loans_list_screen.dart';
 import 'package:debt_manager/features/reports/screens/reports_screen.dart';
 import 'package:debt_manager/components/components.dart';
+import 'package:debt_manager/features/insights/smart_insights_widget.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -47,6 +48,7 @@ class HomeScreen extends StatelessWidget {
           value: 'هیچ قبضی در چند روز آینده وجود ندارد',
           icon: Icons.event_note,
         ),
+        const SmartInsightsWidget(),
       ],
     );
   }

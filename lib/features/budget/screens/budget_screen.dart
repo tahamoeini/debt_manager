@@ -4,6 +4,7 @@ import 'package:debt_manager/features/budget/models/budget.dart';
 import 'package:debt_manager/core/utils/jalali_utils.dart';
 import 'package:debt_manager/core/utils/ui_utils.dart';
 import 'package:debt_manager/components/components.dart';
+import 'package:debt_manager/core/notifications/smart_notification_service.dart';
 import 'add_budget_screen.dart';
 
 class BudgetScreen extends StatefulWidget {
@@ -28,12 +29,22 @@ class _BudgetScreenState extends State<BudgetScreen> {
   void initState() {
     super.initState();
     _budgetsFuture = _repo.getBudgetsByPeriod(_currentPeriod());
+    _checkBudgetThresholds();
   }
 
   void _refresh() {
     setState(() {
       _budgetsFuture = _repo.getBudgetsByPeriod(_currentPeriod());
     });
+    _checkBudgetThresholds();
+  }
+
+  Future<void> _checkBudgetThresholds() async {
+    try {
+      await SmartNotificationService.instance.checkBudgetThresholds(_currentPeriod());
+    } catch (e) {
+      // Silently fail - don't disrupt the UI if notifications fail
+    }
   }
 
   @override
