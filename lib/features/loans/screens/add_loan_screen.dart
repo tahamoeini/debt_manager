@@ -306,6 +306,9 @@ class _AddLoanScreenState extends State<AddLoanScreen> {
         // If already popped (clean form), nothing to do
         if (didPop) return;
         
+        // Check if still mounted before showing dialog
+        if (!mounted) return;
+        
         // If dirty, show confirmation dialog
         final res = await showDialog<bool>(
           context: context,
@@ -326,7 +329,7 @@ class _AddLoanScreenState extends State<AddLoanScreen> {
         );
         
         // If user confirmed exit, pop the screen
-        if (res == true && context.mounted) {
+        if (res == true && mounted) {
           Navigator.of(context).pop();
         }
       },
