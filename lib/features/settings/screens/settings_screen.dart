@@ -1,4 +1,4 @@
-// ignore_for_file: use_build_context_synchronously
+// ignore_for_file: use_build_context_synchronously, deprecated_member_use
 
 // Settings screen: adjust local app settings like reminder offsets.
 import 'package:flutter/material.dart';
@@ -8,11 +8,8 @@ import 'package:debt_manager/core/notifications/notification_service.dart';
 import 'package:debt_manager/features/categories/screens/manage_categories_screen.dart';
 import 'package:flutter/services.dart';
 import 'dart:convert';
-import 'dart:io';
 
 import 'package:debt_manager/core/backup/backup_service.dart';
-import 'package:share_plus/share_plus.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:debt_manager/features/help/help_screen.dart';
 import 'package:debt_manager/features/automation/screens/automation_rules_screen.dart';
 import 'package:debt_manager/core/db/database_helper.dart';
@@ -678,7 +675,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                 label: const Text('Export'),
                               ),
                             ),
-
+                          ],
+                        ),
+                        const SizedBox(height: 12),
                         Row(
                           children: [
                             FilledButton.icon(

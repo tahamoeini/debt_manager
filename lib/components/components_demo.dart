@@ -321,13 +321,12 @@ class _ComponentsDemoState extends State<ComponentsDemo> {
                       title: 'Confirm Action',
                       message: 'Are you sure you want to proceed?',
                     );
-                    if (mounted) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text(confirmed ? 'Confirmed' : 'Cancelled'),
-                        ),
-                      );
-                    }
+                    if (!mounted) return;
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(confirmed ? 'Confirmed' : 'Cancelled'),
+                      ),
+                    );
                   },
                   child: const Text('Show Confirmation Dialog'),
                 ),
@@ -340,13 +339,12 @@ class _ComponentsDemoState extends State<ComponentsDemo> {
                       message: 'This action cannot be undone.',
                       isDestructive: true,
                     );
-                    if (mounted) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text(confirmed ? 'Deleted' : 'Cancelled'),
-                        ),
-                      );
-                    }
+                    if (!mounted) return;
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(confirmed ? 'Deleted' : 'Cancelled'),
+                      ),
+                    );
                   },
                   child: const Text('Show Destructive Dialog'),
                 ),
@@ -367,9 +365,8 @@ class _ComponentsDemoState extends State<ComponentsDemo> {
                   onPressed: () async {
                     LoadingDialog.show(context, message: 'Loading...');
                     await Future.delayed(const Duration(seconds: 2));
-                    if (mounted) {
-                      LoadingDialog.dismiss(context);
-                    }
+                    if (!mounted) return;
+                    LoadingDialog.dismiss(context);
                   },
                   child: const Text('Show Loading Dialog'),
                 ),
