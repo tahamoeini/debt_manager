@@ -169,9 +169,7 @@ class _LoanDetailScreenState extends State<LoanDetailScreen> {
                         const SizedBox(width: 8),
                         FilledButton(
                           onPressed: () async {
-                            // Capture context before any async operations
-                            final dialogContext = ctx;
-                            final widgetContext = context;
+                            // Capture navigator context for bottom sheet
                             
                             // Build updated installment
                             final entered = amountController.text.trim();
@@ -231,7 +229,7 @@ class _LoanDetailScreenState extends State<LoanDetailScreen> {
                                   final projected = used + amountPaid;
                                   if (!mounted) return;
                                   final proceed = await showDialog<bool>(
-                                    context: dialogContext,
+                                    context: ctx,
                                     builder: (dctx) => AlertDialog(
                                       title: const Text('هشدار بودجه'),
                                       content: Text(
@@ -283,7 +281,7 @@ class _LoanDetailScreenState extends State<LoanDetailScreen> {
                                 // Show celebration after a short delay so the UI updates first
                                 Future.delayed(_celebrationDelay, () {
                                   if (mounted) {
-                                    showDebtCompletionCelebration(widgetContext);
+                                    showDebtCompletionCelebration(context);
                                   }
                                 });
                               }

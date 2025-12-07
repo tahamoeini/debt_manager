@@ -3,7 +3,7 @@
 # separate terms of service, privacy policy, and support
 # documentation.
 
-name: Dart
+name: Flutter CI
 
 on:
   push:
@@ -22,6 +22,7 @@ jobs:
       - uses: subosito/flutter-action@v2
         with:
           channel: 'stable'
+          cache: true
 
       - name: Install dependencies
         run: flutter pub get
@@ -30,10 +31,14 @@ jobs:
       # - name: Verify formatting
       #   run: dart format --output=none --set-exit-if-changed .
 
-      # Consider passing '--fatal-infos' for slightly stricter analysis.
+      # Analyze project source for issues.
       - name: Analyze project source
         run: flutter analyze
 
       # Run Flutter tests.
       - name: Run tests
         run: flutter test
+
+      # Verify the app builds successfully.
+      - name: Build Android APK
+        run: flutter build apk --debug
