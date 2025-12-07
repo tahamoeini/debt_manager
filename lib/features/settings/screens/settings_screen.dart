@@ -173,7 +173,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('تنظیمات'),
-        semanticLabel: 'Settings screen',
       ),
       body: _loading
           ? const Center(child: CircularProgressIndicator())
@@ -366,10 +365,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             'اعلان برای سررسید اقساط و پرداخت‌ها',
                           ),
                           value: _billReminders,
-                          enabled: _notificationsEnabled,
-                          onChanged: (v) async {
+                          onChanged: _notificationsEnabled ? (v) async {
                             await _saveBillReminders(v);
-                          },
+                          } : null,
                         ),
                         SwitchListTile(
                           title: const Text('هشدارهای بودجه'),
@@ -377,10 +375,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             'اعلان هنگام نزدیک شدن به محدودیت بودجه',
                           ),
                           value: _budgetAlerts,
-                          enabled: _notificationsEnabled,
-                          onChanged: (v) async {
+                          onChanged: _notificationsEnabled ? (v) async {
                             await _saveBudgetAlerts(v);
-                          },
+                          } : null,
                         ),
                       ],
                     ),
