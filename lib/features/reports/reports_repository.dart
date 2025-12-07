@@ -29,25 +29,28 @@ class ReportsRepository {
 
     final categoryTotals = <String, int>{};
 
+    // Build a map from loanId to loan for quick lookup
+    final loanMap = <int, Loan>{};
     for (final loan in loans) {
-      if (loan.id == null) continue;
-      
+      if (loan.id != null) loanMap[loan.id!] = loan;
+    }
+
+    // Fetch all paid installments for borrowed loans in the date range
+    final loanIds = loanMap.keys.toList();
+    final allInstallments = await _db.getInstallmentsByLoanIdsAndDateRange(
+      loanIds,
+      startDate,
+      endDate,
+      status: InstallmentStatus.paid,
+    );
+
+    for (final inst in allInstallments) {
+      final loan = loanMap[inst.loanId];
+      if (loan == null) continue;
       final cp = cpMap[loan.counterpartyId];
       final category = cp?.type ?? cp?.tag ?? 'سایر';
-      
-      final installments = await _db.getInstallmentsByLoanId(loan.id!);
-      
-      for (final inst in installments) {
-        // Only count paid installments in the date range
-        if (inst.status != InstallmentStatus.paid) continue;
-        if (inst.paidAt == null) continue;
-        
-        final paidDate = inst.paidAt!;
-        if (paidDate.compareTo(startDate) >= 0 && paidDate.compareTo(endDate) <= 0) {
-          final amount = inst.actualPaidAmount ?? inst.amount;
-          categoryTotals[category] = (categoryTotals[category] ?? 0) + amount;
-        }
-      }
+      final amount = inst.actualPaidAmount ?? inst.amount;
+      categoryTotals[category] = (categoryTotals[category] ?? 0) + amount;
     }
 
     return categoryTotals;
