@@ -591,94 +591,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         const SizedBox(height: 12),
                         Row(
                           children: [
-                            Expanded(
-                              child: FilledButton.icon(
-                                onPressed: () async {
-                                  final messenger = ScaffoldMessenger.of(context);
-                                  try {
-                                    final jsonStr = await BackupService.instance
-                                        .exportAll();
-                                    await showDialog<void>(
-                                      context: context,
-                                      builder: (ctx) => Dialog(
-                                        child: Column(
-                                          mainAxisSize: MainAxisSize.min,
-                                          children: [
-                                            Padding(
-                                              padding: const EdgeInsets.all(12.0),
-                                              child: Row(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment
-                                                        .spaceBetween,
-                                                children: [
-                                                  const Text('Exported JSON'),
-                                                  IconButton(
-                                                    icon: const Icon(Icons.copy_outlined),
-                                                    tooltip: 'Copy to clipboard',
-                                                    onPressed: () async {
-                                                      final messenger =
-                                                          ScaffoldMessenger.of(
-                                                            context,
-                                                          );
-                                                      await Clipboard.setData(
-                                                        ClipboardData(
-                                                          text: jsonStr,
-                                                        ),
-                                                      );
-                                                      if (!mounted) return;
-                                                      messenger.showSnackBar(
-                                                        const SnackBar(
-                                                          content: Text('کپی شد'),
-                                                        ),
-                                                      );
-                                                    },
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-                                            SizedBox(
-                                              height:
-                                                  MediaQuery.of(
-                                                    context,
-                                                  ).size.height *
-                                                  0.6,
-                                              width: double.maxFinite,
-                                              child: SingleChildScrollView(
-                                                padding: const EdgeInsets.all(12),
-                                                child: SelectableText(jsonStr),
-                                              ),
-                                            ),
-                                            Align(
-                                              alignment: Alignment.centerRight,
-                                              child: TextButton(
-                                                onPressed: () =>
-                                                    Navigator.of(ctx).pop(),
-                                                child: const Text('بستن'),
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    );
-                                  } catch (e) {
-                                    if (mounted) {
-                                      messenger.showSnackBar(
-                                        SnackBar(
-                                          content: Text('خطا در صادرات: $e'),
-                                        ),
-                                      );
-                                    }
-                                  }
-                                },
-                                icon: const Icon(Icons.upload_outlined),
-                                label: const Text('Export'),
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 12),
-                        Row(
-                          children: [
                             FilledButton.icon(
                               onPressed: () async {
                                 final messenger = ScaffoldMessenger.of(context);
@@ -757,7 +669,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                 }
                               },
                               icon: const Icon(Icons.upload_outlined),
-                              label: const Text('Export data (JSON)'),
+                              label: const Text('Export'),
                             ),
                             const SizedBox(width: 12),
                             FilledButton.icon(
