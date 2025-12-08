@@ -51,8 +51,12 @@ jobs:
       - name: Rename APKs with version
         run: |
           VERSION=$(grep '^version:' pubspec.yaml | sed 's/version: //')
-          VERSION_NAME=$(echo $VERSION | cut -d'+' -f1)
-          BUILD_NUMBER=$(echo $VERSION | cut -d'+' -f2)
+          # Handle versions with or without build number
+          if [[ $VERSION == *"+"* ]]; then
+            VERSION_NAME=$(echo $VERSION | cut -d'+' -f1)
+          else
+            VERSION_NAME=$VERSION
+          fi
           
           mkdir -p build/outputs
           cp build/app/outputs/flutter-apk/app-debug.apk "build/outputs/debt_manager-v${VERSION_NAME}-debug.apk"
