@@ -168,6 +168,51 @@ flutter build ios --release
 flutter build web --release
 ```
 
+## Releases and CI/CD
+
+### Continuous Integration
+
+Every push to the `master` branch triggers the CI workflow which:
+- Runs code analysis
+- Executes all tests
+- Builds both debug and release APKs
+- Uploads APKs as artifacts (available for 90 days)
+
+APK artifacts are automatically versioned based on the version in `pubspec.yaml`.
+
+### Creating a Release
+
+To create a new release with attached APK files:
+
+1. Update the version in `pubspec.yaml`:
+   ```yaml
+   version: 1.1.0+2  # format: major.minor.patch+buildNumber
+   ```
+
+2. Commit the version change:
+   ```bash
+   git add pubspec.yaml
+   git commit -m "Bump version to 1.1.0"
+   ```
+
+3. Create and push a version tag:
+   ```bash
+   git tag v1.1.0
+   git push origin v1.1.0
+   ```
+
+4. The release workflow will automatically:
+   - Build release APK and AAB files
+   - Create a GitHub release
+   - Attach versioned artifacts (e.g., `debt_manager-v1.1.0.apk`)
+   - Generate release notes from commits
+
+### Downloading Releases
+
+- Visit the [Releases page](https://github.com/tahamoeini/debt_manager/releases)
+- Download the latest APK file
+- Install on Android devices (requires enabling "Install from unknown sources")
+
 ## Project Structure
 
 ```
