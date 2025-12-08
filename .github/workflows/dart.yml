@@ -40,6 +40,37 @@ jobs:
       - name: Run tests
         run: flutter test
 
-      # Verify the app builds successfully.
-      - name: Build Android APK
+      # Build Android APKs with version information
+      - name: Build Android Debug APK
         run: flutter build apk --debug
+
+      - name: Build Android Release APK
+        run: flutter build apk --release
+
+      # Rename APKs to include version information
+      - name: Rename APKs with version
+        run: |
+          VERSION=$(grep '^version:' pubspec.yaml | sed 's/version: //')
+          # Handle versions with or without build number
+          if [[ $VERSION == *"+"* ]]; then
+            VERSION_NAME=$(echo $VERSION | cut -d'+' -f1)
+          else
+            VERSION_NAME=$VERSION
+          fi
+          
+          mkdir -p build/outputs
+          cp build/app/outputs/flutter-apk/app-debug.apk "build/outputs/debt_manager-v${VERSION_NAME}-debug.apk"
+          cp build/app/outputs/flutter-apk/app-release.apk "build/outputs/debt_manager-v${VERSION_NAME}-release.apk"
+
+      # Upload APKs as artifacts
+      - name: Upload Debug APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: debug-apk
+          path: build/outputs/debt_manager-*-debug.apk
+
+      - name: Upload Release APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-apk
+          path: build/outputs/debt_manager-*-release.apk
