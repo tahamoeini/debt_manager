@@ -13,6 +13,7 @@ import 'package:debt_manager/core/backup/backup_service.dart';
 import 'package:debt_manager/features/help/help_screen.dart';
 import 'package:debt_manager/features/automation/screens/automation_rules_screen.dart';
 import 'package:debt_manager/core/db/database_helper.dart';
+import 'package:debt_manager/core/utils/bug_report_utils.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -52,7 +53,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
     final lang = await _repo.getLanguage();
     final notif = await _repo.getNotificationsEnabled();
     final bills = await _repo.getBillRemindersEnabled();
-    final budget = await _repo.getBudgetAlertsEnabled();
     final ba = await _repo.getBudgetAlertsEnabled();
     final ss = await _repo.getSmartSuggestionsEnabled();
     final fc = await _repo.getFinanceCoachEnabled();
@@ -66,7 +66,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
         _language = lang;
         _notificationsEnabled = notif;
         _billReminders = bills;
-        _budgetAlerts = budget;
         _budgetAlerts = ba;
         _smartSuggestions = ss;
         _financeCoach = fc;
@@ -592,94 +591,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         const SizedBox(height: 12),
                         Row(
                           children: [
-                            Expanded(
-                              child: FilledButton.icon(
-                                onPressed: () async {
-                                  final messenger = ScaffoldMessenger.of(context);
-                                  try {
-                                    final jsonStr = await BackupService.instance
-                                        .exportAll();
-                                    await showDialog<void>(
-                                      context: context,
-                                      builder: (ctx) => Dialog(
-                                        child: Column(
-                                          mainAxisSize: MainAxisSize.min,
-                                          children: [
-                                            Padding(
-                                              padding: const EdgeInsets.all(12.0),
-                                              child: Row(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment
-                                                        .spaceBetween,
-                                                children: [
-                                                  const Text('Exported JSON'),
-                                                  IconButton(
-                                                    icon: const Icon(Icons.copy_outlined),
-                                                    tooltip: 'Copy to clipboard',
-                                                    onPressed: () async {
-                                                      final messenger =
-                                                          ScaffoldMessenger.of(
-                                                            context,
-                                                          );
-                                                      await Clipboard.setData(
-                                                        ClipboardData(
-                                                          text: jsonStr,
-                                                        ),
-                                                      );
-                                                      if (!mounted) return;
-                                                      messenger.showSnackBar(
-                                                        const SnackBar(
-                                                          content: Text('کپی شد'),
-                                                        ),
-                                                      );
-                                                    },
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-                                            SizedBox(
-                                              height:
-                                                  MediaQuery.of(
-                                                    context,
-                                                  ).size.height *
-                                                  0.6,
-                                              width: double.maxFinite,
-                                              child: SingleChildScrollView(
-                                                padding: const EdgeInsets.all(12),
-                                                child: SelectableText(jsonStr),
-                                              ),
-                                            ),
-                                            Align(
-                                              alignment: Alignment.centerRight,
-                                              child: TextButton(
-                                                onPressed: () =>
-                                                    Navigator.of(ctx).pop(),
-                                                child: const Text('بستن'),
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    );
-                                  } catch (e) {
-                                    if (mounted) {
-                                      messenger.showSnackBar(
-                                        SnackBar(
-                                          content: Text('خطا در صادرات: $e'),
-                                        ),
-                                      );
-                                    }
-                                  }
-                                },
-                                icon: const Icon(Icons.upload_outlined),
-                                label: const Text('Export'),
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 12),
-                        Row(
-                          children: [
                             FilledButton.icon(
                               onPressed: () async {
                                 final messenger = ScaffoldMessenger.of(context);
@@ -758,7 +669,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                 }
                               },
                               icon: const Icon(Icons.upload_outlined),
-                              label: const Text('Export data (JSON)'),
+                              label: const Text('Export'),
                             ),
                             const SizedBox(width: 12),
                             FilledButton.icon(
@@ -941,6 +852,47 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             backgroundColor: Theme.of(context).colorScheme.error,
                           ),
                           label: const Text('پاک کردن تمام داده‌ها'),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                // Bug Report / Feedback Card
+                Card(
+                  color: Theme.of(context).colorScheme.tertiaryContainer,
+                  child: Padding(
+                    padding: const EdgeInsets.all(12),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'پشتیبانی و بازخورد',
+                          style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                            color: Theme.of(context).colorScheme.onTertiaryContainer,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          'در صورت مواجهه با مشکل یا برای ارسال پیشنهاد',
+                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            color: Theme.of(context).colorScheme.onTertiaryContainer,
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        FilledButton.icon(
+                          onPressed: () async {
+                            await BugReportUtils.showBugReportDialog(
+                              context: context,
+                              appState: 'Settings Screen',
+                            );
+                          },
+                          icon: const Icon(Icons.bug_report_outlined),
+                          style: FilledButton.styleFrom(
+                            backgroundColor: Theme.of(context).colorScheme.tertiary,
+                            foregroundColor: Theme.of(context).colorScheme.onTertiary,
+                          ),
+                          label: const Text('گزارش مشکل یا ارسال پیشنهاد'),
                         ),
                       ],
                     ),

@@ -61,10 +61,10 @@ class UIUtils {
             curve: Curves.easeOutBack,
             child: graphic,
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 16),
           Text(title, style: Theme.of(context).textTheme.titleMedium),
           if (subtitle != null) ...[
-            const SizedBox(height: 6),
+            const SizedBox(height: 8),
             Text(subtitle, style: Theme.of(context).textTheme.bodySmall),
           ]
         ],

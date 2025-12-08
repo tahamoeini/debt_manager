@@ -100,15 +100,17 @@ class _AccountsScreenState extends State<AccountsScreen> {
     final color = colorForCategory(loan.title, brightness: Theme.of(context).brightness);
 
     return Card(
+      margin: const EdgeInsets.only(bottom: 12),
       child: ListTile(
-        leading: CircleAvatar(backgroundColor: color, radius: 16),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        leading: CircleAvatar(backgroundColor: color, radius: 20),
         title: Text(loan.title.isNotEmpty ? loan.title : 'بدون عنوان', style: Theme.of(context).textTheme.titleMedium),
         subtitle: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const SizedBox(height: 4),
-            LinearProgressIndicator(value: ratio, minHeight: 6, color: Theme.of(context).colorScheme.primary, backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest),
-            const SizedBox(height: 6),
+            const SizedBox(height: 8),
+            LinearProgressIndicator(value: ratio, minHeight: 8, color: Theme.of(context).colorScheme.primary, backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest),
+            const SizedBox(height: 8),
             Text('${toPersianDigits((ratio * 100).round())}% پرداخت شده · باقی‌مانده: ${formatCurrency(remaining)}', style: Theme.of(context).textTheme.bodySmall),
           ],
         ),
