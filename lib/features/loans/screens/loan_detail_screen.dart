@@ -30,6 +30,15 @@ class LoanDetailScreen extends StatefulWidget {
 class _LoanDetailScreenState extends State<LoanDetailScreen> {
   final _db = DatabaseHelper.instance;
 
+  /// Safe parser for Jalali dates - returns current date if parsing fails
+  Jalali _parseJalaliSafe(String jalaliStr) {
+    try {
+      return parseJalali(jalaliStr);
+    } catch (_) {
+      return dateTimeToJalali(DateTime.now());
+    }
+  }
+
   Future<Map<String, dynamic>> _loadAll() async {
     final loan = await _db.getLoanById(widget.loanId);
 
@@ -94,8 +103,8 @@ class _LoanDetailScreenState extends State<LoanDetailScreen> {
     final amountController = TextEditingController(
       text: inst.actualPaidAmount?.toString() ?? inst.amount.toString(),
     );
-    // Initial selected Jalali date
-    var selectedJalali = parseJalali(inst.dueDateJalali);
+    // Initial selected Jalali date - with error handling
+    Jalali selectedJalali = _parseJalaliSafe(inst.dueDateJalali);
 
     await showModalBottomSheet<void>(
       context: context,
@@ -445,7 +454,7 @@ class _LoanDetailScreenState extends State<LoanDetailScreen> {
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        'شروع: ${formatJalaliForDisplay(parseJalali(loan.startDateJalali))}',
+                        'شروع: ${formatJalaliForDisplay(_parseJalaliSafe(loan.startDateJalali))}',
                       ),
                     ],
                   ),
@@ -461,7 +470,7 @@ class _LoanDetailScreenState extends State<LoanDetailScreen> {
               const SizedBox(height: 8),
               ...installments.map((inst) {
                 final due = formatJalaliForDisplay(
-                  parseJalali(inst.dueDateJalali),
+                  _parseJalaliSafe(inst.dueDateJalali),
                 );
                 final paid = inst.status == InstallmentStatus.paid;
 
