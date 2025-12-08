@@ -14,7 +14,7 @@ class _SmartInsightsWidgetState extends State<SmartInsightsWidget> {
   final _insightsService = SmartInsightsService.instance;
   final _settings = SettingsRepository();
   
-  late Future<Map<String, dynamic>> _insightsFuture;
+  Future<Map<String, dynamic>>? _insightsFuture;
   bool _enabled = true;
 
   @override
@@ -35,7 +35,7 @@ class _SmartInsightsWidgetState extends State<SmartInsightsWidget> {
 
   @override
   Widget build(BuildContext context) {
-    if (!_enabled) {
+    if (!_enabled || _insightsFuture == null) {
       return const SizedBox.shrink();
     }
 

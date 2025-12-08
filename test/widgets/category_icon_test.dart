@@ -87,8 +87,8 @@ void main() {
         ),
       );
 
-      final icon = tester.widget<Icon>(find.byIcon(Icons.restaurant));
-      expect(icon.color, customColor);
+      final circleAvatar = tester.widget<CircleAvatar>(find.byType(CircleAvatar));
+      expect(circleAvatar.backgroundColor, customColor);
     });
   });
 

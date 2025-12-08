@@ -10,7 +10,7 @@ import 'package:debt_manager/core/theme/app_dimensions.dart';
 /// showDialog(
 ///   context: context,
 ///   builder: (context) => AppDialog(
-///     title: 'تایید حذف',
+///     title: 'تأیید حذف',
 ///     content: Text('آیا مطمئن هستید؟'),
 ///     actions: [
 ///       TextButton(
@@ -80,7 +80,7 @@ class ConfirmationDialog extends StatelessWidget {
     super.key,
     required this.title,
     required this.message,
-    this.confirmText = 'تایید',
+    this.confirmText = 'تأیید',
     this.cancelText = 'لغو',
     this.isDangerous = false,
   });
@@ -117,7 +117,7 @@ Future<bool> showConfirmationDialog(
   BuildContext context, {
   required String title,
   required String message,
-  String confirmText = 'تایید',
+  String confirmText = 'تأیید',
   String cancelText = 'لغو',
   bool isDangerous = false,
 }) async {
