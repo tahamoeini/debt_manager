@@ -13,6 +13,7 @@ import 'package:debt_manager/core/backup/backup_service.dart';
 import 'package:debt_manager/features/help/help_screen.dart';
 import 'package:debt_manager/features/automation/screens/automation_rules_screen.dart';
 import 'package:debt_manager/core/db/database_helper.dart';
+import 'package:debt_manager/core/utils/bug_report_utils.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -52,7 +53,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
     final lang = await _repo.getLanguage();
     final notif = await _repo.getNotificationsEnabled();
     final bills = await _repo.getBillRemindersEnabled();
-    final budget = await _repo.getBudgetAlertsEnabled();
     final ba = await _repo.getBudgetAlertsEnabled();
     final ss = await _repo.getSmartSuggestionsEnabled();
     final fc = await _repo.getFinanceCoachEnabled();
@@ -66,7 +66,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
         _language = lang;
         _notificationsEnabled = notif;
         _billReminders = bills;
-        _budgetAlerts = budget;
         _budgetAlerts = ba;
         _smartSuggestions = ss;
         _financeCoach = fc;
@@ -941,6 +940,47 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             backgroundColor: Theme.of(context).colorScheme.error,
                           ),
                           label: const Text('پاک کردن تمام داده‌ها'),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                // Bug Report / Feedback Card
+                Card(
+                  color: Theme.of(context).colorScheme.tertiaryContainer,
+                  child: Padding(
+                    padding: const EdgeInsets.all(12),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'پشتیبانی و بازخورد',
+                          style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                            color: Theme.of(context).colorScheme.onTertiaryContainer,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          'در صورت مواجهه با مشکل یا برای ارسال پیشنهاد',
+                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            color: Theme.of(context).colorScheme.onTertiaryContainer,
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        FilledButton.icon(
+                          onPressed: () async {
+                            await BugReportUtils.showBugReportDialog(
+                              context: context,
+                              appState: 'Settings Screen',
+                            );
+                          },
+                          icon: const Icon(Icons.bug_report_outlined),
+                          style: FilledButton.styleFrom(
+                            backgroundColor: Theme.of(context).colorScheme.tertiary,
+                            foregroundColor: Theme.of(context).colorScheme.onTertiary,
+                          ),
+                          label: const Text('گزارش مشکل یا ارسال پیشنهاد'),
                         ),
                       ],
                     ),

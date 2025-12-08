@@ -61,5 +61,8 @@ class AppConstants {
   static const double budgetWarningThreshold = 0.6; // 60% usage shows warning
   static const double budgetDangerThreshold = 0.9; // 90% usage shows danger
 
+  // Support and bug reporting
+  static const String supportEmail = 'support@debtmanager.app';
+
   AppConstants._(); // Private constructor to prevent instantiation
 }

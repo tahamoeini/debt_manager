@@ -72,9 +72,9 @@ class _BudgetScreenState extends State<BudgetScreen> {
           }
 
           return ListView.separated(
-            padding: AppConstants.paddingMedium,
+            padding: AppConstants.paddingLarge,
             itemCount: budgets.length,
-            separatorBuilder: (_, _) => const SizedBox(height: AppConstants.spaceSmall),
+            separatorBuilder: (_, _) => const SizedBox(height: AppConstants.spaceMedium),
             itemBuilder: (context, index) {
               final b = budgets[index];
               return Card(
