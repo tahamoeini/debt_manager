@@ -13,6 +13,7 @@ import 'package:debt_manager/core/utils/ui_utils.dart';
 import 'package:debt_manager/features/reports/screens/advanced_reports_screen.dart';
 import 'package:debt_manager/core/export/export_service.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:debt_manager/features/achievements/achievements_repository.dart';
 
 class ReportsScreen extends StatefulWidget {
   const ReportsScreen({super.key});
@@ -357,6 +358,49 @@ class _ReportsScreenState extends State<ReportsScreen> {
             final net = snap.data?['net'] as int? ?? 0;
 
             return SummaryCards(borrowed: borrowed, lent: lent, net: net);
+          },
+        ),
+        const SizedBox(height: 12),
+        FutureBuilder<List<Achievement>>(
+          future: AchievementsRepository.instance.getEarnedAchievements(),
+          builder: (context, snap) {
+            if (snap.connectionState == ConnectionState.waiting) return const SizedBox.shrink();
+            final badges = snap.data ?? [];
+            if (badges.isEmpty) return const SizedBox.shrink();
+            return Card(
+              child: Padding(
+                padding: const EdgeInsets.all(12),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('نشان‌ها', style: Theme.of(context).textTheme.titleMedium),
+                    const SizedBox(height: 8),
+                    SizedBox(
+                      height: 64,
+                      child: ListView.separated(
+                        scrollDirection: Axis.horizontal,
+                        itemBuilder: (ctx, i) {
+                          final a = badges[i];
+                          return Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              CircleAvatar(
+                                radius: 22,
+                                child: Icon(Icons.emoji_events, size: 24),
+                              ),
+                              const SizedBox(height: 6),
+                              Text(a.title, style: Theme.of(context).textTheme.bodySmall),
+                            ],
+                          );
+                        },
+                        separatorBuilder: (_, __) => const SizedBox(width: 12),
+                        itemCount: badges.length,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
           },
         ),
 

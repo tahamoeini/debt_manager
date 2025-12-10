@@ -210,3 +210,31 @@ Future<void> showSuccessAnimation(
     ),
   );
 }
+
+/// Show an achievement dialog with badge-like appearance.
+Future<void> showAchievementDialog(BuildContext context, {required String title, required String message, IconData? icon}) async {
+  await showDialog(
+    context: context,
+    barrierDismissible: true,
+    builder: (ctx) => Dialog(
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icon ?? Icons.emoji_events_outlined, size: 64, color: Theme.of(context).colorScheme.primary),
+            const SizedBox(height: 12),
+            Text(title, style: Theme.of(context).textTheme.titleLarge, textAlign: TextAlign.center),
+            const SizedBox(height: 8),
+            Text(message, textAlign: TextAlign.center),
+            const SizedBox(height: 12),
+            FilledButton(
+              onPressed: () => Navigator.of(ctx).pop(),
+              child: const Text('تبریک'),
+            ),
+          ],
+        ),
+      ),
+    ),
+  );
+}

@@ -9,6 +9,7 @@ import 'package:debt_manager/core/utils/format_utils.dart';
 import 'package:debt_manager/core/utils/jalali_utils.dart';
 import 'package:debt_manager/core/utils/ui_utils.dart';
 import 'package:debt_manager/core/utils/celebration_utils.dart';
+import 'package:debt_manager/features/achievements/achievements_repository.dart';
 import 'package:debt_manager/features/loans/models/counterparty.dart';
 import 'package:debt_manager/features/loans/models/installment.dart';
 import 'package:debt_manager/features/loans/models/loan.dart';
@@ -96,6 +97,18 @@ class _LoanDetailScreenState extends State<LoanDetailScreen> {
     }
 
     setState(() {});
+
+    // Check achievements after marking payment
+    try {
+      final newly = await AchievementsRepository.instance.handlePayment(loanId: widget.loanId, paidAt: DateTime.now());
+      if (newly.isNotEmpty && mounted) {
+        for (final a in newly) {
+          showAchievementDialog(context, title: a.title, message: a.message);
+        }
+      }
+    } catch (_) {
+      // ignore achievement errors
+    }
   }
 
   Future<void> _showEditInstallmentSheet(Installment inst) async {
@@ -288,11 +301,18 @@ class _LoanDetailScreenState extends State<LoanDetailScreen> {
                               final allInst = await _db.getInstallmentsByLoanId(widget.loanId);
                               final allPaid = allInst.every((i) => i.status == InstallmentStatus.paid);
                               if (allPaid && mounted) {
-                                // Show celebration after a short delay so the UI updates first
-                                Future.delayed(_celebrationDelay, () {
-                                  if (mounted) {
-                                    showDebtCompletionCelebration(context);
-                                  }
+                                // Show celebration and check achievements after a short delay so the UI updates first
+                                Future.delayed(_celebrationDelay, () async {
+                                  if (!mounted) return;
+                                  showDebtCompletionCelebration(context);
+                                  try {
+                                    final newly = await AchievementsRepository.instance.handlePayment(loanId: widget.loanId, paidAt: DateTime.now());
+                                    if (newly.isNotEmpty && mounted) {
+                                      for (final a in newly) {
+                                        showAchievementDialog(context, title: a.title, message: a.message);
+                                      }
+                                    }
+                                  } catch (_) {}
                                 });
                               }
                             }
