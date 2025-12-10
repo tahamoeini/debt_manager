@@ -1,10 +1,11 @@
 // Smart insights service: detects subscriptions, spending patterns, and bill changes
-import 'package:flutter/foundation.dart' show debugPrint;
+import 'package:flutter/foundation.dart' show debugPrint, compute;
 import 'package:shamsi_date/shamsi_date.dart';
 import 'package:debt_manager/core/db/database_helper.dart';
 import 'package:debt_manager/features/loans/models/loan.dart';
 import 'package:debt_manager/core/utils/jalali_utils.dart';
 import 'package:debt_manager/core/utils/format_utils.dart';
+import 'package:debt_manager/core/compute/smart_insights_compute.dart';
 
 /// Represents a detected subscription pattern
 class SubscriptionInsight {
@@ -51,44 +52,30 @@ class SmartInsightsService {
   Future<List<SubscriptionInsight>> detectSubscriptions() async {
     try {
       final loans = await _db.getAllLoans();
-      final subscriptions = <SubscriptionInsight>[];
+      final loanMaps = loans.map((l) => l.toMap()).toList();
 
-      // Group loans by counterparty and check for recurring patterns
-      final loansByCounterparty = <int, List<Loan>>{};
-      for (final loan in loans) {
-        loansByCounterparty.putIfAbsent(loan.counterpartyId, () => []).add(loan);
+      try {
+        final rows = await compute<List<Map<String, dynamic>>, List<Map<String, dynamic>>>(
+          computeDetectSubscriptions,
+          loanMaps,
+        );
+
+        return rows.map((r) => SubscriptionInsight(
+          payee: r['payee'] as String? ?? 'ناشناس',
+          amount: r['amount'] as int? ?? 0,
+          occurrences: r['occurrences'] as int? ?? 0,
+          description: r['description'] as String? ?? '',
+        )).toList();
+      } catch (e) {
+        // fallback: run on main isolate
+        final rows = computeDetectSubscriptions(loanMaps);
+        return rows.map((r) => SubscriptionInsight(
+          payee: r['payee'] as String? ?? 'ناشناس',
+          amount: r['amount'] as int? ?? 0,
+          occurrences: r['occurrences'] as int? ?? 0,
+          description: r['description'] as String? ?? '',
+        )).toList();
       }
-
-      for (final entry in loansByCounterparty.entries) {
-        final counterpartyLoans = entry.value;
-        
-        // Check if there are multiple loans with similar installment amounts
-        final amountCounts = <int, int>{};
-        String? commonPayee;
-
-        for (final loan in counterpartyLoans) {
-          commonPayee = loan.title;
-          final amount = loan.installmentAmount;
-          amountCounts[amount] = (amountCounts[amount] ?? 0) + 1;
-        }
-
-        // If we find 3+ occurrences of the same amount, it's likely a subscription
-        for (final amountEntry in amountCounts.entries) {
-          if (amountEntry.value >= 3) {
-            final amount = amountEntry.key;
-            final occurrences = amountEntry.value;
-            
-            subscriptions.add(SubscriptionInsight(
-              payee: commonPayee ?? 'ناشناس',
-              amount: amount,
-              occurrences: occurrences,
-              description: 'پرداخت تکراری ${formatCurrency(amount)} برای $occurrences ماه',
-            ));
-          }
-        }
-      }
-
-      return subscriptions;
     } catch (e) {
       debugPrint('Error detecting subscriptions: $e');
       return [];
@@ -111,44 +98,41 @@ class SmartInsightsService {
           : Jalali(jalaliNow.year - 1, 12, 1);
       final prevPeriod = '${prevJalali.year.toString().padLeft(4, '0')}-${prevJalali.month.toString().padLeft(2, '0')}';
 
-      // Get all loans and their installments
       final loans = await _db.getAllLoans();
-      
-      for (final loan in loans) {
-        final installments = await _db.getInstallmentsByLoanId(loan.id!);
-        
-        // Find installments paid in current and previous months
-        final currentMonthInstallments = installments.where((i) {
-          return i.paidAt != null && i.paidAt!.startsWith(currentPeriod);
-        }).toList();
-        
-        final prevMonthInstallments = installments.where((i) {
-          return i.paidAt != null && i.paidAt!.startsWith(prevPeriod);
-        }).toList();
+      final loanMaps = loans.map((l) => l.toMap()).toList();
+      final loanIds = loans.map((e) => e.id).whereType<int>().toList();
+      final grouped = loanIds.isNotEmpty ? await _db.getInstallmentsGroupedByLoanId(loanIds) : <int, List<Installment>>{};
+      final allInstallments = grouped.values.expand((l) => l).toList();
+      final instMaps = allInstallments.map((i) => i.toMap()).toList();
 
-        // Compare amounts if both months have payments
-        if (currentMonthInstallments.isNotEmpty && prevMonthInstallments.isNotEmpty) {
-          final currentAmount = currentMonthInstallments.first.actualPaidAmount ?? currentMonthInstallments.first.amount;
-          final prevAmount = prevMonthInstallments.first.actualPaidAmount ?? prevMonthInstallments.first.amount;
+      try {
+        final rows = await compute<Map<String, dynamic>, List<Map<String, dynamic>>>(
+          billChangeEntry,
+          {
+            'loans': loanMaps,
+            'insts': instMaps,
+            'current': currentPeriod,
+            'prev': prevPeriod,
+          },
+        );
 
-          if (prevAmount > 0) {
-            final percentageChange = ((currentAmount - prevAmount) / prevAmount) * 100;
-
-            // Alert if increase is more than 20%
-            if (percentageChange > 20) {
-              changes.add(BillChangeInsight(
-                payee: loan.title,
-                previousAmount: prevAmount,
-                currentAmount: currentAmount,
-                percentageChange: percentageChange,
-                description: '${loan.title} ${percentageChange.toStringAsFixed(1)}٪ نسبت به ماه قبل افزایش یافت',
-              ));
-            }
-          }
-        }
+        return rows.map((r) => BillChangeInsight(
+          payee: r['payee'] as String? ?? 'ناشناس',
+          previousAmount: r['previousAmount'] as int? ?? 0,
+          currentAmount: r['currentAmount'] as int? ?? 0,
+          percentageChange: r['percentageChange'] as double? ?? 0.0,
+          description: r['description'] as String? ?? '',
+        )).toList();
+      } catch (e) {
+        final rows = computeDetectBillChanges(loanMaps, instMaps, currentPeriod, prevPeriod);
+        return rows.map((r) => BillChangeInsight(
+          payee: r['payee'] as String? ?? 'ناشناس',
+          previousAmount: r['previousAmount'] as int? ?? 0,
+          currentAmount: r['currentAmount'] as int? ?? 0,
+          percentageChange: r['percentageChange'] as double? ?? 0.0,
+          description: r['description'] as String? ?? '',
+        )).toList();
       }
-
-      return changes;
     } catch (e) {
       debugPrint('Error detecting bill changes: $e');
       return [];

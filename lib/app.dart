@@ -5,6 +5,7 @@ import 'core/settings/settings_repository.dart';
 import 'core/security/security_service.dart';
 import 'core/security/lock_screen.dart';
 import 'core/router/app_router.dart';
+import 'core/providers/core_providers.dart';
 
 /// App root wired to GoRouter (via Riverpod provider).
 

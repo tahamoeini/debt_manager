@@ -5,100 +5,106 @@ import 'package:debt_manager/features/loans/models/loan.dart';
 import 'package:debt_manager/features/loans/models/counterparty.dart';
 import 'package:debt_manager/core/utils/jalali_utils.dart';
 import 'package:shamsi_date/shamsi_date.dart';
+import 'package:flutter/foundation.dart' show compute;
+import 'package:debt_manager/core/compute/reports_compute.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:debt_manager/core/providers/core_providers.dart';
 
+/// ReportsRepository can optionally accept a Riverpod ref to store cached results.
 class ReportsRepository {
+  ReportsRepository([this._ref]);
+
+  // Accept a dynamic ref to avoid tight coupling with a specific Riverpod
+  // ref type in contexts where this repository is constructed directly.
+  final dynamic _ref;
+
   final _db = DatabaseHelper.instance;
 
   /// Get spending by category (counterparty type) for a given month
   /// Returns a map of category name to total amount spent
   Future<Map<String, int>> getSpendingByCategory(int year, int month) async {
     await _db.refreshOverdueInstallments(DateTime.now());
-    
-    final lastDay = Jalali(year, month, 1).monthLength;
-    final mm = month.toString().padLeft(2, '0');
-    final startDate = '$year-$mm-01';
-    final endDate = '$year-$mm-${lastDay.toString().padLeft(2, '0')}';
 
+    // Fetch loans, counterparties and installments in bulk, then run heavy
+    // computation in an isolate via compute(). We pass plain Maps to the
+    // isolate function.
     final loans = await _db.getAllLoans(direction: LoanDirection.borrowed);
     final counterparties = await _db.getAllCounterparties();
-    
-    final cpMap = <int, Counterparty>{};
-    for (final cp in counterparties) {
-      if (cp.id != null) cpMap[cp.id!] = cp;
+
+    final loanIds = loans.map((e) => e.id).whereType<int>().toList();
+    final grouped = loanIds.isNotEmpty ? await _db.getInstallmentsGroupedByLoanId(loanIds) : <int, List<Installment>>{};
+    final allInstallments = grouped.values.expand((l) => l).toList();
+
+    final loansMaps = loans.map((l) => l.toMap()).toList();
+    final cpMaps = counterparties.map((c) => c.toMap()).toList();
+    final instMaps = allInstallments.map((i) => i.toMap()).toList();
+
+    // Try cache when Riverpod ref is available
+    final cacheKey = 'spendingByCategory:$year-${month.toString().padLeft(2,'0')}';
+    if (_ref != null) {
+      final cached = _ref!.read(reportsCacheProvider.notifier).get<Map<String,int>>(cacheKey);
+      if (cached != null) return cached;
     }
 
-    final categoryTotals = <String, int>{};
+    try {
+      final res = await compute<Map<String, dynamic>, Map<String, int>>(spendingByCategoryEntry, {
+        'loans': loansMaps,
+        'cps': cpMaps,
+        'insts': instMaps,
+        'year': year,
+        'month': month,
+      });
 
-    // Build a map from loanId to loan for quick lookup
-    final loanMap = <int, Loan>{};
-    for (final loan in loans) {
-      if (loan.id != null) loanMap[loan.id!] = loan;
+      // Store in cache
+      if (_ref != null) _ref!.read(reportsCacheProvider.notifier).put(cacheKey, res);
+      return res;
+    } catch (e) {
+      final fallback = computeSpendingByCategory(loansMaps, cpMaps, instMaps, year, month);
+      if (_ref != null) _ref!.read(reportsCacheProvider.notifier).put(cacheKey, fallback);
+      return fallback;
     }
-
-    // Fetch all paid installments for borrowed loans in the date range
-    final allInstallments = <Installment>[];
-    for (final loanId in loanMap.keys) {
-      final installments = await _db.getInstallmentsByLoanId(loanId);
-      // Filter by date range and status
-      allInstallments.addAll(installments.where((inst) =>
-          inst.status == InstallmentStatus.paid &&
-          inst.paidAt != null &&
-          inst.paidAt!.compareTo(startDate) >= 0 &&
-          inst.paidAt!.compareTo(endDate) <= 0));
-    }
-
-    for (final inst in allInstallments) {
-      final loan = loanMap[inst.loanId];
-      if (loan == null) continue;
-      final cp = cpMap[loan.counterpartyId];
-      final category = cp?.type ?? cp?.tag ?? 'سایر';
-      final amount = inst.actualPaidAmount ?? inst.amount;
-      categoryTotals[category] = (categoryTotals[category] ?? 0) + amount.toInt();
-    }
-
-    return categoryTotals;
   }
 
   /// Get total spending per month for the last N months
   /// Returns a list of maps with year, month, and amount
   Future<List<Map<String, dynamic>>> getSpendingOverTime(int monthsBack) async {
     await _db.refreshOverdueInstallments(DateTime.now());
-    
+
     final now = DateTime.now();
     final nowJ = dateTimeToJalali(now);
-    
-    final results = <Map<String, dynamic>>[];
-    
-    for (var i = monthsBack - 1; i >= 0; i--) {
-      final monthsAgo = i;
-      var targetYear = nowJ.year;
-      var targetMonth = nowJ.month - monthsAgo;
-      
-      while (targetMonth <= 0) {
-        targetMonth += 12;
-        targetYear -= 1;
-      }
-      
-      final lastDay = Jalali(targetYear, targetMonth, 1).monthLength;
-      final mm = targetMonth.toString().padLeft(2, '0');
-      final startDate = '$targetYear-$mm-01';
-      final endDate = '$targetYear-$mm-${lastDay.toString().padLeft(2, '0')}';
-      
-      // Calculate spending (borrowed payments) and income (lent payments)
-      final borrowed = await _getTotalPaidInRange(startDate, endDate, LoanDirection.borrowed);
-      final lent = await _getTotalPaidInRange(startDate, endDate, LoanDirection.lent);
-      
-      results.add({
-        'year': targetYear,
-        'month': targetMonth,
-        'label': '$targetYear/$mm',
-        'spending': borrowed,
-        'income': lent,
-        'net': lent - borrowed,
-      });
+
+    final loans = await _db.getAllLoans();
+    final loanIds = loans.map((e) => e.id).whereType<int>().toList();
+    final grouped = loanIds.isNotEmpty ? await _db.getInstallmentsGroupedByLoanId(loanIds) : <int, List<Installment>>{};
+    final allInstallments = grouped.values.expand((l) => l).toList();
+
+    final loanMaps = loans.map((l) => l.toMap()).toList();
+    final instMaps = allInstallments.map((i) => i.toMap()).toList();
+
+    final cacheKey = 'spendingOverTime:months=$monthsBack:now=${nowJ.year}-${nowJ.month}';
+    if (_ref != null) {
+      final cached = _ref!.read(reportsCacheProvider.notifier).get<List<Map<String,dynamic>>>(cacheKey);
+      if (cached != null) return cached;
     }
-    
-    return results;
+
+    try {
+      final res = await compute<Map<String, dynamic>, List<Map<String, dynamic>>>(
+        spendingOverTimeEntry,
+        {
+          'loans': loanMaps,
+          'insts': instMaps,
+          'monthsBack': monthsBack,
+          'nowYear': nowJ.year,
+          'nowMonth': nowJ.month,
+        },
+      );
+      if (_ref != null) _ref!.read(reportsCacheProvider.notifier).put(cacheKey, res);
+      return res;
+    } catch (e) {
+      final fallback = computeSpendingOverTime(loanMaps, instMaps, monthsBack, nowJ.year, nowJ.month);
+      if (_ref != null) _ref!.read(reportsCacheProvider.notifier).put(cacheKey, fallback);
+      return fallback;
+    }
   }
 
   Future<int> _getTotalPaidInRange(String startDate, String endDate, LoanDirection direction) async {
@@ -134,41 +140,42 @@ class ReportsRepository {
   /// Net worth = total assets (lent) - total debts (borrowed)
   Future<List<Map<String, dynamic>>> getNetWorthOverTime(int monthsBack) async {
     await _db.refreshOverdueInstallments(DateTime.now());
-    
+
     final now = DateTime.now();
     final nowJ = dateTimeToJalali(now);
-    
-    final results = <Map<String, dynamic>>[];
-    
-    for (var i = monthsBack - 1; i >= 0; i--) {
-      final monthsAgo = i;
-      var targetYear = nowJ.year;
-      var targetMonth = nowJ.month - monthsAgo;
-      
-      while (targetMonth <= 0) {
-        targetMonth += 12;
-        targetYear -= 1;
-      }
-      
-      final lastDay = Jalali(targetYear, targetMonth, 1).monthLength;
-      final mm = targetMonth.toString().padLeft(2, '0');
-      final endDate = '$targetYear-$mm-${lastDay.toString().padLeft(2, '0')}';
-      
-      // Calculate outstanding amounts as of end of that month
-      final assets = await _getOutstandingAsOfDate(endDate, LoanDirection.lent);
-      final debts = await _getOutstandingAsOfDate(endDate, LoanDirection.borrowed);
-      
-      results.add({
-        'year': targetYear,
-        'month': targetMonth,
-        'label': '$targetYear/$mm',
-        'assets': assets,
-        'debts': debts,
-        'netWorth': assets - debts,
-      });
+
+    final loans = await _db.getAllLoans();
+    final loanIds = loans.map((e) => e.id).whereType<int>().toList();
+    final grouped = loanIds.isNotEmpty ? await _db.getInstallmentsGroupedByLoanId(loanIds) : <int, List<Installment>>{};
+    final allInstallments = grouped.values.expand((l) => l).toList();
+
+    final loanMaps = loans.map((l) => l.toMap()).toList();
+    final instMaps = allInstallments.map((i) => i.toMap()).toList();
+
+    final cacheKey = 'netWorthOverTime:months=$monthsBack:now=${nowJ.year}-${nowJ.month}';
+    if (_ref != null) {
+      final cached = _ref!.read(reportsCacheProvider.notifier).get<List<Map<String,dynamic>>>(cacheKey);
+      if (cached != null) return cached;
     }
-    
-    return results;
+
+    try {
+      final res = await compute<Map<String, dynamic>, List<Map<String, dynamic>>>(
+        netWorthOverTimeEntry,
+        {
+          'loans': loanMaps,
+          'insts': instMaps,
+          'monthsBack': monthsBack,
+          'nowYear': nowJ.year,
+          'nowMonth': nowJ.month,
+        },
+      );
+      if (_ref != null) _ref!.read(reportsCacheProvider.notifier).put(cacheKey, res);
+      return res;
+    } catch (e) {
+      final fallback = computeNetWorthOverTime(loanMaps, instMaps, monthsBack, nowJ.year, nowJ.month);
+      if (_ref != null) _ref!.read(reportsCacheProvider.notifier).put(cacheKey, fallback);
+      return fallback;
+    }
   }
 
   Future<int> _getOutstandingAsOfDate(String asOfDate, LoanDirection direction) async {
@@ -200,48 +207,28 @@ class ReportsRepository {
   Future<List<Map<String, dynamic>>> projectDebtPayoff(int loanId, {int? extraPayment}) async {
     final loan = await _db.getLoanById(loanId);
     if (loan == null) return [];
-    
     final installments = await _db.getInstallmentsByLoanId(loanId);
-    
-    // Sort by due date
-    installments.sort((a, b) => a.dueDateJalali.compareTo(b.dueDateJalali));
-    
-    final projections = <Map<String, dynamic>>[];
-    var balance = 0;
-    
-    // Calculate initial balance (unpaid installments)
-    for (final inst in installments) {
-      if (inst.status != InstallmentStatus.paid) {
-        balance += inst.amount;
+    final instMaps = installments.map((i) => i.toMap()).toList();
+    final loanMap = loan.toMap();
+
+    final cacheKey = 'projectDebtPayoff:loan=$loanId:extra=${extraPayment ?? 0}';
+
+      try {
+        final res = await compute<Map<String, dynamic>, List<Map<String, dynamic>>>(
+          projectDebtPayoffEntry,
+          {
+            'loan': loanMap,
+            'insts': instMaps,
+            'extraPayment': extraPayment,
+          },
+        );
+        if (_ref != null) _ref!.read(reportsCacheProvider.notifier).put(cacheKey, res);
+        return res;
+      } catch (e) {
+        final fallback = computeProjectDebtPayoff(loanMap, instMaps, extraPayment);
+        if (_ref != null) _ref!.read(reportsCacheProvider.notifier).put(cacheKey, fallback);
+        return fallback;
       }
-    }
-    
-    for (final inst in installments) {
-      if (inst.status == InstallmentStatus.paid) continue;
-      
-      final dueJ = parseJalali(inst.dueDateJalali);
-      
-      var payment = inst.amount;
-      if (extraPayment != null && extraPayment > 0) {
-        payment += extraPayment;
-      }
-      
-      balance -= payment;
-      if (balance < 0) balance = 0;
-      
-      projections.add({
-        'year': dueJ.year,
-        'month': dueJ.month,
-        'label': '${dueJ.year}/${dueJ.month.toString().padLeft(2, '0')}',
-        'balance': balance,
-        'payment': inst.amount,
-        'extraPayment': extraPayment ?? 0,
-      });
-      
-      if (balance == 0) break;
-    }
-    
-    return projections;
   }
 
   /// Generate insights for the current month

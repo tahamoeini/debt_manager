@@ -58,6 +58,10 @@ class LoanFormNotifier extends StateNotifier<AsyncValue<LoanFormState>> {
       await notif.scheduleBillReminders();
 
       // trigger global refresh
+      // invalidate report caches and trigger global refresh
+      try {
+        ref.read(reportsCacheProvider.notifier).clear();
+      } catch (_) {}
       ref.read(refreshTriggerProvider.notifier).state++;
       state = AsyncValue.data(state.value!.copyWith(loading: false));
     } catch (e, st) {
@@ -70,6 +74,9 @@ class LoanFormNotifier extends StateNotifier<AsyncValue<LoanFormState>> {
     try {
       final db = ref.read(databaseHelperProvider);
       await db.updateLoan(loan);
+      try {
+        ref.read(reportsCacheProvider.notifier).clear();
+      } catch (_) {}
       ref.read(refreshTriggerProvider.notifier).state++;
       state = AsyncValue.data(state.value!.copyWith(loading: false));
     } catch (e, st) {

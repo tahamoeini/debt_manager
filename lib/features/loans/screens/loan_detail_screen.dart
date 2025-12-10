@@ -9,6 +9,8 @@ import 'package:debt_manager/core/utils/format_utils.dart';
 import 'package:debt_manager/core/utils/jalali_utils.dart';
 import 'package:debt_manager/core/utils/ui_utils.dart';
 import 'package:debt_manager/core/utils/celebration_utils.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:debt_manager/core/providers/core_providers.dart';
 import 'package:debt_manager/features/achievements/achievements_repository.dart';
 import 'package:debt_manager/features/loans/models/counterparty.dart';
 import 'package:debt_manager/features/loans/models/installment.dart';
@@ -82,6 +84,11 @@ class _LoanDetailScreenState extends State<LoanDetailScreen> {
       paidAt: DateTime.now().toIso8601String(),
     );
     await _db.updateInstallment(updated);
+
+    // Invalidate report caches (if Riverpod is available in the widget tree)
+    try {
+      ProviderScope.containerOf(context).read(reportsCacheProvider.notifier).clear();
+    } catch (_) {}
 
     if (inst.notificationId != null) {
       await NotificationService().cancelNotification(inst.notificationId!);

@@ -60,3 +60,32 @@ final settingsRepositoryProvider = Provider<SettingsRepository>((ref) {
 
 /// Simple refresh trigger used across the app to request reloads.
 final refreshTriggerProvider = StateProvider<int>((ref) => 0);
+
+/// Simple in-memory cache for report computations. Keys are arbitrary strings
+/// (e.g. 'spendingByCategory:2025-12'). Consumers should invalidate when
+/// underlying data changes (e.g. when loans/installments are modified).
+class ReportsCacheNotifier extends StateNotifier<Map<String, dynamic>> {
+  ReportsCacheNotifier(): super({});
+
+  void put(String key, dynamic value) {
+    state = {...state, key: value};
+  }
+
+  T? get<T>(String key) {
+    final v = state[key];
+    if (v is T) return v;
+    return null;
+  }
+
+  void invalidate(String key) {
+    final copy = {...state};
+    copy.remove(key);
+    state = copy;
+  }
+
+  void clear() => state = {};
+}
+
+final reportsCacheProvider = StateNotifierProvider<ReportsCacheNotifier, Map<String, dynamic>>((ref) {
+  return ReportsCacheNotifier();
+});
