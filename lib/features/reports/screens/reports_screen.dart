@@ -422,7 +422,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
                             ],
                           );
                         },
-                        separatorBuilder: (_, __) => const SizedBox(width: 12),
+                        separatorBuilder: (context, index) => const SizedBox(width: 12),
                         itemCount: badges.length,
                       ),
                     ),

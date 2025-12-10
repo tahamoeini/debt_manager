@@ -222,9 +222,9 @@ Future<void> showAchievementDialog(BuildContext context, {required String title,
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(icon ?? Icons.emoji_events_outlined, size: 64, color: Theme.of(context).colorScheme.primary),
+            Icon(icon ?? Icons.emoji_events_outlined, size: 64, color: Theme.of(ctx).colorScheme.primary),
             const SizedBox(height: 12),
-            Text(title, style: Theme.of(context).textTheme.titleLarge, textAlign: TextAlign.center),
+            Text(title, style: Theme.of(ctx).textTheme.titleLarge, textAlign: TextAlign.center),
             const SizedBox(height: 8),
             Text(message, textAlign: TextAlign.center),
             const SizedBox(height: 12),

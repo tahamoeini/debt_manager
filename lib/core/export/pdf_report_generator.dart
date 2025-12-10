@@ -61,7 +61,7 @@ class PdfReportGenerator {
             // Summary table
             pw.Container(
               padding: const pw.EdgeInsets.all(8),
-              child: pw.Table.fromTextArray(
+              child: pw.TableHelper.fromTextArray(
                 headers: ['عنوان', 'مبلغ'],
                 data: [
                   ['بدهی کل', formatCurrency(totalDebt)],
@@ -89,7 +89,7 @@ class PdfReportGenerator {
                   if (overdueInstallments.isEmpty)
                     pw.Text('هیچ قسط معوقی وجود ندارد.', style: pw.TextStyle(font: font, fontSize: 12))
                   else
-                    pw.Table.fromTextArray(
+                    pw.TableHelper.fromTextArray(
                       headers: ['شناسه وام', 'تاریخ سررسید', 'مبلغ', 'وضعیت'],
                       data: overdueInstallments.map((i) => [
                         i.loanId.toString(),
