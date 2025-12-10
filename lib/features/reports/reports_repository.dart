@@ -2,12 +2,9 @@
 import 'package:debt_manager/core/db/database_helper.dart';
 import 'package:debt_manager/features/loans/models/installment.dart';
 import 'package:debt_manager/features/loans/models/loan.dart';
-import 'package:debt_manager/features/loans/models/counterparty.dart';
 import 'package:debt_manager/core/utils/jalali_utils.dart';
-import 'package:shamsi_date/shamsi_date.dart';
 import 'package:flutter/foundation.dart' show compute;
 import 'package:debt_manager/core/compute/reports_compute.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:debt_manager/core/providers/core_providers.dart';
 
 /// ReportsRepository can optionally accept a Riverpod ref to store cached results.
@@ -107,6 +104,7 @@ class ReportsRepository {
     }
   }
 
+  // ignore: unused_element
   Future<int> _getTotalPaidInRange(String startDate, String endDate, LoanDirection direction) async {
     // Fetch all paid installments for loans with the given direction and paidAt in range
     final db = await _db.database;
@@ -178,6 +176,7 @@ class ReportsRepository {
     }
   }
 
+  // ignore: unused_element
   Future<int> _getOutstandingAsOfDate(String asOfDate, LoanDirection direction) async {
     final loans = await _db.getAllLoans(direction: direction);
     var total = 0;

@@ -7,8 +7,8 @@ import 'package:debt_manager/features/loans/screens/home_screen.dart';
 import 'package:debt_manager/features/loans/screens/loans_list_screen.dart';
 import 'package:debt_manager/features/loans/screens/loan_detail_screen.dart';
 import 'package:debt_manager/features/reports/screens/reports_screen.dart';
-import 'package:debt_manager/features/budget/screens/budgets_screen.dart';
-import 'package:debt_manager/features/insights/screens/insights_screen.dart';
+import 'package:debt_manager/features/budget/screens/budget_screen.dart';
+import 'package:debt_manager/features/insights/smart_insights_widget.dart';
 import 'package:debt_manager/features/settings/screens/settings_screen.dart';
 import 'package:debt_manager/core/security/lock_screen.dart';
 
@@ -40,7 +40,7 @@ final goRouterProvider = Provider<GoRouter>((ref) {
                 name: 'loanDetail',
                 path: 'loan/:loanId',
                 pageBuilder: (context, state) {
-                  final idStr = state.params['loanId'] ?? '';
+                  final idStr = state.pathParameters['loanId'] ?? '';
                   final id = int.tryParse(idStr);
                   return MaterialPage(child: LoanDetailScreen(loanId: id ?? 0));
                 },
@@ -50,7 +50,7 @@ final goRouterProvider = Provider<GoRouter>((ref) {
           GoRoute(
             name: 'budgets',
             path: '/budgets',
-            pageBuilder: (context, state) => MaterialPage(child: const BudgetsScreen()),
+            pageBuilder: (context, state) => MaterialPage(child: const BudgetScreen()),
             routes: [
               GoRoute(
                 name: 'budgetAdd',
@@ -62,16 +62,12 @@ final goRouterProvider = Provider<GoRouter>((ref) {
           GoRoute(
             name: 'reports',
             path: '/reports',
-            pageBuilder: (context, state) {
-              // report query param example: ?period=YYYY-MM
-              final period = state.queryParams['period'];
-              return MaterialPage(child: ReportsScreen());
-            },
+            pageBuilder: (context, state) => MaterialPage(child: ReportsScreen()),
           ),
           GoRoute(
             name: 'insights',
             path: '/insights',
-            pageBuilder: (context, state) => MaterialPage(child: const InsightsScreen()),
+            pageBuilder: (context, state) => MaterialPage(child: Scaffold(appBar: AppBar(title: const Text('پیشنهادها')), body: const SmartInsightsWidget())),
           ),
           GoRoute(
             name: 'settings',
@@ -90,12 +86,12 @@ final goRouterProvider = Provider<GoRouter>((ref) {
     redirect: (context, state) {
       // If not unlocked and trying to access guarded routes, go to /lock
       final unlocked = auth.unlocked;
-      final accessingLock = state.subloc == '/lock';
+      final accessingLock = state.location == '/lock';
 
       // Define guarded route prefixes (any route under these should require auth)
       const guardedPrefixes = ['/loans', '/budgets', '/reports', '/insights', '/backup', '/settings', '/export'];
 
-      final wantsGuarded = guardedPrefixes.any((p) => state.subloc.startsWith(p));
+      final wantsGuarded = guardedPrefixes.any((p) => state.location.startsWith(p));
 
       if (!unlocked && wantsGuarded && !accessingLock) {
         return '/lock';
@@ -106,6 +102,6 @@ final goRouterProvider = Provider<GoRouter>((ref) {
 
       return null;
     },
-    urlPathStrategy: UrlPathStrategy.path,
+    
   );
 });

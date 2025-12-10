@@ -2,7 +2,7 @@
 import 'package:flutter/foundation.dart' show debugPrint, compute;
 import 'package:shamsi_date/shamsi_date.dart';
 import 'package:debt_manager/core/db/database_helper.dart';
-import 'package:debt_manager/features/loans/models/loan.dart';
+import 'package:debt_manager/features/loans/models/installment.dart';
 import 'package:debt_manager/core/utils/jalali_utils.dart';
 import 'package:debt_manager/core/utils/format_utils.dart';
 import 'package:debt_manager/core/compute/smart_insights_compute.dart';
@@ -85,7 +85,6 @@ class SmartInsightsService {
   /// Detect significant bill amount changes (>20% increase)
   Future<List<BillChangeInsight>> detectBillChanges() async {
     try {
-      final changes = <BillChangeInsight>[];
       final now = DateTime.now();
       final jalaliNow = dateTimeToJalali(now);
       

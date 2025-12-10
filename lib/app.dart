@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'app_shell.dart';
 import 'core/settings/settings_repository.dart';
-import 'core/security/security_service.dart';
-import 'core/security/lock_screen.dart';
 import 'core/router/app_router.dart';
 import 'core/providers/core_providers.dart';
 
