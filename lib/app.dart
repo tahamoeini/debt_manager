@@ -1,20 +1,22 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'app_shell.dart';
 import 'core/settings/settings_repository.dart';
 import 'core/security/security_service.dart';
 import 'core/security/lock_screen.dart';
+import 'core/router/app_router.dart';
 
-class DebtManagerApp extends StatefulWidget {
+/// App root wired to GoRouter (via Riverpod provider).
+
+class DebtManagerApp extends ConsumerStatefulWidget {
   const DebtManagerApp({super.key});
 
   @override
-  State<DebtManagerApp> createState() => _DebtManagerAppState();
+  ConsumerState<DebtManagerApp> createState() => _DebtManagerAppState();
 }
 
-class _DebtManagerAppState extends State<DebtManagerApp> with WidgetsBindingObserver {
+class _DebtManagerAppState extends ConsumerState<DebtManagerApp> with WidgetsBindingObserver {
   final _settings = SettingsRepository();
-  final GlobalKey<NavigatorState> _navigatorKey = GlobalKey<NavigatorState>();
-  bool _lockShown = false;
 
   @override
   void initState() {
@@ -25,10 +27,12 @@ class _DebtManagerAppState extends State<DebtManagerApp> with WidgetsBindingObse
     _settings.getFontSize().then((f) => SettingsRepository.fontSizeNotifier.value = f);
     _settings.getCalendarType().then((c) => SettingsRepository.calendarTypeNotifier.value = c);
     _settings.getLanguage().then((l) => SettingsRepository.languageNotifier.value = l);
-    // Initialize biometric enabled notifier and show lock if required.
+    // Initialize biometric enabled notifier
     _settings.getBiometricEnabled().then((b) {
       SettingsRepository.biometricEnabledNotifier.value = b;
-      WidgetsBinding.instance.addPostFrameCallback((_) => _maybeShowLock());
+      // If biometric is enabled, instruct auth notifier to attempt initial unlock
+      final auth = ref.read(authNotifierProvider);
+      auth.tryUnlock();
     });
   }
 
@@ -41,33 +45,18 @@ class _DebtManagerAppState extends State<DebtManagerApp> with WidgetsBindingObse
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
-      _maybeShowLock();
-    }
-  }
-
-  Future<void> _maybeShowLock() async {
-    try {
-      final enabled = await _settings.getBiometricEnabled();
-      if (!enabled) return;
-      final avail = await SecurityService.instance.isBiometricAvailable();
-      if (!avail) return;
-
-      // Avoid pushing multiple lock screens
-      if (_lockShown) return;
-      _lockShown = true;
-
-      final navigator = _navigatorKey.currentState;
-      if (navigator == null) return;
-
-      await navigator.push(MaterialPageRoute(builder: (_) => const LockScreen(), fullscreenDialog: true));
-    } finally {
-      _lockShown = false;
+      // lock on resume; auth notifier controls unlock flow
+      ref.read(authNotifierProvider).lock();
+      // try to unlock again (this will show LockScreen when router redirects to /lock)
+      ref.read(authNotifierProvider).tryUnlock();
     }
   }
 
   @override
   Widget build(BuildContext context) {
     // Use ValueListenableBuilder for both theme and font size changes.
+    final goRouter = ref.read(goRouterProvider);
+
     return ValueListenableBuilder<ThemeMode>(
       valueListenable: SettingsRepository.themeModeNotifier,
       builder: (context, themeMode, _) {
@@ -75,7 +64,7 @@ class _DebtManagerAppState extends State<DebtManagerApp> with WidgetsBindingObse
           valueListenable: SettingsRepository.fontSizeNotifier,
           builder: (context, fontSize, _) {
             final fontScale = _settings.getFontScale(fontSize);
-            
+
             // Seed colors: calming blue for primary
             const seed = Color(0xFF0D47A1);
 
@@ -208,14 +197,15 @@ class _DebtManagerAppState extends State<DebtManagerApp> with WidgetsBindingObse
               ),
             );
 
-            return MaterialApp(
+            return MaterialApp.router(
               title: 'مدیریت اقساط و بدهی‌ها',
               debugShowCheckedModeBanner: false,
-              navigatorKey: _navigatorKey,
               themeMode: themeMode,
               theme: lightTheme,
               darkTheme: darkTheme,
-              home: const AppShell(),
+              routeInformationParser: goRouter.routeInformationParser,
+              routerDelegate: goRouter.routerDelegate,
+              routeInformationProvider: goRouter.routeInformationProvider,
             );
           },
         );
