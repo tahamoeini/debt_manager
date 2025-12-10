@@ -5,9 +5,7 @@ import 'package:debt_manager/features/loans/loan_list_notifier.dart';
 import 'package:debt_manager/core/utils/format_utils.dart';
 import 'package:debt_manager/core/utils/ui_utils.dart';
 import 'package:debt_manager/components/components.dart';
-import 'package:debt_manager/features/loans/models/installment.dart';
 import 'package:debt_manager/features/loans/models/loan.dart';
-import 'package:debt_manager/features/loans/models/counterparty.dart';
 import 'add_loan_screen.dart';
 import 'loan_detail_screen.dart';
 

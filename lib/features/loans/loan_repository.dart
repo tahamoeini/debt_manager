@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:debt_manager/core/db/database_helper.dart';
 import 'package:debt_manager/features/loans/models/counterparty.dart';
 import 'package:debt_manager/features/loans/models/installment.dart';

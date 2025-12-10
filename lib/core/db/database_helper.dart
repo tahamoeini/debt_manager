@@ -10,6 +10,7 @@ import 'package:debt_manager/features/loans/models/loan.dart';
 import 'package:debt_manager/features/loans/models/installment.dart';
 import 'package:debt_manager/core/utils/jalali_utils.dart';
 import 'package:debt_manager/core/notifications/notification_service.dart';
+import 'package:debt_manager/core/db/installment_dao.dart';
 
 class DatabaseHelper {
   static final DatabaseHelper instance = DatabaseHelper._internal();
@@ -344,7 +345,7 @@ class DatabaseHelper {
     }
 
     final db = await database;
-    return await db.insert('installments', installment.toMap());
+    return await InstallmentDao.insertInstallment(db, installment);
   }
 
   /// Delete all installments for a given loan id.
@@ -355,11 +356,7 @@ class DatabaseHelper {
     }
 
     final db = await database;
-    return await db.delete(
-      'installments',
-      where: 'loan_id = ?',
-      whereArgs: [loanId],
-    );
+    return await InstallmentDao.deleteInstallmentsByLoanId(db, loanId);
   }
 
   Future<List<Installment>> getInstallmentsByLoanId(int loanId) async {
@@ -374,13 +371,7 @@ class DatabaseHelper {
     }
 
     final db = await database;
-    final rows = await db.query(
-      'installments',
-      where: 'loan_id = ?',
-      whereArgs: [loanId],
-      orderBy: 'due_date_jalali ASC',
-    );
-    return rows.map((r) => Installment.fromMap(r)).toList();
+    return await InstallmentDao.getInstallmentsByLoanId(db, loanId);
   }
 
   Future<int> updateInstallment(Installment installment) async {
@@ -395,12 +386,7 @@ class DatabaseHelper {
     }
 
     final db = await database;
-    return await db.update(
-      'installments',
-      installment.toMap(),
-      where: 'id = ?',
-      whereArgs: [installment.id],
-    );
+    return await InstallmentDao.updateInstallment(db, installment);
   }
 
   /// Update an existing loan row. Requires loan.id to be non-null.
@@ -480,23 +466,7 @@ class DatabaseHelper {
     }
 
     final db = await database;
-    final placeholders = List.filled(loanIds.length, '?').join(', ');
-    final rows = await db.query(
-      'installments',
-      where: 'loan_id IN ($placeholders)',
-      whereArgs: loanIds,
-      orderBy: 'loan_id ASC, due_date_jalali ASC',
-    );
-
-    final Map<int, List<Installment>> map = {};
-    for (final r in rows) {
-      final lid = r['loan_id'] is int
-          ? r['loan_id'] as int
-          : int.parse(r['loan_id'].toString());
-      map.putIfAbsent(lid, () => []).add(Installment.fromMap(r));
-    }
-
-    return map;
+    return await InstallmentDao.getInstallmentsGroupedByLoanId(db, loanIds);
   }
 
   // -----------------
@@ -567,13 +537,13 @@ class DatabaseHelper {
     DateTime from,
     DateTime to,
   ) async {
-    // Convert the provided Gregorian datetimes to Jalali yyyy-MM-dd strings
-    final fromJ = dateTimeToJalali(from);
-    final toJ = dateTimeToJalali(to);
-    final fromStr = formatJalali(fromJ);
-    final toStr = formatJalali(toJ);
-
     if (_isWeb) {
+      // Convert the provided Gregorian datetimes to Jalali yyyy-MM-dd strings
+      final fromJ = dateTimeToJalali(from);
+      final toJ = dateTimeToJalali(to);
+      final fromStr = formatJalali(fromJ);
+      final toStr = formatJalali(toJ);
+
       // Do not touch sqflite on web; use in-memory store and compare Jalali strings
       final rows =
           _installmentStore.where((r) {
@@ -581,33 +551,26 @@ class DatabaseHelper {
             final due = r['due_date_jalali'] as String?;
             if (!statusOk || due == null) return false;
             return due.compareTo(fromStr) >= 0 && due.compareTo(toStr) <= 0;
-          }).toList()..sort(
-            (a, b) => (a['due_date_jalali'] as String).compareTo(
-              b['due_date_jalali'] as String,
-            ),
-          );
+          }).toList()
+            ..sort(
+              (a, b) => (a['due_date_jalali'] as String).compareTo(
+                b['due_date_jalali'] as String,
+              ),
+            );
 
       return rows.map((r) => Installment.fromMap(r)).toList();
     }
 
     final db = await database;
-    final rows = await db.query(
-      'installments',
-      where: "status = ? AND due_date_jalali BETWEEN ? AND ?",
-      whereArgs: ['pending', fromStr, toStr],
-      orderBy: 'due_date_jalali ASC',
-    );
-
-    return rows.map((r) => Installment.fromMap(r)).toList();
+    return await InstallmentDao.getUpcomingInstallments(db, from, to);
   }
 
   /// Refresh installments that are overdue based on a provided Gregorian `now`.
   /// Converts `now` to Jalali and updates installments whose `due_date_jalali` < today.
   Future<void> refreshOverdueInstallments(DateTime now) async {
-    final todayJ = dateTimeToJalali(now);
-    final todayStr = formatJalali(todayJ);
-
     if (_isWeb) {
+      final todayJ = dateTimeToJalali(now);
+      final todayStr = formatJalali(todayJ);
       for (var i = 0; i < _installmentStore.length; i++) {
         final row = _installmentStore[i];
         final status = row['status'] as String?;
@@ -621,9 +584,6 @@ class DatabaseHelper {
     }
 
     final db = await database;
-    await db.rawUpdate(
-      "UPDATE installments SET status = 'overdue' WHERE status = 'pending' AND due_date_jalali < ?",
-      [todayStr],
-    );
+    await InstallmentDao.refreshOverdueInstallments(db, now);
   }
 }
