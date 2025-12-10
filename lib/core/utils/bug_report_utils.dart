@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
-import 'package:debt_manager/core/theme/app_constants.dart';
 
 /// Utility class for generating and sharing bug reports.
 class BugReportUtils {
