@@ -22,6 +22,7 @@ class SettingsRepository {
   static const _keySmartSuggestionsEnabled = 'smart_suggestions_enabled';
   static const _keyFinanceCoachEnabled = 'finance_coach_enabled';
   static const _keyMonthEndSummaryEnabled = 'month_end_summary_enabled';
+  static const _keyBiometricEnabled = 'biometric_enabled';
 
   // A notifier to broadcast theme mode changes across the app.
   static final ValueNotifier<ThemeMode> themeModeNotifier =
@@ -38,6 +39,8 @@ class SettingsRepository {
   // A notifier to broadcast language changes across the app.
   static final ValueNotifier<LanguageOption> languageNotifier =
       ValueNotifier(LanguageOption.persian);
+  // A notifier to broadcast biometric lock enable/disable across the app.
+  static final ValueNotifier<bool> biometricEnabledNotifier = ValueNotifier(false);
 
   Future<int> getReminderOffsetDays() async {
     final prefs = await SharedPreferences.getInstance();
@@ -213,5 +216,16 @@ class SettingsRepository {
   Future<void> setMonthEndSummaryEnabled(bool enabled) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool(_keyMonthEndSummaryEnabled, enabled);
+  }
+
+  Future<bool> getBiometricEnabled() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getBool(_keyBiometricEnabled) ?? false;
+  }
+
+  Future<void> setBiometricEnabled(bool enabled) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_keyBiometricEnabled, enabled);
+    biometricEnabledNotifier.value = enabled;
   }
 }

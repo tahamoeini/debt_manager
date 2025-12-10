@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'app_shell.dart';
 import 'core/settings/settings_repository.dart';
+import 'core/security/security_service.dart';
+import 'core/security/lock_screen.dart';
 
 class DebtManagerApp extends StatefulWidget {
   const DebtManagerApp({super.key});
@@ -9,17 +11,58 @@ class DebtManagerApp extends StatefulWidget {
   State<DebtManagerApp> createState() => _DebtManagerAppState();
 }
 
-class _DebtManagerAppState extends State<DebtManagerApp> {
+class _DebtManagerAppState extends State<DebtManagerApp> with WidgetsBindingObserver {
   final _settings = SettingsRepository();
+  final GlobalKey<NavigatorState> _navigatorKey = GlobalKey<NavigatorState>();
+  bool _lockShown = false;
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     // Initialize notifier values from persisted preferences
     _settings.getThemeMode().then((m) => SettingsRepository.themeModeNotifier.value = m);
     _settings.getFontSize().then((f) => SettingsRepository.fontSizeNotifier.value = f);
     _settings.getCalendarType().then((c) => SettingsRepository.calendarTypeNotifier.value = c);
     _settings.getLanguage().then((l) => SettingsRepository.languageNotifier.value = l);
+    // Initialize biometric enabled notifier and show lock if required.
+    _settings.getBiometricEnabled().then((b) {
+      SettingsRepository.biometricEnabledNotifier.value = b;
+      WidgetsBinding.instance.addPostFrameCallback((_) => _maybeShowLock());
+    });
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      _maybeShowLock();
+    }
+  }
+
+  Future<void> _maybeShowLock() async {
+    try {
+      final enabled = await _settings.getBiometricEnabled();
+      if (!enabled) return;
+      final avail = await SecurityService.instance.isBiometricAvailable();
+      if (!avail) return;
+
+      // Avoid pushing multiple lock screens
+      if (_lockShown) return;
+      _lockShown = true;
+
+      final navigator = _navigatorKey.currentState;
+      if (navigator == null) return;
+
+      await navigator.push(MaterialPageRoute(builder: (_) => const LockScreen(), fullscreenDialog: true));
+    } finally {
+      _lockShown = false;
+    }
   }
 
   @override
@@ -168,6 +211,7 @@ class _DebtManagerAppState extends State<DebtManagerApp> {
             return MaterialApp(
               title: 'مدیریت اقساط و بدهی‌ها',
               debugShowCheckedModeBanner: false,
+              navigatorKey: _navigatorKey,
               themeMode: themeMode,
               theme: lightTheme,
               darkTheme: darkTheme,

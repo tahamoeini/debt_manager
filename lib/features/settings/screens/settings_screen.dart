@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 
 import 'package:debt_manager/core/settings/settings_repository.dart';
 import 'package:debt_manager/core/notifications/notification_service.dart';
+import 'package:debt_manager/core/security/security_service.dart';
 import 'package:debt_manager/features/categories/screens/manage_categories_screen.dart';
 import 'package:flutter/services.dart';
 import 'dart:convert';
@@ -36,6 +37,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   bool _smartSuggestions = true;
   bool _financeCoach = true;
   bool _monthEndSummary = true;
+  bool _biometricEnabled = false;
 
   final List<int> _options = const [0, 1, 3, 7];
 
@@ -57,6 +59,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     final ss = await _repo.getSmartSuggestionsEnabled();
     final fc = await _repo.getFinanceCoachEnabled();
     final mes = await _repo.getMonthEndSummaryEnabled();
+    final bio = await _repo.getBiometricEnabled();
     if (mounted) {
       setState(() {
         _offset = v;
@@ -70,6 +73,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         _smartSuggestions = ss;
         _financeCoach = fc;
         _monthEndSummary = mes;
+        _biometricEnabled = bio;
         _loading = false;
       });
     }
@@ -161,6 +165,28 @@ class _SettingsScreenState extends State<SettingsScreen> {
     if (mounted) {
       setState(() {
         _budgetAlerts = enabled;
+      });
+    }
+  }
+
+  Future<void> _saveBiometricEnabled(bool enabled) async {
+    // If enabling, ensure device supports biometrics
+    if (enabled) {
+      final avail = await SecurityService.instance.isBiometricAvailable();
+      if (!avail) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('احراز هویت بیومتریک در این دستگاه پشتیبانی نمی‌شود')),
+          );
+        }
+        return;
+      }
+    }
+
+    await _repo.setBiometricEnabled(enabled);
+    if (mounted) {
+      setState(() {
+        _biometricEnabled = enabled;
       });
     }
   }
@@ -375,6 +401,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           onChanged: _notificationsEnabled ? (v) async {
                             await _saveBudgetAlerts(v);
                           } : null,
+                        ),
+                        const Divider(),
+                        SwitchListTile(
+                          title: const Text('قفل بیومتریک (Fingerprint / Face ID)'),
+                          subtitle: const Text('استفاده از اثر انگشت یا تشخیص چهره برای باز کردن برنامه'),
+                          value: _biometricEnabled,
+                          onChanged: (v) async {
+                            await _saveBiometricEnabled(v);
+                          },
                         ),
                       ],
                     ),
