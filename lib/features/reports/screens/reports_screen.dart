@@ -313,6 +313,27 @@ class _ReportsScreenState extends State<ReportsScreen> {
     }
   }
 
+  Future<void> _exportPdf() async {
+    try {
+      final filePath = await _exportService.exportReportPdf();
+
+      if (!mounted) return;
+
+      await Share.shareXFiles([XFile(filePath)], text: 'گزارش PDF');
+
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('فایل PDF با موفقیت ایجاد و اشتراک‌گذاری شد')),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('خطا در ایجاد فایل PDF: $e')),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return ListView(
@@ -339,6 +360,14 @@ class _ReportsScreenState extends State<ReportsScreen> {
               onPressed: _exportCSV,
               icon: const Icon(Icons.file_download),
               label: const Text('خروجی CSV'),
+            ),
+            const SizedBox(width: 8),
+            FilledButton.icon(
+              onPressed: () async {
+                await _exportPdf();
+              },
+              icon: const Icon(Icons.picture_as_pdf),
+              label: const Text('گزارش PDF'),
             ),
           ],
         ),

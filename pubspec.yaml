@@ -51,6 +51,7 @@ dependencies:
   # Data export (CSV, PDF)
   csv: ^6.0.0
   pdf: ^3.11.1
+  printing: ^5.10.0
   path_provider: ^2.1.4
   share_plus: ^10.1.2
 
@@ -78,6 +79,7 @@ flutter:
 
   assets:
     - assets/images/empty_state.svg
+    - assets/fonts/IRANSans.ttf
 
   # To add assets to your application, add an assets section, like this:
   # assets:

@@ -8,6 +8,8 @@ import 'package:debt_manager/features/loans/models/loan.dart';
 import 'package:debt_manager/features/loans/models/counterparty.dart';
 import 'package:debt_manager/core/utils/jalali_utils.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:debt_manager/core/export/pdf_report_generator.dart';
+import 'package:debt_manager/core/db/installment_dao.dart';
 
 class ExportService {
   static final ExportService instance = ExportService._internal();
@@ -103,6 +105,64 @@ class ExportService {
     await file.writeAsString(csv, encoding: utf8);
     
     return filePath;
+  }
+
+  /// Generate a professional PDF report (returns file path)
+  Future<String> exportReportPdf() async {
+    final loans = await _db.getAllLoans();
+
+    // Sum principals by direction
+    var totalDebt = 0;
+    var totalAssets = 0;
+    for (final loan in loans) {
+      if (loan.direction == LoanDirection.borrowed) {
+        totalDebt += loan.principalAmount;
+      } else {
+        totalAssets += loan.principalAmount;
+      }
+    }
+
+    // Get overdue installments from DB
+    final db = await _db.database;
+    final overdue = await InstallmentDao.getOverdueInstallments(db, DateTime.now());
+
+    final bytes = await PdfReportGenerator.instance.generatePdf(
+      appName: 'Debt Manager',
+      totalDebt: totalDebt,
+      totalAssets: totalAssets,
+      overdueInstallments: overdue,
+    );
+
+    final directory = await getApplicationDocumentsDirectory();
+    final timestamp = DateTime.now().millisecondsSinceEpoch;
+    final filePath = '${directory.path}/debt_report_$timestamp.pdf';
+    final file = File(filePath);
+    await file.writeAsBytes(bytes);
+    return filePath;
+  }
+
+  /// Directly show native print/share sheet with generated PDF.
+  Future<void> printReportPdf() async {
+    final loans = await _db.getAllLoans();
+    var totalDebt = 0;
+    var totalAssets = 0;
+    for (final loan in loans) {
+      if (loan.direction == LoanDirection.borrowed) {
+        totalDebt += loan.principalAmount;
+      } else {
+        totalAssets += loan.principalAmount;
+      }
+    }
+
+    final db = await _db.database;
+    final overdue = await InstallmentDao.getOverdueInstallments(db, DateTime.now());
+
+    await PdfReportGenerator.instance.printReport(
+      appName: 'Debt Manager',
+      totalDebt: totalDebt,
+      totalAssets: totalAssets,
+      overdueInstallments: overdue,
+    );
   }
 
   String _statusToString(InstallmentStatus status) {
