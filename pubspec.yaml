@@ -63,6 +63,8 @@ dependencies:
   crypto: any
   path_provider: any
   local_auth: any
+  mobile_scanner: any
+  qr_flutter: any
 
 dev_dependencies:
   flutter_test:

@@ -7,6 +7,13 @@ import 'package:flutter/material.dart';
 import '../db/database_helper.dart';
 import '../security/secure_storage_service.dart';
 import 'backup_service.dart';
+import '../../features/loans/models/counterparty.dart';
+import '../../features/loans/models/loan.dart';
+import '../../features/loans/models/installment.dart';
+import '../notifications/notification_service.dart';
+import '../smart_insights/smart_insights_service.dart';
+import 'dart:convert';
+import '../settings/settings_repository.dart';
 
 class PrivacyGateway {
   static final PrivacyGateway instance = PrivacyGateway._internal();
@@ -26,6 +33,56 @@ class PrivacyGateway {
   /// Export JSON (plain string) encrypted with password and save to backups folder.
   Future<String> exportEncryptedBackup(String jsonString, String password, {required String filename}) async {
     return await BackupService.encryptAndSave(jsonString, password, filename: filename);
+  }
+
+  /// Import a JSON string exported by `exportFullJson` and insert into local DB.
+  Future<void> importJsonString(String jsonStr) async {
+    final map = json.decode(jsonStr) as Map<String, dynamic>;
+
+    final cps = (map['counterparties'] as List<dynamic>? ?? []).cast<Map<String, dynamic>>();
+    final loans = (map['loans'] as List<dynamic>? ?? []).cast<Map<String, dynamic>>();
+    final installments = (map['installments'] as List<dynamic>? ?? []).cast<Map<String, dynamic>>();
+
+    // Insert counterparties and keep id mapping
+    final cpIdMap = <int, int>{};
+    for (final cp in cps) {
+      final oldId = cp['id'] is int ? cp['id'] as int : int.tryParse(cp['id'].toString()) ?? 0;
+      final counterparty = Counterparty.fromMap(cp);
+      final newId = await _db.insertCounterparty(counterparty);
+      cpIdMap[oldId] = newId;
+    }
+
+    // Insert loans and keep loan id mapping
+    final loanIdMap = <int, int>{};
+    for (final l in loans) {
+      final oldId = l['id'] is int ? l['id'] as int : int.tryParse(l['id'].toString()) ?? 0;
+      final loan = Loan.fromMap(l);
+      // remap counterparty id
+      final remappedCp = cpIdMap[loan.counterpartyId] ?? loan.counterpartyId;
+      final loanToInsert = loan.copyWith(counterpartyId: remappedCp);
+      final newId = await _db.insertLoan(loanToInsert);
+      loanIdMap[oldId] = newId;
+    }
+
+    // Insert installments mapping loan ids
+    for (final it in installments) {
+      final instMap = Map<String, dynamic>.from(it);
+      final oldLoanId = instMap['loan_id'] is int ? instMap['loan_id'] as int : int.tryParse(instMap['loan_id'].toString()) ?? 0;
+      final newLoanId = loanIdMap[oldLoanId] ?? oldLoanId;
+      instMap['loan_id'] = newLoanId;
+      final inst = Installment.fromMap(instMap);
+      await _db.insertInstallment(inst);
+    }
+
+    // After import, rebuild notifications and run insights
+    try {
+      final settings = SettingsRepository();
+      await settings.init();
+      await NotificationService().rebuildScheduledNotifications();
+      if (settings.smartInsightsEnabled) {
+        await SmartInsightsService().runInsights(notify: true);
+      }
+    } catch (_) {}
   }
 
   /// Import and decrypt backup file with password, returning decrypted JSON.

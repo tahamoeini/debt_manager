@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import '../../core/settings/settings_repository.dart';
 import '../../core/privacy/privacy_gateway.dart';
+import '../../core/privacy/backup_service.dart';
+import '../../core/notifications/notification_service.dart';
+import '../data_transfer/qr_sender.dart';
+import '../data_transfer/qr_receiver.dart';
 import '../../core/security/local_auth_service.dart';
 import '../../core/security/pin_service.dart';
 
@@ -180,6 +184,54 @@ class _SettingsScreenState extends State<SettingsScreen> {
             },
             child: const Text('Panic wipe (delete all local data)'),
           ),
+          const SizedBox(height: 20),
+          const Divider(),
+          const SizedBox(height: 12),
+          const Text('Data Management', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+          const SizedBox(height: 8),
+          ElevatedButton(onPressed: () async {
+            // Export (encrypted) backup to file
+            final la = LocalAuthService();
+            final ok = await la.authenticate(reason: 'Authenticate to export backup');
+            if (!ok) { ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Auth failed'))); return; }
+            final pw = await _askPassword();
+            if (pw == null) return;
+            final jsonStr = await BackupService.exportFullJson();
+            final path = await BackupService.encryptAndSave(jsonStr, pw, filename: 'backup_${DateTime.now().millisecondsSinceEpoch}.dm');
+            final pg = PrivacyGateway();
+            await pg.audit('export_backup', details: path);
+            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Encrypted backup saved')));
+          }, child: const Text('Export encrypted backup')),
+          ElevatedButton(onPressed: () async {
+            // Import backup from file: require auth and password
+            final la = LocalAuthService();
+            final ok = await la.authenticate(reason: 'Authenticate to import backup');
+            if (!ok) { ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Auth failed'))); return; }
+            final pw = await _askPassword();
+            if (pw == null) return;
+            // For simplicity, ask user to provide file path (or implement file picker)
+            final controller = TextEditingController();
+            final got = await showDialog<bool>(context: context, builder: (ctx) {
+              return AlertDialog(
+                title: const Text('Import - enter backup file path'),
+                content: TextField(controller: controller),
+                actions: [TextButton(onPressed: () => Navigator.of(ctx).pop(false), child: const Text('Cancel')), TextButton(onPressed: () => Navigator.of(ctx).pop(true), child: const Text('OK'))],
+              );
+            });
+            if (got != true) return;
+            final path = controller.text.trim();
+            try {
+              final jsonStr = await BackupService.decryptFromFile(path, pw);
+              final pg = PrivacyGateway();
+              await pg.audit('import_backup', details: path);
+              await pg.importJsonString(jsonStr);
+              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Import completed')));
+            } catch (e) {
+              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Failed to import backup')));
+            }
+          }, child: const Text('Import encrypted backup (from path)')),
+          ElevatedButton(onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const QrSenderScreen())), child: const Text('Offline Transfer - Send')), 
+          ElevatedButton(onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const QrReceiverScreen())), child: const Text('Offline Transfer - Receive')),
           ]),
         ],
       ),
