@@ -5,7 +5,8 @@ import 'package:debt_manager/core/widgets/budget_bar.dart';
 
 void main() {
   group('BudgetBar', () {
-    testWidgets('displays progress bar with percentage', (WidgetTester tester) async {
+    testWidgets('displays progress bar with percentage',
+        (WidgetTester tester) async {
       await tester.pumpWidget(
         const MaterialApp(
           home: Scaffold(
@@ -23,7 +24,8 @@ void main() {
       expect(find.text('50%'), findsOneWidget);
     });
 
-    testWidgets('shows green color when usage is below 60%', (WidgetTester tester) async {
+    testWidgets('shows green color when usage is below 60%',
+        (WidgetTester tester) async {
       await tester.pumpWidget(
         const MaterialApp(
           home: Scaffold(
@@ -40,12 +42,13 @@ void main() {
       final progressIndicator = tester.widget<LinearProgressIndicator>(
         find.byType(LinearProgressIndicator),
       );
-      
+
       // Should have a progress value of 0.5 (50%)
       expect(progressIndicator.value, 0.5);
     });
 
-    testWidgets('shows warning color when usage is between 60% and 90%', (WidgetTester tester) async {
+    testWidgets('shows warning color when usage is between 60% and 90%',
+        (WidgetTester tester) async {
       await tester.pumpWidget(
         const MaterialApp(
           home: Scaffold(
@@ -62,11 +65,12 @@ void main() {
       final progressIndicator = tester.widget<LinearProgressIndicator>(
         find.byType(LinearProgressIndicator),
       );
-      
+
       expect(progressIndicator.value, 0.75);
     });
 
-    testWidgets('shows danger color when usage is 90% or above', (WidgetTester tester) async {
+    testWidgets('shows danger color when usage is 90% or above',
+        (WidgetTester tester) async {
       await tester.pumpWidget(
         const MaterialApp(
           home: Scaffold(
@@ -83,7 +87,7 @@ void main() {
       final progressIndicator = tester.widget<LinearProgressIndicator>(
         find.byType(LinearProgressIndicator),
       );
-      
+
       expect(progressIndicator.value, 0.95);
     });
 
@@ -104,12 +108,13 @@ void main() {
       final progressIndicator = tester.widget<LinearProgressIndicator>(
         find.byType(LinearProgressIndicator),
       );
-      
+
       // Should default to 0 when limit is 0
       expect(progressIndicator.value, 0.0);
     });
 
-    testWidgets('clamps value at 100% when over budget', (WidgetTester tester) async {
+    testWidgets('clamps value at 100% when over budget',
+        (WidgetTester tester) async {
       await tester.pumpWidget(
         const MaterialApp(
           home: Scaffold(
@@ -126,7 +131,7 @@ void main() {
       final progressIndicator = tester.widget<LinearProgressIndicator>(
         find.byType(LinearProgressIndicator),
       );
-      
+
       // Should be clamped to 1.0 (100%)
       expect(progressIndicator.value, 1.0);
       expect(find.text('100%'), findsOneWidget);
@@ -148,7 +153,8 @@ void main() {
       expect(find.text('Food Budget'), findsOneWidget);
     });
 
-    testWidgets('hides percentage when showPercentage is false', (WidgetTester tester) async {
+    testWidgets('hides percentage when showPercentage is false',
+        (WidgetTester tester) async {
       await tester.pumpWidget(
         const MaterialApp(
           home: Scaffold(
@@ -164,7 +170,8 @@ void main() {
       expect(find.text('50%'), findsNothing);
     });
 
-    testWidgets('shows amount when showAmount is true', (WidgetTester tester) async {
+    testWidgets('shows amount when showAmount is true',
+        (WidgetTester tester) async {
       await tester.pumpWidget(
         const MaterialApp(
           home: Scaffold(

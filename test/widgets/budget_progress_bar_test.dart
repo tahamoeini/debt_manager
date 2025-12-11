@@ -20,7 +20,8 @@ void main() {
       expect(find.byType(LinearProgressIndicator), findsOneWidget);
     });
 
-    testWidgets('shows green color when under 60% utilization', (WidgetTester tester) async {
+    testWidgets('shows green color when under 60% utilization',
+        (WidgetTester tester) async {
       await tester.pumpWidget(
         MaterialApp(
           theme: ThemeData.light(),
@@ -38,12 +39,14 @@ void main() {
       final progressBar = tester.widget<LinearProgressIndicator>(
         find.byType(LinearProgressIndicator),
       );
-      
-      final colorScheme = Theme.of(tester.element(find.byType(BudgetProgressBar))).colorScheme;
+
+      final colorScheme =
+          Theme.of(tester.element(find.byType(BudgetProgressBar))).colorScheme;
       expect(progressBar.color, colorScheme.success);
     });
 
-    testWidgets('shows orange color when between 60-90% utilization', (WidgetTester tester) async {
+    testWidgets('shows orange color when between 60-90% utilization',
+        (WidgetTester tester) async {
       await tester.pumpWidget(
         MaterialApp(
           theme: ThemeData.light(),
@@ -61,12 +64,14 @@ void main() {
       final progressBar = tester.widget<LinearProgressIndicator>(
         find.byType(LinearProgressIndicator),
       );
-      
-      final colorScheme = Theme.of(tester.element(find.byType(BudgetProgressBar))).colorScheme;
+
+      final colorScheme =
+          Theme.of(tester.element(find.byType(BudgetProgressBar))).colorScheme;
       expect(progressBar.color, colorScheme.warning);
     });
 
-    testWidgets('shows red color when over 90% utilization', (WidgetTester tester) async {
+    testWidgets('shows red color when over 90% utilization',
+        (WidgetTester tester) async {
       await tester.pumpWidget(
         MaterialApp(
           theme: ThemeData.light(),
@@ -84,12 +89,14 @@ void main() {
       final progressBar = tester.widget<LinearProgressIndicator>(
         find.byType(LinearProgressIndicator),
       );
-      
-      final colorScheme = Theme.of(tester.element(find.byType(BudgetProgressBar))).colorScheme;
+
+      final colorScheme =
+          Theme.of(tester.element(find.byType(BudgetProgressBar))).colorScheme;
       expect(progressBar.color, colorScheme.danger);
     });
 
-    testWidgets('displays percentage when showPercentage is true', (WidgetTester tester) async {
+    testWidgets('displays percentage when showPercentage is true',
+        (WidgetTester tester) async {
       await tester.pumpWidget(
         const MaterialApp(
           home: Scaffold(
@@ -121,7 +128,8 @@ void main() {
       expect(find.text('Food Budget'), findsOneWidget);
     });
 
-    testWidgets('calculates correct progress value', (WidgetTester tester) async {
+    testWidgets('calculates correct progress value',
+        (WidgetTester tester) async {
       await tester.pumpWidget(
         const MaterialApp(
           home: Scaffold(
@@ -138,7 +146,7 @@ void main() {
       final progressBar = tester.widget<LinearProgressIndicator>(
         find.byType(LinearProgressIndicator),
       );
-      
+
       expect(progressBar.value, closeTo(0.3, 0.01));
     });
 
@@ -159,7 +167,7 @@ void main() {
       final progressBar = tester.widget<LinearProgressIndicator>(
         find.byType(LinearProgressIndicator),
       );
-      
+
       expect(progressBar.value, 0.0);
     });
   });

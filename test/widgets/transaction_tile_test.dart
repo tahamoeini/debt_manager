@@ -22,7 +22,7 @@ void main() {
 
       // Find the title text
       expect(find.text('Salary'), findsOneWidget);
-      
+
       // Check that income icon is displayed
       expect(find.byIcon(Icons.arrow_downward), findsOneWidget);
     });
@@ -44,7 +44,7 @@ void main() {
 
       // Find the title text
       expect(find.text('Groceries'), findsOneWidget);
-      
+
       // Check that expense icon is displayed
       expect(find.byIcon(Icons.arrow_upward), findsOneWidget);
     });

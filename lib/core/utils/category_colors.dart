@@ -20,7 +20,9 @@ Color colorForCategory(String? tag, {required Brightness brightness}) {
     final lighter = hsl.withLightness((hsl.lightness + 0.28).clamp(0.0, 1.0));
     // If still too dark for dark backgrounds, bump more
     if (lighter.toColor().computeLuminance() < 0.12) {
-      return hsl.withLightness((hsl.lightness + 0.45).clamp(0.0, 1.0)).toColor();
+      return hsl
+          .withLightness((hsl.lightness + 0.45).clamp(0.0, 1.0))
+          .toColor();
     }
     return lighter.toColor();
   } else {

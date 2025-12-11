@@ -55,26 +55,31 @@ class SmartInsightsService {
       final loanMaps = loans.map((l) => l.toMap()).toList();
 
       try {
-        final rows = await compute<List<Map<String, dynamic>>, List<Map<String, dynamic>>>(
+        final rows = await compute<List<Map<String, dynamic>>,
+            List<Map<String, dynamic>>>(
           computeDetectSubscriptions,
           loanMaps,
         );
 
-        return rows.map((r) => SubscriptionInsight(
-          payee: r['payee'] as String? ?? 'ناشناس',
-          amount: r['amount'] as int? ?? 0,
-          occurrences: r['occurrences'] as int? ?? 0,
-          description: r['description'] as String? ?? '',
-        )).toList();
+        return rows
+            .map((r) => SubscriptionInsight(
+                  payee: r['payee'] as String? ?? 'ناشناس',
+                  amount: r['amount'] as int? ?? 0,
+                  occurrences: r['occurrences'] as int? ?? 0,
+                  description: r['description'] as String? ?? '',
+                ))
+            .toList();
       } catch (e) {
         // fallback: run on main isolate
         final rows = computeDetectSubscriptions(loanMaps);
-        return rows.map((r) => SubscriptionInsight(
-          payee: r['payee'] as String? ?? 'ناشناس',
-          amount: r['amount'] as int? ?? 0,
-          occurrences: r['occurrences'] as int? ?? 0,
-          description: r['description'] as String? ?? '',
-        )).toList();
+        return rows
+            .map((r) => SubscriptionInsight(
+                  payee: r['payee'] as String? ?? 'ناشناس',
+                  amount: r['amount'] as int? ?? 0,
+                  occurrences: r['occurrences'] as int? ?? 0,
+                  description: r['description'] as String? ?? '',
+                ))
+            .toList();
       }
     } catch (e) {
       debugPrint('Error detecting subscriptions: $e');
@@ -87,25 +92,30 @@ class SmartInsightsService {
     try {
       final now = DateTime.now();
       final jalaliNow = dateTimeToJalali(now);
-      
+
       // Get current month period
-      final currentPeriod = '${jalaliNow.year.toString().padLeft(4, '0')}-${jalaliNow.month.toString().padLeft(2, '0')}';
-      
+      final currentPeriod =
+          '${jalaliNow.year.toString().padLeft(4, '0')}-${jalaliNow.month.toString().padLeft(2, '0')}';
+
       // Get previous month period
-      final prevJalali = jalaliNow.month > 1 
+      final prevJalali = jalaliNow.month > 1
           ? Jalali(jalaliNow.year, jalaliNow.month - 1, 1)
           : Jalali(jalaliNow.year - 1, 12, 1);
-      final prevPeriod = '${prevJalali.year.toString().padLeft(4, '0')}-${prevJalali.month.toString().padLeft(2, '0')}';
+      final prevPeriod =
+          '${prevJalali.year.toString().padLeft(4, '0')}-${prevJalali.month.toString().padLeft(2, '0')}';
 
       final loans = await _db.getAllLoans();
       final loanMaps = loans.map((l) => l.toMap()).toList();
       final loanIds = loans.map((e) => e.id).whereType<int>().toList();
-      final grouped = loanIds.isNotEmpty ? await _db.getInstallmentsGroupedByLoanId(loanIds) : <int, List<Installment>>{};
+      final grouped = loanIds.isNotEmpty
+          ? await _db.getInstallmentsGroupedByLoanId(loanIds)
+          : <int, List<Installment>>{};
       final allInstallments = grouped.values.expand((l) => l).toList();
       final instMaps = allInstallments.map((i) => i.toMap()).toList();
 
       try {
-        final rows = await compute<Map<String, dynamic>, List<Map<String, dynamic>>>(
+        final rows =
+            await compute<Map<String, dynamic>, List<Map<String, dynamic>>>(
           billChangeEntry,
           {
             'loans': loanMaps,
@@ -115,22 +125,27 @@ class SmartInsightsService {
           },
         );
 
-        return rows.map((r) => BillChangeInsight(
-          payee: r['payee'] as String? ?? 'ناشناس',
-          previousAmount: r['previousAmount'] as int? ?? 0,
-          currentAmount: r['currentAmount'] as int? ?? 0,
-          percentageChange: r['percentageChange'] as double? ?? 0.0,
-          description: r['description'] as String? ?? '',
-        )).toList();
+        return rows
+            .map((r) => BillChangeInsight(
+                  payee: r['payee'] as String? ?? 'ناشناس',
+                  previousAmount: r['previousAmount'] as int? ?? 0,
+                  currentAmount: r['currentAmount'] as int? ?? 0,
+                  percentageChange: r['percentageChange'] as double? ?? 0.0,
+                  description: r['description'] as String? ?? '',
+                ))
+            .toList();
       } catch (e) {
-        final rows = computeDetectBillChanges(loanMaps, instMaps, currentPeriod, prevPeriod);
-        return rows.map((r) => BillChangeInsight(
-          payee: r['payee'] as String? ?? 'ناشناس',
-          previousAmount: r['previousAmount'] as int? ?? 0,
-          currentAmount: r['currentAmount'] as int? ?? 0,
-          percentageChange: r['percentageChange'] as double? ?? 0.0,
-          description: r['description'] as String? ?? '',
-        )).toList();
+        final rows = computeDetectBillChanges(
+            loanMaps, instMaps, currentPeriod, prevPeriod);
+        return rows
+            .map((r) => BillChangeInsight(
+                  payee: r['payee'] as String? ?? 'ناشناس',
+                  previousAmount: r['previousAmount'] as int? ?? 0,
+                  currentAmount: r['currentAmount'] as int? ?? 0,
+                  percentageChange: r['percentageChange'] as double? ?? 0.0,
+                  description: r['description'] as String? ?? '',
+                ))
+            .toList();
       }
     } catch (e) {
       debugPrint('Error detecting bill changes: $e');

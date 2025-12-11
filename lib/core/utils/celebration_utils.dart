@@ -198,7 +198,8 @@ Future<void> showSuccessAnimation(
     context: context,
     barrierDismissible: true,
     builder: (ctx) => AlertDialog(
-      icon: const Icon(Icons.check_circle_outline, size: 64, color: Colors.green),
+      icon:
+          const Icon(Icons.check_circle_outline, size: 64, color: Colors.green),
       title: Text(title, textAlign: TextAlign.center),
       content: Text(message, textAlign: TextAlign.center),
       actions: [
@@ -212,7 +213,8 @@ Future<void> showSuccessAnimation(
 }
 
 /// Show an achievement dialog with badge-like appearance.
-Future<void> showAchievementDialog(BuildContext context, {required String title, required String message, IconData? icon}) async {
+Future<void> showAchievementDialog(BuildContext context,
+    {required String title, required String message, IconData? icon}) async {
   await showDialog(
     context: context,
     barrierDismissible: true,
@@ -222,9 +224,12 @@ Future<void> showAchievementDialog(BuildContext context, {required String title,
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(icon ?? Icons.emoji_events_outlined, size: 64, color: Theme.of(ctx).colorScheme.primary),
+            Icon(icon ?? Icons.emoji_events_outlined,
+                size: 64, color: Theme.of(ctx).colorScheme.primary),
             const SizedBox(height: 12),
-            Text(title, style: Theme.of(ctx).textTheme.titleLarge, textAlign: TextAlign.center),
+            Text(title,
+                style: Theme.of(ctx).textTheme.titleLarge,
+                textAlign: TextAlign.center),
             const SizedBox(height: 8),
             Text(message, textAlign: TextAlign.center),
             const SizedBox(height: 12),

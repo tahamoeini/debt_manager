@@ -26,7 +26,7 @@ class ExportService {
     // Load all loans and installments
     final loans = await _db.getAllLoans();
     final counterparties = await _db.getAllCounterparties();
-    
+
     // Build a map of counterparty id to name
     final cpMap = <int, Counterparty>{};
     for (final cp in counterparties) {
@@ -37,7 +37,7 @@ class ExportService {
 
     // Collect all installments with their loan info
     final List<List<dynamic>> rows = [];
-    
+
     // CSV Header
     rows.add([
       'تاریخ سررسید',
@@ -52,34 +52,31 @@ class ExportService {
     ]);
 
     // Convert date filters to Jalali strings
-    final fromStr = fromDate != null 
-        ? formatJalali(dateTimeToJalali(fromDate))
-        : null;
-    final toStr = toDate != null 
-        ? formatJalali(dateTimeToJalali(toDate))
-        : null;
+    final fromStr =
+        fromDate != null ? formatJalali(dateTimeToJalali(fromDate)) : null;
+    final toStr =
+        toDate != null ? formatJalali(dateTimeToJalali(toDate)) : null;
 
     for (final loan in loans) {
       if (loan.id == null) continue;
-      
+
       final cp = cpMap[loan.counterpartyId];
       final cpName = cp?.name ?? 'نامشخص';
       final cpType = cp?.type ?? '';
-      
+
       final installments = await _db.getInstallmentsByLoanId(loan.id!);
-      
+
       for (final inst in installments) {
         // Apply date filter
         final dueDate = inst.dueDateJalali;
         if (fromStr != null && dueDate.compareTo(fromStr) < 0) continue;
         if (toStr != null && dueDate.compareTo(toStr) > 0) continue;
-        
-        final direction = loan.direction == LoanDirection.borrowed 
-            ? 'گرفته‌ام' 
-            : 'داده‌ام';
-        
+
+        final direction =
+            loan.direction == LoanDirection.borrowed ? 'گرفته‌ام' : 'داده‌ام';
+
         final status = _statusToString(inst.status);
-        
+
         rows.add([
           formatJalaliForDisplay(parseJalali(inst.dueDateJalali)),
           loan.title,
@@ -96,14 +93,14 @@ class ExportService {
 
     // Convert to CSV string
     final csv = const ListToCsvConverter().convert(rows);
-    
+
     // Save to file
     final directory = await getApplicationDocumentsDirectory();
     final timestamp = DateTime.now().millisecondsSinceEpoch;
     final filePath = '${directory.path}/installments_export_$timestamp.csv';
     final file = File(filePath);
     await file.writeAsString(csv, encoding: utf8);
-    
+
     return filePath;
   }
 
@@ -124,7 +121,8 @@ class ExportService {
 
     // Get overdue installments from DB
     final db = await _db.database;
-    final overdue = await InstallmentDao.getOverdueInstallments(db, DateTime.now());
+    final overdue =
+        await InstallmentDao.getOverdueInstallments(db, DateTime.now());
 
     final bytes = await PdfReportGenerator.instance.generatePdf(
       appName: 'Debt Manager',
@@ -155,7 +153,8 @@ class ExportService {
     }
 
     final db = await _db.database;
-    final overdue = await InstallmentDao.getOverdueInstallments(db, DateTime.now());
+    final overdue =
+        await InstallmentDao.getOverdueInstallments(db, DateTime.now());
 
     await PdfReportGenerator.instance.printReport(
       appName: 'Debt Manager',
@@ -179,13 +178,14 @@ class ExportService {
   /// Export budgets as CSV
   Future<String> exportBudgetsCSV() async {
     final db = await _db.database;
-    final rows = await db.query('budgets', orderBy: 'period DESC, category ASC');
-    
+    final rows =
+        await db.query('budgets', orderBy: 'period DESC, category ASC');
+
     final List<List<dynamic>> csvRows = [];
-    
+
     // Header
     csvRows.add(['دوره', 'دسته‌بندی', 'مبلغ بودجه', 'انتقال به ماه بعد']);
-    
+
     for (final row in rows) {
       csvRows.add([
         row['period'],
@@ -194,15 +194,15 @@ class ExportService {
         (row['rollover'] as int) == 1 ? 'بله' : 'خیر',
       ]);
     }
-    
+
     final csv = const ListToCsvConverter().convert(csvRows);
-    
+
     final directory = await getApplicationDocumentsDirectory();
     final timestamp = DateTime.now().millisecondsSinceEpoch;
     final filePath = '${directory.path}/budgets_export_$timestamp.csv';
     final file = File(filePath);
     await file.writeAsString(csv, encoding: utf8);
-    
+
     return filePath;
   }
 }

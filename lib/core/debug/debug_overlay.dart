@@ -19,7 +19,8 @@ class _BoundsPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(covariant _BoundsPainter oldDelegate) => !listEquals(oldDelegate.rects, rects);
+  bool shouldRepaint(covariant _BoundsPainter oldDelegate) =>
+      !listEquals(oldDelegate.rects, rects);
 }
 
 /// Simple overlay that highlights safe area insets and shows their values.
@@ -48,7 +49,10 @@ class DebugOverlay extends StatelessWidget {
               left: 0,
               right: 0,
               height: top,
-              child: Container(color: Colors.red.withValues(alpha: 0.25), child: Center(child: Text('statusBar: ${top.toStringAsFixed(1)}'))),
+              child: Container(
+                  color: Colors.red.withValues(alpha: 0.25),
+                  child: Center(
+                      child: Text('statusBar: ${top.toStringAsFixed(1)}'))),
             ),
             // Bottom inset
             Positioned(
@@ -56,7 +60,11 @@ class DebugOverlay extends StatelessWidget {
               left: 0,
               right: 0,
               height: bottom,
-              child: Container(color: Colors.green.withValues(alpha: 0.25), child: Center(child: Text('bottomInset: ${bottom.toStringAsFixed(1)}'))),
+              child: Container(
+                  color: Colors.green.withValues(alpha: 0.25),
+                  child: Center(
+                      child:
+                          Text('bottomInset: ${bottom.toStringAsFixed(1)}'))),
             ),
             // Left
             Positioned(
@@ -64,7 +72,11 @@ class DebugOverlay extends StatelessWidget {
               bottom: bottom,
               left: 0,
               width: left,
-              child: Container(color: Colors.blue.withValues(alpha: 0.12), child: RotatedBox(quarterTurns: 3, child: Text('left: ${left.toStringAsFixed(1)}'))),
+              child: Container(
+                  color: Colors.blue.withValues(alpha: 0.12),
+                  child: RotatedBox(
+                      quarterTurns: 3,
+                      child: Text('left: ${left.toStringAsFixed(1)}'))),
             ),
             // Right
             Positioned(
@@ -72,7 +84,11 @@ class DebugOverlay extends StatelessWidget {
               bottom: bottom,
               right: 0,
               width: right,
-              child: Container(color: Colors.orange.withValues(alpha: 0.12), child: RotatedBox(quarterTurns: 1, child: Text('right: ${right.toStringAsFixed(1)}'))),
+              child: Container(
+                  color: Colors.orange.withValues(alpha: 0.12),
+                  child: RotatedBox(
+                      quarterTurns: 1,
+                      child: Text('right: ${right.toStringAsFixed(1)}'))),
             ),
           ],
           // Bounds overlay

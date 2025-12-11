@@ -23,9 +23,11 @@ class LoanSummary {
   });
 }
 
-final loanRepositoryProvider = Provider<LoanRepository>((ref) => LoanRepository());
+final loanRepositoryProvider =
+    Provider<LoanRepository>((ref) => LoanRepository());
 
-final loanListProvider = StateNotifierProvider.family<LoanListNotifier, List<LoanSummary>, LoanDirection?>((ref, direction) {
+final loanListProvider = StateNotifierProvider.family<LoanListNotifier,
+    List<LoanSummary>, LoanDirection?>((ref, direction) {
   return LoanListNotifier(ref, direction);
 });
 
@@ -46,14 +48,18 @@ class LoanListNotifier extends StateNotifier<List<LoanSummary>> {
     final Map<int, Counterparty> cpMap = {for (var c in cps) c.id ?? -1: c};
 
     final loanIds = loans.where((l) => l.id != null).map((l) => l.id!).toList();
-    final grouped = loanIds.isNotEmpty ? await repo.getInstallmentsGroupedByLoanId(loanIds) : <int, List<Installment>>{};
+    final grouped = loanIds.isNotEmpty
+        ? await repo.getInstallmentsGroupedByLoanId(loanIds)
+        : <int, List<Installment>>{};
 
     final List<LoanSummary> result = [];
 
     for (final loan in loans) {
       if (loan.id == null) continue;
       final installments = grouped[loan.id] ?? const <Installment>[];
-      final unpaid = installments.where((i) => i.status != InstallmentStatus.paid).toList();
+      final unpaid = installments
+          .where((i) => i.status != InstallmentStatus.paid)
+          .toList();
       final remainingCount = unpaid.length;
       final remainingAmount = unpaid.fold<int>(0, (s, i) => s + i.amount);
       final cp = cpMap[loan.counterpartyId];

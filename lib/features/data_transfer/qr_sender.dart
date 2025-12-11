@@ -48,48 +48,48 @@ class _QrSenderScreenState extends State<QrSenderScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Offline Transfer - Send')),
-        body: SafeArea(
+      body: SafeArea(
         child: Center(
           child: _loading
-            ? const CircularProgressIndicator()
-            : _chunks.isEmpty
-              ? Column(mainAxisSize: MainAxisSize.min, children: [
-                    const Padding(
-                        padding: EdgeInsets.all(8),
-                        child: Text(
-                            'Enter password to encrypt export and generate QR sequence')),
-                    ElevatedButton(
-                        onPressed: () async {
-                          final pw = await _askPassword();
-                          if (pw != null) await _prepare(pw);
-                        },
-                        child: const Text('Generate QR Sequence')),
-                  ])
-                : Column(mainAxisSize: MainAxisSize.min, children: [
-                    Text('Page ${_index + 1} / ${_chunks.length}'),
-                    const SizedBox(height: 12),
-                    // Render QR using qr_flutter (data is positional in current package)
-                    Container(
-                      width: 320,
-                      height: 320,
-                      color: Colors.white,
-                      child: QrImageView(data: _chunks[_index], size: 320),
-                    ),
-                    const SizedBox(height: 12),
-                    Row(mainAxisSize: MainAxisSize.min, children: [
+              ? const CircularProgressIndicator()
+              : _chunks.isEmpty
+                  ? Column(mainAxisSize: MainAxisSize.min, children: [
+                      const Padding(
+                          padding: EdgeInsets.all(8),
+                          child: Text(
+                              'Enter password to encrypt export and generate QR sequence')),
                       ElevatedButton(
-                          onPressed: _index > 0
-                              ? () => setState(() => _index--)
-                              : null,
-                          child: const Text('Prev')),
-                      const SizedBox(width: 12),
-                      ElevatedButton(
-                          onPressed: _index < _chunks.length - 1
-                              ? () => setState(() => _index++)
-                              : null,
-                          child: const Text('Next')),
+                          onPressed: () async {
+                            final pw = await _askPassword();
+                            if (pw != null) await _prepare(pw);
+                          },
+                          child: const Text('Generate QR Sequence')),
                     ])
-                  ]),
+                  : Column(mainAxisSize: MainAxisSize.min, children: [
+                      Text('Page ${_index + 1} / ${_chunks.length}'),
+                      const SizedBox(height: 12),
+                      // Render QR using qr_flutter (data is positional in current package)
+                      Container(
+                        width: 320,
+                        height: 320,
+                        color: Colors.white,
+                        child: QrImageView(data: _chunks[_index], size: 320),
+                      ),
+                      const SizedBox(height: 12),
+                      Row(mainAxisSize: MainAxisSize.min, children: [
+                        ElevatedButton(
+                            onPressed: _index > 0
+                                ? () => setState(() => _index--)
+                                : null,
+                            child: const Text('Prev')),
+                        const SizedBox(width: 12),
+                        ElevatedButton(
+                            onPressed: _index < _chunks.length - 1
+                                ? () => setState(() => _index++)
+                                : null,
+                            child: const Text('Next')),
+                      ])
+                    ]),
         ),
       ),
     );

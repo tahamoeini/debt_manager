@@ -1,9 +1,9 @@
 library;
 
 /// Components Library
-/// 
+///
 /// Export all reusable UI components for easy importing.
-/// 
+///
 /// Usage:
 /// ```dart
 /// import 'package:debt_manager/components/components.dart';

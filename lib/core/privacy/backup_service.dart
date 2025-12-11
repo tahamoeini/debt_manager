@@ -34,12 +34,14 @@ class BackupService {
     return File('${folder.path}/$name');
   }
 
-  static Future<String> encryptAndSave(String plainJson, String password, {required String filename}) async {
+  static Future<String> encryptAndSave(String plainJson, String password,
+      {required String filename}) async {
     final salt = DateTime.now().millisecondsSinceEpoch.toString();
     final keyBytes = _deriveKey(password, salt);
     final key = encrypt_pkg.Key(Uint8List.fromList(keyBytes));
     final iv = encrypt_pkg.IV.fromSecureRandom(16);
-    final encrypter = encrypt_pkg.Encrypter(encrypt_pkg.AES(key, mode: encrypt_pkg.AESMode.cbc));
+    final encrypter = encrypt_pkg.Encrypter(
+        encrypt_pkg.AES(key, mode: encrypt_pkg.AESMode.cbc));
     final encrypted = encrypter.encrypt(plainJson, iv: iv);
 
     // Store salt + iv + cipher in base64 JSON wrapper
@@ -67,7 +69,8 @@ class BackupService {
     final keyBytes = _deriveKey(password, salt);
     final key = encrypt_pkg.Key(Uint8List.fromList(keyBytes));
     final iv = encrypt_pkg.IV.fromBase64(ivb64);
-    final encrypter = encrypt_pkg.Encrypter(encrypt_pkg.AES(key, mode: encrypt_pkg.AESMode.cbc));
+    final encrypter = encrypt_pkg.Encrypter(
+        encrypt_pkg.AES(key, mode: encrypt_pkg.AESMode.cbc));
     final decrypted = encrypter.decrypt64(datab64, iv: iv);
     return decrypted;
   }
@@ -125,7 +128,8 @@ class BackupService {
     final b64 = base64Encode(bytes);
     final chunks = <String>[];
     for (var i = 0; i < b64.length; i += chunkSize) {
-      chunks.add(b64.substring(i, i + chunkSize > b64.length ? b64.length : i + chunkSize));
+      chunks.add(b64.substring(
+          i, i + chunkSize > b64.length ? b64.length : i + chunkSize));
     }
     return chunks;
   }
@@ -138,7 +142,8 @@ class BackupService {
   }
 
   /// Export encrypted and compressed backup for QR transfer: returns bytes of encrypted wrapper compressed.
-  static Future<Uint8List> exportEncryptedCompressedBytes(String password) async {
+  static Future<Uint8List> exportEncryptedCompressedBytes(
+      String password) async {
     final jsonStr = await exportFullJson();
     final compressed = gzipCompress(Uint8List.fromList(utf8.encode(jsonStr)));
 
@@ -147,7 +152,8 @@ class BackupService {
     final keyBytes = _deriveKey(password, salt);
     final key = encrypt_pkg.Key(Uint8List.fromList(keyBytes));
     final iv = encrypt_pkg.IV.fromSecureRandom(16);
-    final encrypter = encrypt_pkg.Encrypter(encrypt_pkg.AES(key, mode: encrypt_pkg.AESMode.cbc));
+    final encrypter = encrypt_pkg.Encrypter(
+        encrypt_pkg.AES(key, mode: encrypt_pkg.AESMode.cbc));
     final encrypted = encrypter.encryptBytes(compressed, iv: iv);
 
     final wrapper = json.encode({
@@ -159,8 +165,10 @@ class BackupService {
   }
 
   /// Given encrypted wrapper bytes, decrypt and return the original JSON string (after decompression)
-  static Future<String> decryptCompressedBytes(Uint8List wrapperBytes, String password) async {
-    final wrapper = json.decode(utf8.decode(wrapperBytes)) as Map<String, dynamic>;
+  static Future<String> decryptCompressedBytes(
+      Uint8List wrapperBytes, String password) async {
+    final wrapper =
+        json.decode(utf8.decode(wrapperBytes)) as Map<String, dynamic>;
     final salt = wrapper['salt'] as String;
     final ivb64 = wrapper['iv'] as String;
     final datab64 = wrapper['data'] as String;
@@ -168,8 +176,10 @@ class BackupService {
     final keyBytes = _deriveKey(password, salt);
     final key = encrypt_pkg.Key(Uint8List.fromList(keyBytes));
     final iv = encrypt_pkg.IV.fromBase64(ivb64);
-    final encrypter = encrypt_pkg.Encrypter(encrypt_pkg.AES(key, mode: encrypt_pkg.AESMode.cbc));
-    final decryptedBytes = encrypter.decryptBytes(encrypt_pkg.Encrypted.fromBase64(datab64), iv: iv);
+    final encrypter = encrypt_pkg.Encrypter(
+        encrypt_pkg.AES(key, mode: encrypt_pkg.AESMode.cbc));
+    final decryptedBytes = encrypter
+        .decryptBytes(encrypt_pkg.Encrypted.fromBase64(datab64), iv: iv);
     final decompressed = gzipDecompress(Uint8List.fromList(decryptedBytes));
     return utf8.decode(decompressed);
   }
@@ -184,10 +194,15 @@ class BackupService {
 
   // Instance wrappers for callers that expect a singleton instance API.
   Future<String> exportFullJsonInstance() => BackupService.exportFullJson();
-  Future<String> encryptAndSaveInstance(String plainJson, String password, {required String filename}) =>
+  Future<String> encryptAndSaveInstance(String plainJson, String password,
+          {required String filename}) =>
       BackupService.encryptAndSave(plainJson, password, filename: filename);
-  Future<String> decryptFromFileInstance(String path, String password) => BackupService.decryptFromFile(path, password);
-  Future<Uint8List> exportEncryptedCompressedBytesInstance(String password) => BackupService.exportEncryptedCompressedBytes(password);
-  Future<String> decryptCompressedBytesInstance(Uint8List wrapperBytes, String password) => BackupService.decryptCompressedBytes(wrapperBytes, password);
+  Future<String> decryptFromFileInstance(String path, String password) =>
+      BackupService.decryptFromFile(path, password);
+  Future<Uint8List> exportEncryptedCompressedBytesInstance(String password) =>
+      BackupService.exportEncryptedCompressedBytes(password);
+  Future<String> decryptCompressedBytesInstance(
+          Uint8List wrapperBytes, String password) =>
+      BackupService.decryptCompressedBytes(wrapperBytes, password);
   Future<void> deleteAllBackupsInstance() => BackupService.deleteAllBackups();
 }

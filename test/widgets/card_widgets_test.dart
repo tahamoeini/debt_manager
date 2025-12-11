@@ -5,7 +5,8 @@ import 'package:debt_manager/core/widgets/stat_card.dart';
 
 void main() {
   group('DashboardCard', () {
-    testWidgets('displays title, value, and subtitle', (WidgetTester tester) async {
+    testWidgets('displays title, value, and subtitle',
+        (WidgetTester tester) async {
       await tester.pumpWidget(
         const MaterialApp(
           home: Scaffold(
@@ -41,7 +42,7 @@ void main() {
 
     testWidgets('calls onTap when tapped', (WidgetTester tester) async {
       bool tapped = false;
-      
+
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
@@ -78,7 +79,8 @@ void main() {
       expect(find.text('۵۰٬۰۰۰ ریال'), findsOneWidget);
     });
 
-    testWidgets('applies custom color when provided', (WidgetTester tester) async {
+    testWidgets('applies custom color when provided',
+        (WidgetTester tester) async {
       await tester.pumpWidget(
         const MaterialApp(
           home: Scaffold(

@@ -4,7 +4,7 @@ import 'package:debt_manager/core/theme/app_dimensions.dart';
 
 /// A reusable dialog wrapper that provides consistent Material 3 styling.
 /// Use this as a base for all dialogs in the app to maintain consistency.
-/// 
+///
 /// Example usage:
 /// ```dart
 /// showDialog(

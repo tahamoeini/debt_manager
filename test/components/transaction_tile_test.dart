@@ -77,7 +77,8 @@ void main() {
       expect(amountText, isNotNull);
     });
 
-    testWidgets('generates subtitle from payee, category, and date', (tester) async {
+    testWidgets('generates subtitle from payee, category, and date',
+        (tester) async {
       await tester.pumpWidget(
         const MaterialApp(
           home: Scaffold(
@@ -141,7 +142,8 @@ void main() {
       expect(tapped, true);
     });
 
-    testWidgets('shows category icon when category is provided', (tester) async {
+    testWidgets('shows category icon when category is provided',
+        (tester) async {
       await tester.pumpWidget(
         const MaterialApp(
           home: Scaffold(
@@ -160,7 +162,8 @@ void main() {
       expect(find.byType(Container), findsWidgets);
     });
 
-    testWidgets('hides category icon when showCategoryIcon is false', (tester) async {
+    testWidgets('hides category icon when showCategoryIcon is false',
+        (tester) async {
       await tester.pumpWidget(
         const MaterialApp(
           home: Scaffold(

@@ -20,13 +20,15 @@ class DataManagementSection extends StatelessWidget {
           leading: const Icon(Icons.outbox),
           title: const Text('Offline Transfer — Send'),
           subtitle: const Text('Export encrypted backup as QR sequence'),
-          onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const QrSenderScreen())),
+          onTap: () => Navigator.of(context)
+              .push(MaterialPageRoute(builder: (_) => const QrSenderScreen())),
         ),
         ListTile(
           leading: const Icon(Icons.inbox),
           title: const Text('Offline Transfer — Receive'),
           subtitle: const Text('Scan QR sequence to import a backup'),
-          onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const QrReceiverScreen())),
+          onTap: () => Navigator.of(context).push(
+              MaterialPageRoute(builder: (_) => const QrReceiverScreen())),
         ),
       ],
     );

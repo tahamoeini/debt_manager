@@ -48,9 +48,11 @@ class HomeScreen extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('قبوض پیش رو', style: Theme.of(context).textTheme.titleMedium),
+                Text('قبوض پیش رو',
+                    style: Theme.of(context).textTheme.titleMedium),
                 const SizedBox(height: AppDimensions.spacingS),
-                Text('هیچ قبضی در چند روز آینده وجود ندارد', style: Theme.of(context).textTheme.bodySmall),
+                Text('هیچ قبضی در چند روز آینده وجود ندارد',
+                    style: Theme.of(context).textTheme.bodySmall),
               ],
             ),
           ),

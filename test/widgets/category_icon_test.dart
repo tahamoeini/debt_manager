@@ -5,7 +5,8 @@ import 'package:debt_manager/core/widgets/category_icon.dart';
 
 void main() {
   group('CategoryIcon', () {
-    testWidgets('displays icon for known category', (WidgetTester tester) async {
+    testWidgets('displays icon for known category',
+        (WidgetTester tester) async {
       await tester.pumpWidget(
         const MaterialApp(
           home: Scaffold(
@@ -21,7 +22,8 @@ void main() {
       expect(find.byIcon(Icons.restaurant), findsOneWidget);
     });
 
-    testWidgets('displays default icon for unknown category', (WidgetTester tester) async {
+    testWidgets('displays default icon for unknown category',
+        (WidgetTester tester) async {
       await tester.pumpWidget(
         const MaterialApp(
           home: Scaffold(
@@ -68,7 +70,8 @@ void main() {
         ),
       );
 
-      final circleAvatar = tester.widget<CircleAvatar>(find.byType(CircleAvatar));
+      final circleAvatar =
+          tester.widget<CircleAvatar>(find.byType(CircleAvatar));
       expect(circleAvatar.radius, customSize / 2);
     });
 
@@ -87,7 +90,8 @@ void main() {
         ),
       );
 
-      final circleAvatar = tester.widget<CircleAvatar>(find.byType(CircleAvatar));
+      final circleAvatar =
+          tester.widget<CircleAvatar>(find.byType(CircleAvatar));
       expect(circleAvatar.backgroundColor, customColor);
     });
   });

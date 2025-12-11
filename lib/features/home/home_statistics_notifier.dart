@@ -78,6 +78,7 @@ class HomeStatisticsNotifier extends StateNotifier<AsyncValue<HomeStats>> {
   }
 }
 
-final homeStatisticsProvider = StateNotifierProvider.autoDispose<HomeStatisticsNotifier, AsyncValue<HomeStats>>((ref) {
+final homeStatisticsProvider = StateNotifierProvider.autoDispose<
+    HomeStatisticsNotifier, AsyncValue<HomeStats>>((ref) {
   return HomeStatisticsNotifier(ref);
 });

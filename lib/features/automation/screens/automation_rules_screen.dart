@@ -41,7 +41,7 @@ class _AutomationRulesScreenState extends State<AutomationRulesScreen> {
             return UIUtils.asyncErrorWidget(snap.error);
           }
           final rules = snap.data ?? [];
-          
+
           return ListView(
             padding: const EdgeInsets.all(16),
             children: [
@@ -56,14 +56,21 @@ class _AutomationRulesScreenState extends State<AutomationRulesScreen> {
                         children: [
                           Icon(
                             Icons.info_outline,
-                            color: Theme.of(context).colorScheme.onTertiaryContainer,
+                            color: Theme.of(context)
+                                .colorScheme
+                                .onTertiaryContainer,
                           ),
                           const SizedBox(width: 8),
                           Text(
                             'درباره قوانین خودکار',
-                            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                              color: Theme.of(context).colorScheme.onTertiaryContainer,
-                            ),
+                            style: Theme.of(context)
+                                .textTheme
+                                .titleMedium
+                                ?.copyWith(
+                                  color: Theme.of(context)
+                                      .colorScheme
+                                      .onTertiaryContainer,
+                                ),
                           ),
                         ],
                       ),
@@ -71,8 +78,10 @@ class _AutomationRulesScreenState extends State<AutomationRulesScreen> {
                       Text(
                         'برنامه به طور خودکار از یک فرهنگ لغت داخلی برای شناسایی دسته‌های رایج استفاده می‌کند. قوانین سفارشی را می‌توانید در نسخه‌های بعدی اضافه کنید.',
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: Theme.of(context).colorScheme.onTertiaryContainer,
-                        ),
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .onTertiaryContainer,
+                            ),
                       ),
                     ],
                   ),
@@ -109,7 +118,8 @@ class _AutomationRulesScreenState extends State<AutomationRulesScreen> {
                         color: rule.enabled ? Colors.green : Colors.grey,
                       ),
                       title: Text(rule.name),
-                      subtitle: Text('${_getRuleTypeLabel(rule.ruleType)}: ${rule.pattern} → ${rule.actionValue}'),
+                      subtitle: Text(
+                          '${_getRuleTypeLabel(rule.ruleType)}: ${rule.pattern} → ${rule.actionValue}'),
                       trailing: Switch(
                         value: rule.enabled,
                         onChanged: (v) async {

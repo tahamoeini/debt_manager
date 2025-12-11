@@ -2,14 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:debt_manager/core/theme/app_dimensions.dart';
 
 /// A reusable styled dropdown field for consistent dropdown menus.
-/// 
+///
 /// Example usage:
 /// ```dart
 /// DropdownField<String>(
 ///   label: 'دسته‌بندی',
 ///   icon: Icons.category,
 ///   value: selectedCategory,
-///   items: categories.map((cat) => 
+///   items: categories.map((cat) =>
 ///     DropdownMenuItem(value: cat, child: Text(cat))
 ///   ).toList(),
 ///   onChanged: (value) => setState(() => selectedCategory = value),

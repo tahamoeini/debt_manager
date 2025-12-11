@@ -58,87 +58,88 @@ class _BudgetScreenState extends State<BudgetScreen> {
         child: FutureBuilder<List<Budget>>(
           future: _budgetsFuture,
           builder: (context, snap) {
-          if (snap.connectionState != ConnectionState.done) {
-            return UIUtils.centeredLoading();
-          }
-          if (snap.hasError) {
-            return UIUtils.asyncErrorWidget(snap.error);
-          }
-          final budgets = snap.data ?? [];
-          if (budgets.isEmpty) {
-            return UIUtils.animatedEmptyState(
-              context: context,
-              title: 'هیچ بودجه‌ای تعریف نشده',
-              subtitle: 'برای شروع یک بودجه جدید اضافه کنید.',
-            );
-          }
+            if (snap.connectionState != ConnectionState.done) {
+              return UIUtils.centeredLoading();
+            }
+            if (snap.hasError) {
+              return UIUtils.asyncErrorWidget(snap.error);
+            }
+            final budgets = snap.data ?? [];
+            if (budgets.isEmpty) {
+              return UIUtils.animatedEmptyState(
+                context: context,
+                title: 'هیچ بودجه‌ای تعریف نشده',
+                subtitle: 'برای شروع یک بودجه جدید اضافه کنید.',
+              );
+            }
 
             return ListView.separated(
-            padding: AppConstants.paddingLarge,
-            itemCount: budgets.length,
-            separatorBuilder: (context, index) =>
-                const SizedBox(height: AppConstants.spaceMedium),
-            itemBuilder: (context, index) {
-              final b = budgets[index];
-              return Card(
-                shape: const RoundedRectangleBorder(
-                  borderRadius: AppConstants.borderRadiusSmall,
-                ),
-                child: InkWell(
-                  onTap: () async {
-                    // Edit
-                    await Navigator.of(context).push(MaterialPageRoute(
-                      builder: (_) => AddBudgetScreen(budget: b),
-                    ));
-                    _refresh();
-                  },
-                  child: Padding(
-                    padding: AppConstants.cardPadding,
-                    child: Row(
-                      children: [
-                        // Category icon
-                        CategoryIcon(
-                          category: b.category,
-                          icon: Icons
-                              .category, // Fallback, widget should handle category-specific icon
-                          size: 40,
-                        ),
-                        const SizedBox(width: AppConstants.spaceMedium),
-                        // Budget info and progress bar
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                b.category ?? 'عمومی',
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .titleMedium
-                                    ?.copyWith(
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                              ),
-                              const SizedBox(height: AppConstants.spaceXSmall),
-                              FutureBuilder<int>(
-                                future: _repo.computeUtilization(b),
-                                builder: (c, s) {
-                                  final used = s.data ?? 0;
-                                  return BudgetBar(
-                                    current: used,
-                                    limit: b.amount,
-                                    showPercentage: true,
-                                    showAmount: false,
-                                  );
-                                },
-                              ),
-                            ],
+              padding: AppConstants.paddingLarge,
+              itemCount: budgets.length,
+              separatorBuilder: (context, index) =>
+                  const SizedBox(height: AppConstants.spaceMedium),
+              itemBuilder: (context, index) {
+                final b = budgets[index];
+                return Card(
+                  shape: const RoundedRectangleBorder(
+                    borderRadius: AppConstants.borderRadiusSmall,
+                  ),
+                  child: InkWell(
+                    onTap: () async {
+                      // Edit
+                      await Navigator.of(context).push(MaterialPageRoute(
+                        builder: (_) => AddBudgetScreen(budget: b),
+                      ));
+                      _refresh();
+                    },
+                    child: Padding(
+                      padding: AppConstants.cardPadding,
+                      child: Row(
+                        children: [
+                          // Category icon
+                          CategoryIcon(
+                            category: b.category,
+                            icon: Icons
+                                .category, // Fallback, widget should handle category-specific icon
+                            size: 40,
                           ),
-                        ),
-                      ],
+                          const SizedBox(width: AppConstants.spaceMedium),
+                          // Budget info and progress bar
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  b.category ?? 'عمومی',
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .titleMedium
+                                      ?.copyWith(
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                ),
+                                const SizedBox(
+                                    height: AppConstants.spaceXSmall),
+                                FutureBuilder<int>(
+                                  future: _repo.computeUtilization(b),
+                                  builder: (c, s) {
+                                    final used = s.data ?? 0;
+                                    return BudgetBar(
+                                      current: used,
+                                      limit: b.amount,
+                                      showPercentage: true,
+                                      showAmount: false,
+                                    );
+                                  },
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
-                ),
-              );
+                );
               },
             );
           },

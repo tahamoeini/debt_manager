@@ -10,13 +10,15 @@ class DebtPayoffProjectionScreen extends StatefulWidget {
   const DebtPayoffProjectionScreen({super.key});
 
   @override
-  State<DebtPayoffProjectionScreen> createState() => _DebtPayoffProjectionScreenState();
+  State<DebtPayoffProjectionScreen> createState() =>
+      _DebtPayoffProjectionScreenState();
 }
 
-class _DebtPayoffProjectionScreenState extends State<DebtPayoffProjectionScreen> {
+class _DebtPayoffProjectionScreenState
+    extends State<DebtPayoffProjectionScreen> {
   final _repo = ReportsRepository();
   final _db = DatabaseHelper.instance;
-  
+
   Loan? _selectedLoan;
   List<Loan> _borrowedLoans = [];
   int _extraPayment = 0;
@@ -52,80 +54,85 @@ class _DebtPayoffProjectionScreenState extends State<DebtPayoffProjectionScreen>
                 padding: const EdgeInsets.all(16),
                 children: [
                   Card(
-                  child: Padding(
-                    padding: const EdgeInsets.all(12.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text('انتخاب وام:'),
-                        const SizedBox(height: 8),
-                        DropdownButton<int>(
-                          value: _selectedLoan?.id,
-                          isExpanded: true,
-                          items: _borrowedLoans.map((loan) {
-                            return DropdownMenuItem(
-                              value: loan.id,
-                              child: Text(loan.title.isNotEmpty ? loan.title : 'بدون عنوان'),
-                            );
-                          }).toList(),
-                          onChanged: (v) {
-                            if (v != null) {
-                              setState(() {
-                                _selectedLoan = _borrowedLoans.firstWhere((l) => l.id == v);
-                              });
-                            }
-                          },
-                        ),
-                        const SizedBox(height: 16),
-                        const Text('پرداخت اضافی ماهانه (تومان):'),
-                        const SizedBox(height: 8),
-                        TextField(
-                          keyboardType: TextInputType.number,
-                          decoration: const InputDecoration(
-                            hintText: '0',
-                            border: OutlineInputBorder(),
+                    child: Padding(
+                      padding: const EdgeInsets.all(12.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text('انتخاب وام:'),
+                          const SizedBox(height: 8),
+                          DropdownButton<int>(
+                            value: _selectedLoan?.id,
+                            isExpanded: true,
+                            items: _borrowedLoans.map((loan) {
+                              return DropdownMenuItem(
+                                value: loan.id,
+                                child: Text(loan.title.isNotEmpty
+                                    ? loan.title
+                                    : 'بدون عنوان'),
+                              );
+                            }).toList(),
+                            onChanged: (v) {
+                              if (v != null) {
+                                setState(() {
+                                  _selectedLoan = _borrowedLoans
+                                      .firstWhere((l) => l.id == v);
+                                });
+                              }
+                            },
                           ),
-                          onChanged: (v) {
-                            setState(() {
-                              _extraPayment = int.tryParse(v) ?? 0;
-                            });
-                          },
-                        ),
-                      ],
-                    ),
+                          const SizedBox(height: 16),
+                          const Text('پرداخت اضافی ماهانه (تومان):'),
+                          const SizedBox(height: 8),
+                          TextField(
+                            keyboardType: TextInputType.number,
+                            decoration: const InputDecoration(
+                              hintText: '0',
+                              border: OutlineInputBorder(),
+                            ),
+                            onChanged: (v) {
+                              setState(() {
+                                _extraPayment = int.tryParse(v) ?? 0;
+                              });
+                            },
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                   const SizedBox(height: 16),
-                if (_selectedLoan != null && _selectedLoan!.id != null)
-                  FutureBuilder<List<Map<String, dynamic>>>(
-                    future: _repo.projectDebtPayoff(
-                      _selectedLoan!.id!,
-                      extraPayment: _extraPayment > 0 ? _extraPayment : null,
-                    ),
-                    builder: (context, snap) {
-                      if (snap.connectionState == ConnectionState.waiting) {
-                        return const Center(child: CircularProgressIndicator());
-                      }
+                  if (_selectedLoan != null && _selectedLoan!.id != null)
+                    FutureBuilder<List<Map<String, dynamic>>>(
+                      future: _repo.projectDebtPayoff(
+                        _selectedLoan!.id!,
+                        extraPayment: _extraPayment > 0 ? _extraPayment : null,
+                      ),
+                      builder: (context, snap) {
+                        if (snap.connectionState == ConnectionState.waiting) {
+                          return const Center(
+                              child: CircularProgressIndicator());
+                        }
 
-                      final projections = snap.data ?? [];
-                      if (projections.isEmpty) {
-                        return const Card(
-                          child: Padding(
-                            padding: EdgeInsets.all(32.0),
-                            child: Center(child: Text('این وام بازپرداخت شده است')),
-                          ),
+                        final projections = snap.data ?? [];
+                        if (projections.isEmpty) {
+                          return const Card(
+                            child: Padding(
+                              padding: EdgeInsets.all(32.0),
+                              child: Center(
+                                  child: Text('این وام بازپرداخت شده است')),
+                            ),
+                          );
+                        }
+
+                        return Column(
+                          children: [
+                            _buildProjectionChart(projections),
+                            const SizedBox(height: 16),
+                            _buildProjectionSummary(projections),
+                          ],
                         );
-                      }
-
-                      return Column(
-                        children: [
-                          _buildProjectionChart(projections),
-                          const SizedBox(height: 16),
-                          _buildProjectionSummary(projections),
-                        ],
-                      );
-                    },
-                  ),
+                      },
+                    ),
                 ],
               ),
       ),
@@ -162,7 +169,8 @@ class _DebtPayoffProjectionScreenState extends State<DebtPayoffProjectionScreen>
                         showTitles: true,
                         reservedSize: 30,
                         getTitlesWidget: (value, meta) {
-                          if (value.toInt() >= 0 && value.toInt() < projections.length) {
+                          if (value.toInt() >= 0 &&
+                              value.toInt() < projections.length) {
                             final item = projections[value.toInt()];
                             final month = item['month'] as int;
                             return Padding(
@@ -189,8 +197,10 @@ class _DebtPayoffProjectionScreenState extends State<DebtPayoffProjectionScreen>
                         },
                       ),
                     ),
-                    topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                    rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                    topTitles: const AxisTitles(
+                        sideTitles: SideTitles(showTitles: false)),
+                    rightTitles: const AxisTitles(
+                        sideTitles: SideTitles(showTitles: false)),
                   ),
                   borderData: FlBorderData(show: true),
                   minY: 0,
@@ -209,7 +219,10 @@ class _DebtPayoffProjectionScreenState extends State<DebtPayoffProjectionScreen>
                       dotData: const FlDotData(show: true),
                       belowBarData: BarAreaData(
                         show: true,
-                        color: Theme.of(context).colorScheme.error.withValues(alpha: 0.1),
+                        color: Theme.of(context)
+                            .colorScheme
+                            .error
+                            .withValues(alpha: 0.1),
                       ),
                     ),
                   ],
@@ -249,7 +262,8 @@ class _DebtPayoffProjectionScreenState extends State<DebtPayoffProjectionScreen>
             _buildSummaryRow('مجموع پرداخت‌ها', formatCurrency(totalPayments)),
             if (_extraPayment > 0) ...[
               const SizedBox(height: 8),
-              _buildSummaryRow('پرداخت اضافی ماهانه', formatCurrency(_extraPayment)),
+              _buildSummaryRow(
+                  'پرداخت اضافی ماهانه', formatCurrency(_extraPayment)),
               const SizedBox(height: 12),
               Container(
                 padding: const EdgeInsets.all(8),

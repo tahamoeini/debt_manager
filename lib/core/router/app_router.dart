@@ -29,12 +29,14 @@ final goRouterProvider = Provider<GoRouter>((ref) {
           GoRoute(
             name: 'home',
             path: '/',
-            pageBuilder: (context, state) => const MaterialPage(child: HomeScreen()),
+            pageBuilder: (context, state) =>
+                const MaterialPage(child: HomeScreen()),
           ),
           GoRoute(
             name: 'loans',
             path: '/loans',
-            pageBuilder: (context, state) => const MaterialPage(child: LoansListScreen()),
+            pageBuilder: (context, state) =>
+                const MaterialPage(child: LoansListScreen()),
             routes: [
               GoRoute(
                 name: 'loanDetail',
@@ -50,19 +52,22 @@ final goRouterProvider = Provider<GoRouter>((ref) {
           GoRoute(
             name: 'budgets',
             path: '/budgets',
-            pageBuilder: (context, state) => const MaterialPage(child: BudgetScreen()),
+            pageBuilder: (context, state) =>
+                const MaterialPage(child: BudgetScreen()),
             routes: [
               GoRoute(
                 name: 'budgetAdd',
                 path: 'add',
-                pageBuilder: (context, state) => const MaterialPage(child: SizedBox()),
+                pageBuilder: (context, state) =>
+                    const MaterialPage(child: SizedBox()),
               ),
             ],
           ),
           GoRoute(
             name: 'reports',
             path: '/reports',
-            pageBuilder: (context, state) => const MaterialPage(child: ReportsScreen()),
+            pageBuilder: (context, state) =>
+                const MaterialPage(child: ReportsScreen()),
           ),
           GoRoute(
             name: 'insights',
@@ -77,13 +82,15 @@ final goRouterProvider = Provider<GoRouter>((ref) {
           GoRoute(
             name: 'settings',
             path: '/settings',
-            pageBuilder: (context, state) => const MaterialPage(child: SettingsScreen()),
+            pageBuilder: (context, state) =>
+                const MaterialPage(child: SettingsScreen()),
           ),
           // Lock screen route - shown when auth is required
           GoRoute(
             name: 'lock',
             path: '/lock',
-            pageBuilder: (context, state) => const MaterialPage(fullscreenDialog: true, child: LockScreen()),
+            pageBuilder: (context, state) =>
+                const MaterialPage(fullscreenDialog: true, child: LockScreen()),
           ),
         ],
       ),
@@ -94,9 +101,18 @@ final goRouterProvider = Provider<GoRouter>((ref) {
       final accessingLock = state.location == '/lock';
 
       // Define guarded route prefixes (any route under these should require auth)
-      const guardedPrefixes = ['/loans', '/budgets', '/reports', '/insights', '/backup', '/settings', '/export'];
+      const guardedPrefixes = [
+        '/loans',
+        '/budgets',
+        '/reports',
+        '/insights',
+        '/backup',
+        '/settings',
+        '/export'
+      ];
 
-      final wantsGuarded = guardedPrefixes.any((p) => state.location.startsWith(p));
+      final wantsGuarded =
+          guardedPrefixes.any((p) => state.location.startsWith(p));
 
       if (!unlocked && wantsGuarded && !accessingLock) {
         return '/lock';
@@ -107,6 +123,5 @@ final goRouterProvider = Provider<GoRouter>((ref) {
 
       return null;
     },
-    
   );
 });

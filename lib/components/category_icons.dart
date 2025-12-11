@@ -1,7 +1,7 @@
 library;
 
 /// Category Icons and Colors
-/// 
+///
 /// Centralized mapping of category names to their visual representation
 /// (icons and colors). This ensures consistency across the app.
 

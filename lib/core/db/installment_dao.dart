@@ -8,11 +8,13 @@ import 'package:debt_manager/core/utils/jalali_utils.dart';
 class InstallmentDao {
   InstallmentDao._();
 
-  static Future<int> insertInstallment(Database db, Installment installment) async {
+  static Future<int> insertInstallment(
+      Database db, Installment installment) async {
     return await db.insert('installments', installment.toMap());
   }
 
-  static Future<int> updateInstallment(Database db, Installment installment) async {
+  static Future<int> updateInstallment(
+      Database db, Installment installment) async {
     if (installment.id == null) throw ArgumentError('Installment.id is null');
     return await db.update(
       'installments',
@@ -30,7 +32,8 @@ class InstallmentDao {
     );
   }
 
-  static Future<List<Installment>> getInstallmentsByLoanId(Database db, int loanId) async {
+  static Future<List<Installment>> getInstallmentsByLoanId(
+      Database db, int loanId) async {
     final rows = await db.query(
       'installments',
       where: 'loan_id = ?',
@@ -40,7 +43,8 @@ class InstallmentDao {
     return rows.map((r) => Installment.fromMap(r)).toList();
   }
 
-  static Future<Map<int, List<Installment>>> getInstallmentsGroupedByLoanId(Database db, List<int> loanIds) async {
+  static Future<Map<int, List<Installment>>> getInstallmentsGroupedByLoanId(
+      Database db, List<int> loanIds) async {
     if (loanIds.isEmpty) return {};
     final placeholders = List.filled(loanIds.length, '?').join(', ');
     final rows = await db.query(
@@ -52,7 +56,9 @@ class InstallmentDao {
 
     final Map<int, List<Installment>> map = {};
     for (final r in rows) {
-      final lid = r['loan_id'] is int ? r['loan_id'] as int : int.parse(r['loan_id'].toString());
+      final lid = r['loan_id'] is int
+          ? r['loan_id'] as int
+          : int.parse(r['loan_id'].toString());
       map.putIfAbsent(lid, () => []).add(Installment.fromMap(r));
     }
 
@@ -63,7 +69,8 @@ class InstallmentDao {
   /// (Gregorian). The method internally converts to Jalali strings and
   /// returns mapped [Installment] objects; callers don't need to handle
   /// raw Jalali strings.
-  static Future<List<Installment>> getOverdueInstallments(Database db, DateTime now) async {
+  static Future<List<Installment>> getOverdueInstallments(
+      Database db, DateTime now) async {
     final todayJ = dateTimeToJalali(now);
     final todayStr = formatJalali(todayJ);
 
@@ -80,7 +87,8 @@ class InstallmentDao {
 
   /// Returns upcoming installments between [from] and [to] (inclusive).
   /// Input is Gregorian DateTimes; conversion to Jalali is handled internally.
-  static Future<List<Installment>> getUpcomingInstallments(Database db, DateTime from, DateTime to) async {
+  static Future<List<Installment>> getUpcomingInstallments(
+      Database db, DateTime from, DateTime to) async {
     final fromJ = dateTimeToJalali(from);
     final toJ = dateTimeToJalali(to);
     final fromStr = formatJalali(fromJ);
@@ -99,7 +107,8 @@ class InstallmentDao {
   /// Update installments that are overdue based on [now] and return the
   /// number of rows affected. This performs the same update that used to
   /// live in `DatabaseHelper.refreshOverdueInstallments`.
-  static Future<int> refreshOverdueInstallments(Database db, DateTime now) async {
+  static Future<int> refreshOverdueInstallments(
+      Database db, DateTime now) async {
     final todayJ = dateTimeToJalali(now);
     final todayStr = formatJalali(todayJ);
     final result = await db.rawUpdate(

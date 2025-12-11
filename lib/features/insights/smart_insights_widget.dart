@@ -13,7 +13,7 @@ class SmartInsightsWidget extends StatefulWidget {
 class _SmartInsightsWidgetState extends State<SmartInsightsWidget> {
   final _insightsService = SmartInsightsService.instance;
   final _settings = SettingsRepository();
-  
+
   Future<Map<String, dynamic>>? _insightsFuture;
   bool _enabled = true;
 
@@ -57,38 +57,42 @@ class _SmartInsightsWidgetState extends State<SmartInsightsWidget> {
           return const SizedBox.shrink();
         }
 
-        final subscriptions = data['subscriptions'] as List<SubscriptionInsight>? ?? [];
-        final billChanges = data['billChanges'] as List<BillChangeInsight>? ?? [];
+        final subscriptions =
+            data['subscriptions'] as List<SubscriptionInsight>? ?? [];
+        final billChanges =
+            data['billChanges'] as List<BillChangeInsight>? ?? [];
 
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const SizedBox(height: 12),
-            Text('💡 پیشنهادهای هوشمند', style: Theme.of(context).textTheme.titleMedium),
+            Text('💡 پیشنهادهای هوشمند',
+                style: Theme.of(context).textTheme.titleMedium),
             const SizedBox(height: 8),
-            
+
             // Subscription insights
             ...subscriptions.map((sub) => _buildInsightCard(
-              context,
-              _insightsService.generateSuggestionMessage(sub),
-              Icons.subscriptions_outlined,
-              Colors.blue,
-            )),
+                  context,
+                  _insightsService.generateSuggestionMessage(sub),
+                  Icons.subscriptions_outlined,
+                  Colors.blue,
+                )),
 
             // Bill change insights
             ...billChanges.map((change) => _buildInsightCard(
-              context,
-              _insightsService.generateBillChangeMessage(change),
-              Icons.trending_up_outlined,
-              Colors.orange,
-            )),
+                  context,
+                  _insightsService.generateBillChangeMessage(change),
+                  Icons.trending_up_outlined,
+                  Colors.orange,
+                )),
           ],
         );
       },
     );
   }
 
-  Widget _buildInsightCard(BuildContext context, String message, IconData icon, Color color) {
+  Widget _buildInsightCard(
+      BuildContext context, String message, IconData icon, Color color) {
     return Card(
       margin: const EdgeInsets.only(bottom: 8),
       child: ListTile(

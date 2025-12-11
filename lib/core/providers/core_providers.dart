@@ -49,7 +49,8 @@ final databaseHelperProvider = Provider<DatabaseHelper>((ref) {
 });
 
 /// Provides the SmartNotificationService singleton.
-final smartNotificationServiceProvider = Provider<SmartNotificationService>((ref) {
+final smartNotificationServiceProvider =
+    Provider<SmartNotificationService>((ref) {
   return SmartNotificationService.instance;
 });
 
@@ -65,7 +66,7 @@ final refreshTriggerProvider = StateProvider<int>((ref) => 0);
 /// (e.g. 'spendingByCategory:2025-12'). Consumers should invalidate when
 /// underlying data changes (e.g. when loans/installments are modified).
 class ReportsCacheNotifier extends StateNotifier<Map<String, dynamic>> {
-  ReportsCacheNotifier(): super({});
+  ReportsCacheNotifier() : super({});
 
   void put(String key, dynamic value) {
     state = {...state, key: value};
@@ -86,6 +87,7 @@ class ReportsCacheNotifier extends StateNotifier<Map<String, dynamic>> {
   void clear() => state = {};
 }
 
-final reportsCacheProvider = StateNotifierProvider<ReportsCacheNotifier, Map<String, dynamic>>((ref) {
+final reportsCacheProvider =
+    StateNotifierProvider<ReportsCacheNotifier, Map<String, dynamic>>((ref) {
   return ReportsCacheNotifier();
 });

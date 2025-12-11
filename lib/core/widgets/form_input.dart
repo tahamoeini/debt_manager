@@ -4,7 +4,7 @@ import 'package:debt_manager/core/theme/app_dimensions.dart';
 
 /// A reusable styled text input field with consistent Material 3 decoration.
 /// Wraps TextFormField with app-wide styling.
-/// 
+///
 /// Example usage:
 /// ```dart
 /// FormInput(

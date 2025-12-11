@@ -1,7 +1,7 @@
 library;
 
 /// Budget Progress Bar Widget
-/// 
+///
 /// A reusable widget for displaying budget utilization with a progress bar.
 /// Colors change based on utilization thresholds.
 
@@ -139,7 +139,7 @@ class BudgetProgressCard extends StatelessWidget {
     final textTheme = theme.textTheme;
 
     final percentage = limit > 0 ? (current / limit).clamp(0.0, 1.0) : 0.0;
-    
+
     Color statusColor;
     if (percentage < 0.6) {
       statusColor = colorScheme.success;

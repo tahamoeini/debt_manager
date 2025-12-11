@@ -48,7 +48,8 @@ void main() {
       expect(find.text('OK'), findsOneWidget);
     });
 
-    testWidgets('does not display icon when not provided', (WidgetTester tester) async {
+    testWidgets('does not display icon when not provided',
+        (WidgetTester tester) async {
       await tester.pumpWidget(
         const MaterialApp(
           home: Scaffold(
@@ -79,7 +80,8 @@ void main() {
       );
 
       expect(find.text('Confirm Delete'), findsOneWidget);
-      expect(find.text('Are you sure you want to delete this item?'), findsOneWidget);
+      expect(find.text('Are you sure you want to delete this item?'),
+          findsOneWidget);
     });
 
     testWidgets('displays default buttons', (WidgetTester tester) async {
@@ -116,7 +118,8 @@ void main() {
       expect(find.text('Cancel'), findsOneWidget);
     });
 
-    testWidgets('returns false when cancel is pressed', (WidgetTester tester) async {
+    testWidgets('returns false when cancel is pressed',
+        (WidgetTester tester) async {
       bool? result;
 
       await tester.pumpWidget(
@@ -151,7 +154,8 @@ void main() {
       expect(result, false);
     });
 
-    testWidgets('returns true when confirm is pressed', (WidgetTester tester) async {
+    testWidgets('returns true when confirm is pressed',
+        (WidgetTester tester) async {
       bool? result;
 
       await tester.pumpWidget(
@@ -186,7 +190,8 @@ void main() {
       expect(result, true);
     });
 
-    testWidgets('uses error styling for dangerous action', (WidgetTester tester) async {
+    testWidgets('uses error styling for dangerous action',
+        (WidgetTester tester) async {
       await tester.pumpWidget(
         const MaterialApp(
           home: Scaffold(

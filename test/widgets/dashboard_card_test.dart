@@ -5,7 +5,8 @@ import 'package:debt_manager/core/widgets/dashboard_card.dart';
 
 void main() {
   group('DashboardCard', () {
-    testWidgets('displays title, value, and subtitle', (WidgetTester tester) async {
+    testWidgets('displays title, value, and subtitle',
+        (WidgetTester tester) async {
       await tester.pumpWidget(
         const MaterialApp(
           home: Scaffold(
@@ -39,7 +40,8 @@ void main() {
       expect(find.byIcon(Icons.account_balance_wallet), findsOneWidget);
     });
 
-    testWidgets('does not display icon when not provided', (WidgetTester tester) async {
+    testWidgets('does not display icon when not provided',
+        (WidgetTester tester) async {
       await tester.pumpWidget(
         const MaterialApp(
           home: Scaffold(
@@ -54,7 +56,8 @@ void main() {
       expect(find.byType(Icon), findsNothing);
     });
 
-    testWidgets('applies custom accent color to icon', (WidgetTester tester) async {
+    testWidgets('applies custom accent color to icon',
+        (WidgetTester tester) async {
       const customColor = Colors.red;
 
       await tester.pumpWidget(

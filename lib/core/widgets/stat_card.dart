@@ -3,7 +3,7 @@ import 'package:debt_manager/core/theme/app_dimensions.dart';
 
 /// A compact card widget for displaying a statistic with title and value.
 /// Useful for overview sections and summary displays.
-/// 
+///
 /// Example usage:
 /// ```dart
 /// StatCard(

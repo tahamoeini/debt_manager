@@ -4,7 +4,8 @@ import 'package:debt_manager/components/budget_bar.dart';
 
 void main() {
   group('BudgetBar', () {
-    testWidgets('displays green color when under low threshold', (tester) async {
+    testWidgets('displays green color when under low threshold',
+        (tester) async {
       await tester.pumpWidget(
         const MaterialApp(
           home: Scaffold(
@@ -19,7 +20,7 @@ void main() {
 
       // Should show 50% (which is < 60% threshold)
       expect(find.text('50%'), findsOneWidget);
-      
+
       // Find LinearProgressIndicator
       final progressIndicator = tester.widget<LinearProgressIndicator>(
         find.byType(LinearProgressIndicator),
@@ -27,7 +28,8 @@ void main() {
       expect(progressIndicator.value, 0.5);
     });
 
-    testWidgets('displays orange color when between thresholds', (tester) async {
+    testWidgets('displays orange color when between thresholds',
+        (tester) async {
       await tester.pumpWidget(
         const MaterialApp(
           home: Scaffold(
@@ -42,7 +44,7 @@ void main() {
 
       // Should show 75% (which is between 60% and 90%)
       expect(find.text('75%'), findsOneWidget);
-      
+
       final progressIndicator = tester.widget<LinearProgressIndicator>(
         find.byType(LinearProgressIndicator),
       );
@@ -64,7 +66,7 @@ void main() {
 
       // Should show 95% (which is > 90% threshold)
       expect(find.text('95%'), findsOneWidget);
-      
+
       final progressIndicator = tester.widget<LinearProgressIndicator>(
         find.byType(LinearProgressIndicator),
       );
@@ -119,7 +121,7 @@ void main() {
 
       // Should show 100% (clamped)
       expect(find.text('100%'), findsOneWidget);
-      
+
       final progressIndicator = tester.widget<LinearProgressIndicator>(
         find.byType(LinearProgressIndicator),
       );

@@ -1,7 +1,7 @@
 library;
 
 /// Design System Constants
-/// 
+///
 /// This file contains all design constants used throughout the app to maintain
 /// visual consistency. All widgets should reference these values rather than
 /// hardcoded values.
@@ -14,19 +14,19 @@ class AppSpacing {
 
   /// Extra small spacing (4px)
   static const double xs = 4.0;
-  
+
   /// Small spacing (8px)
   static const double sm = 8.0;
-  
+
   /// Medium spacing (12px)
   static const double md = 12.0;
-  
+
   /// Large spacing (16px)
   static const double lg = 16.0;
-  
+
   /// Extra large spacing (24px)
   static const double xl = 24.0;
-  
+
   /// Extra extra large spacing (32px)
   static const double xxl = 32.0;
 
@@ -52,13 +52,13 @@ class AppRadius {
 
   /// Small radius (8px)
   static const double sm = 8.0;
-  
+
   /// Medium radius (12px) - default for cards
   static const double md = 12.0;
-  
+
   /// Large radius (16px)
   static const double lg = 16.0;
-  
+
   /// Extra large radius (20px)
   static const double xl = 20.0;
 
@@ -81,13 +81,13 @@ class AppIconSize {
 
   /// Small icon size (16px)
   static const double sm = 16.0;
-  
+
   /// Medium icon size (24px)
   static const double md = 24.0;
-  
+
   /// Large icon size (32px)
   static const double lg = 32.0;
-  
+
   /// Extra large icon size (48px)
   static const double xl = 48.0;
 }
@@ -144,16 +144,16 @@ class AppElevation {
 
   /// No elevation
   static const double none = 0.0;
-  
+
   /// Low elevation (1px)
   static const double low = 1.0;
-  
+
   /// Medium elevation (2px)
   static const double medium = 2.0;
-  
+
   /// High elevation (4px)
   static const double high = 4.0;
-  
+
   /// Extra high elevation (8px)
   static const double extraHigh = 8.0;
 }

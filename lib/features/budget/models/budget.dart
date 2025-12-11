@@ -4,14 +4,27 @@ import 'package:flutter/foundation.dart';
 class Budget {
   final int? id;
   final String? category; // null means general (all categories)
-  final int amount; // stored in cents or lowest currency unit (app uses integers)
+  final int
+      amount; // stored in cents or lowest currency unit (app uses integers)
   final String period; // yyyy-MM
   final bool rollover;
   final String createdAt;
 
-  const Budget({this.id, this.category, required this.amount, required this.period, required this.rollover, required this.createdAt});
+  const Budget(
+      {this.id,
+      this.category,
+      required this.amount,
+      required this.period,
+      required this.rollover,
+      required this.createdAt});
 
-  Budget copyWith({int? id, String? category, int? amount, String? period, bool? rollover, String? createdAt}) {
+  Budget copyWith(
+      {int? id,
+      String? category,
+      int? amount,
+      String? period,
+      bool? rollover,
+      String? createdAt}) {
     return Budget(
       id: id ?? this.id,
       category: category ?? this.category,
@@ -35,11 +48,18 @@ class Budget {
 
   factory Budget.fromMap(Map<String, dynamic> map) {
     return Budget(
-      id: map['id'] is int ? map['id'] as int : (map['id'] != null ? int.tryParse(map['id'].toString()) : null),
+      id: map['id'] is int
+          ? map['id'] as int
+          : (map['id'] != null ? int.tryParse(map['id'].toString()) : null),
       category: map['category'] as String?,
-      amount: map['amount'] is int ? map['amount'] as int : int.parse(map['amount'].toString()),
+      amount: map['amount'] is int
+          ? map['amount'] as int
+          : int.parse(map['amount'].toString()),
       period: map['period'] as String? ?? '',
-      rollover: (map['rollover'] is int ? (map['rollover'] as int) : int.tryParse(map['rollover'].toString())) == 1,
+      rollover: (map['rollover'] is int
+              ? (map['rollover'] as int)
+              : int.tryParse(map['rollover'].toString())) ==
+          1,
       createdAt: map['created_at'] as String? ?? '',
     );
   }

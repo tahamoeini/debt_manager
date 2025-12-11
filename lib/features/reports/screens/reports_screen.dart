@@ -91,9 +91,8 @@ class _ReportsScreenState extends State<ReportsScreen> {
     }
 
     // 2) Prepare date range filters as Jalali yyyy-MM-dd strings (or null).
-    final fromStr = _from != null
-        ? formatJalali(dateTimeToJalali(_from!))
-        : null;
+    final fromStr =
+        _from != null ? formatJalali(dateTimeToJalali(_from!)) : null;
     final toStr = _to != null ? formatJalali(dateTimeToJalali(_to!)) : null;
 
     // 3) Load loans filtered by direction (null = all). This keeps behavior
@@ -208,18 +207,19 @@ class _ReportsScreenState extends State<ReportsScreen> {
         fromDate: _from,
         toDate: _to,
       );
-      
+
       if (!mounted) return;
-      
+
       await Share.shareXFiles(
         [XFile(filePath)],
         text: 'خروجی اقساط',
       );
-      
+
       if (!mounted) return;
-      
+
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('فایل CSV با موفقیت ایجاد و اشتراک‌گذاری شد')),
+        const SnackBar(
+            content: Text('فایل CSV با موفقیت ایجاد و اشتراک‌گذاری شد')),
       );
     } catch (e) {
       if (!mounted) return;
@@ -240,7 +240,8 @@ class _ReportsScreenState extends State<ReportsScreen> {
       if (!mounted) return;
 
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('فایل PDF با موفقیت ایجاد و اشتراک‌گذاری شد')),
+        const SnackBar(
+            content: Text('فایل PDF با موفقیت ایجاد و اشتراک‌گذاری شد')),
       );
     } catch (e) {
       if (!mounted) return;
@@ -309,7 +310,8 @@ class _ReportsScreenState extends State<ReportsScreen> {
         FutureBuilder<List<Achievement>>(
           future: AchievementsRepository.instance.getEarnedAchievements(),
           builder: (context, snap) {
-            if (snap.connectionState == ConnectionState.waiting) return const SizedBox.shrink();
+            if (snap.connectionState == ConnectionState.waiting)
+              return const SizedBox.shrink();
             final badges = snap.data ?? [];
             if (badges.isEmpty) return const SizedBox.shrink();
             return Card(
@@ -318,7 +320,8 @@ class _ReportsScreenState extends State<ReportsScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('نشان‌ها', style: Theme.of(context).textTheme.titleMedium),
+                    Text('نشان‌ها',
+                        style: Theme.of(context).textTheme.titleMedium),
                     const SizedBox(height: 8),
                     SizedBox(
                       height: 64,
@@ -334,11 +337,13 @@ class _ReportsScreenState extends State<ReportsScreen> {
                                 child: Icon(Icons.emoji_events, size: 24),
                               ),
                               const SizedBox(height: 6),
-                              Text(a.title, style: Theme.of(context).textTheme.bodySmall),
+                              Text(a.title,
+                                  style: Theme.of(context).textTheme.bodySmall),
                             ],
                           );
                         },
-                        separatorBuilder: (context, index) => const SizedBox(width: 12),
+                        separatorBuilder: (context, index) =>
+                            const SizedBox(width: 12),
                         itemCount: badges.length,
                       ),
                     ),
@@ -603,7 +608,9 @@ class _ReportsScreenState extends State<ReportsScreen> {
                           const SizedBox(height: 4),
                           Text(
                             _statusLabel(inst.status),
-                            style: Theme.of(context).textTheme.bodyMedium
+                            style: Theme.of(context)
+                                .textTheme
+                                .bodyMedium
                                 ?.copyWith(color: statusColor),
                           ),
                         ],

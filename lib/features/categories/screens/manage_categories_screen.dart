@@ -57,7 +57,7 @@ class _ManageCategoriesScreenState extends State<ManageCategoriesScreen> {
             onPressed: () async {
               final name = controller.text.trim();
               if (name.isEmpty) return;
-              
+
               try {
                 await _categoryService.addCategory(name);
                 Navigator.of(ctx).pop();
@@ -83,7 +83,8 @@ class _ManageCategoriesScreenState extends State<ManageCategoriesScreen> {
   Future<void> _showRenameCategoryDialog(String category) async {
     if (_categoryService.isDefaultCategory(category)) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('دسته‌بندی‌های پیش‌فرض قابل تغییر نام نیستند')),
+        const SnackBar(
+            content: Text('دسته‌بندی‌های پیش‌فرض قابل تغییر نام نیستند')),
       );
       return;
     }
@@ -110,7 +111,7 @@ class _ManageCategoriesScreenState extends State<ManageCategoriesScreen> {
             onPressed: () async {
               final newName = controller.text.trim();
               if (newName.isEmpty) return;
-              
+
               try {
                 await _categoryService.renameCategory(category, newName);
                 Navigator.of(ctx).pop();
@@ -144,13 +145,17 @@ class _ManageCategoriesScreenState extends State<ManageCategoriesScreen> {
     // Check if any budgets use this category
     final budgetsRepo = BudgetsRepository();
     final allBudgets = await budgetsRepo.getAllBudgets();
-    final categoryBudgets = allBudgets.where(
-      (b) => b.category?.toLowerCase() == category.toLowerCase(),
-    ).toList();
+    final categoryBudgets = allBudgets
+        .where(
+          (b) => b.category?.toLowerCase() == category.toLowerCase(),
+        )
+        .toList();
 
-    String warningText = 'آیا مطمئن هستید که می‌خواهید "$category" را حذف کنید؟';
+    String warningText =
+        'آیا مطمئن هستید که می‌خواهید "$category" را حذف کنید؟';
     if (categoryBudgets.isNotEmpty) {
-      warningText = 'هشدار: ${categoryBudgets.length} بودجه از این دسته‌بندی استفاده می‌کند.\n\n'
+      warningText =
+          'هشدار: ${categoryBudgets.length} بودجه از این دسته‌بندی استفاده می‌کند.\n\n'
           'حذف این دسته‌بندی باعث نمی‌شود بودجه‌ها حذف شوند، اما آنها با دسته‌بندی حذف‌شده نمایش داده خواهند شد.\n\n'
           'آیا مطمئن هستید که می‌خواهید ادامه دهید؟';
     }
@@ -214,13 +219,16 @@ class _ManageCategoriesScreenState extends State<ManageCategoriesScreen> {
           return Card(
             margin: const EdgeInsets.only(bottom: 8),
             child: ListTile(
-              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              contentPadding:
+                  const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               leading: CircleAvatar(
                 backgroundColor: color.withValues(alpha: 0.2),
                 child: Icon(Icons.label_outlined, color: color),
               ),
-              title: Text(category, style: Theme.of(context).textTheme.titleMedium),
-              subtitle: isDefault ? const Text('پیش‌فرض') : const Text('سفارشی'),
+              title: Text(category,
+                  style: Theme.of(context).textTheme.titleMedium),
+              subtitle:
+                  isDefault ? const Text('پیش‌فرض') : const Text('سفارشی'),
               trailing: isDefault
                   ? null
                   : Row(

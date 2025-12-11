@@ -39,7 +39,8 @@ class UIUtils {
     String? subtitle,
     String? svgAsset = 'assets/images/empty_state.svg',
   }) {
-    final color = Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6);
+    final color =
+        Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6);
     Widget graphic;
     try {
       graphic = SvgPicture.asset(

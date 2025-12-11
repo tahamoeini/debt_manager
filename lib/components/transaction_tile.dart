@@ -1,7 +1,7 @@
 library;
 
 /// Transaction List Tile Widget
-/// 
+///
 /// A reusable widget for displaying transaction items in lists.
 /// Provides consistent formatting and supports swipe actions.
 
@@ -160,13 +160,15 @@ class TransactionTile extends StatelessWidget {
           if (direction == DismissDirection.endToStart && onEdit != null) {
             onEdit!();
             return false;
-          } else if (direction == DismissDirection.startToEnd && onDelete != null) {
+          } else if (direction == DismissDirection.startToEnd &&
+              onDelete != null) {
             // Show confirmation dialog
             final confirmed = await showDialog<bool>(
               context: context,
               builder: (context) => AlertDialog(
                 title: const Text('تأیید حذف'),
-                content: const Text('آیا مطمئن هستید که می‌خواهید این مورد را حذف کنید؟'),
+                content: const Text(
+                    'آیا مطمئن هستید که می‌خواهید این مورد را حذف کنید؟'),
                 actions: [
                   TextButton(
                     onPressed: () => Navigator.of(context).pop(false),
@@ -174,7 +176,8 @@ class TransactionTile extends StatelessWidget {
                   ),
                   TextButton(
                     onPressed: () => Navigator.of(context).pop(true),
-                    child: Text('حذف', style: TextStyle(color: colorScheme.danger)),
+                    child: Text('حذف',
+                        style: TextStyle(color: colorScheme.danger)),
                   ),
                 ],
               ),

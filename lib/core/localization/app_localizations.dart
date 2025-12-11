@@ -8,7 +8,8 @@ class AppLocalizations {
 
   AppLocalizations(this.locale);
 
-  static const LocalizationsDelegate<AppLocalizations> delegate = _AppLocalizationsDelegate();
+  static const LocalizationsDelegate<AppLocalizations> delegate =
+      _AppLocalizationsDelegate();
 
   static Future<AppLocalizations> load(Locale locale) async {
     final obj = AppLocalizations(locale);
@@ -25,10 +26,12 @@ class AppLocalizations {
 
   String t(String key) => _strings[key] ?? key;
 
-  static AppLocalizations of(BuildContext context) => Localizations.of<AppLocalizations>(context, AppLocalizations)!;
+  static AppLocalizations of(BuildContext context) =>
+      Localizations.of<AppLocalizations>(context, AppLocalizations)!;
 }
 
-class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
+class _AppLocalizationsDelegate
+    extends LocalizationsDelegate<AppLocalizations> {
   const _AppLocalizationsDelegate();
 
   @override
@@ -38,5 +41,6 @@ class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> 
   Future<AppLocalizations> load(Locale locale) => AppLocalizations.load(locale);
 
   @override
-  bool shouldReload(covariant LocalizationsDelegate<AppLocalizations> old) => false;
+  bool shouldReload(covariant LocalizationsDelegate<AppLocalizations> old) =>
+      false;
 }

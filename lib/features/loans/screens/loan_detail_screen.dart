@@ -503,20 +503,15 @@ class _LoanDetailScreenState extends State<LoanDetailScreen> {
                 ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
               ),
               const SizedBox(height: 8),
-              for (final inst in installments) ...[
-                (() {
-                  final due = formatJalaliForDisplay(
-                    _parseJalaliSafe(inst.dueDateJalali),
-                  );
-
-                  return Card(
-                    child: ListTile(
-                      title: Text(due),
-                      subtitle: Text(_statusText(inst.status)),
+              for (final inst in installments) 
+                Card(
+                  child: ListTile(
+                    title: Text(
+                      formatJalaliForDisplay(_parseJalaliSafe(inst.dueDateJalali)),
                     ),
-                  );
-                })(),
-              ],
+                    subtitle: Text(_statusText(inst.status)),
+                  ),
+                ),
             ],
           ),
         );

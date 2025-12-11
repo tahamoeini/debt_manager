@@ -43,13 +43,18 @@ class _AppShellState extends State<AppShell> {
         extendBodyBehindAppBar: false,
         appBar: AppBar(
           title: Text(_titles[_selectedIndex]),
-          systemOverlayStyle: SystemUiOverlayStyle(statusBarBrightness: Theme.of(context).brightness == Brightness.dark ? Brightness.dark : Brightness.light),
+          systemOverlayStyle: SystemUiOverlayStyle(
+              statusBarBrightness:
+                  Theme.of(context).brightness == Brightness.dark
+                      ? Brightness.dark
+                      : Brightness.light),
           actions: [
             if (kDebugMode)
               GestureDetector(
                 onLongPress: () {
                   // Toggle overlay
-                  DebugLogger.overlayEnabled.value = !DebugLogger.overlayEnabled.value;
+                  DebugLogger.overlayEnabled.value =
+                      !DebugLogger.overlayEnabled.value;
                 },
                 child: IconButton(
                   icon: const Icon(Icons.bug_report_outlined),
@@ -71,17 +76,20 @@ class _AppShellState extends State<AppShell> {
                                   builder: (context, val, _) => SwitchListTile(
                                     title: const Text('SafeArea overlay'),
                                     value: val,
-                                    onChanged: (v) => DebugLogger.overlayEnabled.value = v,
+                                    onChanged: (v) =>
+                                        DebugLogger.overlayEnabled.value = v,
                                   ),
                                 ),
                               ]),
                               Row(children: [
                                 ValueListenableBuilder<bool>(
-                                  valueListenable: DebugLogger.showBoundsEnabled,
+                                  valueListenable:
+                                      DebugLogger.showBoundsEnabled,
                                   builder: (context, val, _) => SwitchListTile(
                                     title: const Text('Show widget bounds'),
                                     value: val,
-                                    onChanged: (v) => DebugLogger.showBoundsEnabled.value = v,
+                                    onChanged: (v) =>
+                                        DebugLogger.showBoundsEnabled.value = v,
                                   ),
                                 ),
                               ]),
@@ -92,7 +100,9 @@ class _AppShellState extends State<AppShell> {
                           ),
                         ),
                         actions: [
-                          TextButton(onPressed: () => Navigator.of(ctx).pop(), child: const Text('Close')),
+                          TextButton(
+                              onPressed: () => Navigator.of(ctx).pop(),
+                              child: const Text('Close')),
                         ],
                       ),
                     );

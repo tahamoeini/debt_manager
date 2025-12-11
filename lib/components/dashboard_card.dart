@@ -1,7 +1,7 @@
 library;
 
 /// Dashboard Card Widget
-/// 
+///
 /// A reusable card widget for displaying stats and metrics on dashboard screens.
 /// Provides consistent styling with Material 3 design principles.
 
@@ -53,8 +53,8 @@ class DashboardCard extends StatelessWidget {
         color: colorScheme.surface,
         borderRadius: AppRadius.card,
         border: Border.all(
-          color: accentColor?.withValues(alpha: 0.3) ?? 
-                 colorScheme.outline.withValues(alpha: 0.2),
+          color: accentColor?.withValues(alpha: 0.3) ??
+              colorScheme.outline.withValues(alpha: 0.2),
           width: 1,
         ),
       ),

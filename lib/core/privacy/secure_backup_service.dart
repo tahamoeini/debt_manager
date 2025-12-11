@@ -21,9 +21,11 @@ class SecureBackupService {
   /// backup and return the bytes ready to save or chunk for QR.
   /// If [requireAuth] is true, performs biometric/PIN authentication
   /// before exporting.
-  Future<Uint8List> createEncryptedBackup({String? password, bool requireAuth = true}) async {
+  Future<Uint8List> createEncryptedBackup(
+      {String? password, bool requireAuth = true}) async {
     if (requireAuth) {
-      final ok = await _localAuth.authenticate(reason: 'Authenticate to export backup');
+      final ok = await _localAuth.authenticate(
+          reason: 'Authenticate to export backup');
       if (!ok) throw Exception('Authentication required');
     }
 
@@ -35,14 +37,17 @@ class SecureBackupService {
   /// Import encrypted/compressed bytes produced by `createEncryptedBackup`.
   /// If [requireAuth] is true, authenticate first. After successful
   /// import, rebuild notifications and re-run smart insights (non-notifying).
-  Future<void> importEncryptedBackup(Uint8List encryptedCompressed, {String? password, bool requireAuth = true}) async {
+  Future<void> importEncryptedBackup(Uint8List encryptedCompressed,
+      {String? password, bool requireAuth = true}) async {
     if (requireAuth) {
-      final ok = await _localAuth.authenticate(reason: 'Authenticate to import backup');
+      final ok = await _localAuth.authenticate(
+          reason: 'Authenticate to import backup');
       if (!ok) throw Exception('Authentication required');
     }
 
     // Decrypt and decompress to JSON string
-    final json = await BackupService.decryptCompressedBytes(encryptedCompressed, password ?? '');
+    final json = await BackupService.decryptCompressedBytes(
+        encryptedCompressed, password ?? '');
 
     // Import via PrivacyGateway which handles remapping and DB insertion
     await PrivacyGateway.instance.importJsonString(json);

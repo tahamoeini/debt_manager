@@ -13,7 +13,8 @@ class BudgetsRepository {
   Future<int> updateBudget(Budget budget) async {
     if (budget.id == null) throw ArgumentError('Budget.id is null');
     final db = await _db.database;
-    return await db.update('budgets', budget.toMap(), where: 'id = ?', whereArgs: [budget.id]);
+    return await db.update('budgets', budget.toMap(),
+        where: 'id = ?', whereArgs: [budget.id]);
   }
 
   Future<int> deleteBudget(int id) async {
@@ -23,20 +24,23 @@ class BudgetsRepository {
 
   Future<List<Budget>> getBudgetsByPeriod(String period) async {
     final db = await _db.database;
-    final rows = await db.query('budgets', where: 'period = ?', whereArgs: [period], orderBy: 'category ASC');
+    final rows = await db.query('budgets',
+        where: 'period = ?', whereArgs: [period], orderBy: 'category ASC');
     return rows.map((r) => Budget.fromMap(r)).toList();
   }
 
   Future<Budget?> getBudgetById(int id) async {
     final db = await _db.database;
-    final rows = await db.query('budgets', where: 'id = ?', whereArgs: [id], limit: 1);
+    final rows =
+        await db.query('budgets', where: 'id = ?', whereArgs: [id], limit: 1);
     if (rows.isEmpty) return null;
     return Budget.fromMap(rows.first);
   }
 
   Future<List<Budget>> getAllBudgets() async {
     final db = await _db.database;
-    final rows = await db.query('budgets', orderBy: 'period DESC, category ASC');
+    final rows =
+        await db.query('budgets', orderBy: 'period DESC, category ASC');
     return rows.map((r) => Budget.fromMap(r)).toList();
   }
 

@@ -37,7 +37,8 @@ class SmartInsightsService {
           notificationId: 9000 + scheduled.millisecondsSinceEpoch % 1000,
           scheduledTime: scheduled,
           title: 'Smart suggestion',
-          body: 'You have ${entry.value.length} payments on ${entry.key}. Consider consolidating subscriptions.',
+          body:
+              'You have ${entry.value.length} payments on ${entry.key}. Consider consolidating subscriptions.',
         );
       }
     }

@@ -13,7 +13,8 @@ class Achievement {
 
 class AchievementsRepository {
   AchievementsRepository._internal();
-  static final AchievementsRepository instance = AchievementsRepository._internal();
+  static final AchievementsRepository instance =
+      AchievementsRepository._internal();
 
   static const _keyEarned = 'achievements_earned';
   static const _keyPaidMonths = 'achievements_paid_months';
@@ -33,13 +34,22 @@ class AchievementsRepository {
     final earned = await _getEarnedSet();
     final list = <Achievement>[];
     if (earned.contains('first_debt_paid')) {
-      list.add(Achievement(id: 'first_debt_paid', title: 'اولین بدهی پرداخت شد', message: 'تبریک! اولین بدهی خود را پرداخت کردید.'));
+      list.add(Achievement(
+          id: 'first_debt_paid',
+          title: 'اولین بدهی پرداخت شد',
+          message: 'تبریک! اولین بدهی خود را پرداخت کردید.'));
     }
     if (earned.contains('three_months_streak')) {
-      list.add(Achievement(id: 'three_months_streak', title: '۳ ماه متوالی پرداخت', message: 'شما سه ماه پیاپی پرداخت داشته‌اید. ادامه بده!'));
+      list.add(Achievement(
+          id: 'three_months_streak',
+          title: '۳ ماه متوالی پرداخت',
+          message: 'شما سه ماه پیاپی پرداخت داشته‌اید. ادامه بده!'));
     }
     if (earned.contains('debt_free')) {
-      list.add(Achievement(id: 'debt_free', title: 'بدهی‌ها صفر شد', message: 'تبریک! شما الان بدون بدهی هستید.'));
+      list.add(Achievement(
+          id: 'debt_free',
+          title: 'بدهی‌ها صفر شد',
+          message: 'تبریک! شما الان بدون بدهی هستید.'));
     }
     return list;
   }
@@ -69,7 +79,8 @@ class AchievementsRepository {
   }
 
   /// Called after a payment is recorded. Returns list of newly awarded achievements.
-  Future<List<Achievement>> handlePayment({int? loanId, required DateTime paidAt}) async {
+  Future<List<Achievement>> handlePayment(
+      {int? loanId, required DateTime paidAt}) async {
     final newly = <Achievement>[];
 
     // Track month of payment
@@ -84,11 +95,16 @@ class AchievementsRepository {
 
     // 1) First Debt Paid: if loanId provided and this loan now fully paid
     if (loanId != null && !earned.contains('first_debt_paid')) {
-      final installments = await DatabaseHelper.instance.getInstallmentsByLoanId(loanId);
-      final allPaid = installments.isNotEmpty && installments.every((i) => i.status == InstallmentStatus.paid);
+      final installments =
+          await DatabaseHelper.instance.getInstallmentsByLoanId(loanId);
+      final allPaid = installments.isNotEmpty &&
+          installments.every((i) => i.status == InstallmentStatus.paid);
       if (allPaid) {
         await _addEarned('first_debt_paid');
-        newly.add(Achievement(id: 'first_debt_paid', title: 'اولین بدهی پرداخت شد', message: 'تبریک! اولین بدهی خود را پرداخت کردید.'));
+        newly.add(Achievement(
+            id: 'first_debt_paid',
+            title: 'اولین بدهی پرداخت شد',
+            message: 'تبریک! اولین بدهی خود را پرداخت کردید.'));
       }
     }
 
@@ -107,7 +123,10 @@ class AchievementsRepository {
       final hasStreak = keys.every((k) => monthsSet.contains(k));
       if (hasStreak) {
         await _addEarned('three_months_streak');
-        newly.add(Achievement(id: 'three_months_streak', title: '۳ ماه متوالی پرداخت', message: 'شما سه ماه پیاپی پرداخت داشته‌اید. ادامه بده!'));
+        newly.add(Achievement(
+            id: 'three_months_streak',
+            title: '۳ ماه متوالی پرداخت',
+            message: 'شما سه ماه پیاپی پرداخت داشته‌اید. ادامه بده!'));
       }
     }
 
@@ -116,7 +135,10 @@ class AchievementsRepository {
       final total = await DatabaseHelper.instance.getTotalOutstandingBorrowed();
       if (total == 0) {
         await _addEarned('debt_free');
-        newly.add(Achievement(id: 'debt_free', title: 'بدهی‌ها صفر شد', message: 'تبریک! شما الان بدون بدهی هستید.'));
+        newly.add(Achievement(
+            id: 'debt_free',
+            title: 'بدهی‌ها صفر شد',
+            message: 'تبریک! شما الان بدون بدهی هستید.'));
       }
     }
 

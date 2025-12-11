@@ -8,14 +8,16 @@ class LocalAuthService {
   final LocalAuthentication _auth = LocalAuthentication();
 
   /// Attempt biometric/local device authentication. Returns true if succeeded.
-  Future<bool> authenticate({String reason = 'Authenticate to continue'}) async {
+  Future<bool> authenticate(
+      {String reason = 'Authenticate to continue'}) async {
     try {
       final can = await _auth.canCheckBiometrics;
       final isDeviceSupported = await _auth.isDeviceSupported();
       if (!can && !isDeviceSupported) return false;
       final didAuthenticate = await _auth.authenticate(
         localizedReason: reason,
-        options: const AuthenticationOptions(biometricOnly: false, stickyAuth: false),
+        options: const AuthenticationOptions(
+            biometricOnly: false, stickyAuth: false),
       );
       return didAuthenticate;
     } catch (_) {

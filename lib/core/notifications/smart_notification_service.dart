@@ -8,26 +8,31 @@ import 'package:debt_manager/features/budget/models/budget.dart';
 import 'package:debt_manager/features/loans/models/installment.dart';
 
 class SmartNotificationService {
-  static final SmartNotificationService instance = SmartNotificationService._internal();
+  static final SmartNotificationService instance =
+      SmartNotificationService._internal();
   SmartNotificationService._internal();
   factory SmartNotificationService() => instance;
 
-  final FlutterLocalNotificationsPlugin _plugin = FlutterLocalNotificationsPlugin();
+  final FlutterLocalNotificationsPlugin _plugin =
+      FlutterLocalNotificationsPlugin();
   final _settings = SettingsRepository();
   final _db = DatabaseHelper.instance;
   final _budgetRepo = BudgetsRepository();
 
   static const String _channelIdBudget = 'budget_alerts_channel';
   static const String _channelNameBudget = 'Budget Alerts';
-  static const String _channelDescBudget = 'Alerts when budgets reach thresholds';
+  static const String _channelDescBudget =
+      'Alerts when budgets reach thresholds';
 
   static const String _channelIdSuggestions = 'smart_suggestions_channel';
   static const String _channelNameSuggestions = 'Smart Suggestions';
-  static const String _channelDescSuggestions = 'Suggestions for subscriptions and savings';
+  static const String _channelDescSuggestions =
+      'Suggestions for subscriptions and savings';
 
   static const String _channelIdSummary = 'monthly_summary_channel';
   static const String _channelNameSummary = 'Monthly Summary';
-  static const String _channelDescSummary = 'Monthly budget performance summaries';
+  static const String _channelDescSummary =
+      'Monthly budget performance summaries';
 
   /// Initialize smart notification channels
   Future<void> init() async {
@@ -58,7 +63,8 @@ class SmartNotificationService {
       importance: Importance.defaultImportance,
     );
 
-    final android = _plugin.resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>();
+    final android = _plugin.resolvePlatformSpecificImplementation<
+        AndroidFlutterLocalNotificationsPlugin>();
     await android?.createNotificationChannel(budgetChannel);
     await android?.createNotificationChannel(suggestionsChannel);
     await android?.createNotificationChannel(summaryChannel);
@@ -81,7 +87,8 @@ class SmartNotificationService {
 
       for (final budget in budgets) {
         final utilization = await _budgetRepo.computeUtilization(budget);
-        final percentage = budget.amount > 0 ? (utilization / budget.amount) : 0.0;
+        final percentage =
+            budget.amount > 0 ? (utilization / budget.amount) : 0.0;
 
         // Check 100% threshold
         if (threshold100 && percentage >= 1.0) {
@@ -107,7 +114,8 @@ class SmartNotificationService {
     }
   }
 
-  Future<void> _sendBudgetAlert(Budget budget, double percentage, String title, String body) async {
+  Future<void> _sendBudgetAlert(
+      Budget budget, double percentage, String title, String body) async {
     try {
       const androidDetails = AndroidNotificationDetails(
         _channelIdBudget,
@@ -139,7 +147,8 @@ class SmartNotificationService {
   }
 
   /// Send a monthly summary notification
-  Future<void> sendMonthEndSummary(String period, Map<String, dynamic> summary) async {
+  Future<void> sendMonthEndSummary(
+      String period, Map<String, dynamic> summary) async {
     if (kIsWeb) return;
 
     final enabled = await _settings.getMonthEndSummaryEnabled();
@@ -185,7 +194,8 @@ class SmartNotificationService {
   }
 
   /// Send a smart suggestion notification
-  Future<void> sendSmartSuggestion(String title, String body, int suggestionId) async {
+  Future<void> sendSmartSuggestion(
+      String title, String body, int suggestionId) async {
     if (kIsWeb) return;
 
     final enabled = await _settings.getSmartSuggestionsEnabled();
@@ -228,7 +238,7 @@ class SmartNotificationService {
     try {
       final offsetDays = await _settings.getReminderOffsetDays();
       final now = DateTime.now();
-      
+
       // Get upcoming installments for the next 30 days
       final endDate = now.add(const Duration(days: 30));
       final upcoming = await _db.getUpcomingInstallments(now, endDate);
@@ -238,7 +248,7 @@ class SmartNotificationService {
         if (offsetDays > 0) {
           await _scheduleReminderForInstallment(installment, offsetDays);
         }
-        
+
         // Also schedule notification on due date
         await _scheduleReminderForInstallment(installment, 0);
       }
@@ -247,11 +257,13 @@ class SmartNotificationService {
     }
   }
 
-  Future<void> _scheduleReminderForInstallment(Installment installment, int daysOffset) async {
+  Future<void> _scheduleReminderForInstallment(
+      Installment installment, int daysOffset) async {
     // This would integrate with the existing notification service
     // For now, we'll leave it as a placeholder that would call
     // the NotificationService.scheduleInstallmentReminder method
-    debugPrint('Would schedule reminder for installment ${installment.id} with offset $daysOffset days');
+    debugPrint(
+        'Would schedule reminder for installment ${installment.id} with offset $daysOffset days');
   }
 
   /// Cancel all scheduled notifications for a specific type

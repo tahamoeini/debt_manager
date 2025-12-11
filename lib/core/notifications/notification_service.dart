@@ -13,7 +13,8 @@ class NotificationService {
   NotificationService._internal();
   factory NotificationService() => instance;
 
-  final FlutterLocalNotificationsPlugin _plugin = FlutterLocalNotificationsPlugin();
+  final FlutterLocalNotificationsPlugin _plugin =
+      FlutterLocalNotificationsPlugin();
 
   static const String _channelId = 'installments_channel';
   static const String _channelName = 'Installment Reminders';
@@ -57,9 +58,18 @@ class NotificationService {
       importance: Importance.defaultImportance,
     );
 
-    await _plugin.resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()?.createNotificationChannel(channel);
-    await _plugin.resolvePlatformSpecificImplementation<IOSFlutterLocalNotificationsPlugin>()?.requestPermissions(alert: true, badge: true, sound: true);
-    await _plugin.resolvePlatformSpecificImplementation<MacOSFlutterLocalNotificationsPlugin>()?.requestPermissions(alert: true, badge: true, sound: true);
+    await _plugin
+        .resolvePlatformSpecificImplementation<
+            AndroidFlutterLocalNotificationsPlugin>()
+        ?.createNotificationChannel(channel);
+    await _plugin
+        .resolvePlatformSpecificImplementation<
+            IOSFlutterLocalNotificationsPlugin>()
+        ?.requestPermissions(alert: true, badge: true, sound: true);
+    await _plugin
+        .resolvePlatformSpecificImplementation<
+            MacOSFlutterLocalNotificationsPlugin>()
+        ?.requestPermissions(alert: true, badge: true, sound: true);
   }
 
   NotificationDetails get _defaultDetails {
@@ -85,7 +95,8 @@ class NotificationService {
     final billRemindersEnabled = await settingsRepo.getBillRemindersEnabled();
 
     if (!notificationsEnabled || !billRemindersEnabled) {
-      debugPrint('scheduleInstallmentReminder: notifications disabled in settings');
+      debugPrint(
+          'scheduleInstallmentReminder: notifications disabled in settings');
       return;
     }
 
@@ -107,7 +118,8 @@ class NotificationService {
     } catch (e) {
       try {
         final dyn = _plugin as dynamic;
-        await dyn.schedule(notificationId, title, body, scheduledTime, _defaultDetails);
+        await dyn.schedule(
+            notificationId, title, body, scheduledTime, _defaultDetails);
       } catch (e2) {
         debugPrint('Failed to schedule notification: $e2');
       }
@@ -120,7 +132,11 @@ class NotificationService {
     required String title,
     required String body,
   }) async {
-    await scheduleInstallmentReminder(notificationId: notificationId, scheduledTime: scheduledTime, title: title, body: body);
+    await scheduleInstallmentReminder(
+        notificationId: notificationId,
+        scheduledTime: scheduledTime,
+        title: title,
+        body: body);
   }
 
   Future<void> scheduleMonthEndSummary({
@@ -131,7 +147,11 @@ class NotificationService {
   }) async {
     final lastDay = DateTime(monthDate.year, monthDate.month + 1, 0);
     final scheduled = DateTime(lastDay.year, lastDay.month, lastDay.day, 18, 0);
-    await scheduleInstallmentReminder(notificationId: notificationId, scheduledTime: scheduled, title: title, body: body);
+    await scheduleInstallmentReminder(
+        notificationId: notificationId,
+        scheduledTime: scheduled,
+        title: title,
+        body: body);
   }
 
   Future<void> scheduleSmartSuggestion({
@@ -140,7 +160,11 @@ class NotificationService {
     required String title,
     required String body,
   }) async {
-    await scheduleInstallmentReminder(notificationId: notificationId, scheduledTime: scheduledTime, title: title, body: body);
+    await scheduleInstallmentReminder(
+        notificationId: notificationId,
+        scheduledTime: scheduledTime,
+        title: title,
+        body: body);
   }
 
   Future<void> cancelNotification(int notificationId) async {
@@ -179,11 +203,15 @@ class NotificationService {
       scheduled = DateTime(scheduled.year, scheduled.month, scheduled.day, 9);
 
       const title = 'Installment due';
-      final body = 'An installment of ${inst.amount} is due on ${inst.dueDateJalali}.';
+      final body =
+          'An installment of ${inst.amount} is due on ${inst.dueDateJalali}.';
 
       final nid = inst.id! + 1000;
-      await scheduleInstallmentReminder(notificationId: nid, scheduledTime: scheduled, title: title, body: body);
+      await scheduleInstallmentReminder(
+          notificationId: nid,
+          scheduledTime: scheduled,
+          title: title,
+          body: body);
     }
   }
 }
-

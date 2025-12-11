@@ -34,53 +34,55 @@ class _BudgetComparisonScreenState extends State<BudgetComparisonScreen> {
         child: ListView(
           padding: const EdgeInsets.all(16),
           children: [
-          Card(
-            child: Padding(
-              padding: const EdgeInsets.all(12.0),
-              child: Row(
-                children: [
-                  const Text('انتخاب دوره: '),
-                  const SizedBox(width: 8),
-                  DropdownButton<String>(
-                    value: _selectedPeriod,
-                    items: _generatePeriods(),
-                    onChanged: (v) {
-                      if (v != null) {
-                        setState(() => _selectedPeriod = v);
-                      }
-                    },
-                  ),
-                ],
+            Card(
+              child: Padding(
+                padding: const EdgeInsets.all(12.0),
+                child: Row(
+                  children: [
+                    const Text('انتخاب دوره: '),
+                    const SizedBox(width: 8),
+                    DropdownButton<String>(
+                      value: _selectedPeriod,
+                      items: _generatePeriods(),
+                      onChanged: (v) {
+                        if (v != null) {
+                          setState(() => _selectedPeriod = v);
+                        }
+                      },
+                    ),
+                  ],
+                ),
               ),
             ),
-          ),
-          const SizedBox(height: 16),
-          FutureBuilder<List<Budget>>(
-            future: _budgetRepo.getBudgetsByPeriod(_selectedPeriod),
-            builder: (context, snap) {
-              if (snap.connectionState == ConnectionState.waiting) {
-                return const Center(child: CircularProgressIndicator());
-              }
+            const SizedBox(height: 16),
+            FutureBuilder<List<Budget>>(
+              future: _budgetRepo.getBudgetsByPeriod(_selectedPeriod),
+              builder: (context, snap) {
+                if (snap.connectionState == ConnectionState.waiting) {
+                  return const Center(child: CircularProgressIndicator());
+                }
 
-              final budgets = snap.data ?? [];
-              if (budgets.isEmpty) {
-                return const Card(
-                  child: Padding(
-                    padding: EdgeInsets.all(32.0),
-                    child: Center(child: Text('هیچ بودجه‌ای برای این دوره تعریف نشده است')),
-                  ),
+                final budgets = snap.data ?? [];
+                if (budgets.isEmpty) {
+                  return const Card(
+                    child: Padding(
+                      padding: EdgeInsets.all(32.0),
+                      child: Center(
+                          child: Text(
+                              'هیچ بودجه‌ای برای این دوره تعریف نشده است')),
+                    ),
+                  );
+                }
+
+                return Column(
+                  children: [
+                    _buildBudgetChart(budgets),
+                    const SizedBox(height: 16),
+                    ...budgets.map((budget) => _buildBudgetCard(budget)),
+                  ],
                 );
-              }
-
-              return Column(
-                children: [
-                  _buildBudgetChart(budgets),
-                  const SizedBox(height: 16),
-                  ...budgets.map((budget) => _buildBudgetCard(budget)),
-                ],
-              );
-            },
-          ),
+              },
+            ),
           ],
         ),
       ),
@@ -133,7 +135,8 @@ class _BudgetComparisonScreenState extends State<BudgetComparisonScreen> {
 
                   final data = snap.data ?? [];
                   if (data.isEmpty) {
-                    return const Center(child: Text('هیچ داده‌ای برای نمایش وجود ندارد'));
+                    return const Center(
+                        child: Text('هیچ داده‌ای برای نمایش وجود ندارد'));
                   }
 
                   final maxValue = data.fold<int>(0, (max, item) {
@@ -154,13 +157,16 @@ class _BudgetComparisonScreenState extends State<BudgetComparisonScreen> {
                           sideTitles: SideTitles(
                             showTitles: true,
                             getTitlesWidget: (value, meta) {
-                              if (value.toInt() >= 0 && value.toInt() < data.length) {
+                              if (value.toInt() >= 0 &&
+                                  value.toInt() < data.length) {
                                 final item = data[value.toInt()];
                                 final category = item['category'] as String;
                                 return Padding(
                                   padding: const EdgeInsets.only(top: 8.0),
                                   child: Text(
-                                    category.length > 8 ? '${category.substring(0, 8)}...' : category,
+                                    category.length > 8
+                                        ? '${category.substring(0, 8)}...'
+                                        : category,
                                     style: const TextStyle(fontSize: 10),
                                   ),
                                 );
@@ -181,8 +187,10 @@ class _BudgetComparisonScreenState extends State<BudgetComparisonScreen> {
                             },
                           ),
                         ),
-                        topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                        rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                        topTitles: const AxisTitles(
+                            sideTitles: SideTitles(showTitles: false)),
+                        rightTitles: const AxisTitles(
+                            sideTitles: SideTitles(showTitles: false)),
                       ),
                       borderData: FlBorderData(show: false),
                       barGroups: data.asMap().entries.map((e) {
@@ -216,9 +224,11 @@ class _BudgetComparisonScreenState extends State<BudgetComparisonScreen> {
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                _buildLegendItem('بودجه', Theme.of(context).colorScheme.primary),
+                _buildLegendItem(
+                    'بودجه', Theme.of(context).colorScheme.primary),
                 const SizedBox(width: 16),
-                _buildLegendItem('واقعی', Theme.of(context).colorScheme.secondary),
+                _buildLegendItem(
+                    'واقعی', Theme.of(context).colorScheme.secondary),
               ],
             ),
             const SizedBox(height: 8),
@@ -247,7 +257,8 @@ class _BudgetComparisonScreenState extends State<BudgetComparisonScreen> {
     );
   }
 
-  Future<List<Map<String, dynamic>>> _loadBudgetData(List<Budget> budgets) async {
+  Future<List<Map<String, dynamic>>> _loadBudgetData(
+      List<Budget> budgets) async {
     final data = <Map<String, dynamic>>[];
 
     for (final budget in budgets) {
@@ -267,7 +278,9 @@ class _BudgetComparisonScreenState extends State<BudgetComparisonScreen> {
       future: _budgetRepo.computeUtilization(budget),
       builder: (context, snap) {
         final actual = snap.data ?? 0;
-        final percentage = budget.amount > 0 ? (actual / budget.amount * 100).clamp(0, 100).toInt() : 0;
+        final percentage = budget.amount > 0
+            ? (actual / budget.amount * 100).clamp(0, 100).toInt()
+            : 0;
         final remaining = budget.amount - actual;
 
         final cs = Theme.of(context).colorScheme;
@@ -314,19 +327,22 @@ class _BudgetComparisonScreenState extends State<BudgetComparisonScreen> {
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text('هزینه واقعی', style: TextStyle(fontSize: 12)),
+                        const Text('هزینه واقعی',
+                            style: TextStyle(fontSize: 12)),
                         Text(
                           formatCurrency(actual),
-                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            color: progressColor,
-                          ),
+                          style:
+                              Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                    color: progressColor,
+                                  ),
                         ),
                       ],
                     ),
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text('باقی‌مانده', style: TextStyle(fontSize: 12)),
+                        const Text('باقی‌مانده',
+                            style: TextStyle(fontSize: 12)),
                         Text(
                           formatCurrency(remaining),
                           style: Theme.of(context).textTheme.bodyMedium,
@@ -339,8 +355,8 @@ class _BudgetComparisonScreenState extends State<BudgetComparisonScreen> {
                 Text(
                   '$percentage% استفاده شده',
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: progressColor,
-                  ),
+                        color: progressColor,
+                      ),
                 ),
               ],
             ),

@@ -18,9 +18,9 @@ class BugReportUtils {
   static Future<File?> captureScreenshot(GlobalKey key) async {
     try {
       // Find the RenderRepaintBoundary
-      final RenderRepaintBoundary? boundary = 
+      final RenderRepaintBoundary? boundary =
           key.currentContext?.findRenderObject() as RenderRepaintBoundary?;
-      
+
       if (boundary == null) {
         return null;
       }
@@ -28,7 +28,7 @@ class BugReportUtils {
       // Capture the image
       final ui.Image image = await boundary.toImage(pixelRatio: 3.0);
       final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
-      
+
       if (byteData == null) {
         return null;
       }
@@ -37,7 +37,7 @@ class BugReportUtils {
       final directory = await getTemporaryDirectory();
       final file = File('${directory.path}/bug_report_screenshot.png');
       await file.writeAsBytes(byteData.buffer.asUint8List());
-      
+
       return file;
     } catch (e) {
       debugPrint('Error capturing screenshot: $e');
@@ -55,7 +55,7 @@ class BugReportUtils {
     try {
       // Generate error ID
       final errorId = generateErrorId();
-      
+
       // Prepare email body
       final StringBuffer body = StringBuffer();
       body.writeln('مدیریت اقساط و بدهی‌ها - گزارش مشکل\n');
@@ -69,19 +69,19 @@ class BugReportUtils {
       body.writeln('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
       body.writeln('شناسه گزارش: $errorId');
       body.writeln('تاریخ و زمان: ${DateTime.now()}');
-      
+
       if (errorMessage != null && errorMessage.isNotEmpty) {
         body.writeln('پیام خطا: $errorMessage');
       }
-      
+
       if (appState != null && appState.isNotEmpty) {
         body.writeln('وضعیت برنامه: $appState');
       }
-      
+
       body.writeln('\nاطلاعات سیستم:');
       body.writeln('• پلتفرم: ${Platform.operatingSystem}');
       body.writeln('• نسخه سیستم: ${Platform.operatingSystemVersion}');
-      
+
       // Try to capture screenshot
       File? screenshot;
       if (screenshotKey != null) {
@@ -154,7 +154,9 @@ class BugReportUtils {
                       errorMessage,
                       style: TextStyle(
                         fontSize: 12,
-                        color: Theme.of(dialogContext).colorScheme.onErrorContainer,
+                        color: Theme.of(dialogContext)
+                            .colorScheme
+                            .onErrorContainer,
                       ),
                     ),
                   ),

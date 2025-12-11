@@ -5,10 +5,12 @@ import 'package:flutter/foundation.dart';
 class AutomationRule {
   final int? id;
   final String name;
-  final String ruleType; // 'payee_contains', 'amount_equals', 'description_contains'
+  final String
+      ruleType; // 'payee_contains', 'amount_equals', 'description_contains'
   final String pattern; // The pattern to match
   final String action; // 'set_category', 'set_tag'
-  final String actionValue; // The value to apply (e.g., category name, tag name)
+  final String
+      actionValue; // The value to apply (e.g., category name, tag name)
   final bool enabled;
   final String createdAt;
 
@@ -84,16 +86,16 @@ class AutomationRule {
       case 'payee_contains':
         if (payee == null) return false;
         return payee.toLowerCase().contains(pattern.toLowerCase());
-      
+
       case 'description_contains':
         if (description == null) return false;
         return description.toLowerCase().contains(pattern.toLowerCase());
-      
+
       case 'amount_equals':
         if (amount == null) return false;
         final patternAmount = int.tryParse(pattern);
         return patternAmount != null && amount == patternAmount;
-      
+
       default:
         return false;
     }
@@ -119,7 +121,7 @@ class BuiltInCategories {
     'metro': 'Transportation',
     'fuel': 'Transportation',
     'gas station': 'Transportation',
-    
+
     // Food & Dining
     'restaurant': 'Dining',
     'cafe': 'Dining',
@@ -128,31 +130,31 @@ class BuiltInCategories {
     'food': 'Dining',
     'grocery': 'Groceries',
     'supermarket': 'Groceries',
-    
+
     // Utilities
     'electric': 'Utilities',
     'water': 'Utilities',
     'gas': 'Utilities',
     'internet': 'Utilities',
     'phone': 'Utilities',
-    
+
     // Entertainment
     'netflix': 'Entertainment',
     'spotify': 'Entertainment',
     'cinema': 'Entertainment',
     'movie': 'Entertainment',
     'game': 'Entertainment',
-    
+
     // Shopping
     'amazon': 'Shopping',
     'store': 'Shopping',
     'shop': 'Shopping',
-    
+
     // Income
     'salary': 'Income',
     'payroll': 'Income',
     'wage': 'Income',
-    
+
     // Housing
     'rent': 'Housing',
     'mortgage': 'Housing',

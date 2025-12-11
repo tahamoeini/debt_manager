@@ -8,23 +8,33 @@ import 'dart:typed_data';
 class CloudBackupEntry {
   /// A stable id for this entry (e.g. GUID)
   final String id;
+
   /// Human-friendly label (e.g. "backup-2025-12-11")
   final String label;
+
   /// ISO 8601 timestamp
   final String createdAt;
+
   /// Optional user-provided metadata
   final Map<String, String>? metadata;
+
   /// Size in bytes
   final int size;
 
-  CloudBackupEntry({required this.id, required this.label, required this.createdAt, required this.size, this.metadata});
+  CloudBackupEntry(
+      {required this.id,
+      required this.label,
+      required this.createdAt,
+      required this.size,
+      this.metadata});
 }
 
 abstract class CloudBackupProvider {
   /// Upload an encrypted blob. The provider returns an entry representing
   /// the saved version. Implementations should be able to store bytes
   /// and index metadata for listing.
-  Future<CloudBackupEntry> uploadEncryptedBackup(Uint8List encryptedBytes, {String? label, Map<String, String>? metadata});
+  Future<CloudBackupEntry> uploadEncryptedBackup(Uint8List encryptedBytes,
+      {String? label, Map<String, String>? metadata});
 
   /// Download a specific backup by id. Returns the previously-uploaded
   /// encrypted bytes.

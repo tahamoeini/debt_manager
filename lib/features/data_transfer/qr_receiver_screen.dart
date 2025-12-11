@@ -111,20 +111,20 @@ class _QrReceiverScreenState extends State<QrReceiverScreen> {
       appBar: AppBar(title: const Text('Offline Transfer — Receive')),
       body: SafeArea(
         child: Column(children: [
-        Expanded(
-          child: _scanning
-              ? MobileScanner(
-                  onDetect: (capture) {
-                    for (final s in capture.barcodes) {
-                      if (s.rawValue != null) _onScan(s.rawValue!);
-                    }
-                  },
-                )
-              : Center(child: Text(_status ?? 'Completed')),
-        ),
-        Padding(
-            padding: const EdgeInsets.all(12.0),
-            child: Text(_status ?? 'Waiting...'))
+          Expanded(
+            child: _scanning
+                ? MobileScanner(
+                    onDetect: (capture) {
+                      for (final s in capture.barcodes) {
+                        if (s.rawValue != null) _onScan(s.rawValue!);
+                      }
+                    },
+                  )
+                : Center(child: Text(_status ?? 'Completed')),
+          ),
+          Padding(
+              padding: const EdgeInsets.all(12.0),
+              child: Text(_status ?? 'Waiting...'))
         ]),
       ),
     );

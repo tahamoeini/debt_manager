@@ -8,16 +8,21 @@ import 'package:debt_manager/features/loans/models/loan.dart';
 class LoanRepository {
   final DatabaseHelper _db = DatabaseHelper.instance;
 
-  Future<void> refreshOverdueInstallments(DateTime now) => _db.refreshOverdueInstallments(now);
+  Future<void> refreshOverdueInstallments(DateTime now) =>
+      _db.refreshOverdueInstallments(now);
 
-  Future<List<Loan>> getAllLoans({LoanDirection? direction}) => _db.getAllLoans(direction: direction);
+  Future<List<Loan>> getAllLoans({LoanDirection? direction}) =>
+      _db.getAllLoans(direction: direction);
 
-  Future<List<Counterparty>> getAllCounterparties() => _db.getAllCounterparties();
+  Future<List<Counterparty>> getAllCounterparties() =>
+      _db.getAllCounterparties();
 
-  Future<Map<int, List<Installment>>> getInstallmentsGroupedByLoanId(List<int> loanIds) =>
+  Future<Map<int, List<Installment>>> getInstallmentsGroupedByLoanId(
+          List<int> loanIds) =>
       _db.getInstallmentsGroupedByLoanId(loanIds);
 
   Future<int> insertLoan(Loan loan) => _db.insertLoan(loan);
 
-  Future<void> deleteLoanWithInstallments(int loanId) => _db.deleteLoanWithInstallments(loanId);
+  Future<void> deleteLoanWithInstallments(int loanId) =>
+      _db.deleteLoanWithInstallments(loanId);
 }

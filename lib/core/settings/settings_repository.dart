@@ -3,7 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 enum FontSizeOption { small, defaultSize, large }
+
 enum CalendarType { gregorian, jalali }
+
 enum LanguageOption { english, persian }
 
 class SettingsRepository {
@@ -41,36 +43,52 @@ class SettingsRepository {
   LanguageOption language = LanguageOption.persian;
 
   // Notifiers for reactive UI
-  static final ValueNotifier<ThemeMode> themeModeNotifier = ValueNotifier(ThemeMode.system);
-  static final ValueNotifier<FontSizeOption> fontSizeNotifier = ValueNotifier(FontSizeOption.defaultSize);
-  static final ValueNotifier<CalendarType> calendarTypeNotifier = ValueNotifier(CalendarType.jalali);
-  static final ValueNotifier<LanguageOption> languageNotifier = ValueNotifier(LanguageOption.persian);
-  static final ValueNotifier<bool> biometricEnabledNotifier = ValueNotifier(false);
+  static final ValueNotifier<ThemeMode> themeModeNotifier =
+      ValueNotifier(ThemeMode.system);
+  static final ValueNotifier<FontSizeOption> fontSizeNotifier =
+      ValueNotifier(FontSizeOption.defaultSize);
+  static final ValueNotifier<CalendarType> calendarTypeNotifier =
+      ValueNotifier(CalendarType.jalali);
+  static final ValueNotifier<LanguageOption> languageNotifier =
+      ValueNotifier(LanguageOption.persian);
+  static final ValueNotifier<bool> biometricEnabledNotifier =
+      ValueNotifier(false);
 
   // Initialize repository and populate public fields from SharedPreferences.
   Future<void> init() async {
     final prefs = await SharedPreferences.getInstance();
     reminderOffsetDays = prefs.getInt(_keyReminderOffsetDays) ?? 3;
     final tm = prefs.getString(_keyThemeMode) ?? 'system';
-    themeMode = tm == 'light' ? ThemeMode.light : tm == 'dark' ? ThemeMode.dark : ThemeMode.system;
+    themeMode = tm == 'light'
+        ? ThemeMode.light
+        : tm == 'dark'
+            ? ThemeMode.dark
+            : ThemeMode.system;
     themeModeNotifier.value = themeMode;
 
     final fs = prefs.getString(_keyFontSize) ?? 'default';
-    fontSize = fs == 'small' ? FontSizeOption.small : fs == 'large' ? FontSizeOption.large : FontSizeOption.defaultSize;
+    fontSize = fs == 'small'
+        ? FontSizeOption.small
+        : fs == 'large'
+            ? FontSizeOption.large
+            : FontSizeOption.defaultSize;
     fontSizeNotifier.value = fontSize;
 
     final ct = prefs.getString(_keyCalendarType) ?? 'jalali';
-    calendarType = ct == 'gregorian' ? CalendarType.gregorian : CalendarType.jalali;
+    calendarType =
+        ct == 'gregorian' ? CalendarType.gregorian : CalendarType.jalali;
     calendarTypeNotifier.value = calendarType;
 
     final lang = prefs.getString(_keyLanguage) ?? 'persian';
-    language = lang == 'english' ? LanguageOption.english : LanguageOption.persian;
+    language =
+        lang == 'english' ? LanguageOption.english : LanguageOption.persian;
     languageNotifier.value = language;
 
     remindersEnabled = prefs.getBool(_keyNotificationsEnabled) ?? true;
     billRemindersEnabled = prefs.getBool(_keyBillReminders) ?? true;
     budgetAlertsEnabled = prefs.getBool(_keyBudgetAlerts) ?? true;
-    smartSuggestionsEnabled = prefs.getBool(_keySmartSuggestionsEnabled) ?? true;
+    smartSuggestionsEnabled =
+        prefs.getBool(_keySmartSuggestionsEnabled) ?? true;
     financeCoachEnabled = prefs.getBool(_keyFinanceCoachEnabled) ?? true;
     monthEndSummaryEnabled = prefs.getBool(_keyMonthEndSummaryEnabled) ?? true;
     biometricEnabled = prefs.getBool(_keyBiometricEnabled) ?? false;
@@ -88,7 +106,11 @@ class SettingsRepository {
   Future<ThemeMode> getThemeMode() async => themeMode;
   Future<void> setThemeMode(ThemeMode mode) async {
     final prefs = await SharedPreferences.getInstance();
-    final s = mode == ThemeMode.light ? 'light' : mode == ThemeMode.dark ? 'dark' : 'system';
+    final s = mode == ThemeMode.light
+        ? 'light'
+        : mode == ThemeMode.dark
+            ? 'dark'
+            : 'system';
     await prefs.setString(_keyThemeMode, s);
     themeMode = mode;
     themeModeNotifier.value = mode;
@@ -97,7 +119,11 @@ class SettingsRepository {
   Future<FontSizeOption> getFontSize() async => fontSize;
   Future<void> setFontSize(FontSizeOption size) async {
     final prefs = await SharedPreferences.getInstance();
-    final s = size == FontSizeOption.small ? 'small' : size == FontSizeOption.large ? 'large' : 'default';
+    final s = size == FontSizeOption.small
+        ? 'small'
+        : size == FontSizeOption.large
+            ? 'large'
+            : 'default';
     await prefs.setString(_keyFontSize, s);
     fontSize = size;
     fontSizeNotifier.value = size;
@@ -192,7 +218,9 @@ class SettingsRepository {
   String get languageCode => language == LanguageOption.english ? 'en' : 'fa';
 
   Future<void> setLanguageCode(String code) async {
-    final lc = (code.toLowerCase() == 'en' || code.toLowerCase() == 'english') ? LanguageOption.english : LanguageOption.persian;
+    final lc = (code.toLowerCase() == 'en' || code.toLowerCase() == 'english')
+        ? LanguageOption.english
+        : LanguageOption.persian;
     await setLanguage(lc);
   }
 

@@ -22,7 +22,8 @@ class SecurityService {
 
   /// Perform biometric authentication with a platform-provided prompt.
   /// Returns true on success, false otherwise.
-  Future<bool> authenticate({String reason = 'Authenticate to continue'}) async {
+  Future<bool> authenticate(
+      {String reason = 'Authenticate to continue'}) async {
     try {
       final bool didAuthenticate = await _auth.authenticate(
         localizedReason: reason,

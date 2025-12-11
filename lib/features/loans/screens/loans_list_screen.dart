@@ -16,7 +16,8 @@ class LoansListScreen extends ConsumerWidget {
     return dir == LoanDirection.borrowed ? 'گرفته‌ام' : 'داده‌ام';
   }
 
-  Widget _buildTabView(BuildContext context, WidgetRef ref, LoanDirection? filter) {
+  Widget _buildTabView(
+      BuildContext context, WidgetRef ref, LoanDirection? filter) {
     final items = ref.watch(loanListProvider(filter));
 
     if (items.isEmpty) {
@@ -30,7 +31,8 @@ class LoansListScreen extends ConsumerWidget {
     return ListView.separated(
       padding: AppSpacing.pagePadding,
       itemCount: items.length,
-      separatorBuilder: (context, index) => const SizedBox(height: AppSpacing.sm),
+      separatorBuilder: (context, index) =>
+          const SizedBox(height: AppSpacing.sm),
       itemBuilder: (context, index) {
         final s = items[index];
         return Card(
@@ -88,26 +90,26 @@ class LoansListScreen extends ConsumerWidget {
         body: SafeArea(
           child: Column(
             children: [
-            Material(
-              color: Colors.transparent,
-              child: TabBar(
-                labelColor: Theme.of(context).colorScheme.onSurface,
-                tabs: const [
-                  Tab(text: 'همه'),
-                  Tab(text: 'گرفته‌ام'),
-                  Tab(text: 'داده‌ام'),
-                ],
+              Material(
+                color: Colors.transparent,
+                child: TabBar(
+                  labelColor: Theme.of(context).colorScheme.onSurface,
+                  tabs: const [
+                    Tab(text: 'همه'),
+                    Tab(text: 'گرفته‌ام'),
+                    Tab(text: 'داده‌ام'),
+                  ],
+                ),
               ),
-            ),
-            Expanded(
-              child: TabBarView(
-                children: [
-                  _buildTabView(context, ref, null),
-                  _buildTabView(context, ref, LoanDirection.borrowed),
-                  _buildTabView(context, ref, LoanDirection.lent),
-                ],
+              Expanded(
+                child: TabBarView(
+                  children: [
+                    _buildTabView(context, ref, null),
+                    _buildTabView(context, ref, LoanDirection.borrowed),
+                    _buildTabView(context, ref, LoanDirection.lent),
+                  ],
+                ),
               ),
-            ),
             ],
           ),
         ),
@@ -119,8 +121,12 @@ class LoansListScreen extends ConsumerWidget {
             if (result == true) {
               // Refresh all three lists so UI updates without setState
               await ref.read(loanListProvider(null).notifier).refresh();
-              await ref.read(loanListProvider(LoanDirection.borrowed).notifier).refresh();
-              await ref.read(loanListProvider(LoanDirection.lent).notifier).refresh();
+              await ref
+                  .read(loanListProvider(LoanDirection.borrowed).notifier)
+                  .refresh();
+              await ref
+                  .read(loanListProvider(LoanDirection.lent).notifier)
+                  .refresh();
             }
           },
           child: const Icon(Icons.add_outlined),

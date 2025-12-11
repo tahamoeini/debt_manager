@@ -4,7 +4,7 @@ import 'dart:convert';
 
 class CategoryService {
   static const _keyCustomCategories = 'custom_categories';
-  
+
   // Default categories that come with the app
   static const List<String> defaultCategories = [
     'food',
@@ -36,14 +36,14 @@ class CategoryService {
   Future<void> addCategory(String category) async {
     final trimmed = category.trim().toLowerCase();
     if (trimmed.isEmpty) return;
-    
+
     final custom = await getCustomCategories();
     // Combine all categories and check for duplicates more efficiently
     final allCategories = {...defaultCategories, ...custom};
     if (allCategories.contains(trimmed)) {
       throw Exception('Category already exists');
     }
-    
+
     custom.add(trimmed);
     await _saveCustomCategories(custom);
   }
@@ -52,20 +52,20 @@ class CategoryService {
   Future<void> renameCategory(String oldName, String newName) async {
     final trimmed = newName.trim().toLowerCase();
     if (trimmed.isEmpty) return;
-    
+
     final custom = await getCustomCategories();
     final index = custom.indexOf(oldName.toLowerCase());
-    
+
     if (index == -1) {
       throw Exception('Category not found');
     }
-    
+
     // Check if new name conflicts with any existing category
     final allCategories = {...defaultCategories, ...custom};
     if (allCategories.contains(trimmed)) {
       throw Exception('New category name already exists');
     }
-    
+
     custom[index] = trimmed;
     await _saveCustomCategories(custom);
   }

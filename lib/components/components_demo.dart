@@ -1,7 +1,7 @@
 library;
 
 /// Component Examples and Demos
-/// 
+///
 /// This file demonstrates how to use all the reusable components in the design system.
 /// It can be used as a reference or as a visual test of all components.
 

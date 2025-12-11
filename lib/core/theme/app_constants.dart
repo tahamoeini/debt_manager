@@ -18,10 +18,14 @@ class AppConstants {
   static const double radiusXLarge = 20.0;
 
   // Border radius objects for reuse
-  static const BorderRadius borderRadiusSmall = BorderRadius.all(Radius.circular(radiusSmall));
-  static const BorderRadius borderRadiusMedium = BorderRadius.all(Radius.circular(radiusMedium));
-  static const BorderRadius borderRadiusLarge = BorderRadius.all(Radius.circular(radiusLarge));
-  static const BorderRadius borderRadiusXLarge = BorderRadius.all(Radius.circular(radiusXLarge));
+  static const BorderRadius borderRadiusSmall =
+      BorderRadius.all(Radius.circular(radiusSmall));
+  static const BorderRadius borderRadiusMedium =
+      BorderRadius.all(Radius.circular(radiusMedium));
+  static const BorderRadius borderRadiusLarge =
+      BorderRadius.all(Radius.circular(radiusLarge));
+  static const BorderRadius borderRadiusXLarge =
+      BorderRadius.all(Radius.circular(radiusXLarge));
 
   // Padding
   static const EdgeInsets paddingSmall = EdgeInsets.all(spaceSmall);
@@ -29,16 +33,23 @@ class AppConstants {
   static const EdgeInsets paddingLarge = EdgeInsets.all(spaceLarge);
   static const EdgeInsets paddingXLarge = EdgeInsets.all(spaceXLarge);
 
-  static const EdgeInsets paddingHorizontalSmall = EdgeInsets.symmetric(horizontal: spaceSmall);
-  static const EdgeInsets paddingHorizontalMedium = EdgeInsets.symmetric(horizontal: spaceMedium);
-  static const EdgeInsets paddingHorizontalLarge = EdgeInsets.symmetric(horizontal: spaceLarge);
+  static const EdgeInsets paddingHorizontalSmall =
+      EdgeInsets.symmetric(horizontal: spaceSmall);
+  static const EdgeInsets paddingHorizontalMedium =
+      EdgeInsets.symmetric(horizontal: spaceMedium);
+  static const EdgeInsets paddingHorizontalLarge =
+      EdgeInsets.symmetric(horizontal: spaceLarge);
 
-  static const EdgeInsets paddingVerticalSmall = EdgeInsets.symmetric(vertical: spaceSmall);
-  static const EdgeInsets paddingVerticalMedium = EdgeInsets.symmetric(vertical: spaceMedium);
-  static const EdgeInsets paddingVerticalLarge = EdgeInsets.symmetric(vertical: spaceLarge);
+  static const EdgeInsets paddingVerticalSmall =
+      EdgeInsets.symmetric(vertical: spaceSmall);
+  static const EdgeInsets paddingVerticalMedium =
+      EdgeInsets.symmetric(vertical: spaceMedium);
+  static const EdgeInsets paddingVerticalLarge =
+      EdgeInsets.symmetric(vertical: spaceLarge);
 
   // Page padding - standard padding for screen content
-  static const EdgeInsets pagePadding = EdgeInsets.symmetric(horizontal: spaceLarge, vertical: spaceMedium);
+  static const EdgeInsets pagePadding =
+      EdgeInsets.symmetric(horizontal: spaceLarge, vertical: spaceMedium);
 
   // Card padding - standard padding for card content
   static const EdgeInsets cardPadding = EdgeInsets.all(spaceMedium);

@@ -1,7 +1,7 @@
 library;
 
 /// Category Icon Widget
-/// 
+///
 /// A reusable widget for displaying category icons with consistent styling.
 /// Uses the centralized category icon/color mapping.
 
@@ -13,13 +13,13 @@ import 'design_system.dart';
 enum CategoryIconStyle {
   /// Icon only, no background
   icon,
-  
+
   /// Icon in a circular avatar
   circle,
-  
+
   /// Icon in a rounded square
   square,
-  
+
   /// Small dot indicator (no icon)
   dot,
 }
@@ -54,10 +54,11 @@ class CategoryIcon extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final brightness = theme.brightness;
-    
+
     final iconData = customIcon ?? CategoryIcons.getIcon(category);
-    final color = customColor ?? CategoryIcons.getColor(category, brightness: brightness);
-    
+    final color =
+        customColor ?? CategoryIcons.getColor(category, brightness: brightness);
+
     final effectiveSize = size ?? AppIconSize.lg;
     final iconSize = effectiveSize * 0.6;
 
@@ -143,14 +144,13 @@ class CategoryChip extends StatelessWidget {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
     final brightness = theme.brightness;
-    
-    final color = customColor ?? CategoryIcons.getColor(category, brightness: brightness);
-    final backgroundColor = isSelected
-        ? color.withValues(alpha: 0.2)
-        : colorScheme.surface;
-    final borderColor = isSelected
-        ? color
-        : colorScheme.outline.withValues(alpha: 0.3);
+
+    final color =
+        customColor ?? CategoryIcons.getColor(category, brightness: brightness);
+    final backgroundColor =
+        isSelected ? color.withValues(alpha: 0.2) : colorScheme.surface;
+    final borderColor =
+        isSelected ? color : colorScheme.outline.withValues(alpha: 0.3);
 
     final content = Container(
       padding: const EdgeInsets.symmetric(

@@ -12,7 +12,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:debt_manager/app.dart';
 
 void main() {
-  testWidgets('App shell shows home and opens settings', (WidgetTester tester) async {
+  testWidgets('App shell shows home and opens settings',
+      (WidgetTester tester) async {
     // Build the app.
     await tester.pumpWidget(const ProviderScope(child: DebtManagerApp()));
 

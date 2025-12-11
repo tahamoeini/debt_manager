@@ -1,7 +1,7 @@
 library;
 
 /// Reusable Dialog Widgets
-/// 
+///
 /// Consistent dialog layouts with Material 3 design.
 
 import 'package:flutter/material.dart';
@@ -68,9 +68,7 @@ class AppDialog extends StatelessWidget {
               ],
             )
           : null,
-      content: scrollable
-          ? SingleChildScrollView(child: content)
-          : content,
+      content: scrollable ? SingleChildScrollView(child: content) : content,
       actions: actions,
       actionsPadding: const EdgeInsets.symmetric(
         horizontal: AppSpacing.md,
@@ -117,7 +115,8 @@ class ConfirmDialog extends StatelessWidget {
 
     return AppDialog(
       title: title,
-      icon: icon ?? (isDestructive ? Icons.warning_outlined : Icons.info_outlined),
+      icon: icon ??
+          (isDestructive ? Icons.warning_outlined : Icons.info_outlined),
       iconColor: isDestructive ? colorScheme.danger : colorScheme.primary,
       content: Text(
         message,
@@ -132,7 +131,8 @@ class ConfirmDialog extends StatelessWidget {
         TextButton(
           onPressed: () => Navigator.of(context).pop(true),
           style: TextButton.styleFrom(
-            foregroundColor: isDestructive ? colorScheme.danger : colorScheme.primary,
+            foregroundColor:
+                isDestructive ? colorScheme.danger : colorScheme.primary,
           ),
           child: Text(confirmText ?? 'تأیید'),
         ),
@@ -246,7 +246,7 @@ class LoadingDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    
+
     return PopScope(
       canPop: false,
       child: AlertDialog(

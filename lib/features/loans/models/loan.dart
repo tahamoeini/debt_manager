@@ -111,9 +111,21 @@ class Loan {
           : int.parse(map['installment_amount'].toString()),
       startDateJalali: map['start_date_jalali'] as String? ?? '',
       notes: map['notes'] as String?,
-      interestRate: map['interest_rate'] is num ? (map['interest_rate'] as num).toDouble() : (map['interest_rate'] is String ? double.tryParse(map['interest_rate']) : null),
-      monthlyPayment: map['monthly_payment'] is int ? map['monthly_payment'] as int : (map['monthly_payment'] != null ? int.tryParse(map['monthly_payment'].toString()) : null),
-      termMonths: map['term_months'] is int ? map['term_months'] as int : (map['term_months'] != null ? int.tryParse(map['term_months'].toString()) : null),
+      interestRate: map['interest_rate'] is num
+          ? (map['interest_rate'] as num).toDouble()
+          : (map['interest_rate'] is String
+              ? double.tryParse(map['interest_rate'])
+              : null),
+      monthlyPayment: map['monthly_payment'] is int
+          ? map['monthly_payment'] as int
+          : (map['monthly_payment'] != null
+              ? int.tryParse(map['monthly_payment'].toString())
+              : null),
+      termMonths: map['term_months'] is int
+          ? map['term_months'] as int
+          : (map['term_months'] != null
+              ? int.tryParse(map['term_months'].toString())
+              : null),
       createdAt: map['created_at'] as String? ?? '',
     );
   }

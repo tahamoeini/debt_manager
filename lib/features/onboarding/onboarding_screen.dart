@@ -30,9 +30,14 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     final settings = SettingsRepository();
     await settings.init();
     await settings.setLanguageCode(_language);
-    final themeMode = _theme == 'light' ? ThemeMode.light : _theme == 'dark' ? ThemeMode.dark : ThemeMode.system;
+    final themeMode = _theme == 'light'
+        ? ThemeMode.light
+        : _theme == 'dark'
+            ? ThemeMode.dark
+            : ThemeMode.system;
     await settings.setThemeMode(themeMode);
-    await settings.setCalendarType(_calendar == 'jalali' ? CalendarType.jalali : CalendarType.gregorian);
+    await settings.setCalendarType(
+        _calendar == 'jalali' ? CalendarType.jalali : CalendarType.gregorian);
     await settings.setRemindersEnabled(_reminders);
     await settings.setBudgetAlertsEnabled(_budgetAlerts);
     await settings.setMonthlySummaryEnabled(_monthlySummary);
@@ -49,33 +54,41 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       body: SafeArea(
         child: Column(
           children: [
-          Expanded(
-            child: PageView(
-              controller: _controller,
-              onPageChanged: (p) => setState(() => _page = p),
-              children: [
-                _buildExplainer(),
-                _buildPreferences(),
-                _buildNotifications(),
-              ],
+            Expanded(
+              child: PageView(
+                controller: _controller,
+                onPageChanged: (p) => setState(() => _page = p),
+                children: [
+                  _buildExplainer(),
+                  _buildPreferences(),
+                  _buildNotifications(),
+                ],
+              ),
             ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(12.0),
-            child: Row(
-              children: [
-                TextButton(
-                  onPressed: _page == 0 ? null : () => _controller.previousPage(duration: const Duration(milliseconds: 300), curve: Curves.ease),
-                  child: const Text('Back'),
-                ),
-                const Spacer(),
-                ElevatedButton(
-                  onPressed: _page == 2 ? _complete : () => _controller.nextPage(duration: const Duration(milliseconds: 300), curve: Curves.ease),
-                  child: Text(_page == 2 ? 'Done' : 'Next'),
-                ),
-              ],
+            Padding(
+              padding: const EdgeInsets.all(12.0),
+              child: Row(
+                children: [
+                  TextButton(
+                    onPressed: _page == 0
+                        ? null
+                        : () => _controller.previousPage(
+                            duration: const Duration(milliseconds: 300),
+                            curve: Curves.ease),
+                    child: const Text('Back'),
+                  ),
+                  const Spacer(),
+                  ElevatedButton(
+                    onPressed: _page == 2
+                        ? _complete
+                        : () => _controller.nextPage(
+                            duration: const Duration(milliseconds: 300),
+                            curve: Curves.ease),
+                    child: Text(_page == 2 ? 'Done' : 'Next'),
+                  ),
+                ],
+              ),
             ),
-          ),
           ],
         ),
       ),
@@ -89,9 +102,11 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           SizedBox(height: 24),
-          Text('Debt Manager', style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold)),
+          Text('Debt Manager',
+              style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold)),
           SizedBox(height: 12),
-          Text('Track loans, installments and budgets. Privacy-first, offline-friendly.'),
+          Text(
+              'Track loans, installments and budgets. Privacy-first, offline-friendly.'),
         ],
       ),
     );
@@ -104,26 +119,37 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const SizedBox(height: 24),
-          const Text('Preferences', style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+          const Text('Preferences',
+              style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
           const SizedBox(height: 12),
           DropdownButtonFormField<String>(
             initialValue: _language,
             decoration: const InputDecoration(labelText: 'Language'),
-            items: const [DropdownMenuItem(value: 'en', child: Text('English')), DropdownMenuItem(value: 'fa', child: Text('فارسی'))],
+            items: const [
+              DropdownMenuItem(value: 'en', child: Text('English')),
+              DropdownMenuItem(value: 'fa', child: Text('فارسی'))
+            ],
             onChanged: (v) => setState(() => _language = v ?? 'en'),
           ),
           const SizedBox(height: 12),
           DropdownButtonFormField<String>(
             initialValue: _theme,
             decoration: const InputDecoration(labelText: 'Theme'),
-            items: const [DropdownMenuItem(value: 'system', child: Text('System')), DropdownMenuItem(value: 'light', child: Text('Light')), DropdownMenuItem(value: 'dark', child: Text('Dark'))],
+            items: const [
+              DropdownMenuItem(value: 'system', child: Text('System')),
+              DropdownMenuItem(value: 'light', child: Text('Light')),
+              DropdownMenuItem(value: 'dark', child: Text('Dark'))
+            ],
             onChanged: (v) => setState(() => _theme = v ?? 'system'),
           ),
           const SizedBox(height: 12),
           DropdownButtonFormField<String>(
             initialValue: _calendar,
             decoration: const InputDecoration(labelText: 'Calendar'),
-            items: const [DropdownMenuItem(value: 'gregorian', child: Text('Gregorian')), DropdownMenuItem(value: 'jalali', child: Text('Jalali'))],
+            items: const [
+              DropdownMenuItem(value: 'gregorian', child: Text('Gregorian')),
+              DropdownMenuItem(value: 'jalali', child: Text('Jalali'))
+            ],
             onChanged: (v) => setState(() => _calendar = v ?? 'gregorian'),
           ),
         ],
@@ -138,7 +164,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const SizedBox(height: 24),
-          const Text('Notifications', style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+          const Text('Notifications',
+              style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
           const SizedBox(height: 12),
           SwitchListTile(
             title: const Text('Reminders'),

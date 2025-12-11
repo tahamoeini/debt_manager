@@ -11,7 +11,7 @@ class AutomationRulesRepository {
       // Web fallback: rules won't be persisted but can be used in-memory
       return 0;
     }
-    
+
     final db = await _db.database;
     return await db.insert('automation_rules', rule.toMap());
   }
@@ -33,7 +33,8 @@ class AutomationRulesRepository {
     if (kIsWeb) return 0;
 
     final db = await _db.database;
-    return await db.delete('automation_rules', where: 'id = ?', whereArgs: [id]);
+    return await db
+        .delete('automation_rules', where: 'id = ?', whereArgs: [id]);
   }
 
   Future<List<AutomationRule>> getAllRules() async {
@@ -70,14 +71,15 @@ class AutomationRulesRepository {
     };
 
     // First check built-in patterns
-    final builtInCategory = BuiltInCategories.suggestCategory(payee, description);
+    final builtInCategory =
+        BuiltInCategories.suggestCategory(payee, description);
     if (builtInCategory != null) {
       result['category'] = builtInCategory;
     }
 
     // Then check custom rules (which take precedence)
     final rules = await getEnabledRules();
-    
+
     for (final rule in rules) {
       if (rule.matches(payee, description, amount)) {
         final action = rule.applyAction();
@@ -86,7 +88,7 @@ class AutomationRulesRepository {
         } else if (action['action'] == 'set_tag') {
           result['tag'] = action['value'] as String?;
         }
-        
+
         // First matching rule wins
         break;
       }

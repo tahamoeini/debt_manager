@@ -52,7 +52,8 @@ void main() {
       expect(find.byIcon(Icons.account_balance_wallet), findsOneWidget);
     });
 
-    testWidgets('shows loading indicator when isLoading is true', (tester) async {
+    testWidgets('shows loading indicator when isLoading is true',
+        (tester) async {
       await tester.pumpWidget(
         const MaterialApp(
           home: Scaffold(

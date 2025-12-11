@@ -31,7 +31,9 @@ class _AccountsScreenState extends State<AccountsScreen> {
     await _db.refreshOverdueInstallments(DateTime.now());
     final loans = await _db.getAllLoans();
     final loanIds = loans.where((l) => l.id != null).map((l) => l.id!).toList();
-    final grouped = loanIds.isNotEmpty ? await _db.getInstallmentsGroupedByLoanId(loanIds) : <int, List<Installment>>{};
+    final grouped = loanIds.isNotEmpty
+        ? await _db.getInstallmentsGroupedByLoanId(loanIds)
+        : <int, List<Installment>>{};
 
     _installmentsByLoan = grouped;
     _assets = loans.where((l) => l.direction == LoanDirection.lent).toList();
@@ -47,7 +49,9 @@ class _AccountsScreenState extends State<AccountsScreen> {
 
   int _remainingAmount(Loan loan) {
     final insts = _installmentsByLoan[loan.id] ?? [];
-    return insts.where((i) => i.status != InstallmentStatus.paid).fold<int>(0, (s, i) => s + i.amount);
+    return insts
+        .where((i) => i.status != InstallmentStatus.paid)
+        .fold<int>(0, (s, i) => s + i.amount);
   }
 
   @override
@@ -87,36 +91,50 @@ class _AccountsScreenState extends State<AccountsScreen> {
               ..._debts.map((l) => _buildLoanTile(context, l, isAsset: false)),
             ],
             if (_assets.isEmpty && _debts.isEmpty)
-              Center(child: Text('هیچ حساب یا بدهی‌ای یافت نشد', style: Theme.of(context).textTheme.bodyMedium)),
+              Center(
+                  child: Text('هیچ حساب یا بدهی‌ای یافت نشد',
+                      style: Theme.of(context).textTheme.bodyMedium)),
           ],
         );
       },
     );
   }
 
-  Widget _buildLoanTile(BuildContext context, Loan loan, {required bool isAsset}) {
+  Widget _buildLoanTile(BuildContext context, Loan loan,
+      {required bool isAsset}) {
     final ratio = _paidRatio(loan);
     final remaining = _remainingAmount(loan);
-    final color = colorForCategory(loan.title, brightness: Theme.of(context).brightness);
+    final color =
+        colorForCategory(loan.title, brightness: Theme.of(context).brightness);
 
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
       child: ListTile(
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        contentPadding:
+            const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         leading: CircleAvatar(backgroundColor: color, radius: 20),
-        title: Text(loan.title.isNotEmpty ? loan.title : 'بدون عنوان', style: Theme.of(context).textTheme.titleMedium),
+        title: Text(loan.title.isNotEmpty ? loan.title : 'بدون عنوان',
+            style: Theme.of(context).textTheme.titleMedium),
         subtitle: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const SizedBox(height: 8),
-            LinearProgressIndicator(value: ratio, minHeight: 8, color: Theme.of(context).colorScheme.primary, backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest),
+            LinearProgressIndicator(
+                value: ratio,
+                minHeight: 8,
+                color: Theme.of(context).colorScheme.primary,
+                backgroundColor:
+                    Theme.of(context).colorScheme.surfaceContainerHighest),
             const SizedBox(height: 8),
-            Text('${toPersianDigits((ratio * 100).round())}% پرداخت شده · باقی‌مانده: ${formatCurrency(remaining)}', style: Theme.of(context).textTheme.bodySmall),
+            Text(
+                '${toPersianDigits((ratio * 100).round())}% پرداخت شده · باقی‌مانده: ${formatCurrency(remaining)}',
+                style: Theme.of(context).textTheme.bodySmall),
           ],
         ),
         onTap: () async {
           if (loan.id != null) {
-            await Navigator.of(context).push(MaterialPageRoute(builder: (_) => LoanDetailScreen(loanId: loan.id!)));
+            await Navigator.of(context).push(MaterialPageRoute(
+                builder: (_) => LoanDetailScreen(loanId: loan.id!)));
             setState(() {
               _loader = _loadAll();
             });
