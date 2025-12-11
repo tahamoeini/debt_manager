@@ -9,6 +9,8 @@ import '../../core/db/database_helper.dart';
 import '../../core/settings/settings_repository.dart';
 
 class BackupService {
+  BackupService._internal();
+  static final BackupService instance = BackupService._internal();
   // Derive a 32-byte key from password using PBKDF2 (SHA256)
   static List<int> _deriveKey(String password, String salt, {int iterations = 10000}) {
     final pass = utf8.encode(password);
@@ -177,4 +179,13 @@ class BackupService {
       await folder.delete(recursive: true);
     }
   }
+
+  // Instance wrappers for callers that expect a singleton instance API.
+  Future<String> exportFullJsonInstance() => BackupService.exportFullJson();
+  Future<String> encryptAndSaveInstance(String plainJson, String password, {required String filename}) =>
+      BackupService.encryptAndSave(plainJson, password, filename: filename);
+  Future<String> decryptFromFileInstance(String path, String password) => BackupService.decryptFromFile(path, password);
+  Future<Uint8List> exportEncryptedCompressedBytesInstance(String password) => BackupService.exportEncryptedCompressedBytes(password);
+  Future<String> decryptCompressedBytesInstance(Uint8List wrapperBytes, String password) => BackupService.decryptCompressedBytes(wrapperBytes, password);
+  Future<void> deleteAllBackupsInstance() => BackupService.deleteAllBackups();
 }
