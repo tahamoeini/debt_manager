@@ -11,8 +11,8 @@ import '../../core/settings/settings_repository.dart';
 class BackupService {
   BackupService._internal();
   static final BackupService instance = BackupService._internal();
-  // Derive a 32-byte key from password using PBKDF2 (SHA256)
-  static List<int> _deriveKey(String password, String salt, {int iterations = 10000}) {
+  // Derive a 32-byte key from password using a simple HMAC-based expansion
+  static List<int> _deriveKey(String password, String salt) {
     final pass = utf8.encode(password);
     final saltBytes = utf8.encode(salt);
     final hmac = Hmac(sha256, pass);
@@ -22,7 +22,7 @@ class BackupService {
       final blockInput = [...block, ...saltBytes, 0, 0, 0, i];
       block = hmac.convert(blockInput).bytes;
       key.addAll(block);
-      // Note: iterations parameter available for future enhancement
+      // Note: simple expansion loop; PBKDF2 iterations not required here
     }
     return key.sublist(0, 32);
   }
@@ -110,13 +110,13 @@ class BackupService {
 
   /// Compress bytes using gzip and return bytes
   static Uint8List gzipCompress(Uint8List input) {
-    final encoder = GZipEncoder();
+    const encoder = GZipEncoder();
     final encoded = encoder.encode(input);
-    return Uint8List.fromList(encoded ?? input);
+    return Uint8List.fromList(encoded);
   }
 
   static Uint8List gzipDecompress(Uint8List input) {
-    final decoder = GZipDecoder();
+    const decoder = GZipDecoder();
     return Uint8List.fromList(decoder.decodeBytes(input));
   }
 

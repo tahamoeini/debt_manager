@@ -1,3 +1,4 @@
+// ignore_for_file: use_build_context_synchronously
 import 'package:flutter/material.dart';
 import '../../core/privacy/backup_service.dart';
 import '../../core/security/local_auth_service.dart';

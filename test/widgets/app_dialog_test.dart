@@ -7,12 +7,12 @@ void main() {
   group('AppDialog', () {
     testWidgets('displays title and content', (WidgetTester tester) async {
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: Scaffold(
             body: AppDialog(
               title: 'Test Dialog',
-              content: const Text('This is test content'),
-              actions: const [],
+              content: Text('This is test content'),
+              actions: [],
             ),
           ),
         ),
@@ -50,12 +50,12 @@ void main() {
 
     testWidgets('does not display icon when not provided', (WidgetTester tester) async {
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: Scaffold(
             body: AppDialog(
               title: 'Test Dialog',
-              content: const Text('Content'),
-              actions: const [],
+              content: Text('Content'),
+              actions: [],
             ),
           ),
         ),

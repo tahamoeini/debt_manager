@@ -2,7 +2,7 @@ import '../db/database_helper.dart';
 import '../notifications/notification_service.dart';
 import '../settings/settings_repository.dart';
 import '../../features/loans/models/installment.dart';
-import 'package:shamsi_date/shamsi_date.dart';
+// removed unused import
 
 class SmartInsightsService {
   static final SmartInsightsService instance = SmartInsightsService._internal();

@@ -6,7 +6,7 @@ void main() {
   group('DashboardCard', () {
     testWidgets('displays title and value correctly', (tester) async {
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: Scaffold(
             body: DashboardCard(
               title: 'Test Title',
@@ -22,7 +22,7 @@ void main() {
 
     testWidgets('displays optional subtitle', (tester) async {
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: Scaffold(
             body: DashboardCard(
               title: 'Test Title',
@@ -38,7 +38,7 @@ void main() {
 
     testWidgets('displays optional icon', (tester) async {
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: Scaffold(
             body: DashboardCard(
               title: 'Test Title',
@@ -54,7 +54,7 @@ void main() {
 
     testWidgets('shows loading indicator when isLoading is true', (tester) async {
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: Scaffold(
             body: DashboardCard(
               title: 'Test Title',
@@ -94,7 +94,7 @@ void main() {
   group('StatCard', () {
     testWidgets('displays correctly with required properties', (tester) async {
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: Scaffold(
             body: StatCard(
               title: 'Balance',

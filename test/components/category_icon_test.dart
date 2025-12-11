@@ -6,7 +6,7 @@ void main() {
   group('CategoryIcon', () {
     testWidgets('displays icon style correctly', (tester) async {
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: Scaffold(
             body: CategoryIcon(
               category: 'food',
@@ -22,7 +22,7 @@ void main() {
 
     testWidgets('displays circle style correctly', (tester) async {
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: Scaffold(
             body: CategoryIcon(
               category: 'transport',
@@ -42,7 +42,7 @@ void main() {
 
     testWidgets('displays square style correctly', (tester) async {
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: Scaffold(
             body: CategoryIcon(
               category: 'shopping',
@@ -62,7 +62,7 @@ void main() {
 
     testWidgets('displays dot style correctly', (tester) async {
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: Scaffold(
             body: CategoryIcon(
               category: 'utilities',
@@ -84,7 +84,7 @@ void main() {
 
     testWidgets('uses custom icon when provided', (tester) async {
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: Scaffold(
             body: CategoryIcon(
               category: 'food',
@@ -100,7 +100,7 @@ void main() {
 
     testWidgets('handles null category gracefully', (tester) async {
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: Scaffold(
             body: CategoryIcon(
               category: null,
@@ -118,7 +118,7 @@ void main() {
       const customSize = 48.0;
 
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: Scaffold(
             body: CategoryIcon(
               category: 'food',
@@ -140,7 +140,7 @@ void main() {
   group('CategoryChip', () {
     testWidgets('displays category name', (tester) async {
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: Scaffold(
             body: CategoryChip(
               category: 'Food',
@@ -154,7 +154,7 @@ void main() {
 
     testWidgets('displays icon when showIcon is true', (tester) async {
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: Scaffold(
             body: CategoryChip(
               category: 'food',
@@ -169,7 +169,7 @@ void main() {
 
     testWidgets('hides icon when showIcon is false', (tester) async {
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: Scaffold(
             body: CategoryChip(
               category: 'food',
@@ -184,7 +184,7 @@ void main() {
 
     testWidgets('shows selected state correctly', (tester) async {
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: Scaffold(
             body: CategoryChip(
               category: 'Food',

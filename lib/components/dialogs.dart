@@ -44,7 +44,7 @@ class AppDialog extends StatelessWidget {
     final textTheme = theme.textTheme;
 
     return AlertDialog(
-      shape: RoundedRectangleBorder(
+      shape: const RoundedRectangleBorder(
         borderRadius: AppRadius.dialog,
       ),
       title: title != null || icon != null
@@ -250,7 +250,7 @@ class LoadingDialog extends StatelessWidget {
     return PopScope(
       canPop: false,
       child: AlertDialog(
-        shape: RoundedRectangleBorder(
+        shape: const RoundedRectangleBorder(
           borderRadius: AppRadius.dialog,
         ),
         content: Column(

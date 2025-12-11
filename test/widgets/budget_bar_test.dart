@@ -7,7 +7,7 @@ void main() {
   group('BudgetBar', () {
     testWidgets('displays progress bar with percentage', (WidgetTester tester) async {
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: Scaffold(
             body: BudgetBar(
               current: 500,
@@ -25,7 +25,7 @@ void main() {
 
     testWidgets('shows green color when usage is below 60%', (WidgetTester tester) async {
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: Scaffold(
             body: BudgetBar(
               current: 500,
@@ -47,7 +47,7 @@ void main() {
 
     testWidgets('shows warning color when usage is between 60% and 90%', (WidgetTester tester) async {
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: Scaffold(
             body: BudgetBar(
               current: 750,
@@ -68,7 +68,7 @@ void main() {
 
     testWidgets('shows danger color when usage is 90% or above', (WidgetTester tester) async {
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: Scaffold(
             body: BudgetBar(
               current: 950,
@@ -89,7 +89,7 @@ void main() {
 
     testWidgets('handles zero limit gracefully', (WidgetTester tester) async {
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: Scaffold(
             body: BudgetBar(
               current: 100,
@@ -111,7 +111,7 @@ void main() {
 
     testWidgets('clamps value at 100% when over budget', (WidgetTester tester) async {
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: Scaffold(
             body: BudgetBar(
               current: 1500,
@@ -134,7 +134,7 @@ void main() {
 
     testWidgets('displays label when provided', (WidgetTester tester) async {
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: Scaffold(
             body: BudgetBar(
               current: 500,
@@ -150,7 +150,7 @@ void main() {
 
     testWidgets('hides percentage when showPercentage is false', (WidgetTester tester) async {
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: Scaffold(
             body: BudgetBar(
               current: 500,
@@ -166,7 +166,7 @@ void main() {
 
     testWidgets('shows amount when showAmount is true', (WidgetTester tester) async {
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: Scaffold(
             body: BudgetBar(
               current: 500,

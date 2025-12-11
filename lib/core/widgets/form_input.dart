@@ -67,7 +67,7 @@ class FormInput extends StatelessWidget {
         prefixIcon: icon != null ? Icon(icon) : null,
         filled: true,
         fillColor: theme.inputDecorationTheme.fillColor,
-        border: OutlineInputBorder(
+        border: const OutlineInputBorder(
           borderRadius: AppDimensions.inputBorderRadius,
         ),
         enabledBorder: OutlineInputBorder(

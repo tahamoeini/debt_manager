@@ -5,7 +5,7 @@ import 'package:shamsi_date/shamsi_date.dart';
 Jalali parseJalali(String value) {
   final parts = value.split('-');
   if (parts.length != 3) {
-    throw FormatException('Invalid Jalali date format, expected yyyy-MM-dd');
+    throw const FormatException('Invalid Jalali date format, expected yyyy-MM-dd');
   }
   final year = int.parse(parts[0]);
   final month = int.parse(parts[1]);

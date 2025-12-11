@@ -18,9 +18,9 @@ class UIUtils {
 
   static Widget asyncErrorWidget(Object? error) {
     // Friendly Farsi message; callers should also debugPrint the error.
-    return Center(
+    return const Center(
       child: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: EdgeInsets.all(16.0),
         child: Text(
           'متأسفانه در بارگذاری داده‌ها مشکلی رخ داد. لطفاً مجدداً تلاش کنید.',
           textAlign: TextAlign.center,

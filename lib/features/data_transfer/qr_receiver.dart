@@ -47,8 +47,10 @@ class _QrReceiverScreenState extends State<QrReceiverScreen> {
             final pg = PrivacyGateway();
             await pg.audit('import_qr', details: 'Imported data via QR');
             await pg.importJsonString(jsonStr);
+            if (!mounted) return;
             ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Import completed')));
           } catch (e) {
+            if (!mounted) return;
             ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Failed to decrypt/import data')));
           }
         }

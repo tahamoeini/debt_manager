@@ -7,7 +7,7 @@ void main() {
   group('TransactionTile', () {
     testWidgets('displays title and amount', (WidgetTester tester) async {
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: Scaffold(
             body: TransactionTile(
               title: 'Salary',
@@ -29,7 +29,7 @@ void main() {
 
     testWidgets('displays expense transaction', (WidgetTester tester) async {
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: Scaffold(
             body: TransactionTile(
               title: 'Groceries',

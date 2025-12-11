@@ -7,7 +7,7 @@ void main() {
   group('BudgetProgressBar', () {
     testWidgets('displays progress indicator', (WidgetTester tester) async {
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: Scaffold(
             body: BudgetProgressBar(
               current: 50000,
@@ -24,7 +24,7 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           theme: ThemeData.light(),
-          home: Scaffold(
+          home: const Scaffold(
             body: BudgetProgressBar(
               current: 50000,
               limit: 100000,
@@ -47,7 +47,7 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           theme: ThemeData.light(),
-          home: Scaffold(
+          home: const Scaffold(
             body: BudgetProgressBar(
               current: 75000,
               limit: 100000,
@@ -70,7 +70,7 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           theme: ThemeData.light(),
-          home: Scaffold(
+          home: const Scaffold(
             body: BudgetProgressBar(
               current: 95000,
               limit: 100000,
@@ -91,7 +91,7 @@ void main() {
 
     testWidgets('displays percentage when showPercentage is true', (WidgetTester tester) async {
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: Scaffold(
             body: BudgetProgressBar(
               current: 75000,
@@ -107,7 +107,7 @@ void main() {
 
     testWidgets('displays label when provided', (WidgetTester tester) async {
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: Scaffold(
             body: BudgetProgressBar(
               current: 50000,
@@ -123,7 +123,7 @@ void main() {
 
     testWidgets('calculates correct progress value', (WidgetTester tester) async {
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: Scaffold(
             body: BudgetProgressBar(
               current: 30000,
@@ -144,7 +144,7 @@ void main() {
 
     testWidgets('handles zero limit gracefully', (WidgetTester tester) async {
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: Scaffold(
             body: BudgetProgressBar(
               current: 1000,

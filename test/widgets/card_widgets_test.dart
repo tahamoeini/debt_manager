@@ -7,7 +7,7 @@ void main() {
   group('DashboardCard', () {
     testWidgets('displays title, value, and subtitle', (WidgetTester tester) async {
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: Scaffold(
             body: DashboardCard(
               title: 'Total Balance',
@@ -25,7 +25,7 @@ void main() {
 
     testWidgets('shows icon when provided', (WidgetTester tester) async {
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: Scaffold(
             body: DashboardCard(
               title: 'Balance',
@@ -64,7 +64,7 @@ void main() {
   group('StatCard', () {
     testWidgets('displays title and value', (WidgetTester tester) async {
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: Scaffold(
             body: StatCard(
               title: 'Budget Left',
@@ -80,7 +80,7 @@ void main() {
 
     testWidgets('applies custom color when provided', (WidgetTester tester) async {
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: Scaffold(
             body: StatCard(
               title: 'Budget',

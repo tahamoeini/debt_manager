@@ -119,7 +119,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
       if (_counterpartyTypeFilter != null) {
         final cp = _counterparties.firstWhere(
           (c) => c.id == loan.counterpartyId,
-          orElse: () => Counterparty(id: null, name: 'نامشخص'),
+          orElse: () => const Counterparty(id: null, name: 'نامشخص'),
         );
         if (cp.type != _counterpartyTypeFilter) {
           continue;
@@ -329,7 +329,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
                           return Column(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              CircleAvatar(
+                              const CircleAvatar(
                                 radius: 22,
                                 child: Icon(Icons.emoji_events, size: 24),
                               ),
@@ -571,7 +571,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
                   final Loan loan = r['loan'] as Loan;
                   final cp = _counterparties.firstWhere(
                     (c) => c.id == loan.counterpartyId,
-                    orElse: () => Counterparty(id: null, name: 'نامشخص'),
+                    orElse: () => const Counterparty(id: null, name: 'نامشخص'),
                   );
 
                   // status color mapping

@@ -138,7 +138,7 @@ class _HomeScreenState extends State<HomeScreen> {
             const SizedBox(height: 8),
             if (upcoming.isEmpty)
               Card(
-                shape: RoundedRectangleBorder(
+                shape: const RoundedRectangleBorder(
                   borderRadius: AppConstants.borderRadiusSmall,
                 ),
                 child: Padding(

@@ -29,12 +29,12 @@ final goRouterProvider = Provider<GoRouter>((ref) {
           GoRoute(
             name: 'home',
             path: '/',
-            pageBuilder: (context, state) => MaterialPage(child: const HomeScreen()),
+            pageBuilder: (context, state) => const MaterialPage(child: HomeScreen()),
           ),
           GoRoute(
             name: 'loans',
             path: '/loans',
-            pageBuilder: (context, state) => MaterialPage(child: const LoansListScreen()),
+            pageBuilder: (context, state) => const MaterialPage(child: LoansListScreen()),
             routes: [
               GoRoute(
                 name: 'loanDetail',
@@ -50,19 +50,19 @@ final goRouterProvider = Provider<GoRouter>((ref) {
           GoRoute(
             name: 'budgets',
             path: '/budgets',
-            pageBuilder: (context, state) => MaterialPage(child: const BudgetScreen()),
+            pageBuilder: (context, state) => const MaterialPage(child: BudgetScreen()),
             routes: [
               GoRoute(
                 name: 'budgetAdd',
                 path: 'add',
-                pageBuilder: (context, state) => MaterialPage(child: const SizedBox()),
+                pageBuilder: (context, state) => const MaterialPage(child: SizedBox()),
               ),
             ],
           ),
           GoRoute(
             name: 'reports',
             path: '/reports',
-            pageBuilder: (context, state) => MaterialPage(child: ReportsScreen()),
+            pageBuilder: (context, state) => const MaterialPage(child: ReportsScreen()),
           ),
           GoRoute(
             name: 'insights',
@@ -72,13 +72,13 @@ final goRouterProvider = Provider<GoRouter>((ref) {
           GoRoute(
             name: 'settings',
             path: '/settings',
-            pageBuilder: (context, state) => MaterialPage(child: const SettingsScreen()),
+            pageBuilder: (context, state) => const MaterialPage(child: SettingsScreen()),
           ),
           // Lock screen route - shown when auth is required
           GoRoute(
             name: 'lock',
             path: '/lock',
-            pageBuilder: (context, state) => MaterialPage(fullscreenDialog: true, child: const LockScreen()),
+            pageBuilder: (context, state) => const MaterialPage(fullscreenDialog: true, child: LockScreen()),
           ),
         ],
       ),

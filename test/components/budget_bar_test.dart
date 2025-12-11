@@ -6,7 +6,7 @@ void main() {
   group('BudgetBar', () {
     testWidgets('displays green color when under low threshold', (tester) async {
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: Scaffold(
             body: BudgetBar(
               current: 500,
@@ -29,7 +29,7 @@ void main() {
 
     testWidgets('displays orange color when between thresholds', (tester) async {
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: Scaffold(
             body: BudgetBar(
               current: 750,
@@ -51,7 +51,7 @@ void main() {
 
     testWidgets('displays red color when over high threshold', (tester) async {
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: Scaffold(
             body: BudgetBar(
               current: 950,
@@ -73,7 +73,7 @@ void main() {
 
     testWidgets('shows amount when showAmount is true', (tester) async {
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: Scaffold(
             body: BudgetBar(
               current: 500,
@@ -89,7 +89,7 @@ void main() {
 
     testWidgets('handles zero limit gracefully', (tester) async {
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: Scaffold(
             body: BudgetBar(
               current: 100,
@@ -106,7 +106,7 @@ void main() {
 
     testWidgets('clamps value at 100% when over limit', (tester) async {
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: Scaffold(
             body: BudgetBar(
               current: 1500,
@@ -130,7 +130,7 @@ void main() {
   group('BudgetProgressCard', () {
     testWidgets('displays category and budget info', (tester) async {
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: Scaffold(
             body: BudgetProgressCard(
               category: 'Food',
@@ -147,7 +147,7 @@ void main() {
 
     testWidgets('displays optional icon', (tester) async {
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: Scaffold(
             body: BudgetProgressCard(
               category: 'Food',

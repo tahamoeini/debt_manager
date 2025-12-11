@@ -80,7 +80,7 @@ class _BudgetScreenState extends State<BudgetScreen> {
             itemBuilder: (context, index) {
               final b = budgets[index];
               return Card(
-                shape: RoundedRectangleBorder(
+                shape: const RoundedRectangleBorder(
                   borderRadius: AppConstants.borderRadiusSmall,
                 ),
                 child: InkWell(

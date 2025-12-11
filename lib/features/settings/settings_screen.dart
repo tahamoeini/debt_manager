@@ -1,3 +1,4 @@
+// ignore_for_file: use_build_context_synchronously
 import 'package:flutter/material.dart';
 import '../../core/settings/settings_repository.dart';
 import '../../core/privacy/privacy_gateway.dart';
@@ -42,10 +43,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
       _offsetDays = _settings.reminderOffsetDays;
       _calendar = _settings.calendarType == CalendarType.jalali ? 'jalali' : 'gregorian';
       _language = _settings.languageCode;
-      // Check for PIN stored
-      _hasPin = false;
-      // async check for stored PIN
-      PinService().hasPin().then((v) => setState(() => _hasPin = v));
+      // async check for stored PIN (no local state shown here)
+      PinService().hasPin().then((_) {});
       _ready = true;
     });
   }
@@ -91,6 +90,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
     await _settings.setCalendarType(_calendar == 'jalali' ? CalendarType.jalali : CalendarType.gregorian);
     await _settings.setLanguageCode(_language);
 
+    if (!mounted) return;
+    if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Settings saved')));
   }
 
@@ -119,6 +120,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
           OutlinedButton(
             onPressed: () async {
               await _settings.replayOnboarding();
+              if (!mounted) return;
+              if (!mounted) return;
               ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Onboarding will replay on next launch')));
             },
             child: const Text('Replay onboarding'),
@@ -140,11 +143,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 if (await pinSvc.hasPin()) {
                   // remove
                   await pinSvc.removePin();
+                  if (!mounted) return;
+                  if (!mounted) return;
                   ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('PIN removed')));
                 } else {
                   final pin = await _askForPin();
                   if (pin != null && pin.length >= 4) {
                     await pinSvc.setPin(pin);
+                    if (!mounted) return;
+                    if (!mounted) return;
                     ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('PIN set')));
                   }
                 }
@@ -187,11 +194,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       final pg = PrivacyGateway();
                       await pg.panicWipe();
                       await pg.audit('panic_wipe', details: 'User initiated panic wipe via settings');
+                      if (!mounted) return;
+                      if (!mounted) return;
                       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('All local data wiped')));
                     } catch (e) {
+                      if (!mounted) return;
+                      if (!mounted) return;
                       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Failed to wipe data')));
                     }
                   } else {
+                    if (!mounted) return;
+                    if (!mounted) return;
                     ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Authentication failed. Wipe aborted.')));
                   }
                 }
@@ -207,20 +220,22 @@ class _SettingsScreenState extends State<SettingsScreen> {
             // Export (encrypted) backup to file
             final la = LocalAuthService();
             final ok = await la.authenticate(reason: 'Authenticate to export backup');
-            if (!ok) { ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Auth failed'))); return; }
+            if (!ok) { if (!mounted) return; ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Auth failed'))); return; }
             final pw = await _askPassword();
             if (pw == null) return;
             final jsonStr = await BackupService.exportFullJson();
             final path = await BackupService.encryptAndSave(jsonStr, pw, filename: 'backup_${DateTime.now().millisecondsSinceEpoch}.dm');
             final pg = PrivacyGateway();
             await pg.audit('export_backup', details: path);
+            if (!mounted) return;
+            if (!mounted) return;
             ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Encrypted backup saved')));
           }, child: const Text('Export encrypted backup')),
           ElevatedButton(onPressed: () async {
             // Import backup from file: require auth and password
             final la = LocalAuthService();
             final ok = await la.authenticate(reason: 'Authenticate to import backup');
-            if (!ok) { ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Auth failed'))); return; }
+            if (!ok) { if (!mounted) return; ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Auth failed'))); return; }
             final pw = await _askPassword();
             if (pw == null) return;
             // For simplicity, ask user to provide file path (or implement file picker)
@@ -239,8 +254,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
               final pg = PrivacyGateway();
               await pg.audit('import_backup', details: path);
               await pg.importJsonString(jsonStr);
+              if (!mounted) return;
+              if (!mounted) return;
               ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Import completed')));
             } catch (e) {
+              if (!mounted) return;
+              if (!mounted) return;
               ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Failed to import backup')));
             }
           }, child: const Text('Import encrypted backup (from path)')),

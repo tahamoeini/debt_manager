@@ -20,14 +20,14 @@ class SparklineChart extends StatelessWidget {
 
     return LineChart(
       LineChartData(
-        gridData: FlGridData(show: false),
-        titlesData: FlTitlesData(show: false),
+        gridData: const FlGridData(show: false),
+        titlesData: const FlTitlesData(show: false),
         borderData: FlBorderData(show: false),
         lineBarsData: [
           LineChartBarData(
             spots: spots,
             isCurved: true,
-            dotData: FlDotData(show: false),
+            dotData: const FlDotData(show: false),
             gradient: LinearGradient(colors: [Theme.of(context).colorScheme.primary.withValues(alpha: 0.9), Theme.of(context).colorScheme.primary.withValues(alpha: 0.5)]),
             belowBarData: BarAreaData(show: true, gradient: LinearGradient(colors: [Theme.of(context).colorScheme.primary.withValues(alpha: 0.2), Colors.transparent])),
             barWidth: 2,

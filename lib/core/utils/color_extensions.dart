@@ -6,7 +6,10 @@ extension ColorWithValues on Color {
   Color withValues({double? alpha}) {
     if (alpha == null) return this;
     final alphaValue = (alpha.clamp(0.0, 1.0) * 255).round();
-    return Color.fromARGB(alphaValue, red, green, blue);
+    final r = ((this.r * 255.0).round()).clamp(0, 255).toInt();
+    final g = ((this.g * 255.0).round()).clamp(0, 255).toInt();
+    final b = ((this.b * 255.0).round()).clamp(0, 255).toInt();
+    return Color.fromARGB(alphaValue, r, g, b);
   }
 }
 

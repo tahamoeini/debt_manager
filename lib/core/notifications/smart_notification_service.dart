@@ -37,21 +37,21 @@ class SmartNotificationService {
     }
 
     // Create notification channels for different types
-    final budgetChannel = AndroidNotificationChannel(
+    const budgetChannel = AndroidNotificationChannel(
       _channelIdBudget,
       _channelNameBudget,
       description: _channelDescBudget,
       importance: Importance.high,
     );
 
-    final suggestionsChannel = AndroidNotificationChannel(
+    const suggestionsChannel = AndroidNotificationChannel(
       _channelIdSuggestions,
       _channelNameSuggestions,
       description: _channelDescSuggestions,
       importance: Importance.defaultImportance,
     );
 
-    final summaryChannel = AndroidNotificationChannel(
+    const summaryChannel = AndroidNotificationChannel(
       _channelIdSummary,
       _channelNameSummary,
       description: _channelDescSummary,

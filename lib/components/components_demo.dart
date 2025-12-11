@@ -5,6 +5,7 @@ library;
 /// This file demonstrates how to use all the reusable components in the design system.
 /// It can be used as a reference or as a visual test of all components.
 
+// ignore_for_file: use_build_context_synchronously
 import 'package:flutter/material.dart';
 import 'package:debt_manager/components/components.dart';
 
@@ -63,7 +64,7 @@ class _ComponentsDemoState extends State<ComponentsDemo> {
                   icon: Icons.arrow_downward,
                 ),
                 const SizedBox(height: AppSpacing.md),
-                DashboardCard(
+                const DashboardCard(
                   title: 'Loading Example',
                   value: 'Not shown',
                   isLoading: true,
@@ -74,35 +75,35 @@ class _ComponentsDemoState extends State<ComponentsDemo> {
           const SizedBox(height: AppSpacing.xl),
           _buildSection(
             'Budget Bars',
-            Column(
+            const Column(
               children: [
-                const Text('Low usage (< 60%):'),
-                const SizedBox(height: AppSpacing.sm),
+                Text('Low usage (< 60%):'),
+                SizedBox(height: AppSpacing.sm),
                 BudgetBar(
                   current: 500000,
                   limit: 1000000,
                   showPercentage: true,
                   showAmount: true,
                 ),
-                const SizedBox(height: AppSpacing.lg),
-                const Text('Medium usage (60-90%):'),
-                const SizedBox(height: AppSpacing.sm),
+                SizedBox(height: AppSpacing.lg),
+                Text('Medium usage (60-90%):'),
+                SizedBox(height: AppSpacing.sm),
                 BudgetBar(
                   current: 750000,
                   limit: 1000000,
                   showPercentage: true,
                   showAmount: true,
                 ),
-                const SizedBox(height: AppSpacing.lg),
-                const Text('High usage (> 90%):'),
-                const SizedBox(height: AppSpacing.sm),
+                SizedBox(height: AppSpacing.lg),
+                Text('High usage (> 90%):'),
+                SizedBox(height: AppSpacing.sm),
                 BudgetBar(
                   current: 950000,
                   limit: 1000000,
                   showPercentage: true,
                   showAmount: true,
                 ),
-                const SizedBox(height: AppSpacing.lg),
+                SizedBox(height: AppSpacing.lg),
                 BudgetProgressCard(
                   category: 'Food & Dining',
                   current: 850000,
@@ -120,18 +121,18 @@ class _ComponentsDemoState extends State<ComponentsDemo> {
               children: [
                 const Text('Icon Style:'),
                 const SizedBox(height: AppSpacing.sm),
-                Row(
+                const Row(
                   children: [
                     CategoryIcon(
                       category: 'food',
                       style: CategoryIconStyle.icon,
                     ),
-                    const SizedBox(width: AppSpacing.md),
+                    SizedBox(width: AppSpacing.md),
                     CategoryIcon(
                       category: 'transport',
                       style: CategoryIconStyle.icon,
                     ),
-                    const SizedBox(width: AppSpacing.md),
+                    SizedBox(width: AppSpacing.md),
                     CategoryIcon(
                       category: 'shopping',
                       style: CategoryIconStyle.icon,
@@ -141,18 +142,18 @@ class _ComponentsDemoState extends State<ComponentsDemo> {
                 const SizedBox(height: AppSpacing.lg),
                 const Text('Circle Style:'),
                 const SizedBox(height: AppSpacing.sm),
-                Row(
+                const Row(
                   children: [
                     CategoryIcon(
                       category: 'food',
                       style: CategoryIconStyle.circle,
                     ),
-                    const SizedBox(width: AppSpacing.md),
+                    SizedBox(width: AppSpacing.md),
                     CategoryIcon(
                       category: 'transport',
                       style: CategoryIconStyle.circle,
                     ),
-                    const SizedBox(width: AppSpacing.md),
+                    SizedBox(width: AppSpacing.md),
                     CategoryIcon(
                       category: 'shopping',
                       style: CategoryIconStyle.circle,
@@ -162,18 +163,18 @@ class _ComponentsDemoState extends State<ComponentsDemo> {
                 const SizedBox(height: AppSpacing.lg),
                 const Text('Square Style:'),
                 const SizedBox(height: AppSpacing.sm),
-                Row(
+                const Row(
                   children: [
                     CategoryIcon(
                       category: 'food',
                       style: CategoryIconStyle.square,
                     ),
-                    const SizedBox(width: AppSpacing.md),
+                    SizedBox(width: AppSpacing.md),
                     CategoryIcon(
                       category: 'transport',
                       style: CategoryIconStyle.square,
                     ),
-                    const SizedBox(width: AppSpacing.md),
+                    SizedBox(width: AppSpacing.md),
                     CategoryIcon(
                       category: 'shopping',
                       style: CategoryIconStyle.square,
@@ -183,20 +184,20 @@ class _ComponentsDemoState extends State<ComponentsDemo> {
                 const SizedBox(height: AppSpacing.lg),
                 const Text('Dot Style:'),
                 const SizedBox(height: AppSpacing.sm),
-                Row(
+                const Row(
                   children: [
                     CategoryIcon(
                       category: 'food',
                       style: CategoryIconStyle.dot,
                       size: AppIconSize.sm,
                     ),
-                    const SizedBox(width: AppSpacing.md),
+                    SizedBox(width: AppSpacing.md),
                     CategoryIcon(
                       category: 'transport',
                       style: CategoryIconStyle.dot,
                       size: AppIconSize.sm,
                     ),
-                    const SizedBox(width: AppSpacing.md),
+                    SizedBox(width: AppSpacing.md),
                     CategoryIcon(
                       category: 'shopping',
                       style: CategoryIconStyle.dot,
@@ -216,11 +217,11 @@ class _ComponentsDemoState extends State<ComponentsDemo> {
                       isSelected: isSelected,
                       onTap: () => setState(() => isSelected = !isSelected),
                     ),
-                    CategoryChip(
+                    const CategoryChip(
                       category: 'Transport',
                       showIcon: true,
                     ),
-                    CategoryChip(
+                    const CategoryChip(
                       category: 'Shopping',
                       showIcon: false,
                     ),
@@ -248,7 +249,7 @@ class _ComponentsDemoState extends State<ComponentsDemo> {
                   },
                 ),
                 const SizedBox(height: AppSpacing.sm),
-                TransactionTile(
+                const TransactionTile(
                   title: 'Salary',
                   amount: 5000000,
                   type: TransactionType.income,
@@ -256,7 +257,7 @@ class _ComponentsDemoState extends State<ComponentsDemo> {
                   category: 'salary',
                 ),
                 const SizedBox(height: AppSpacing.sm),
-                TransactionTile(
+                const TransactionTile(
                   title: 'Taxi Ride',
                   amount: 50000,
                   type: TransactionType.expense,
@@ -271,20 +272,20 @@ class _ComponentsDemoState extends State<ComponentsDemo> {
             'Form Inputs',
             Column(
               children: [
-                FormInput(
+                const FormInput(
                   label: 'Title',
                   hint: 'Enter title',
                   leadingIcon: Icons.title,
                 ),
                 const SizedBox(height: AppSpacing.md),
-                FormInput(
+                const FormInput(
                   label: 'Amount',
                   hint: 'Enter amount',
                   leadingIcon: Icons.attach_money,
                   keyboardType: TextInputType.number,
                 ),
                 const SizedBox(height: AppSpacing.md),
-                FormInput(
+                const FormInput(
                   label: 'Description',
                   hint: 'Enter description',
                   maxLines: 3,

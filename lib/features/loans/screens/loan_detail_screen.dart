@@ -1,4 +1,5 @@
 // Loan detail screen: shows loan details and its installments and actions.
+// ignore_for_file: use_build_context_synchronously
 import 'package:flutter/material.dart';
 import 'package:shamsi_date/shamsi_date.dart';
 
@@ -50,9 +51,9 @@ class _LoanDetailScreenState extends State<LoanDetailScreen> {
     final cp = loan != null
         ? cps.firstWhere(
             (c) => c.id == loan.counterpartyId,
-            orElse: () => Counterparty(id: null, name: 'نامشخص'),
+            orElse: () => const Counterparty(id: null, name: 'نامشخص'),
           )
-        : Counterparty(id: null, name: 'نامشخص');
+        : const Counterparty(id: null, name: 'نامشخص');
 
     final installments = loan != null
         ? await _db.getInstallmentsByLoanId(widget.loanId)

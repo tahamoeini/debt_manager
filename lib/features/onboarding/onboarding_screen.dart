@@ -81,11 +81,11 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   }
 
   Widget _buildExplainer() {
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
+    return const Padding(
+      padding: EdgeInsets.all(16.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: const [
+        children: [
           SizedBox(height: 24),
           Text('Debt Manager', style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold)),
           SizedBox(height: 12),

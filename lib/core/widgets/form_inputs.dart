@@ -110,7 +110,7 @@ class FormInput extends StatelessWidget {
         fillColor: enabled
             ? colorScheme.surfaceContainerHighest
             : colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
-        border: OutlineInputBorder(
+        border: const OutlineInputBorder(
           borderRadius: AppConstants.borderRadiusSmall,
         ),
         enabledBorder: OutlineInputBorder(
@@ -199,7 +199,7 @@ class DropdownField<T> extends StatelessWidget {
         fillColor: enabled
             ? colorScheme.surfaceContainerHighest
             : colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
-        border: OutlineInputBorder(
+        border: const OutlineInputBorder(
           borderRadius: AppConstants.borderRadiusSmall,
         ),
         enabledBorder: OutlineInputBorder(

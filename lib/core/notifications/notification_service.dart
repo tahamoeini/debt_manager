@@ -30,13 +30,13 @@ class NotificationService {
     }
 
     const androidInit = AndroidInitializationSettings('@mipmap/ic_launcher');
-    final iosInit = DarwinInitializationSettings(
+    const iosInit = DarwinInitializationSettings(
       requestAlertPermission: true,
       requestBadgePermission: true,
       requestSoundPermission: true,
     );
 
-    final settings = InitializationSettings(android: androidInit, iOS: iosInit);
+    const settings = InitializationSettings(android: androidInit, iOS: iosInit);
 
     await _plugin.initialize(
       settings,
@@ -56,15 +56,15 @@ class NotificationService {
   }
 
   NotificationDetails get _defaultDetails {
-    final android = AndroidNotificationDetails(
+    const android = AndroidNotificationDetails(
       _channelId,
       _channelName,
       channelDescription: _channelDescription,
       importance: Importance.high,
       priority: Priority.high,
     );
-    final ios = DarwinNotificationDetails();
-    return NotificationDetails(android: android, iOS: ios);
+    const ios = DarwinNotificationDetails();
+    return const NotificationDetails(android: android, iOS: ios);
   }
 
   Future<void> scheduleInstallmentReminder({

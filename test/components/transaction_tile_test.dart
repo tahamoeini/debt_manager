@@ -6,7 +6,7 @@ void main() {
   group('TransactionTile', () {
     testWidgets('displays transaction details correctly', (tester) async {
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: Scaffold(
             body: TransactionTile(
               title: 'Grocery Shopping',
@@ -27,7 +27,7 @@ void main() {
 
     testWidgets('shows income in green with + prefix', (tester) async {
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: Scaffold(
             body: TransactionTile(
               title: 'Salary',
@@ -53,7 +53,7 @@ void main() {
 
     testWidgets('shows expense in red with - prefix', (tester) async {
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: Scaffold(
             body: TransactionTile(
               title: 'Shopping',
@@ -79,7 +79,7 @@ void main() {
 
     testWidgets('generates subtitle from payee, category, and date', (tester) async {
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: Scaffold(
             body: TransactionTile(
               title: 'Test Transaction',
@@ -101,7 +101,7 @@ void main() {
 
     testWidgets('uses custom subtitle when provided', (tester) async {
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: Scaffold(
             body: TransactionTile(
               title: 'Test Transaction',
@@ -143,7 +143,7 @@ void main() {
 
     testWidgets('shows category icon when category is provided', (tester) async {
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: Scaffold(
             body: TransactionTile(
               title: 'Test',
@@ -162,7 +162,7 @@ void main() {
 
     testWidgets('hides category icon when showCategoryIcon is false', (tester) async {
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: Scaffold(
             body: TransactionTile(
               title: 'Test',
@@ -181,7 +181,7 @@ void main() {
 
     testWidgets('displays empty title fallback', (tester) async {
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: Scaffold(
             body: TransactionTile(
               title: '',

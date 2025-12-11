@@ -7,7 +7,7 @@ void main() {
   group('DashboardCard', () {
     testWidgets('displays title, value, and subtitle', (WidgetTester tester) async {
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: Scaffold(
             body: DashboardCard(
               title: 'Test Title',
@@ -25,7 +25,7 @@ void main() {
 
     testWidgets('displays icon when provided', (WidgetTester tester) async {
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: Scaffold(
             body: DashboardCard(
               title: 'Balance',
@@ -41,7 +41,7 @@ void main() {
 
     testWidgets('does not display icon when not provided', (WidgetTester tester) async {
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: Scaffold(
             body: DashboardCard(
               title: 'Balance',
@@ -58,7 +58,7 @@ void main() {
       const customColor = Colors.red;
 
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: Scaffold(
             body: DashboardCard(
               title: 'Balance',

@@ -69,7 +69,7 @@ class StatCard extends StatelessWidget {
     if (onTap != null) {
       return Card(
         elevation: 1,
-        shape: RoundedRectangleBorder(
+        shape: const RoundedRectangleBorder(
           borderRadius: AppDimensions.cardBorderRadius,
         ),
         child: InkWell(
@@ -82,7 +82,7 @@ class StatCard extends StatelessWidget {
 
     return Card(
       elevation: 1,
-      shape: RoundedRectangleBorder(
+      shape: const RoundedRectangleBorder(
         borderRadius: AppDimensions.cardBorderRadius,
       ),
       child: content,
