@@ -1,5 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:debt_manager/features/reports/reports_repository.dart';
+import 'package:debt_manager/core/utils/jalali_utils.dart';
+import 'package:debt_manager/core/utils/format_utils.dart';
 import 'package:debt_manager/features/loans/models/installment.dart';
 import 'package:debt_manager/features/loans/models/loan.dart';
 import 'package:debt_manager/features/loans/models/counterparty.dart';
@@ -77,7 +79,7 @@ class ReportsNotifier extends StateNotifier<ReportsState> {
 
   Future<void> loadCounterparties() async {
     try {
-      final cps = await _repo._db.getAllCounterparties();
+      final cps = await _repo.getAllCounterparties();
       state = state.copyWith(counterparties: cps);
     } catch (_) {}
   }
@@ -89,9 +91,9 @@ class ReportsNotifier extends StateNotifier<ReportsState> {
   Future<void> refreshSummary() async {
     try {
       state = state.copyWith(loadingSummary: true);
-      await _repo._db.refreshOverdueInstallments(DateTime.now());
-      final borrowed = await _repo._db.getTotalOutstandingBorrowed();
-      final lent = await _repo._db.getTotalOutstandingLent();
+      await _repo.refreshOverdueInstallments(DateTime.now());
+      final borrowed = await _repo.getTotalOutstandingBorrowed();
+      final lent = await _repo.getTotalOutstandingLent();
       final net = lent - borrowed;
       state = state.copyWith(summary: {'borrowed': borrowed, 'lent': lent, 'net': net}, loadingSummary: false);
     } catch (e) {
@@ -103,12 +105,12 @@ class ReportsNotifier extends StateNotifier<ReportsState> {
     try {
       state = state.copyWith(loadingRows: true);
 
-      await _repo._db.refreshOverdueInstallments(DateTime.now());
+      await _repo.refreshOverdueInstallments(DateTime.now());
 
       final fromStr = state.from != null ? _formatJ(state.from!) : null;
       final toStr = state.to != null ? _formatJ(state.to!) : null;
 
-      final loans = await _repo._db.getAllLoans(direction: state.direction);
+      final loans = await _repo.getAllLoans(direction: state.direction);
 
       final List<Map<String, dynamic>> rows = [];
       for (final loan in loans) {
@@ -121,7 +123,7 @@ class ReportsNotifier extends StateNotifier<ReportsState> {
 
         if (state.counterpartyFilter != null && loan.counterpartyId != state.counterpartyFilter) continue;
 
-        final installments = await _repo._db.getInstallmentsByLoanId(loan.id!);
+        final installments = await _repo.getInstallmentsByLoanId(loan.id!);
         for (final inst in installments) {
           var inRange = true;
           if (fromStr != null && inst.dueDateJalali.compareTo(fromStr) < 0) inRange = false;
