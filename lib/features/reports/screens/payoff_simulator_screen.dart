@@ -32,6 +32,7 @@ class _PayoffSimulatorScreenState extends State<PayoffSimulatorScreen> {
     final loans = await _db.getAllLoans(direction: LoanDirection.borrowed);
     final debts = <_DebtItem>[];
     for (final loan in loans) {
+      if (loan.id == null) continue;
       final insts = await _db.getInstallmentsByLoanId(loan.id!);
       final unpaid =
           insts.where((i) => i.status != InstallmentStatus.paid).toList();

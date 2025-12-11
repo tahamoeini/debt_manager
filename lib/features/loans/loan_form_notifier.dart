@@ -50,7 +50,8 @@ class LoanFormNotifier extends StateNotifier<AsyncValue<LoanFormState>> {
   }
 
   Future<void> saveNewLoan(Loan loan, List<Installment> installments) async {
-    state = AsyncValue.data(state.value!.copyWith(loading: true));
+    final current = state.value ?? LoanFormState();
+    state = AsyncValue.data(current.copyWith(loading: true));
     try {
       final db = ref.read(databaseHelperProvider);
       final id = await db.insertLoan(loan);
@@ -69,14 +70,16 @@ class LoanFormNotifier extends StateNotifier<AsyncValue<LoanFormState>> {
         ref.read(reportsCacheProvider.notifier).clear();
       } catch (_) {}
       ref.read(refreshTriggerProvider.notifier).state++;
-      state = AsyncValue.data(state.value!.copyWith(loading: false));
+      final now = state.value ?? current;
+      state = AsyncValue.data(now.copyWith(loading: false));
     } catch (e, st) {
       state = AsyncValue.error(e, st);
     }
   }
 
   Future<void> updateLoan(Loan loan) async {
-    state = AsyncValue.data(state.value!.copyWith(loading: true));
+    final current = state.value ?? LoanFormState();
+    state = AsyncValue.data(current.copyWith(loading: true));
     try {
       final db = ref.read(databaseHelperProvider);
       await db.updateLoan(loan);
@@ -84,7 +87,8 @@ class LoanFormNotifier extends StateNotifier<AsyncValue<LoanFormState>> {
         ref.read(reportsCacheProvider.notifier).clear();
       } catch (_) {}
       ref.read(refreshTriggerProvider.notifier).state++;
-      state = AsyncValue.data(state.value!.copyWith(loading: false));
+      final now = state.value ?? current;
+      state = AsyncValue.data(now.copyWith(loading: false));
     } catch (e, st) {
       state = AsyncValue.error(e, st);
     }
