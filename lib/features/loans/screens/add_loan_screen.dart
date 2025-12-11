@@ -291,16 +291,12 @@ class _AddLoanScreenState extends State<AddLoanScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return PopScope(
-      canPop: !_isDirty,
-      onPopInvokedWithResult: (bool didPop, dynamic result) async {
-        // If already popped (clean form), nothing to do
-        if (didPop) return;
-        
-        // Check if still mounted before showing dialog
-        if (!mounted) return;
-        
-        // If dirty, show confirmation dialog
+    return WillPopScope(
+      onWillPop: () async {
+        if (!_isDirty) return true;
+
+        if (!mounted) return false;
+
         final res = await showDialog<bool>(
           context: context,
           builder: (c) => AlertDialog(
@@ -318,13 +314,10 @@ class _AddLoanScreenState extends State<AddLoanScreen> {
             ],
           ),
         );
-        
-        // If user confirmed exit, pop the screen
-        if (res == true && mounted) {
-          Navigator.of(context).pop();
-        }
+
+        return res == true;
       },
-        child: GestureDetector(
+      child: GestureDetector(
         onTap: () => FocusScope.of(context).unfocus(),
         child: Scaffold(
           appBar: AppBar(title: Text(_isEdit ? 'ویرایش وام' : 'افزودن وام')),
@@ -332,9 +325,9 @@ class _AddLoanScreenState extends State<AddLoanScreen> {
             child: Padding(
               padding: const EdgeInsets.all(16),
               child: Form(
-              key: _formKey,
-              child: ListView(
-                children: [
+                key: _formKey,
+                child: ListView(
+                  children: [
                   // Direction
                   Row(
                     children: [

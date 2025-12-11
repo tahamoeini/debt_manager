@@ -532,7 +532,7 @@ class _LoanDetailScreenState extends State<LoanDetailScreen> {
                     subtitle: Text(_statusText(inst.status)),
                   ),
                 );
-              }),
+              }).toList(),
             ],
           ),
         );
