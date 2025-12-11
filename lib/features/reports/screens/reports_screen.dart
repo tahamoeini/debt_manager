@@ -488,26 +488,136 @@ class _ReportsScreenState extends State<ReportsScreen> {
         ),
 
         const SizedBox(height: 12),
-        FutureBuilder<Map<String, dynamic>>(
-          future: _buildMonthlySeries(),
+        FutureBuilder<List<Map<String, dynamic>>>(
+          future: _loadFilteredInstallments(),
           builder: (context, snap) {
-            if (snap.connectionState != ConnectionState.done) return const Center(child: CircularProgressIndicator());
-            if (snap.hasError) return const Center(child: Text('خطا هنگام بارگذاری'));
+            if (snap.connectionState == ConnectionState.waiting) {
+              return UIUtils.centeredLoading();
+            }
+            if (snap.hasError) {
+              debugPrint(
+                'ReportsScreen _loadFilteredInstallments error: ${snap.error}',
+              );
+              return UIUtils.asyncErrorWidget(snap.error);
+            }
             final rows = snap.data ?? [];
-            if (rows.isEmpty) return const Center(child: Text('هیچ موردی یافت نشد'));
+            if (rows.isEmpty) {
+              return const Center(child: Text('هیچ موردی یافت نشد'));
+            }
+
+            // Compute simple analytics for the filtered rows
+            final scheduledTotal = rows.fold<int>(0, (sum, r) {
+              final inst = r['installment'] as Installment;
+              return sum + inst.amount;
+            });
+
+            final paidTotal = rows.fold<int>(0, (sum, r) {
+              final inst = r['installment'] as Installment;
+              if (inst.status == InstallmentStatus.paid) {
+                return sum + (inst.actualPaidAmount ?? inst.amount);
+              }
+              return sum;
+            });
+
+            final remainingTotal = scheduledTotal - paidTotal;
 
             return Column(
-              children: rows.map((r) {
-                final Installment inst = r['installment'] as Installment;
-                final Loan loan = r['loan'] as Loan;
-                return Card(
-                  child: ListTile(
-                    title: Text(loan.title.isNotEmpty ? loan.title : 'بدون عنوان'),
-                    subtitle: Text('${formatJalaliForDisplay(parseJalali(inst.dueDateJalali))} · ${inst.status.name}'),
-                    trailing: Text(formatCurrency(inst.amount)),
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Card(
+                  child: Padding(
+                    padding: const EdgeInsets.all(12.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text('مجموع برنامه‌ریزی‌شده'),
+                            const SizedBox(height: 6),
+                            Text(
+                              formatCurrency(scheduledTotal),
+                              style: Theme.of(context).textTheme.titleMedium,
+                            ),
+                          ],
+                        ),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text('مجموع پرداخت‌شده'),
+                            const SizedBox(height: 6),
+                            Text(
+                              formatCurrency(paidTotal),
+                              style: Theme.of(context).textTheme.titleMedium,
+                            ),
+                          ],
+                        ),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text('باقی‌مانده'),
+                            const SizedBox(height: 6),
+                            Text(
+                              formatCurrency(remainingTotal),
+                              style: Theme.of(context).textTheme.titleMedium,
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
                   ),
-                );
-              }).toList(),
+                ),
+                const SizedBox(height: 12),
+                ...rows.map((r) {
+                  final Installment inst = r['installment'] as Installment;
+                  final Loan loan = r['loan'] as Loan;
+                  final cp = _counterparties.firstWhere(
+                    (c) => c.id == loan.counterpartyId,
+                    orElse: () => Counterparty(id: null, name: 'نامشخص'),
+                  );
+
+                  // status color mapping
+                  final cs = Theme.of(context).colorScheme;
+                  Color statusColor;
+                  switch (inst.status) {
+                    case InstallmentStatus.paid:
+                      statusColor = cs.primary;
+                      break;
+                    case InstallmentStatus.overdue:
+                      statusColor = cs.error;
+                      break;
+                    case InstallmentStatus.pending:
+                      statusColor = cs.secondary;
+                      break;
+                  }
+
+                  return Card(
+                    child: ListTile(
+                      title: Text(
+                        formatJalaliForDisplay(parseJalali(inst.dueDateJalali)),
+                      ),
+                      subtitle: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            '${loan.direction == LoanDirection.borrowed ? 'گرفته‌ام' : 'داده‌ام'} · ${cp.name}${cp.type != null ? ' · ${cp.type}' : ''}${cp.tag != null ? ' · ${cp.tag}' : ''}',
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            _statusLabel(inst.status),
+                            style: Theme.of(context).textTheme.bodyMedium
+                                ?.copyWith(color: statusColor),
+                          ),
+                        ],
+                      ),
+                      trailing: Text(
+                        formatCurrency(inst.amount),
+                        style: Theme.of(context).textTheme.titleMedium,
+                      ),
+                    ),
+                  );
+                }).toList(),
+              ],
             );
           },
         ),
