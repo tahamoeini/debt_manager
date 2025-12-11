@@ -1,3 +1,4 @@
+enum CalendarType { gregorian, jalali }
 // Settings repository: stores and retrieves simple user settings.
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -228,4 +229,5 @@ class SettingsRepository {
     await prefs.setBool(_keyBiometricEnabled, enabled);
     biometricEnabledNotifier.value = enabled;
   }
+}
 }

@@ -1,0 +1,12 @@
+{
+  "appTitle": "Debt Manager",
+  "welcome": "Welcome to Debt Manager",
+  "preferences": "Preferences",
+  "notifications": "Notifications",
+  "reminders": "Reminders",
+  "budgetAlerts": "Budget alerts",
+  "monthlySummary": "Monthly summary",
+  "onboardingDone": "Done",
+  "installmentDue": "An installment is due",
+  "smartSuggestion": "Smart suggestion"
+}

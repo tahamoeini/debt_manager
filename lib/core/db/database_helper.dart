@@ -11,6 +11,8 @@ import 'package:debt_manager/features/loans/models/installment.dart';
 import 'package:debt_manager/core/utils/jalali_utils.dart';
 import 'package:debt_manager/core/notifications/notification_service.dart';
 import 'package:debt_manager/core/db/installment_dao.dart';
+import 'package:debt_manager/core/smart_insights/smart_insights_service.dart';
+import 'package:debt_manager/core/settings/settings_repository.dart';
 
 class DatabaseHelper {
   static final DatabaseHelper instance = DatabaseHelper._internal();
@@ -278,7 +280,15 @@ class DatabaseHelper {
     }
 
     final db = await database;
-    return await db.insert('loans', loan.toMap());
+    final id = await db.insert('loans', loan.toMap());
+    // Re-run insights and reschedule notifications when a loan is added.
+    final settings = SettingsRepository();
+    await settings.init();
+    if (settings.smartInsightsEnabled) {
+      await SmartInsightsService().runInsights(notify: false);
+    }
+    await NotificationService().rebuildScheduledNotifications();
+    return id;
   }
 
   Future<List<Loan>> getAllLoans({LoanDirection? direction}) async {
@@ -343,9 +353,16 @@ class DatabaseHelper {
       _installmentStore.add(map);
       return _installmentId;
     }
-
     final db = await database;
-    return await InstallmentDao.insertInstallment(db, installment);
+    final id = await db.insert('installments', installment.toMap());
+    try {
+      final smartEnabled = await SettingsRepository().getSmartSuggestionsEnabled();
+      if (smartEnabled) {
+        await SmartInsightsService().runInsights(notify: true);
+      }
+    } catch (_) {}
+    await NotificationService().rebuildScheduledNotifications();
+    return id;
   }
 
   /// Delete all installments for a given loan id.
@@ -356,7 +373,13 @@ class DatabaseHelper {
     }
 
     final db = await database;
-    return await InstallmentDao.deleteInstallmentsByLoanId(db, loanId);
+    final res = await db.delete('installments', where: 'loan_id = ?', whereArgs: [loanId]);
+    try {
+      final smartEnabled = await SettingsRepository().getSmartSuggestionsEnabled();
+      if (smartEnabled) await SmartInsightsService().runInsights(notify: true);
+    } catch (_) {}
+    await NotificationService().rebuildScheduledNotifications();
+    return res;
   }
 
   Future<List<Installment>> getInstallmentsByLoanId(int loanId) async {
@@ -386,8 +409,15 @@ class DatabaseHelper {
     }
 
     final db = await database;
-    return await InstallmentDao.updateInstallment(db, installment);
-  }
+    final res = await db.update('installments', installment.toMap(), where: 'id = ?', whereArgs: [installment.id]);
+    try {
+      final smartEnabled = await SettingsRepository().getSmartSuggestionsEnabled();
+      if (smartEnabled) {
+        await SmartInsightsService().runInsights(notify: true);
+      }
+    } catch (_) {}
+    await NotificationService().rebuildScheduledNotifications();
+    return res;
 
   /// Update an existing loan row. Requires loan.id to be non-null.
   Future<int> updateLoan(Loan loan) async {
@@ -467,6 +497,16 @@ class DatabaseHelper {
 
     final db = await database;
     return await InstallmentDao.getInstallmentsGroupedByLoanId(db, loanIds);
+=======
+    final res = await db.update('installments', installment.toMap(), where: 'id = ?', whereArgs: [installment.id]);
+    final settings = SettingsRepository();
+    await settings.init();
+    if (settings.smartInsightsEnabled) {
+      await SmartInsightsService().runInsights(notify: true);
+    }
+    await NotificationService().rebuildScheduledNotifications();
+    return res;
+>>>>>>> 6b5512b (Implement localization support, onboarding flow, and notification enhancements; refactor app structure for improved settings management)
   }
 
   // -----------------
