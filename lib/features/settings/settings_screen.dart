@@ -68,6 +68,22 @@ class _SettingsScreenState extends State<SettingsScreen> {
     return null;
   }
 
+  Future<String?> _askPassword() async {
+    final controller = TextEditingController();
+    final ok = await showDialog<bool?>(context: context, builder: (ctx) {
+      return AlertDialog(
+        title: const Text('Password'),
+        content: TextField(controller: controller, obscureText: true),
+        actions: [
+          TextButton(onPressed: () => Navigator.of(ctx).pop(false), child: const Text('Cancel')),
+          TextButton(onPressed: () => Navigator.of(ctx).pop(true), child: const Text('OK')),
+        ],
+      );
+    });
+    if (ok == true) return controller.text;
+    return null;
+  }
+
   Future<void> _save() async {
     await _settings.setRemindersEnabled(_reminders);
     await _settings.setBudgetAlertsEnabled(_budgetAlerts);

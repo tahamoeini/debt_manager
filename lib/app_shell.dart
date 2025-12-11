@@ -6,11 +6,7 @@ import 'features/budget/screens/budget_screen.dart';
 import 'features/loans/screens/add_loan_screen.dart';
 import 'features/budget/screens/add_budget_screen.dart';
 import 'features/reports/screens/reports_screen.dart';
-<<<<<<< HEAD
 import 'features/settings/screens/settings_screen.dart';
-=======
-import 'features/settings/settings_screen.dart';
->>>>>>> f389166 (Add settings screen, calendar picker, and enhance onboarding; implement user preferences for reminders, alerts, and language)
 
 class AppShell extends StatefulWidget {
   const AppShell({super.key});
@@ -33,12 +29,9 @@ class _AppShellState extends State<AppShell> {
 
   @override
   Widget build(BuildContext context) {
-<<<<<<< HEAD
     return PopScope(
-      // Allow system back when at root, block when there are pages to pop
       canPop: !Navigator.of(context).canPop(),
       onPopInvokedWithResult: (bool didPop, dynamic result) {
-        // If pop was not performed and there are pages to pop, pop them now
         if (!didPop && Navigator.of(context).canPop()) {
           Navigator.of(context).pop();
         }
@@ -85,42 +78,18 @@ class _AppShellState extends State<AppShell> {
         ),
         floatingActionButton: _buildFabForIndex(_selectedIndex),
         floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
-=======
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(_titles[_selectedIndex]),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.settings),
-            onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const SettingsScreen())),
-          ),
-        ],
-      ),
-      body: _pages[_selectedIndex],
-      bottomNavigationBar: NavigationBar(
-        selectedIndex: _selectedIndex,
-        onDestinationSelected: (int index) {
-          setState(() {
-            _selectedIndex = index;
-          });
-        },
-        destinations: const [
-          NavigationDestination(icon: Icon(Icons.home), label: 'خانه'),
-          NavigationDestination(icon: Icon(Icons.account_balance_wallet), label: 'وام‌ها'),
-          NavigationDestination(icon: Icon(Icons.analytics), label: 'گزارش‌ها'),
-        ],
->>>>>>> f389166 (Add settings screen, calendar picker, and enhance onboarding; implement user preferences for reminders, alerts, and language)
       ),
     );
   }
 
   Widget? _buildFabForIndex(int index) {
-    // Provide a primary FAB on Accounts (index 1) and Budget (index 2)
     switch (index) {
-      case 1: // Accounts: add account/loan
+      case 1:
         return FloatingActionButton.large(
           onPressed: () async {
-            final res = await Navigator.of(context).push<bool>(MaterialPageRoute(builder: (_) => const AddLoanScreen()));
+            final res = await Navigator.of(context).push<bool>(
+              MaterialPageRoute(builder: (_) => const AddLoanScreen()),
+            );
             if (res == true) setState(() {});
           },
           tooltip: 'Add new loan or account',
@@ -129,7 +98,7 @@ class _AppShellState extends State<AppShell> {
             child: const Icon(Icons.add_outlined),
           ),
         );
-      case 2: // Budget: add budget
+      case 2:
         return FloatingActionButton.large(
           onPressed: () async {
             final res = await Navigator.of(context).push<bool>(

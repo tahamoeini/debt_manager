@@ -1,5 +1,6 @@
 // Celebration utilities: animations for achievements and milestones
 import 'package:flutter/material.dart';
+import 'color_extensions.dart';
 import 'dart:math' as math;
 
 // Duration for auto-dismissing celebration dialogs

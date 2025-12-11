@@ -42,7 +42,7 @@ class DropdownField<T> extends StatelessWidget {
     final theme = Theme.of(context);
 
     return DropdownButtonFormField<T>(
-      initialValue: value,
+      value: value,
       items: items,
       onChanged: enabled ? onChanged : null,
       validator: validator,

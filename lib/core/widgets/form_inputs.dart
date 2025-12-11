@@ -1,5 +1,6 @@
 // Reusable form input widgets with consistent styling.
 import 'package:flutter/material.dart';
+import '../utils/color_extensions.dart';
 import 'package:flutter/services.dart';
 import 'package:debt_manager/core/theme/app_constants.dart';
 
@@ -188,7 +189,7 @@ class DropdownField<T> extends StatelessWidget {
     final colorScheme = theme.colorScheme;
 
     return DropdownButtonFormField<T>(
-      initialValue: value,
+      value: value,
       items: items,
       onChanged: enabled ? onChanged : null,
       validator: validator,

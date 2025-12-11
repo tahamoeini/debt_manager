@@ -3,11 +3,11 @@ import 'dart:typed_data';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
-import '../../security/local_auth_service.dart';
+import '../security/local_auth_service.dart';
 import 'backup_service.dart';
 import '../privacy/privacy_gateway.dart';
-import '../../notifications/notification_service.dart';
-import '../../smart_insights/smart_insights_service.dart';
+import '../notifications/notification_service.dart';
+import '../smart_insights/smart_insights_service.dart';
 
 /// A small wrapper that enforces authentication and coordinates
 /// export/import flows using the existing `BackupService` and
@@ -30,7 +30,7 @@ class SecureBackupService {
 
     // Delegate to existing BackupService which already supports
     // compressed+encrypted exports. This keeps compatibility.
-    return await BackupService.instance.exportEncryptedCompressedBytes(password: password);
+    return await BackupService.exportEncryptedCompressedBytes(password ?? '');
   }
 
   /// Import encrypted/compressed bytes produced by `createEncryptedBackup`.
@@ -43,7 +43,7 @@ class SecureBackupService {
     }
 
     // Decrypt and decompress to JSON string
-    final json = await BackupService.instance.decryptCompressedBytes(encryptedCompressed, password: password);
+    final json = await BackupService.decryptCompressedBytes(encryptedCompressed, password ?? '');
 
     // Import via PrivacyGateway which handles remapping and DB insertion
     await PrivacyGateway.instance.importJsonString(json);

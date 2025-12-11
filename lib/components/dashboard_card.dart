@@ -6,6 +6,7 @@ library;
 /// Provides consistent styling with Material 3 design principles.
 
 import 'package:flutter/material.dart';
+import '../core/utils/color_extensions.dart';
 import 'design_system.dart';
 
 /// A card widget for displaying a statistic or metric on the dashboard

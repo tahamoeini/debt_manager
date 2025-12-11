@@ -418,6 +418,7 @@ class DatabaseHelper {
     } catch (_) {}
     await NotificationService().rebuildScheduledNotifications();
     return res;
+  }
 
   /// Update an existing loan row. Requires loan.id to be non-null.
   Future<int> updateLoan(Loan loan) async {
@@ -497,16 +498,6 @@ class DatabaseHelper {
 
     final db = await database;
     return await InstallmentDao.getInstallmentsGroupedByLoanId(db, loanIds);
-=======
-    final res = await db.update('installments', installment.toMap(), where: 'id = ?', whereArgs: [installment.id]);
-    final settings = SettingsRepository();
-    await settings.init();
-    if (settings.smartInsightsEnabled) {
-      await SmartInsightsService().runInsights(notify: true);
-    }
-    await NotificationService().rebuildScheduledNotifications();
-    return res;
->>>>>>> 6b5512b (Implement localization support, onboarding flow, and notification enhancements; refactor app structure for improved settings management)
   }
 
   // -----------------

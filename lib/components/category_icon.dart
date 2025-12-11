@@ -6,6 +6,7 @@ library;
 /// Uses the centralized category icon/color mapping.
 
 import 'package:flutter/material.dart';
+import '../core/utils/color_extensions.dart';
 import 'category_icons.dart';
 import 'design_system.dart';
 
