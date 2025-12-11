@@ -1,0 +1,115 @@
+name: Build and Release Debug APK
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - master
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      # Use a consistent Android SDK path inside the runner home directory
+      ANDROID_SDK_ROOT: ${{ runner.temp }}/android-sdk
+      JAVA_HOME: /usr/lib/jvm/java-11-openjdk-amd64
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Cache pub packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.pub-cache
+          key: ${{ runner.os }}-pub-${{ hashFiles('**/pubspec.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pub-
+
+      - name: Cache Gradle
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/wrapper/dists
+            ~/.gradle/caches
+          key: ${{ runner.os }}-gradle-${{ hashFiles('android/gradle/wrapper/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: stable
+
+      - name: Install Android commandline tools
+        run: |
+          set -eux
+          SDK_ROOT="${ANDROID_SDK_ROOT}"
+          mkdir -p "$SDK_ROOT"
+          cd /tmp
+          # Download latest Android commandline tools (stable URL)
+          curl -sSfL "https://dl.google.com/android/repository/commandlinetools-linux-9477386_latest.zip" -o cmdline-tools.zip
+          unzip -q cmdline-tools.zip -d "$SDK_ROOT/cmdline-tools"
+          # Move to 'latest' folder expected by sdkmanager invocations
+          mkdir -p "$SDK_ROOT/cmdline-tools/latest"
+          mv "$SDK_ROOT/cmdline-tools/cmdline-tools"/* "$SDK_ROOT/cmdline-tools/latest/" || true
+          export PATH="$SDK_ROOT/cmdline-tools/latest/bin:$PATH"
+          yes | "$SDK_ROOT/cmdline-tools/latest/bin/sdkmanager" --sdk_root="$SDK_ROOT" --licenses || true
+          "$SDK_ROOT/cmdline-tools/latest/bin/sdkmanager" --sdk_root="$SDK_ROOT" "platform-tools" "platforms;android-33" "build-tools;33.0.2"
+        shell: bash
+
+      - name: Ensure PATH includes Android SDK tools
+        run: |
+          echo "##[add-path]$ANDROID_SDK_ROOT/platform-tools"
+          echo "ANDROID_SDK_ROOT=$ANDROID_SDK_ROOT"
+
+      - name: Flutter pub get
+        run: flutter pub get
+
+      - name: Build debug APK (with retries)
+        run: |
+          set -e
+          retries=3
+          attempt=0
+          until [ "$attempt" -ge "$retries" ]
+          do
+            if flutter build apk --debug --no-shrink; then
+              echo "Build succeeded"
+              break
+            fi
+            attempt=$((attempt+1))
+            echo "Build failed, retrying (#$attempt)..."
+            sleep $((attempt * 10))
+          done
+          if [ "$attempt" -ge "$retries" ]; then
+            echo "Build failed after $retries attempts"
+            exit 1
+          fi
+
+      - name: Prepare release tag
+        id: tag
+        run: |
+          SHORT_SHA=$(git rev-parse --short HEAD)
+          TAG="apk-${SHORT_SHA}"
+          echo "tag=$TAG" >> $GITHUB_OUTPUT
+
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        with:
+          tag_name: ${{ steps.tag.outputs.tag }}
+          release_name: "Debug APK - ${{ steps.tag.outputs.tag }}"
+          draft: false
+          prerelease: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload APK to release
+        uses: actions/upload-release-asset@v1
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: build/app/outputs/flutter-apk/app-debug.apk
+          asset_name: debt_manager-app-debug.apk
+          asset_content_type: application/vnd.android.package-archive
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
