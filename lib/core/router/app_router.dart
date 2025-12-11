@@ -98,7 +98,8 @@ final goRouterProvider = Provider<GoRouter>((ref) {
     redirect: (context, state) {
       // If not unlocked and trying to access guarded routes, go to /lock
       final unlocked = auth.unlocked;
-      final accessingLock = state.location == '/lock';
+      final currentPath = state.uri.path;
+      final accessingLock = currentPath == '/lock';
 
       // Define guarded route prefixes (any route under these should require auth)
       const guardedPrefixes = [
@@ -112,7 +113,7 @@ final goRouterProvider = Provider<GoRouter>((ref) {
       ];
 
       final wantsGuarded =
-          guardedPrefixes.any((p) => state.location.startsWith(p));
+          guardedPrefixes.any((p) => currentPath.startsWith(p));
 
       if (!unlocked && wantsGuarded && !accessingLock) {
         return '/lock';

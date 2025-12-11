@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'core/providers/core_providers.dart';
 import 'core/router/app_router.dart';
-import 'core/debug/navigation_observer.dart';
 import 'core/debug/debug_overlay.dart';
 import 'core/settings/settings_repository.dart';
 

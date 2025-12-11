@@ -16,8 +16,8 @@ class LocalAuthService {
       if (!can && !isDeviceSupported) return false;
       final didAuthenticate = await _auth.authenticate(
         localizedReason: reason,
-        options: const AuthenticationOptions(
-            biometricOnly: false, stickyAuth: false),
+        biometricOnly: false,
+        stickyAuth: false,
       );
       return didAuthenticate;
     } catch (_) {
