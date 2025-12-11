@@ -20,7 +20,10 @@ import 'core/settings/settings_repository.dart';
 import 'features/onboarding/onboarding_screen.dart';
 
 class DebtManagerApp extends StatefulWidget {
-	const DebtManagerApp({super.key});
+	final String? initialLocaleCode;
+	final bool showOnboarding;
+
+	const DebtManagerApp({super.key, this.initialLocaleCode, this.showOnboarding = false});
 
 	@override
 	State<DebtManagerApp> createState() => _DebtManagerAppState();
@@ -45,7 +48,7 @@ class _DebtManagerAppState extends State<DebtManagerApp> {
 	Widget build(BuildContext context) {
 		if (!_ready) return const SizedBox.shrink();
 
-		final locale = Locale(_settings.languageCode);
+		final locale = Locale(widget.initialLocaleCode ?? _settings.languageCode);
 		final themeMode = _settings.themeMode == 'light'
 				? ThemeMode.light
 				: (_settings.themeMode == 'dark' ? ThemeMode.dark : ThemeMode.system);
@@ -70,7 +73,7 @@ class _DebtManagerAppState extends State<DebtManagerApp> {
 				GlobalCupertinoLocalizations.delegate,
 			],
 			supportedLocales: const [Locale('en'), Locale('fa')],
-			home: _settings.onboardingComplete ? const AppShell() : const OnboardingScreen(),
+			home: widget.showOnboarding || !_settings.onboardingComplete ? const OnboardingScreen() : const AppShell(),
 		);
 	}
 >>>>>>> 6b5512b (Implement localization support, onboarding flow, and notification enhancements; refactor app structure for improved settings management)

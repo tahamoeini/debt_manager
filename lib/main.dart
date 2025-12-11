@@ -1,3 +1,4 @@
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'app.dart';
@@ -10,6 +11,7 @@ import 'core/smart_insights/smart_insights_service.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
+<<<<<<< HEAD
   // Refresh overdue statuses from DB
   await DatabaseHelper.instance.refreshOverdueInstallments(DateTime.now());
 
@@ -22,12 +24,19 @@ Future<void> main() async {
   } catch (_) {}
 
   // Initialize notification channels and smart-notifications
+=======
+  // Initialize settings and services before starting the UI.
+  final settings = SettingsRepository();
+  await settings.init();
+
+>>>>>>> f389166 (Add settings screen, calendar picker, and enhance onboarding; implement user preferences for reminders, alerts, and language)
   await NotificationService().init();
   await SmartNotificationService().init();
 
-  // Rebuild scheduled notifications after init (e.g., after restore/import)
+  // Rebuild scheduled notifications from DB (if enabled)
   await NotificationService().rebuildScheduledNotifications();
 
+<<<<<<< HEAD
   // Run Smart Insights once on app launch
   try {
     final smartEnabled = await settings.getSmartSuggestionsEnabled();
@@ -36,4 +45,15 @@ Future<void> main() async {
 
   runApp(const ProviderScope(child: DebtManagerApp()));
 }
+=======
+  // Run baseline smart insights once on app launch (no immediate notifications).
+  if (settings.smartInsightsEnabled) {
+    await SmartInsightsService().runInsights(notify: false);
+  }
+
+  runApp(DebtManagerApp(
+    initialLocaleCode: settings.languageCode,
+    showOnboarding: !settings.onboardingComplete,
+  ));
+>>>>>>> f389166 (Add settings screen, calendar picker, and enhance onboarding; implement user preferences for reminders, alerts, and language)
 }

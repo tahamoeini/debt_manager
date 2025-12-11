@@ -1,4 +1,16 @@
 {
+  "appTitle": "مدیریت بدهی‌ها",
+  "welcome": "به مدیریت بدهی‌ها خوش آمدید",
+  "preferences": "تنظیمات",
+  "notifications": "اعلان‌ها",
+  "reminders": "یادآورها",
+  "budgetAlerts": "هشدار بودجه",
+  "monthlySummary": "خلاصه ماهانه",
+  "onboardingDone": "پایان",
+  "installmentDue": "اقساط سررسید شده",
+  "smartSuggestion": "پیشنهاد هوشمند"
+}
+{
   "appTitle": "مدیریت اقساط",
   "welcome": "به مدیریت اقساط خوش آمدید",
   "preferences": "تنظیمات",

@@ -6,7 +6,11 @@ import 'features/budget/screens/budget_screen.dart';
 import 'features/loans/screens/add_loan_screen.dart';
 import 'features/budget/screens/add_budget_screen.dart';
 import 'features/reports/screens/reports_screen.dart';
+<<<<<<< HEAD
 import 'features/settings/screens/settings_screen.dart';
+=======
+import 'features/settings/settings_screen.dart';
+>>>>>>> f389166 (Add settings screen, calendar picker, and enhance onboarding; implement user preferences for reminders, alerts, and language)
 
 class AppShell extends StatefulWidget {
   const AppShell({super.key});
@@ -29,6 +33,7 @@ class _AppShellState extends State<AppShell> {
 
   @override
   Widget build(BuildContext context) {
+<<<<<<< HEAD
     return PopScope(
       // Allow system back when at root, block when there are pages to pop
       canPop: !Navigator.of(context).canPop(),
@@ -80,6 +85,31 @@ class _AppShellState extends State<AppShell> {
         ),
         floatingActionButton: _buildFabForIndex(_selectedIndex),
         floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+=======
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(_titles[_selectedIndex]),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.settings),
+            onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const SettingsScreen())),
+          ),
+        ],
+      ),
+      body: _pages[_selectedIndex],
+      bottomNavigationBar: NavigationBar(
+        selectedIndex: _selectedIndex,
+        onDestinationSelected: (int index) {
+          setState(() {
+            _selectedIndex = index;
+          });
+        },
+        destinations: const [
+          NavigationDestination(icon: Icon(Icons.home), label: 'خانه'),
+          NavigationDestination(icon: Icon(Icons.account_balance_wallet), label: 'وام‌ها'),
+          NavigationDestination(icon: Icon(Icons.analytics), label: 'گزارش‌ها'),
+        ],
+>>>>>>> f389166 (Add settings screen, calendar picker, and enhance onboarding; implement user preferences for reminders, alerts, and language)
       ),
     );
   }

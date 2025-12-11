@@ -1,5 +1,6 @@
 // ignore_for_file: use_build_context_synchronously, deprecated_member_use
 
+<<<<<<< HEAD
 // Add loan screen: form for creating a loan and its installments.
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -12,6 +13,15 @@ import 'package:debt_manager/core/settings/settings_repository.dart';
 import 'package:debt_manager/features/loans/models/counterparty.dart';
 import 'package:debt_manager/features/loans/models/loan.dart';
 import 'package:debt_manager/features/loans/models/installment.dart';
+=======
+import '../../../core/db/database_helper.dart';
+import '../../../core/utils/jalali_utils.dart';
+import '../../../core/notifications/notification_service.dart';
+import '../../../core/settings/settings_repository.dart';
+import '../../loans/models/counterparty.dart';
+import '../../loans/models/loan.dart';
+import '../../loans/models/installment.dart';
+>>>>>>> f389166 (Add settings screen, calendar picker, and enhance onboarding; implement user preferences for reminders, alerts, and language)
 import 'package:shamsi_date/shamsi_date.dart';
 
 class AddLoanScreen extends StatefulWidget {
@@ -223,6 +233,7 @@ class _AddLoanScreenState extends State<AddLoanScreen> {
           createdAt: createdAt,
         );
 
+<<<<<<< HEAD
         final loanId = await _db.insertLoan(loan);
 
         // Load settings (reminder offset) once per submission and generate installments.
@@ -287,6 +298,32 @@ class _AddLoanScreenState extends State<AddLoanScreen> {
             // ignore notification failures for now
           }
         }
+=======
+            // Use user's reminder offset from settings (default 0)
+            try {
+              final settings = SettingsRepository();
+              await settings.init();
+              final offset = settings.reminderOffsetDays;
+              final dueGregorian = jalaliToDateTime(dueJalali);
+              final scheduledBase = dueGregorian.subtract(Duration(days: offset));
+              final scheduledTime = DateTime(scheduledBase.year, scheduledBase.month, scheduledBase.day, 9, 0);
+
+              if (settings.remindersEnabled) {
+                await NotificationService().scheduleInstallmentReminder(
+                  notificationId: instId,
+                  scheduledTime: scheduledTime,
+                  title: 'یادآور اقساط',
+                  body: '${loan.title} - تاریخ: ${formatJalaliForDisplay(dueJalali)}',
+                );
+
+                // Update installment with notification ID
+                final updated = inst.copyWith(notificationId: instId);
+                await _db.updateInstallment(updated.copyWith(id: instId));
+              }
+            } catch (_) {
+              // ignore notification failures for now
+            }
+>>>>>>> f389166 (Add settings screen, calendar picker, and enhance onboarding; implement user preferences for reminders, alerts, and language)
       }
 
       if (mounted) Navigator.of(context).pop(true);
@@ -295,6 +332,10 @@ class _AddLoanScreenState extends State<AddLoanScreen> {
       if (mounted) UIUtils.showAppSnackBar(context, 'خطا هنگام ذخیره');
     } finally {
       if (mounted) setState(() => _isSubmitting = false);
+      // Ensure scheduled notifications are consistent after changes
+      try {
+        await NotificationService().rebuildScheduledNotifications();
+      } catch (_) {}
     }
   }
 
