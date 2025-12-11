@@ -251,7 +251,8 @@ class _AddLoanScreenState extends State<AddLoanScreen> {
           final instId = await _db.insertInstallment(inst);
 
           final dueGregorian = jalaliToDateTime(dueJalali);
-          final scheduledBase = dueGregorian.subtract(Duration(days: offsetDays));
+          final scheduledBase =
+              dueGregorian.subtract(Duration(days: offsetDays));
           final scheduledTime = DateTime(
             scheduledBase.year,
             scheduledBase.month,
@@ -265,7 +266,8 @@ class _AddLoanScreenState extends State<AddLoanScreen> {
               notificationId: instId,
               scheduledTime: scheduledTime,
               title: 'یادآور اقساط',
-              body: '${loan.title} - تاریخ: ${formatJalaliForDisplay(dueJalali)}',
+              body:
+                  '${loan.title} - تاریخ: ${formatJalaliForDisplay(dueJalali)}',
             );
 
             final updated = inst.copyWith(notificationId: instId);
@@ -291,43 +293,17 @@ class _AddLoanScreenState extends State<AddLoanScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return WillPopScope(
-      onWillPop: () async {
-        if (!_isDirty) return true;
-
-        if (!mounted) return false;
-
-        final res = await showDialog<bool>(
-          context: context,
-          builder: (c) => AlertDialog(
-            title: const Text('تغییرات ذخیره نشده'),
-            content: const Text('تایید می‌کنید که بدون ذخیره خارج شوید؟'),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.of(c).pop(false),
-                child: const Text('لغو'),
-              ),
-              TextButton(
-                onPressed: () => Navigator.of(c).pop(true),
-                child: const Text('خروج'),
-              ),
-            ],
-          ),
-        );
-
-        return res == true;
-      },
-      child: GestureDetector(
-        onTap: () => FocusScope.of(context).unfocus(),
-        child: Scaffold(
-          appBar: AppBar(title: Text(_isEdit ? 'ویرایش وام' : 'افزودن وام')),
-          body: SafeArea(
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Form(
-                key: _formKey,
-                child: ListView(
-                  children: [
+    return GestureDetector(
+      onTap: () => FocusScope.of(context).unfocus(),
+      child: Scaffold(
+        appBar: AppBar(title: Text(_isEdit ? 'ویرایش وام' : 'افزودن وام')),
+        body: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Form(
+              key: _formKey,
+              child: ListView(
+                children: [
                   // Direction
                   Row(
                     children: [

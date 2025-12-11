@@ -503,36 +503,20 @@ class _LoanDetailScreenState extends State<LoanDetailScreen> {
                 ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
               ),
               const SizedBox(height: 8),
-              ...installments.map((inst) {
-                final due = formatJalaliForDisplay(
-                  _parseJalaliSafe(inst.dueDateJalali),
-                );
-                final paid = inst.status == InstallmentStatus.paid;
+              for (final inst in installments) ...[
+                (() {
+                  final due = formatJalaliForDisplay(
+                    _parseJalaliSafe(inst.dueDateJalali),
+                  );
 
-                // Friendly paid date display
-                String paidFriendly = '';
-                if (inst.paidAt != null && inst.paidAt!.isNotEmpty) {
-                  try {
-                    final dt = DateTime.parse(inst.paidAt!);
-                    paidFriendly = formatJalaliForDisplay(dateTimeToJalali(dt));
-                  } catch (_) {
-                    paidFriendly = inst.paidAt!;
-                  }
-                }
-
-                // Amount display: show scheduled, and if actual present show it too
-                final scheduled = formatCurrency(inst.amount);
-                final actual = inst.actualPaidAmount != null
-                    ? formatCurrency(inst.actualPaidAmount!)
-                    : null;
-
-                return Card(
-                  child: ListTile(
-                    title: Text(due),
-                    subtitle: Text(_statusText(inst.status)),
-                  ),
-                );
-              }).toList(),
+                  return Card(
+                    child: ListTile(
+                      title: Text(due),
+                      subtitle: Text(_statusText(inst.status)),
+                    ),
+                  );
+                })(),
+              ],
             ],
           ),
         );
