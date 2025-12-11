@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter/foundation.dart';
+import 'core/debug/debug_logger.dart';
 
 import 'features/home/home_screen.dart';
 import 'features/accounts/screens/accounts_screen.dart';
@@ -37,10 +40,39 @@ class _AppShellState extends State<AppShell> {
         }
       },
       child: Scaffold(
+        extendBodyBehindAppBar: false,
         appBar: AppBar(
           title: Text(_titles[_selectedIndex]),
+          systemOverlayStyle: SystemUiOverlayStyle(statusBarBrightness: Theme.of(context).brightness == Brightness.dark ? Brightness.dark : Brightness.light),
+          actions: [
+            if (kDebugMode)
+              GestureDetector(
+                onLongPress: () {
+                  // Toggle overlay
+                  DebugLogger.overlayEnabled.value = !DebugLogger.overlayEnabled.value;
+                },
+                child: IconButton(
+                  icon: const Icon(Icons.bug_report_outlined),
+                  tooltip: 'Show debug logs (long-press to toggle overlay)',
+                  onPressed: () {
+                    final logger = DebugLogger();
+                    final lines = logger.recent(200).join('\n');
+                    showDialog<void>(
+                      context: context,
+                      builder: (ctx) => AlertDialog(
+                        title: const Text('Debug logs'),
+                        content: SingleChildScrollView(child: Text(lines)),
+                        actions: [
+                          TextButton(onPressed: () => Navigator.of(ctx).pop(), child: const Text('Close')),
+                        ],
+                      ),
+                    );
+                  },
+                ),
+              ),
+          ],
         ),
-        body: _pages[_selectedIndex],
+        body: SafeArea(child: _pages[_selectedIndex]),
         bottomNavigationBar: NavigationBar(
           selectedIndex: _selectedIndex,
           onDestinationSelected: (int index) {

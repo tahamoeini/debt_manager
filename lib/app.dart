@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'core/providers/core_providers.dart';
 import 'core/router/app_router.dart';
+import 'core/debug/navigation_observer.dart';
+import 'core/debug/debug_overlay.dart';
 import 'core/settings/settings_repository.dart';
 
 class DebtManagerApp extends ConsumerStatefulWidget {
@@ -126,6 +128,10 @@ class _DebtManagerAppState extends ConsumerState<DebtManagerApp> with WidgetsBin
               darkTheme: darkTheme,
               themeMode: themeMode,
               routerConfig: goRouter,
+              // Add a navigator observer to log navigation events in debug.
+              navigatorObservers: [LoggingNavigatorObserver()],
+              // Inject debug overlay at the top-level so it wraps all routes.
+              builder: (context, child) => DebugOverlay(child: child ?? const SizedBox.shrink()),
             );
           },
         );
