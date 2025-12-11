@@ -1,7 +1,6 @@
 // Notification service: wrapper over local notifications for installment reminders.
 import 'package:flutter/foundation.dart' show debugPrint, kIsWeb;
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:flutter_native_timezone/flutter_native_timezone.dart';
 import 'package:timezone/data/latest_all.dart' as tzdata;
 import 'package:timezone/timezone.dart' as tz;
 
@@ -23,8 +22,16 @@ class NotificationService {
   Future<void> init() async {
     tzdata.initializeTimeZones();
     try {
-      final String tzName = await FlutterNativeTimezone.getLocalTimezone();
-      tz.setLocalLocation(tz.getLocation(tzName));
+      // Try to determine the local IANA timezone. When the flutter_native_timezone
+      // plugin is unavailable (CI or removed), fall back to system timezone name
+      // and ultimately UTC if not resolvable.
+      final String sysTz = DateTime.now().timeZoneName;
+      try {
+        tz.setLocalLocation(tz.getLocation(sysTz));
+      } catch (_) {
+        // Not an IANA name; fallback to UTC
+        tz.setLocalLocation(tz.getLocation('UTC'));
+      }
     } catch (_) {
       tz.setLocalLocation(tz.getLocation('UTC'));
     }
