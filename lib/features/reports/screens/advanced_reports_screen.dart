@@ -72,9 +72,10 @@ class _AdvancedReportsScreenState extends State<AdvancedReportsScreen> {
           ),
         ],
       ),
-      body: ListView(
-        padding: const EdgeInsets.all(16),
-        children: [
+      body: SafeArea(
+        child: ListView(
+          padding: const EdgeInsets.all(16),
+          children: [
           // Quick action buttons
           Row(
             children: [
@@ -313,7 +314,8 @@ class _AdvancedReportsScreenState extends State<AdvancedReportsScreen> {
           ),
           
           const SizedBox(height: 24),
-        ],
+          ],
+        ),
       ),
     );
   }

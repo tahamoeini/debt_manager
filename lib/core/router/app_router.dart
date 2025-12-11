@@ -67,7 +67,12 @@ final goRouterProvider = Provider<GoRouter>((ref) {
           GoRoute(
             name: 'insights',
             path: '/insights',
-            pageBuilder: (context, state) => MaterialPage(child: Scaffold(appBar: AppBar(title: const Text('پیشنهادها')), body: const SmartInsightsWidget())),
+            pageBuilder: (context, state) => MaterialPage(
+              child: Scaffold(
+                appBar: AppBar(title: const Text('پیشنهادها')),
+                body: const SafeArea(child: SmartInsightsWidget()),
+              ),
+            ),
           ),
           GoRoute(
             name: 'settings',

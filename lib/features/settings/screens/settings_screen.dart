@@ -197,11 +197,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
       appBar: AppBar(
         title: const Text('تنظیمات'),
       ),
-      body: _loading
-          ? const Center(child: CircularProgressIndicator())
-          : ListView(
-              padding: const EdgeInsets.all(16),
-              children: [
+        body: _loading
+          ? const SafeArea(child: Center(child: CircularProgressIndicator()))
+          : SafeArea(
+            child: ListView(
+            padding: const EdgeInsets.all(16),
+            children: [
                 // Appearance Settings Card
                 Card(
                   child: Padding(
@@ -933,7 +934,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     ),
                   ),
                 ),
-              ],
+                ],
+              ),
             ),
     );
   }

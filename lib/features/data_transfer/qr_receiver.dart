@@ -80,15 +80,23 @@ class _QrReceiverScreenState extends State<QrReceiverScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Offline Transfer - Receive')),
-      body: Column(children: [
-        Expanded(
-          child: MobileScanner(
-            onDetect: _onDetect,
-          ),
+      body: SafeArea(
+        child: Column(
+          children: [
+            Expanded(
+              child: MobileScanner(
+                onDetect: _onDetect,
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(8),
+              child: Text('Chunks received: ${_chunks.length}${_total != null ? ' / $_total' : ''}'),
+            ),
+            if (!_scanning)
+              ElevatedButton(onPressed: () => Navigator.of(context).pop(), child: const Text('Done')),
+          ],
         ),
-        Padding(padding: const EdgeInsets.all(8), child: Text('Chunks received: ${_chunks.length}${_total != null ? ' / $_total' : ''}')),
-        if (!_scanning) ElevatedButton(onPressed: () => Navigator.of(context).pop(), child: const Text('Done'))
-      ]),
+      ),
     );
   }
 }

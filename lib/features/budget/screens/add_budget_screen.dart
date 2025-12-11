@@ -88,71 +88,53 @@ class _AddBudgetScreenState extends State<AddBudgetScreen> {
   @override
   Widget build(BuildContext context) {
     final isEditing = widget.budget != null;
-    return Scaffold(
-      appBar: AppBar(title: Text(isEditing ? 'ویرایش بودجه' : 'افزودن بودجه')),
-      body: Padding(
-        padding: AppConstants.pagePadding,
-        child: Form(
-          key: _formKey,
-          child: ListView(
+
+    final form = Form(
+      key: _formKey,
+      child: ListView(
+        children: [
+          FormInput(controller: _categoryCtrl, label: 'دسته‌بندی (اختیاری)', icon: Icons.category),
+          const SizedBox(height: AppConstants.spaceMedium),
+          FormInput(
+            controller: _amountCtrl,
+            label: 'مبلغ (واحد اصلی)',
+            icon: Icons.attach_money,
+            keyboardType: TextInputType.numberWithOptions(decimal: true),
+            validator: (v) {
+              final d = double.tryParse(v?.replaceAll(',', '') ?? '');
+              if (d == null || d <= 0) return 'مبلغ نامعتبر است';
+              return null;
+            },
+          ),
+          const SizedBox(height: AppConstants.spaceMedium),
+          FormInput(
+            controller: _periodCtrl,
+            label: 'بازه (yyyy-MM)',
+            icon: Icons.calendar_month,
+            validator: (v) {
+              if (v == null || v.isEmpty) return 'بازه را وارد کنید';
+              final parts = v.split('-');
+              if (parts.length != 2) return 'فرمت باید yyyy-MM باشد';
+              return null;
+            },
+          ),
+          const SizedBox(height: AppConstants.spaceMedium),
+          SwitchListTile(value: _rollover, onChanged: (v) => setState(() => _rollover = v), title: const Text('انتقال به دوره بعدی')),
+          const SizedBox(height: AppConstants.spaceXLarge),
+          Row(
             children: [
-              FormInput(
-                controller: _categoryCtrl,
-                label: 'دسته‌بندی (اختیاری)',
-                icon: Icons.category,
-              ),
-              const SizedBox(height: AppConstants.spaceMedium),
-              FormInput(
-                controller: _amountCtrl,
-                label: 'مبلغ (واحد اصلی)',
-                icon: Icons.attach_money,
-                keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                validator: (v) {
-                  final d = double.tryParse(v?.replaceAll(',', '') ?? '');
-                  if (d == null || d <= 0) return 'مبلغ نامعتبر است';
-                  return null;
-                },
-              ),
-              const SizedBox(height: AppConstants.spaceMedium),
-              FormInput(
-                controller: _periodCtrl,
-                label: 'بازه (yyyy-MM)',
-                icon: Icons.calendar_month,
-                validator: (v) {
-                  if (v == null || v.isEmpty) return 'بازه را وارد کنید';
-                  final parts = v.split('-');
-                  if (parts.length != 2) return 'فرمت باید yyyy-MM باشد';
-                  return null;
-                },
-              ),
-              const SizedBox(height: AppConstants.spaceMedium),
-              SwitchListTile(
-                value: _rollover,
-                onChanged: (v) => setState(() => _rollover = v),
-                title: const Text('انتقال به دوره بعدی'),
-              ),
-              const SizedBox(height: AppConstants.spaceXLarge),
-              Row(
-                children: [
-                  Expanded(
-                    child: FilledButton(
-                      onPressed: _save,
-                      child: const Text('ذخیره'),
-                    ),
-                  ),
-                  const SizedBox(width: AppConstants.spaceMedium),
-                  Expanded(
-                    child: OutlinedButton(
-                      onPressed: () => Navigator.of(context).pop(),
-                      child: const Text('لغو'),
-                    ),
-                  )
-                ],
-              )
+              Expanded(child: FilledButton(onPressed: _save, child: const Text('ذخیره'))),
+              const SizedBox(width: AppConstants.spaceMedium),
+              Expanded(child: OutlinedButton(onPressed: () => Navigator.of(context).pop(), child: const Text('لغو'))),
             ],
           ),
-        ),
+        ],
       ),
+    );
+
+    return Scaffold(
+      appBar: AppBar(title: Text(isEditing ? 'ویرایش بودجه' : 'افزودن بودجه')),
+      body: SafeArea(child: Padding(padding: AppConstants.pagePadding, child: form)),
     );
   }
 }

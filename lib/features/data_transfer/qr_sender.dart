@@ -48,11 +48,12 @@ class _QrSenderScreenState extends State<QrSenderScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Offline Transfer - Send')),
-      body: Center(
-        child: _loading
+        body: SafeArea(
+        child: Center(
+          child: _loading
             ? const CircularProgressIndicator()
             : _chunks.isEmpty
-                ? Column(mainAxisSize: MainAxisSize.min, children: [
+              ? Column(mainAxisSize: MainAxisSize.min, children: [
                     const Padding(
                         padding: EdgeInsets.all(8),
                         child: Text(
@@ -89,6 +90,7 @@ class _QrSenderScreenState extends State<QrSenderScreen> {
                           child: const Text('Next')),
                     ])
                   ]),
+        ),
       ),
     );
   }

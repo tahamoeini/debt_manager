@@ -30,9 +30,10 @@ class _BudgetComparisonScreenState extends State<BudgetComparisonScreen> {
       appBar: AppBar(
         title: const Text('مقایسه بودجه و هزینه واقعی'),
       ),
-      body: ListView(
-        padding: const EdgeInsets.all(16),
-        children: [
+      body: SafeArea(
+        child: ListView(
+          padding: const EdgeInsets.all(16),
+          children: [
           Card(
             child: Padding(
               padding: const EdgeInsets.all(12.0),
@@ -80,7 +81,8 @@ class _BudgetComparisonScreenState extends State<BudgetComparisonScreen> {
               );
             },
           ),
-        ],
+          ],
+        ),
       ),
     );
   }

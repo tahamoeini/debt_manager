@@ -196,67 +196,57 @@ class _ManageCategoriesScreenState extends State<ManageCategoriesScreen> {
   @override
   Widget build(BuildContext context) {
     final brightness = Theme.of(context).brightness;
-    
+    Widget bodyContent;
+
+    if (_loading) {
+      bodyContent = const Center(child: CircularProgressIndicator());
+    } else if (_categories.isEmpty) {
+      bodyContent = const Center(child: Text('هیچ دسته‌بندی وجود ندارد'));
+    } else {
+      bodyContent = ListView.builder(
+        padding: const EdgeInsets.all(16),
+        itemCount: _categories.length,
+        itemBuilder: (context, index) {
+          final category = _categories[index];
+          final isDefault = _categoryService.isDefaultCategory(category);
+          final color = colorForCategory(category, brightness: brightness);
+
+          return Card(
+            margin: const EdgeInsets.only(bottom: 8),
+            child: ListTile(
+              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              leading: CircleAvatar(
+                backgroundColor: color.withValues(alpha: 0.2),
+                child: Icon(Icons.label_outlined, color: color),
+              ),
+              title: Text(category, style: Theme.of(context).textTheme.titleMedium),
+              subtitle: isDefault ? const Text('پیش‌فرض') : const Text('سفارشی'),
+              trailing: isDefault
+                  ? null
+                  : Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        IconButton(
+                          icon: const Icon(Icons.edit_outlined),
+                          tooltip: 'Rename category',
+                          onPressed: () => _showRenameCategoryDialog(category),
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.delete_outlined),
+                          tooltip: 'Delete category',
+                          onPressed: () => _confirmDeleteCategory(category),
+                        ),
+                      ],
+                    ),
+            ),
+          );
+        },
+      );
+    }
+
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('مدیریت دسته‌بندی‌ها'),
-      ),
-      body: _loading
-          ? const Center(child: CircularProgressIndicator())
-          : _categories.isEmpty
-              ? const Center(
-                  child: Text('هیچ دسته‌بندی وجود ندارد'),
-                )
-              : ListView.builder(
-                  padding: const EdgeInsets.all(16),
-                  itemCount: _categories.length,
-                  itemBuilder: (context, index) {
-                    final category = _categories[index];
-                    final isDefault = _categoryService.isDefaultCategory(category);
-                    final color = colorForCategory(category, brightness: brightness);
-                    
-                    return Card(
-                      margin: const EdgeInsets.only(bottom: 8),
-                      child: ListTile(
-                        contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 8,
-                        ),
-                        leading: CircleAvatar(
-                          backgroundColor: color.withValues(alpha: 0.2),
-                          child: Icon(
-                            Icons.label_outlined,
-                            color: color,
-                          ),
-                        ),
-                        title: Text(
-                          category,
-                          style: Theme.of(context).textTheme.titleMedium,
-                        ),
-                        subtitle: isDefault
-                            ? const Text('پیش‌فرض')
-                            : const Text('سفارشی'),
-                        trailing: isDefault
-                            ? null
-                            : Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  IconButton(
-                                    icon: const Icon(Icons.edit_outlined),
-                                    tooltip: 'Rename category',
-                                    onPressed: () => _showRenameCategoryDialog(category),
-                                  ),
-                                  IconButton(
-                                    icon: const Icon(Icons.delete_outlined),
-                                    tooltip: 'Delete category',
-                                    onPressed: () => _confirmDeleteCategory(category),
-                                  ),
-                                ],
-                              ),
-                      ),
-                    );
-                  },
-                ),
+      appBar: AppBar(title: const Text('مدیریت دسته‌بندی‌ها')),
+      body: SafeArea(child: bodyContent),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: _showAddCategoryDialog,
         tooltip: 'Add new category',

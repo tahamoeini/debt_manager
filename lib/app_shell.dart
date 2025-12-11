@@ -61,7 +61,36 @@ class _AppShellState extends State<AppShell> {
                       context: context,
                       builder: (ctx) => AlertDialog(
                         title: const Text('Debug logs'),
-                        content: SingleChildScrollView(child: Text(lines)),
+                        content: SingleChildScrollView(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(children: [
+                                ValueListenableBuilder<bool>(
+                                  valueListenable: DebugLogger.overlayEnabled,
+                                  builder: (context, val, _) => SwitchListTile(
+                                    title: const Text('SafeArea overlay'),
+                                    value: val,
+                                    onChanged: (v) => DebugLogger.overlayEnabled.value = v,
+                                  ),
+                                ),
+                              ]),
+                              Row(children: [
+                                ValueListenableBuilder<bool>(
+                                  valueListenable: DebugLogger.showBoundsEnabled,
+                                  builder: (context, val, _) => SwitchListTile(
+                                    title: const Text('Show widget bounds'),
+                                    value: val,
+                                    onChanged: (v) => DebugLogger.showBoundsEnabled.value = v,
+                                  ),
+                                ),
+                              ]),
+                              const Divider(),
+                              const SizedBox(height: 8),
+                              Text(lines),
+                            ],
+                          ),
+                        ),
                         actions: [
                           TextButton(onPressed: () => Navigator.of(ctx).pop(), child: const Text('Close')),
                         ],

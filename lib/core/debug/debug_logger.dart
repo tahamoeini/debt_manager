@@ -11,6 +11,8 @@ class DebugLogger {
   final int _max = 200;
   /// Value notifier to enable visual debug overlay in the app (debug only).
   static final ValueNotifier<bool> overlayEnabled = ValueNotifier<bool>(false);
+  /// Value notifier to enable widget bounds overlay.
+  static final ValueNotifier<bool> showBoundsEnabled = ValueNotifier<bool>(false);
 
   void log(String message) {
     final line = '[LOG ${DateTime.now().toIso8601String()}] $message';

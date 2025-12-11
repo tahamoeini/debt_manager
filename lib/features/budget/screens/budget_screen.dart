@@ -54,9 +54,10 @@ class _BudgetScreenState extends State<BudgetScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('بودجه‌ها')),
-      body: FutureBuilder<List<Budget>>(
-        future: _budgetsFuture,
-        builder: (context, snap) {
+      body: SafeArea(
+        child: FutureBuilder<List<Budget>>(
+          future: _budgetsFuture,
+          builder: (context, snap) {
           if (snap.connectionState != ConnectionState.done) {
             return UIUtils.centeredLoading();
           }
@@ -72,7 +73,7 @@ class _BudgetScreenState extends State<BudgetScreen> {
             );
           }
 
-          return ListView.separated(
+            return ListView.separated(
             padding: AppConstants.paddingLarge,
             itemCount: budgets.length,
             separatorBuilder: (context, index) =>
@@ -138,9 +139,10 @@ class _BudgetScreenState extends State<BudgetScreen> {
                   ),
                 ),
               );
-            },
-          );
-        },
+              },
+            );
+          },
+        ),
       ),
       floatingActionButton: FloatingActionButton.large(
         onPressed: () async {

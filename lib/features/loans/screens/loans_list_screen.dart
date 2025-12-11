@@ -85,8 +85,9 @@ class LoansListScreen extends ConsumerWidget {
     return DefaultTabController(
       length: 3,
       child: Scaffold(
-        body: Column(
-          children: [
+        body: SafeArea(
+          child: Column(
+            children: [
             Material(
               color: Colors.transparent,
               child: TabBar(
@@ -107,7 +108,8 @@ class LoansListScreen extends ConsumerWidget {
                 ],
               ),
             ),
-          ],
+            ],
+          ),
         ),
         floatingActionButton: FloatingActionButton(
           onPressed: () async {

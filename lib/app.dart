@@ -128,8 +128,7 @@ class _DebtManagerAppState extends ConsumerState<DebtManagerApp> with WidgetsBin
               darkTheme: darkTheme,
               themeMode: themeMode,
               routerConfig: goRouter,
-              // Add a navigator observer to log navigation events in debug.
-              navigatorObservers: [LoggingNavigatorObserver()],
+              // Navigator observers are attached via GoRouter; remove invalid parameter here.
               // Inject debug overlay at the top-level so it wraps all routes.
               builder: (context, child) => DebugOverlay(child: child ?? const SizedBox.shrink()),
             );

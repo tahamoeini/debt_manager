@@ -353,11 +353,11 @@ class _LoanDetailScreenState extends State<LoanDetailScreen> {
       future: _loadAll(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return Scaffold(body: UIUtils.centeredLoading());
+           return Scaffold(body: SafeArea(child: UIUtils.centeredLoading()));
         }
         if (snapshot.hasError) {
           debugPrint('LoanDetailScreen _loadAll error: ${snapshot.error}');
-          return Scaffold(body: UIUtils.asyncErrorWidget(snapshot.error));
+           return Scaffold(body: SafeArea(child: UIUtils.asyncErrorWidget(snapshot.error)));
         }
 
         final loan = snapshot.data?['loan'] as Loan?;
@@ -366,10 +366,10 @@ class _LoanDetailScreenState extends State<LoanDetailScreen> {
             snapshot.data?['installments'] as List<Installment>? ?? [];
 
         if (loan == null) {
-          return Scaffold(
-            appBar: AppBar(title: const Text('جزئیات وام')),
-            body: const Center(child: Text('وام یافت نشد')),
-          );
+            return Scaffold(
+              appBar: AppBar(title: const Text('جزئیات وام')),
+              body: SafeArea(child: const Center(child: Text('وام یافت نشد'))),
+            );
         }
 
         return Scaffold(
@@ -450,9 +450,10 @@ class _LoanDetailScreenState extends State<LoanDetailScreen> {
               ),
             ],
           ),
-          body: ListView(
-            padding: const EdgeInsets.all(16),
-            children: [
+          body: SafeArea(
+            child: ListView(
+              padding: const EdgeInsets.all(16),
+              children: [
               Card(
                 child: Padding(
                   padding: const EdgeInsets.all(16),
@@ -528,40 +529,7 @@ class _LoanDetailScreenState extends State<LoanDetailScreen> {
                 return Card(
                   child: ListTile(
                     title: Text(due),
-                    subtitle: Text(
-                      _statusText(inst.status) +
-                          (paid && paidFriendly.isNotEmpty
-                              ? ' • پرداخت: $paidFriendly'
-                              : '') +
-                          (actual != null ? ' • واقعی: $actual' : ''),
-                      style: Theme.of(context).textTheme.bodyMedium,
-                    ),
-                    leading: IconButton(
-                      icon: Icon(
-                        paid ? Icons.check_circle_outline : Icons.radio_button_unchecked,
-                        color: paid ? Colors.green : null,
-                      ),
-                      onPressed: paid
-                          ? null
-                          : () async {
-                              await _markPaid(inst);
-                            },
-                    ),
-                    trailing: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          scheduled,
-                          style: Theme.of(context).textTheme.bodyMedium,
-                        ),
-                        IconButton(
-                          icon: const Icon(Icons.edit_outlined),
-                          onPressed: () async {
-                            await _showEditInstallmentSheet(inst);
-                          },
-                        ),
-                      ],
-                    ),
+                    subtitle: Text(_statusText(inst.status)),
                   ),
                 );
               }),

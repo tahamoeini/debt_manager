@@ -43,14 +43,15 @@ class _DebtPayoffProjectionScreenState extends State<DebtPayoffProjectionScreen>
       appBar: AppBar(
         title: const Text('پیش‌بینی بازپرداخت بدهی'),
       ),
-      body: _borrowedLoans.isEmpty
-          ? const Center(
-              child: Text('هیچ بدهی‌ای برای نمایش وجود ندارد'),
-            )
-          : ListView(
-              padding: const EdgeInsets.all(16),
-              children: [
-                Card(
+      body: SafeArea(
+        child: _borrowedLoans.isEmpty
+            ? const Center(
+                child: Text('هیچ بدهی‌ای برای نمایش وجود ندارد'),
+              )
+            : ListView(
+                padding: const EdgeInsets.all(16),
+                children: [
+                  Card(
                   child: Padding(
                     padding: const EdgeInsets.all(12.0),
                     child: Column(
@@ -92,9 +93,9 @@ class _DebtPayoffProjectionScreenState extends State<DebtPayoffProjectionScreen>
                         ),
                       ],
                     ),
+                    ),
                   ),
-                ),
-                const SizedBox(height: 16),
+                  const SizedBox(height: 16),
                 if (_selectedLoan != null && _selectedLoan!.id != null)
                   FutureBuilder<List<Map<String, dynamic>>>(
                     future: _repo.projectDebtPayoff(
@@ -125,8 +126,9 @@ class _DebtPayoffProjectionScreenState extends State<DebtPayoffProjectionScreen>
                       );
                     },
                   ),
-              ],
-            ),
+                ],
+              ),
+      ),
     );
   }
 

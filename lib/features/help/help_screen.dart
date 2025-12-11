@@ -8,9 +8,10 @@ class HelpScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('راهنما و ویژگی‌های هوشمند')),
-      body: ListView(
-        padding: const EdgeInsets.all(16),
-        children: [
+      body: SafeArea(
+        child: ListView(
+          padding: const EdgeInsets.all(16),
+          children: [
           _buildSection(
             context,
             '🔔 یادآورهای قبوض',
@@ -84,7 +85,8 @@ class HelpScreen extends StatelessWidget {
             'می‌توانید هر یک از این ویژگی‌ها را در قسمت تنظیمات فعال یا غیرفعال کنید. برای دسترسی به تنظیمات، از منوی پایین صفحه به قسمت "تنظیمات" بروید.',
             style: Theme.of(context).textTheme.bodyMedium,
           ),
-        ],
+          ],
+        ),
       ),
     );
   }

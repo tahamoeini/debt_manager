@@ -324,13 +324,14 @@ class _AddLoanScreenState extends State<AddLoanScreen> {
           Navigator.of(context).pop();
         }
       },
-      child: GestureDetector(
+        child: GestureDetector(
         onTap: () => FocusScope.of(context).unfocus(),
         child: Scaffold(
           appBar: AppBar(title: Text(_isEdit ? 'ویرایش وام' : 'افزودن وام')),
-          body: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Form(
+          body: SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Form(
               key: _formKey,
               child: ListView(
                 children: [

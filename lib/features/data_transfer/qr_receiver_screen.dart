@@ -109,7 +109,8 @@ class _QrReceiverScreenState extends State<QrReceiverScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Offline Transfer — Receive')),
-      body: Column(children: [
+      body: SafeArea(
+        child: Column(children: [
         Expanded(
           child: _scanning
               ? MobileScanner(
@@ -124,7 +125,8 @@ class _QrReceiverScreenState extends State<QrReceiverScreen> {
         Padding(
             padding: const EdgeInsets.all(12.0),
             child: Text(_status ?? 'Waiting...'))
-      ]),
+        ]),
+      ),
     );
   }
 }
