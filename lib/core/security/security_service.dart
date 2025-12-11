@@ -27,8 +27,6 @@ class SecurityService {
     try {
       final bool didAuthenticate = await _auth.authenticate(
         localizedReason: reason,
-        stickyAuth: true,
-        useErrorDialogs: true,
       );
       return didAuthenticate;
     } catch (_) {

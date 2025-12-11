@@ -17,7 +17,6 @@ class LocalAuthService {
       final didAuthenticate = await _auth.authenticate(
         localizedReason: reason,
         biometricOnly: false,
-        stickyAuth: false,
       );
       return didAuthenticate;
     } catch (_) {

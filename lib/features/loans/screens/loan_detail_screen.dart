@@ -77,48 +77,7 @@ class _LoanDetailScreenState extends State<LoanDetailScreen> {
     }
   }
 
-  Future<void> _markPaid(Installment inst) async {
-    if (inst.id == null) return;
-
-    final updated = inst.copyWith(
-      status: InstallmentStatus.paid,
-      paidAt: DateTime.now().toIso8601String(),
-    );
-    await _db.updateInstallment(updated);
-
-    // Invalidate report caches (if Riverpod is available in the widget tree)
-    try {
-      ProviderScope.containerOf(context).read(reportsCacheProvider.notifier).clear();
-    } catch (_) {}
-
-    if (inst.notificationId != null) {
-      await NotificationService().cancelNotification(inst.notificationId!);
-    }
-
-    // Check budget thresholds after marking payment
-    try {
-      final jalaliNow = dateTimeToJalali(DateTime.now());
-      final currentPeriod = '${jalaliNow.year.toString().padLeft(4, '0')}-${jalaliNow.month.toString().padLeft(2, '0')}';
-      await SmartNotificationService.instance.checkBudgetThresholds(currentPeriod);
-    } catch (_) {
-      // Silently fail if budget check fails
-    }
-
-    setState(() {});
-
-    // Check achievements after marking payment
-    try {
-      final newly = await AchievementsRepository.instance.handlePayment(loanId: widget.loanId, paidAt: DateTime.now());
-      if (!mounted) return;
-      if (newly.isNotEmpty) {
-        for (final a in newly) {
-          showAchievementDialog(context, title: a.title, message: a.message);
-        }
-      }
-    } catch (_) {
-      // ignore achievement errors
-    }
-  }
+  // Removed unused _markPaid method.
 
   Future<void> _showEditInstallmentSheet(Installment inst) async {
     final now = DateTime.now();
@@ -503,18 +462,24 @@ class _LoanDetailScreenState extends State<LoanDetailScreen> {
                 ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
               ),
               const SizedBox(height: 8),
-              for (final inst in installments) 
-                Card(
-                  child: ListTile(
-                    title: Text(
-                      formatJalaliForDisplay(_parseJalaliSafe(inst.dueDateJalali)),
-                    ),
-                    subtitle: Text(_statusText(inst.status)),
-                  ),
-                ),
+              ...installments
+                  .map((inst) => Card(
+                        child: ListTile(
+                          title: Text(
+                            formatJalaliForDisplay(_parseJalaliSafe(inst.dueDateJalali)),
+                          ),
+                          subtitle: Text(_statusText(inst.status)),
+                          trailing: IconButton(
+                            icon: const Icon(Icons.edit),
+                            onPressed: () => _showEditInstallmentSheet(inst),
+                          ),
+                        ),
+                      ))
+                  .toList(),
             ],
           ),
-        );
+        ),
+      );
       },
     );
   }
