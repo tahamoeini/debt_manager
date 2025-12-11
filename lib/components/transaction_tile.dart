@@ -1,3 +1,4 @@
+// Component: Transaction List Tile Widget
 /// Transaction List Tile Widget
 ///
 /// A reusable widget for displaying transaction items in lists.

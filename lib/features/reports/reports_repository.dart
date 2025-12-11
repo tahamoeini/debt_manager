@@ -2,6 +2,7 @@
 import 'package:debt_manager/core/db/database_helper.dart';
 import 'package:debt_manager/features/loans/models/installment.dart';
 import 'package:debt_manager/features/loans/models/loan.dart';
+import 'package:debt_manager/features/loans/models/counterparty.dart';
 import 'package:debt_manager/core/utils/jalali_utils.dart';
 import 'package:flutter/foundation.dart' show compute;
 import 'package:debt_manager/core/compute/reports_compute.dart';

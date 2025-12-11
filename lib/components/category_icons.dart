@@ -1,3 +1,4 @@
+// Component: Category Icons and Colors
 /// Category Icons and Colors
 ///
 /// Centralized mapping of category names to their visual representation

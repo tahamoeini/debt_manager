@@ -3,6 +3,7 @@ import 'package:debt_manager/features/loans/loan_repository.dart';
 import 'package:debt_manager/features/loans/models/loan.dart';
 import 'package:debt_manager/features/loans/models/installment.dart';
 import 'package:debt_manager/features/loans/models/counterparty.dart';
+import 'package:debt_manager/features/loans/loan_list_notifier.dart';
 
 class LoanDetailState {
   final Loan? loan;
@@ -60,7 +61,7 @@ class LoanDetailNotifier extends StateNotifier<AsyncValue<LoanDetailState>> {
     try {
       state = const AsyncValue.loading();
       await _repo.deleteLoanWithInstallments(id);
-      state = const AsyncValue.data(LoanDetailState(loan: null, counterparty: null, installments: []));
+      state = AsyncValue.data(LoanDetailState(loan: null, counterparty: null, installments: []));
     } catch (e, st) {
       state = AsyncValue.error(e, st);
     }

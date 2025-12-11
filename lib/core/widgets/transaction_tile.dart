@@ -1,3 +1,4 @@
+// Core widget: Transaction List Tile
 /// Transaction List Tile Widget
 ///
 /// A reusable widget for displaying transaction items in lists.

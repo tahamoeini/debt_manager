@@ -10,7 +10,6 @@ import 'package:debt_manager/core/utils/jalali_utils.dart';
 import 'package:debt_manager/core/utils/ui_utils.dart';
 import 'package:debt_manager/core/utils/celebration_utils.dart';
 import 'package:debt_manager/features/achievements/achievements_repository.dart';
-import 'package:debt_manager/features/loans/models/counterparty.dart';
 import 'package:debt_manager/features/loans/models/installment.dart';
 import 'package:debt_manager/features/loans/models/loan.dart';
 import 'add_loan_screen.dart';
@@ -22,13 +21,13 @@ import 'package:debt_manager/features/loans/loan_list_notifier.dart';
 // Delay before showing celebration to allow UI to update
 const Duration _celebrationDelay = Duration(milliseconds: 300);
 
-class LoanDetailScreen extends StatefulWidget {
+class LoanDetailScreen extends ConsumerStatefulWidget {
   const LoanDetailScreen({super.key, required this.loanId});
 
   final int loanId;
 
   @override
-  State<LoanDetailScreen> createState() => _LoanDetailScreenState();
+  ConsumerState<LoanDetailScreen> createState() => _LoanDetailScreenState();
 }
 
 class _LoanDetailScreenState extends ConsumerState<LoanDetailScreen> {

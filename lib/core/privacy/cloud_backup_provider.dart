@@ -1,3 +1,4 @@
+// Core: Cloud backup provider interface
 /// Defines the interface for a zero-knowledge, client-side-encrypted
 /// cloud backup provider. Implementations should not hold any user
 /// encryption keys; encryption/decryption is performed on the client.

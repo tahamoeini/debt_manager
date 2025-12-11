@@ -1,3 +1,4 @@
+// Component: Budget Progress Bar Widget
 /// Budget Progress Bar Widget
 ///
 /// A reusable widget for displaying budget utilization with a progress bar.

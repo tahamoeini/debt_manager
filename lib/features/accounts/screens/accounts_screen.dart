@@ -84,7 +84,10 @@ class AccountsScreen extends ConsumerWidget {
           if (loan.id != null) {
             // Use GoRouter named route to navigate to loan detail
             final router = GoRouter.of(context);
-            router.pushNamed('loanDetail', params: {'loanId': loan.id!.toString()});
+            router.pushNamed(
+              'loanDetail',
+              pathParameters: {'loanId': loan.id!.toString()},
+            );
           }
         },
       ),

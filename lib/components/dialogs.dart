@@ -1,3 +1,4 @@
+// Component: Reusable Dialog Widgets
 /// Reusable Dialog Widgets
 ///
 /// Consistent dialog layouts with Material 3 design.

@@ -1,3 +1,4 @@
+// Core widget: Dashboard Card
 /// Dashboard Card Widget
 ///
 /// A reusable card widget for displaying stats and metrics on dashboard screens.
