@@ -171,7 +171,7 @@ class NotificationService {
       var scheduled = due.subtract(Duration(days: offset));
       scheduled = DateTime(scheduled.year, scheduled.month, scheduled.day, 9);
 
-      final title = 'Installment due';
+      const title = 'Installment due';
       final body = 'An installment of ${inst.amount} is due on ${inst.dueDateJalali}.';
 
       final nid = inst.id! + 1000;

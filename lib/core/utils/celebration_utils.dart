@@ -151,7 +151,7 @@ class _ConfettiPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    final confettiCount = 20;
+    const confettiCount = 20;
     final colors = [
       Colors.red,
       Colors.blue,
