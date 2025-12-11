@@ -28,8 +28,8 @@ class SparklineChart extends StatelessWidget {
             spots: spots,
             isCurved: true,
             dotData: FlDotData(show: false),
-            gradient: LinearGradient(colors: [Theme.of(context).colorScheme.primary.withOpacity(0.9), Theme.of(context).colorScheme.primary.withOpacity(0.5)]),
-            belowBarData: BarAreaData(show: true, gradient: LinearGradient(colors: [Theme.of(context).colorScheme.primary.withOpacity(0.2), Colors.transparent])),
+            gradient: LinearGradient(colors: [Theme.of(context).colorScheme.primary.withValues(alpha: 0.9), Theme.of(context).colorScheme.primary.withValues(alpha: 0.5)]),
+            belowBarData: BarAreaData(show: true, gradient: LinearGradient(colors: [Theme.of(context).colorScheme.primary.withValues(alpha: 0.2), Colors.transparent])),
             barWidth: 2,
           )
         ],
