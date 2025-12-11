@@ -6,7 +6,6 @@ library;
 /// Colors change based on utilization thresholds.
 
 import 'package:flutter/material.dart';
-import '../core/utils/color_extensions.dart';
 import 'design_system.dart';
 
 /// A widget that displays budget progress with color-coded thresholds

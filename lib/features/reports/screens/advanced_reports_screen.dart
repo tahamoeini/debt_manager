@@ -1,6 +1,5 @@
 // Advanced reports screen with charts and insights
 import 'package:flutter/material.dart';
-import '../../../core/utils/color_extensions.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:debt_manager/features/reports/reports_repository.dart';
 import 'package:debt_manager/core/utils/format_utils.dart';

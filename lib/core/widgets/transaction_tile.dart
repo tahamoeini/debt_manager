@@ -6,7 +6,6 @@ library;
 /// Provides consistent formatting and supports swipe actions.
 
 import 'package:flutter/material.dart';
-import '../utils/color_extensions.dart';
 import 'category_icon.dart';
 import 'package:debt_manager/components/design_system.dart';
 import 'package:debt_manager/core/utils/format_utils.dart';
