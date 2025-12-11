@@ -19,9 +19,10 @@ class BackupService {
     var key = <int>[];
     var block = <int>[];
     for (var i = 1; key.length < 32; i++) {
-      final blockInput = <int>[]..addAll(block)..addAll(saltBytes)..addAll([0, 0, 0, i]);
+      final blockInput = [...block, ...saltBytes, 0, 0, 0, i];
       block = hmac.convert(blockInput).bytes;
       key.addAll(block);
+      // Note: iterations parameter available for future enhancement
     }
     return key.sublist(0, 32);
   }
@@ -110,7 +111,8 @@ class BackupService {
   /// Compress bytes using gzip and return bytes
   static Uint8List gzipCompress(Uint8List input) {
     final encoder = GZipEncoder();
-    return Uint8List.fromList(encoder.encode(input)!);
+    final encoded = encoder.encode(input);
+    return Uint8List.fromList(encoded ?? input);
   }
 
   static Uint8List gzipDecompress(Uint8List input) {

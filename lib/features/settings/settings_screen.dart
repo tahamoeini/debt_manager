@@ -25,7 +25,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
   int _offsetDays = 0;
   String _calendar = 'gregorian';
   String _language = 'en';
-  bool _hasPin = false;
 
   @override
   void initState() {
