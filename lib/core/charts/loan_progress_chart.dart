@@ -11,9 +11,10 @@ class LoanProgressChart extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final total = paid + remaining;
-    if (total <= 0)
+    if (total <= 0) {
       return Center(
           child: Text('No data', style: Theme.of(context).textTheme.bodySmall));
+    }
 
     final paidPct = (paid / total) * 100;
     final remainingPct = (remaining / total) * 100;

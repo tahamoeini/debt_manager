@@ -9,13 +9,14 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
-  bool _ready = true;
+  final bool _ready = true;
 
   @override
   Widget build(BuildContext context) {
-    if (!_ready)
+    if (!_ready) {
       return const Scaffold(
           body: SafeArea(child: Center(child: CircularProgressIndicator())));
+    }
 
     return Scaffold(
       appBar: AppBar(title: const Text('Settings')),

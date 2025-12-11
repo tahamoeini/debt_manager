@@ -9,9 +9,10 @@ class SimpleBarChart extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (values.isEmpty)
+    if (values.isEmpty) {
       return Center(
           child: Text('No data', style: Theme.of(context).textTheme.bodySmall));
+    }
 
     final maxY = values.reduce((a, b) => a > b ? a : b);
 
@@ -31,8 +32,9 @@ class SimpleBarChart extends StatelessWidget {
                   showTitles: true,
                   getTitlesWidget: (v, meta) {
                     final idx = v.toInt();
-                    if (idx < 0 || idx >= labels.length)
+                    if (idx < 0 || idx >= labels.length) {
                       return const SizedBox.shrink();
+                    }
                     return Padding(
                         padding: const EdgeInsets.only(top: 6),
                         child: Text(labels[idx],

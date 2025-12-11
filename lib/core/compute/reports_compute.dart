@@ -32,8 +32,9 @@ Map<String, int> computeSpendingByCategory(
     final status = inst['status'] as String? ?? '';
     final paidAt = inst['paid_at'] as String?;
     if (status != 'paid' || paidAt == null) continue;
-    if (paidAt.compareTo(startDate) < 0 || paidAt.compareTo(endDate) > 0)
+    if (paidAt.compareTo(startDate) < 0 || paidAt.compareTo(endDate) > 0) {
       continue;
+    }
 
     final loanId = inst['loan_id'] is int
         ? inst['loan_id'] as int
@@ -123,8 +124,9 @@ List<Map<String, dynamic>> computeSpendingOverTime(
       final status = inst['status'] as String? ?? '';
       final paidAt = inst['paid_at'] as String?;
       if (status != 'paid' || paidAt == null) continue;
-      if (paidAt.compareTo(startDate) < 0 || paidAt.compareTo(endDate) > 0)
+      if (paidAt.compareTo(startDate) < 0 || paidAt.compareTo(endDate) > 0) {
         continue;
+      }
 
       final loanId = inst['loan_id'] is int
           ? inst['loan_id'] as int
@@ -260,10 +262,11 @@ List<Map<String, dynamic>> computeProjectDebtPayoff(
   var balance = 0;
   for (final inst in insts) {
     final status = inst['status'] as String? ?? '';
-    if (status != 'paid')
+    if (status != 'paid') {
       balance += (inst['amount'] as int? ??
           int.tryParse(inst['amount'].toString()) ??
           0);
+    }
   }
 
   final projections = <Map<String, dynamic>>[];

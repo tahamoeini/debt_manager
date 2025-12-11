@@ -34,7 +34,9 @@ class DebugLogger {
 
   void _add(String line) {
     _lines.addFirst(line);
-    while (_lines.length > _max) _lines.removeLast();
+    while (_lines.length > _max) {
+      _lines.removeLast();
+    }
   }
 
   /// Returns recent log lines (newest first).

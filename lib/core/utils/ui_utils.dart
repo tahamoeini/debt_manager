@@ -46,7 +46,7 @@ class UIUtils {
       graphic = SvgPicture.asset(
         svgAsset!,
         height: 120,
-        color: color,
+        colorFilter: ColorFilter.mode(color, BlendMode.srcIn),
         semanticsLabel: title,
       );
     } catch (_) {

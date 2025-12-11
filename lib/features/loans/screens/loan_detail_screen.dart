@@ -5,13 +5,10 @@ import 'package:shamsi_date/shamsi_date.dart';
 
 import 'package:debt_manager/core/db/database_helper.dart';
 import 'package:debt_manager/core/notifications/notification_service.dart';
-import 'package:debt_manager/core/notifications/smart_notification_service.dart';
 import 'package:debt_manager/core/utils/format_utils.dart';
 import 'package:debt_manager/core/utils/jalali_utils.dart';
 import 'package:debt_manager/core/utils/ui_utils.dart';
 import 'package:debt_manager/core/utils/celebration_utils.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:debt_manager/core/providers/core_providers.dart';
 import 'package:debt_manager/features/achievements/achievements_repository.dart';
 import 'package:debt_manager/features/loans/models/counterparty.dart';
 import 'package:debt_manager/features/loans/models/installment.dart';
@@ -474,8 +471,7 @@ class _LoanDetailScreenState extends State<LoanDetailScreen> {
                             onPressed: () => _showEditInstallmentSheet(inst),
                           ),
                         ),
-                      ))
-                  .toList(),
+                      )),
             ],
           ),
         ),

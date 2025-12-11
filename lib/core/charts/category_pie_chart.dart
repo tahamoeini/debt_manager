@@ -8,9 +8,10 @@ class CategoryPieChart extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (data.isEmpty)
+    if (data.isEmpty) {
       return Center(
           child: Text('No data', style: Theme.of(context).textTheme.bodySmall));
+    }
 
     final total = data.values.fold<double>(0, (a, b) => a + b);
     var i = 0;

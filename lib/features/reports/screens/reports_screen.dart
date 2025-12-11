@@ -310,8 +310,9 @@ class _ReportsScreenState extends State<ReportsScreen> {
         FutureBuilder<List<Achievement>>(
           future: AchievementsRepository.instance.getEarnedAchievements(),
           builder: (context, snap) {
-            if (snap.connectionState == ConnectionState.waiting)
+            if (snap.connectionState == ConnectionState.waiting) {
               return const SizedBox.shrink();
+            }
             final badges = snap.data ?? [];
             if (badges.isEmpty) return const SizedBox.shrink();
             return Card(

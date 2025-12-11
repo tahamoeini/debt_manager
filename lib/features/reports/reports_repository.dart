@@ -59,14 +59,16 @@ class ReportsRepository {
       });
 
       // Store in cache
-      if (_ref != null)
+      if (_ref != null) {
         _ref!.read(reportsCacheProvider.notifier).put(cacheKey, res);
+      }
       return res;
     } catch (e) {
       final fallback =
           computeSpendingByCategory(loansMaps, cpMaps, instMaps, year, month);
-      if (_ref != null)
+      if (_ref != null) {
         _ref!.read(reportsCacheProvider.notifier).put(cacheKey, fallback);
+      }
       return fallback;
     }
   }
@@ -110,14 +112,16 @@ class ReportsRepository {
           'nowMonth': nowJ.month,
         },
       );
-      if (_ref != null)
+      if (_ref != null) {
         _ref!.read(reportsCacheProvider.notifier).put(cacheKey, res);
+      }
       return res;
     } catch (e) {
       final fallback = computeSpendingOverTime(
           loanMaps, instMaps, monthsBack, nowJ.year, nowJ.month);
-      if (_ref != null)
+      if (_ref != null) {
         _ref!.read(reportsCacheProvider.notifier).put(cacheKey, fallback);
+      }
       return fallback;
     }
   }
@@ -192,14 +196,16 @@ class ReportsRepository {
           'nowMonth': nowJ.month,
         },
       );
-      if (_ref != null)
+      if (_ref != null) {
         _ref!.read(reportsCacheProvider.notifier).put(cacheKey, res);
+      }
       return res;
     } catch (e) {
       final fallback = computeNetWorthOverTime(
           loanMaps, instMaps, monthsBack, nowJ.year, nowJ.month);
-      if (_ref != null)
+      if (_ref != null) {
         _ref!.read(reportsCacheProvider.notifier).put(cacheKey, fallback);
+      }
       return fallback;
     }
   }
@@ -253,14 +259,16 @@ class ReportsRepository {
           'extraPayment': extraPayment,
         },
       );
-      if (_ref != null)
+      if (_ref != null) {
         _ref!.read(reportsCacheProvider.notifier).put(cacheKey, res);
+      }
       return res;
     } catch (e) {
       final fallback =
           computeProjectDebtPayoff(loanMap, instMaps, extraPayment);
-      if (_ref != null)
+      if (_ref != null) {
         _ref!.read(reportsCacheProvider.notifier).put(cacheKey, fallback);
+      }
       return fallback;
     }
   }

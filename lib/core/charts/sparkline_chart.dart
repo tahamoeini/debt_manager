@@ -8,9 +8,10 @@ class SparklineChart extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (points.isEmpty)
+    if (points.isEmpty) {
       return Center(
           child: Text('No data', style: Theme.of(context).textTheme.bodySmall));
+    }
 
     final spots = <FlSpot>[];
     for (var i = 0; i < points.length; i++) {
