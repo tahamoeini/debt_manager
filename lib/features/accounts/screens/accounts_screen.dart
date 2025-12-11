@@ -1,109 +1,58 @@
 import 'package:flutter/material.dart';
-import 'package:debt_manager/core/db/database_helper.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:debt_manager/features/loans/models/loan.dart';
-import 'package:debt_manager/features/loans/models/installment.dart';
 import 'package:debt_manager/core/utils/format_utils.dart';
 import 'package:debt_manager/core/utils/category_colors.dart';
-import 'package:debt_manager/features/loans/screens/loan_detail_screen.dart';
+import 'package:debt_manager/features/loans/loan_list_notifier.dart';
 
-class AccountsScreen extends StatefulWidget {
+class AccountsScreen extends ConsumerWidget {
   const AccountsScreen({super.key});
 
   @override
-  State<AccountsScreen> createState() => _AccountsScreenState();
-}
+  Widget build(BuildContext context, WidgetRef ref) {
+    final assets = ref.watch(loanListProvider(LoanDirection.lent));
+    final debts = ref.watch(loanListProvider(LoanDirection.borrowed));
 
-class _AccountsScreenState extends State<AccountsScreen> {
-  final _db = DatabaseHelper.instance;
-  late Future<void> _loader;
+    Widget buildList(List<LoanSummary> items) {
+      if (items.isEmpty) return const SizedBox.shrink();
+      return Column(
+        children: items
+            .map((s) => _buildLoanTile(context, s, ref: ref))
+            .toList(growable: false),
+      );
+    }
 
-  List<Loan> _assets = [];
-  List<Loan> _debts = [];
-  Map<int, List<Installment>> _installmentsByLoan = {};
-
-  @override
-  void initState() {
-    super.initState();
-    _loader = _loadAll();
-  }
-
-  Future<void> _loadAll() async {
-    await _db.refreshOverdueInstallments(DateTime.now());
-    final loans = await _db.getAllLoans();
-    final loanIds = loans.where((l) => l.id != null).map((l) => l.id!).toList();
-    final grouped = loanIds.isNotEmpty
-        ? await _db.getInstallmentsGroupedByLoanId(loanIds)
-        : <int, List<Installment>>{};
-
-    _installmentsByLoan = grouped;
-    _assets = loans.where((l) => l.direction == LoanDirection.lent).toList();
-    _debts = loans.where((l) => l.direction == LoanDirection.borrowed).toList();
-  }
-
-  double _paidRatio(Loan loan) {
-    final insts = _installmentsByLoan[loan.id] ?? [];
-    if (insts.isEmpty) return 0.0;
-    final paid = insts.where((i) => i.status == InstallmentStatus.paid).length;
-    return paid / insts.length;
-  }
-
-  int _remainingAmount(Loan loan) {
-    final insts = _installmentsByLoan[loan.id] ?? [];
-    return insts
-        .where((i) => i.status != InstallmentStatus.paid)
-        .fold<int>(0, (s, i) => s + i.amount);
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return FutureBuilder<void>(
-      future: _loader,
-      builder: (context, snap) {
-        if (snap.connectionState == ConnectionState.waiting) {
-          return const Center(child: CircularProgressIndicator());
-        }
-        if (snap.hasError) {
-          return Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Icon(Icons.error_outline, size: 48, color: Colors.red),
-                const SizedBox(height: 16),
-                Text('خطا در بارگذاری داده‌ها: ${snap.error}'),
-              ],
-            ),
-          );
-        }
-        return ListView(
-          padding: const EdgeInsets.all(16),
-          children: [
-            Text('حساب‌ها', style: Theme.of(context).textTheme.titleLarge),
-            const SizedBox(height: 12),
-            if (_assets.isNotEmpty) ...[
-              Text('دارایی‌ها', style: Theme.of(context).textTheme.titleMedium),
-              const SizedBox(height: 8),
-              ..._assets.map((l) => _buildLoanTile(context, l, isAsset: true)),
-              const SizedBox(height: 12),
-            ],
-            if (_debts.isNotEmpty) ...[
-              Text('بدهی‌ها', style: Theme.of(context).textTheme.titleMedium),
-              const SizedBox(height: 8),
-              ..._debts.map((l) => _buildLoanTile(context, l, isAsset: false)),
-            ],
-            if (_assets.isEmpty && _debts.isEmpty)
-              Center(
-                  child: Text('هیچ حساب یا بدهی‌ای یافت نشد',
-                      style: Theme.of(context).textTheme.bodyMedium)),
-          ],
-        );
-      },
+    return ListView(
+      padding: const EdgeInsets.all(16),
+      children: [
+        Text('حساب‌ها', style: Theme.of(context).textTheme.titleLarge),
+        const SizedBox(height: 12),
+        if (assets.isNotEmpty) ...[
+          Text('دارایی‌ها', style: Theme.of(context).textTheme.titleMedium),
+          const SizedBox(height: 8),
+          buildList(assets),
+          const SizedBox(height: 12),
+        ],
+        if (debts.isNotEmpty) ...[
+          Text('بدهی‌ها', style: Theme.of(context).textTheme.titleMedium),
+          const SizedBox(height: 8),
+          buildList(debts),
+        ],
+        if (assets.isEmpty && debts.isEmpty)
+          Center(
+              child: Text('هیچ حساب یا بدهی‌ای یافت نشد',
+                  style: Theme.of(context).textTheme.bodyMedium)),
+      ],
     );
   }
 
-  Widget _buildLoanTile(BuildContext context, Loan loan,
-      {required bool isAsset}) {
-    final ratio = _paidRatio(loan);
-    final remaining = _remainingAmount(loan);
+  Widget _buildLoanTile(BuildContext context, LoanSummary s,
+      {required WidgetRef ref}) {
+    final loan = s.loan;
+    final total = loan.installmentCount <= 0 ? 1 : loan.installmentCount;
+    final ratio = total == 0 ? 0.0 : (1 - (s.remainingCount / total));
+    final remaining = s.remainingAmount;
     final color =
         colorForCategory(loan.title, brightness: Theme.of(context).brightness);
 
@@ -133,11 +82,9 @@ class _AccountsScreenState extends State<AccountsScreen> {
         ),
         onTap: () async {
           if (loan.id != null) {
-            await Navigator.of(context).push(MaterialPageRoute(
-                builder: (_) => LoanDetailScreen(loanId: loan.id!)));
-            setState(() {
-              _loader = _loadAll();
-            });
+            // Use GoRouter named route to navigate to loan detail
+            final router = GoRouter.of(context);
+            router.pushNamed('loanDetail', params: {'loanId': loan.id!.toString()});
           }
         },
       ),

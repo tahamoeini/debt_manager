@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:debt_manager/features/loans/screens/loans_list_screen.dart';
+import 'package:debt_manager/features/loans/screens/loan_detail_screen.dart';
 import 'package:debt_manager/features/reports/screens/reports_screen.dart';
 import 'package:debt_manager/core/widgets/stat_card.dart';
 import 'package:debt_manager/core/theme/app_dimensions.dart';
@@ -33,9 +34,12 @@ class HomeScreen extends ConsumerWidget {
                   value: 'در حال بارگذاری…',
                   icon: Icons.account_balance_wallet,
                   onTap: () async {
-                    await Navigator.of(context).push(MaterialPageRoute(
-                        builder: (_) => const LoansListScreen()));
-                    ref.read(refreshTriggerProvider.notifier).state++;
+                    final res = await Navigator.of(context).push<bool>(
+                      MaterialPageRoute(builder: (_) => const LoansListScreen()),
+                    );
+                    if (res == true) {
+                      ref.read(refreshTriggerProvider.notifier).state++;
+                    }
                   },
                 ),
                 error: (e, st) => StatCard(
@@ -68,9 +72,12 @@ class HomeScreen extends ConsumerWidget {
                   value: 'در حال بارگذاری…',
                   icon: Icons.receipt_long,
                   onTap: () async {
-                    await Navigator.of(context).push(MaterialPageRoute(
-                        builder: (_) => const ReportsScreen()));
-                    ref.read(refreshTriggerProvider.notifier).state++;
+                    final res = await Navigator.of(context).push<bool>(
+                      MaterialPageRoute(builder: (_) => const ReportsScreen()),
+                    );
+                    if (res == true) {
+                      ref.read(refreshTriggerProvider.notifier).state++;
+                    }
                   },
                 ),
                 error: (e, st) => StatCard(
@@ -127,11 +134,36 @@ class HomeScreen extends ConsumerWidget {
                       final loan = data.loansById[inst.loanId];
                       final cp = data.counterpartiesById[loan?.counterpartyId ?? -1];
                       final title = loan?.title ?? cp?.name ?? 'بدون عنوان';
-                      return Padding(
-                        padding: const EdgeInsets.only(bottom: 6.0),
-                        child: Text(
-                          '${inst.dueDateJalali} • $title • ${formatCurrency(inst.amount)}',
-                          style: Theme.of(context).textTheme.bodySmall,
+                      return InkWell(
+                        onTap: () async {
+                          final res = await Navigator.of(context).push<bool>(
+                            MaterialPageRoute(
+                              builder: (_) => LoanDetailScreen(loanId: inst.loanId),
+                            ),
+                          );
+                          if (res == true) {
+                            ref.read(refreshTriggerProvider.notifier).state++;
+                          }
+                        },
+                        child: Padding(
+                          padding: const EdgeInsets.only(bottom: 6.0),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  '${inst.dueDateJalali} • $title',
+                                  style: Theme.of(context).textTheme.bodySmall,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              Text(
+                                formatCurrency(inst.amount),
+                                style: Theme.of(context).textTheme.bodySmall,
+                              ),
+                            ],
+                          ),
                         ),
                       );
                     }).toList();

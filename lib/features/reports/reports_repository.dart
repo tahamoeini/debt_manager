@@ -17,6 +17,18 @@ class ReportsRepository {
 
   final _db = DatabaseHelper.instance;
 
+  Future<List<Counterparty>> getAllCounterparties() => _db.getAllCounterparties();
+
+  Future<void> refreshOverdueInstallments(DateTime now) => _db.refreshOverdueInstallments(now);
+
+  Future<int> getTotalOutstandingBorrowed() => _db.getTotalOutstandingBorrowed();
+
+  Future<int> getTotalOutstandingLent() => _db.getTotalOutstandingLent();
+
+  Future<List<Loan>> getAllLoans({LoanDirection? direction}) => _db.getAllLoans(direction: direction);
+
+  Future<List<Installment>> getInstallmentsByLoanId(int loanId) => _db.getInstallmentsByLoanId(loanId);
+
   /// Get spending by category (counterparty type) for a given month
   /// Returns a map of category name to total amount spent
   Future<Map<String, int>> getSpendingByCategory(int year, int month) async {

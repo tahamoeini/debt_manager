@@ -1,5 +1,3 @@
-library;
-
 /// Form Input Widgets
 ///
 /// Reusable form field components with consistent styling.

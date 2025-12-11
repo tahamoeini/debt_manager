@@ -6,7 +6,6 @@
 // ```dart
 // import 'package:debt_manager/core/widgets/widgets.dart';
 // ```
-library;
 
 export 'dashboard_card.dart';
 export 'stat_card.dart';

@@ -1,9 +1,9 @@
 // Loan detail screen: shows loan details and its installments and actions.
 // ignore_for_file: use_build_context_synchronously
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shamsi_date/shamsi_date.dart';
 
-import 'package:debt_manager/core/db/database_helper.dart';
 import 'package:debt_manager/core/notifications/notification_service.dart';
 import 'package:debt_manager/core/utils/format_utils.dart';
 import 'package:debt_manager/core/utils/jalali_utils.dart';
@@ -16,6 +16,8 @@ import 'package:debt_manager/features/loans/models/loan.dart';
 import 'add_loan_screen.dart';
 import 'package:debt_manager/features/budget/budgets_repository.dart';
 import 'package:debt_manager/features/budget/models/budget.dart';
+import 'package:debt_manager/features/loans/loan_detail_notifier.dart';
+import 'package:debt_manager/features/loans/loan_list_notifier.dart';
 
 // Delay before showing celebration to allow UI to update
 const Duration _celebrationDelay = Duration(milliseconds: 300);
@@ -29,8 +31,7 @@ class LoanDetailScreen extends StatefulWidget {
   State<LoanDetailScreen> createState() => _LoanDetailScreenState();
 }
 
-class _LoanDetailScreenState extends State<LoanDetailScreen> {
-  final _db = DatabaseHelper.instance;
+class _LoanDetailScreenState extends ConsumerState<LoanDetailScreen> {
 
   /// Safe parser for Jalali dates - returns current date if parsing fails
   Jalali _parseJalaliSafe(String jalaliStr) {
@@ -41,23 +42,7 @@ class _LoanDetailScreenState extends State<LoanDetailScreen> {
     }
   }
 
-  Future<Map<String, dynamic>> _loadAll() async {
-    final loan = await _db.getLoanById(widget.loanId);
-
-    final cps = await _db.getAllCounterparties();
-    final cp = loan != null
-        ? cps.firstWhere(
-            (c) => c.id == loan.counterpartyId,
-            orElse: () => const Counterparty(id: null, name: 'نامشخص'),
-          )
-        : const Counterparty(id: null, name: 'نامشخص');
-
-    final installments = loan != null
-        ? await _db.getInstallmentsByLoanId(widget.loanId)
-        : <Installment>[];
-
-    return {'loan': loan, 'counterparty': cp, 'installments': installments};
-  }
+  // Data provided through [loanDetailProvider]
 
   String _directionText(LoanDirection dir) {
     return dir == LoanDirection.borrowed ? 'من بدهکارم' : 'من طلبکارم';
@@ -250,7 +235,8 @@ class _LoanDetailScreenState extends State<LoanDetailScreen> {
                               }
                             }
 
-                            await _db.updateInstallment(updated);
+                            // Persist via provider notifier
+                            await ref.read(loanDetailProvider(widget.loanId).notifier).updateInstallment(updated);
 
                             // Cancel notification if marking paid
                             if (isPaid && inst.notificationId != null) {
@@ -263,7 +249,7 @@ class _LoanDetailScreenState extends State<LoanDetailScreen> {
 
                             // Check if all installments are now paid and celebrate!
                             if (isPaid) {
-                              final allInst = await _db.getInstallmentsByLoanId(widget.loanId);
+                              final allInst = ref.read(loanDetailProvider(widget.loanId)).value?.installments ?? [];
                               final allPaid = allInst.every((i) => i.status == InstallmentStatus.paid);
                               if (allPaid) {
                                 if (!mounted) {
@@ -286,7 +272,7 @@ class _LoanDetailScreenState extends State<LoanDetailScreen> {
                               }
                             }
 
-                            if (mounted) setState(() {});
+                            // Notifier has refreshed state already.
                             sheetNavigator.pop();
                           },
                           child: const Text('ذخیره'),
@@ -305,27 +291,23 @@ class _LoanDetailScreenState extends State<LoanDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<Map<String, dynamic>>(
-      future: _loadAll(),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-           return Scaffold(body: SafeArea(child: UIUtils.centeredLoading()));
-        }
-        if (snapshot.hasError) {
-          debugPrint('LoanDetailScreen _loadAll error: ${snapshot.error}');
-           return Scaffold(body: SafeArea(child: UIUtils.asyncErrorWidget(snapshot.error)));
-        }
-
-        final loan = snapshot.data?['loan'] as Loan?;
-        final cp = snapshot.data?['counterparty'] as Counterparty?;
-        final installments =
-            snapshot.data?['installments'] as List<Installment>? ?? [];
+    final async = ref.watch(loanDetailProvider(widget.loanId));
+    return async.when(
+      loading: () => Scaffold(body: SafeArea(child: UIUtils.centeredLoading())),
+      error: (e, st) {
+        debugPrint('LoanDetailScreen error: $e');
+        return Scaffold(body: SafeArea(child: UIUtils.asyncErrorWidget(e)));
+      },
+      data: (data) {
+        final loan = data.loan;
+        final cp = data.counterparty;
+        final installments = data.installments;
 
         if (loan == null) {
-            return Scaffold(
-              appBar: AppBar(title: const Text('جزئیات وام')),
-              body: SafeArea(child: const Center(child: Text('وام یافت نشد'))),
-            );
+          return Scaffold(
+            appBar: AppBar(title: const Text('جزئیات وام')),
+            body: SafeArea(child: const Center(child: Text('وام یافت نشد'))),
+          );
         }
 
         return Scaffold(
@@ -352,8 +334,9 @@ class _LoanDetailScreenState extends State<LoanDetailScreen> {
                     if (!mounted) return;
 
                     if (res == true) {
-                      // Editing was successful: pop this detail screen and signal
-                      // the caller (loans list) to refresh.
+                      // Editing was successful: refresh global loans list and
+                      // pop this detail screen.
+                      ref.read(loanListProvider(null).notifier).refresh();
                       navigator.pop(true);
                       return;
                     }
@@ -381,12 +364,13 @@ class _LoanDetailScreenState extends State<LoanDetailScreen> {
                     if (confirm == true) {
                       try {
                         if (loan.id != null) {
-                          await _db.deleteLoanWithInstallments(loan.id!);
+                          await ref.read(loanDetailProvider(widget.loanId).notifier).deleteLoan(loan.id!);
                         }
 
                         if (!mounted) return;
 
-                        // Pop back to previous screen and signal that caller should refresh.
+                        // Refresh list and pop back to previous screen.
+                        ref.read(loanListProvider(null).notifier).refresh();
                         navigator.pop(true);
                       } catch (e) {
                         debugPrint('Failed to delete loan: $e');
