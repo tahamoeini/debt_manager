@@ -37,7 +37,8 @@ class _QrSenderScreenState extends State<QrSenderScreen> {
     setState(() => _loading = true);
     try {
       // Create encrypted+compressed bytes (prompts auth)
-      final bytes = await SecureBackupService.instance.createEncryptedBackup(password: null, requireAuth: true);
+      final bytes = await SecureBackupService.instance
+          .createEncryptedBackup(password: null, requireAuth: true);
 
       // Base64 encode and chunk into QR-friendly sizes.
       // Tune chunk size to be QR-friendly (payload per QR depends on version/error-corr).
@@ -60,7 +61,9 @@ class _QrSenderScreenState extends State<QrSenderScreen> {
 
       if (_autoPlay) _startAutoPlay();
     } catch (e) {
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Export failed: $e')));
+      if (mounted)
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text('Export failed: $e')));
     } finally {
       setState(() => _loading = false);
     }
@@ -88,17 +91,15 @@ class _QrSenderScreenState extends State<QrSenderScreen> {
       body: _loading
           ? const Center(child: CircularProgressIndicator())
           : _pages.isEmpty
-              ? Center(child: ElevatedButton(onPressed: _buildBackupAndChunks, child: const Text('Retry export')))
+              ? Center(
+                  child: ElevatedButton(
+                      onPressed: _buildBackupAndChunks,
+                      child: const Text('Retry export')))
               : Column(
                   children: [
                     Expanded(
                       child: Center(
-                        child: QrImage(
-                          data: _pages[_index],
-                          version: QrVersions.auto,
-                          size: 320,
-                          errorStateBuilder: (c, err) => const Text('QR error'),
-                        ),
+                        child: QrImageView(data: _pages[_index], size: 320),
                       ),
                     ),
                     Padding(
@@ -110,12 +111,15 @@ class _QrSenderScreenState extends State<QrSenderScreen> {
                           Row(children: [
                             IconButton(
                                 onPressed: () {
-                                  setState(() => _index = (_index - 1 + _pages.length) % _pages.length);
+                                  setState(() => _index =
+                                      (_index - 1 + _pages.length) %
+                                          _pages.length);
                                 },
                                 icon: const Icon(Icons.arrow_back)),
                             IconButton(
                                 onPressed: () {
-                                  setState(() => _index = (_index + 1) % _pages.length);
+                                  setState(() =>
+                                      _index = (_index + 1) % _pages.length);
                                 },
                                 icon: const Icon(Icons.arrow_forward)),
                             IconButton(
@@ -127,7 +131,9 @@ class _QrSenderScreenState extends State<QrSenderScreen> {
                                     _stopAutoPlay();
                                   }
                                 },
-                                icon: Icon(_autoPlay ? Icons.pause : Icons.play_arrow)),
+                                icon: Icon(_autoPlay
+                                    ? Icons.pause
+                                    : Icons.play_arrow)),
                           ])
                         ],
                       ),

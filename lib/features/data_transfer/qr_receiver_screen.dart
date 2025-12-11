@@ -46,17 +46,25 @@ class _QrReceiverScreenState extends State<QrReceiverScreen> {
         // ask for password (optional)
         final password = await _askForPassword();
         if (password == null) {
-          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Password required to continue')));
+          ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Password required to continue')));
           return;
         }
 
         // import
         try {
-          await SecureBackupService.instance.importEncryptedBackup(Uint8List.fromList(bytes), password: password, requireAuth: true);
-          if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Import completed')));
+          await SecureBackupService.instance.importEncryptedBackup(
+              Uint8List.fromList(bytes),
+              password: password,
+              requireAuth: true);
+          if (mounted)
+            ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Import completed')));
           Navigator.of(context).pop();
         } catch (e) {
-          if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Import failed: $e')));
+          if (mounted)
+            ScaffoldMessenger.of(context)
+                .showSnackBar(SnackBar(content: Text('Import failed: $e')));
           setState(() => _scanning = true);
         }
       }
@@ -67,17 +75,30 @@ class _QrReceiverScreenState extends State<QrReceiverScreen> {
 
   Future<String?> _askForPassword() async {
     String? password;
-    await showDialog<void>(context: context, builder: (ctx) {
-      final ctrl = TextEditingController();
-      return AlertDialog(
-        title: const Text('Backup password'),
-        content: TextField(controller: ctrl, obscureText: true, decoration: const InputDecoration(hintText: 'Enter password (if set)')),
-        actions: [
-          TextButton(onPressed: () => Navigator.of(ctx).pop(), child: const Text('Cancel')),
-          TextButton(onPressed: () { password = ctrl.text; Navigator.of(ctx).pop(); }, child: const Text('OK'))
-        ],
-      );
-    });
+    await showDialog<void>(
+        context: context,
+        builder: (ctx) {
+          final ctrl = TextEditingController();
+          return AlertDialog(
+            title: const Text('Backup password'),
+            content: TextField(
+                controller: ctrl,
+                obscureText: true,
+                decoration:
+                    const InputDecoration(hintText: 'Enter password (if set)')),
+            actions: [
+              TextButton(
+                  onPressed: () => Navigator.of(ctx).pop(),
+                  child: const Text('Cancel')),
+              TextButton(
+                  onPressed: () {
+                    password = ctrl.text;
+                    Navigator.of(ctx).pop();
+                  },
+                  child: const Text('OK'))
+            ],
+          );
+        });
     return password;
   }
 
@@ -89,7 +110,6 @@ class _QrReceiverScreenState extends State<QrReceiverScreen> {
         Expanded(
           child: _scanning
               ? MobileScanner(
-                  allowDuplicates: false,
                   onDetect: (capture) {
                     for (final s in capture.barcodes) {
                       if (s.rawValue != null) _onScan(s.rawValue!);
@@ -98,7 +118,9 @@ class _QrReceiverScreenState extends State<QrReceiverScreen> {
                 )
               : Center(child: Text(_status ?? 'Completed')),
         ),
-        Padding(padding: const EdgeInsets.all(12.0), child: Text(_status ?? 'Waiting...'))
+        Padding(
+            padding: const EdgeInsets.all(12.0),
+            child: Text(_status ?? 'Waiting...'))
       ]),
     );
   }

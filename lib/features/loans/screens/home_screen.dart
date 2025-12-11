@@ -9,10 +9,12 @@ import '../../../core/notifications/notification_service.dart';
 import 'package:debt_manager/core/theme/app_constants.dart';
 import 'package:debt_manager/features/shared/summary_cards.dart';
 // Installment model is referenced via HomeStats; no direct import required here.
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:debt_manager/features/home/home_statistics_notifier.dart';
+import 'package:debt_manager/core/db/database_helper.dart';
+import 'package:debt_manager/features/loans/models/loan.dart';
+import 'package:debt_manager/features/loans/models/installment.dart';
+import 'package:debt_manager/features/loans/models/counterparty.dart';
 
-class HomeScreen extends ConsumerWidget {
+class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
   @override
@@ -53,8 +55,6 @@ class _HomeScreenState extends State<HomeScreen> {
     };
   }
 
-
-
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<Map<String, dynamic>>(
@@ -88,9 +88,11 @@ class _HomeScreenState extends State<HomeScreen> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text('بدهی‌های من', style: TextStyle(fontWeight: FontWeight.w600)),
+                          const Text('بدهی‌های من',
+                              style: TextStyle(fontWeight: FontWeight.w600)),
                           const SizedBox(height: 8),
-                          Text(formatCurrency(borrowed), style: Theme.of(context).textTheme.headlineSmall),
+                          Text(formatCurrency(borrowed),
+                              style: Theme.of(context).textTheme.headlineSmall),
                         ],
                       ),
                     ),
@@ -104,9 +106,11 @@ class _HomeScreenState extends State<HomeScreen> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text('طلب‌های من', style: TextStyle(fontWeight: FontWeight.w600)),
+                          const Text('طلب‌های من',
+                              style: TextStyle(fontWeight: FontWeight.w600)),
                           const SizedBox(height: 8),
-                          Text(formatCurrency(lent), style: Theme.of(context).textTheme.headlineSmall),
+                          Text(formatCurrency(lent),
+                              style: Theme.of(context).textTheme.headlineSmall),
                         ],
                       ),
                     ),
@@ -120,9 +124,11 @@ class _HomeScreenState extends State<HomeScreen> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text('وضعیت خالص', style: TextStyle(fontWeight: FontWeight.w600)),
+                          const Text('وضعیت خالص',
+                              style: TextStyle(fontWeight: FontWeight.w600)),
                           const SizedBox(height: 8),
-                          Text(formatCurrency(net), style: Theme.of(context).textTheme.headlineSmall),
+                          Text(formatCurrency(net),
+                              style: Theme.of(context).textTheme.headlineSmall),
                         ],
                       ),
                     ),
@@ -131,7 +137,8 @@ class _HomeScreenState extends State<HomeScreen> {
               ],
             ),
             const SizedBox(height: 20),
-            const Text('اقساط نزدیک', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
+            const Text('اقساط نزدیک',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
             const SizedBox(height: 8),
             if (upcoming.isEmpty)
               Card(
@@ -161,9 +168,12 @@ class _HomeScreenState extends State<HomeScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(loanTitle, style: const TextStyle(fontWeight: FontWeight.w600)),
+                        Text(loanTitle,
+                            style:
+                                const TextStyle(fontWeight: FontWeight.w600)),
                         const SizedBox(height: 4),
-                        Text(cpName, style: Theme.of(context).textTheme.bodySmall),
+                        Text(cpName,
+                            style: Theme.of(context).textTheme.bodySmall),
                         const SizedBox(height: 8),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,

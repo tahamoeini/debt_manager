@@ -43,7 +43,8 @@ class _BudgetScreenState extends State<BudgetScreen> {
 
   Future<void> _checkBudgetThresholds() async {
     try {
-      await SmartNotificationService.instance.checkBudgetThresholds(_currentPeriod());
+      await SmartNotificationService.instance
+          .checkBudgetThresholds(_currentPeriod());
     } catch (e) {
       // Silently fail - don't disrupt the UI if notifications fail
     }
@@ -74,7 +75,8 @@ class _BudgetScreenState extends State<BudgetScreen> {
           return ListView.separated(
             padding: AppConstants.paddingLarge,
             itemCount: budgets.length,
-            separatorBuilder: (_, _) => const SizedBox(height: AppConstants.spaceMedium),
+            separatorBuilder: (context, index) =>
+                const SizedBox(height: AppConstants.spaceMedium),
             itemBuilder: (context, index) {
               final b = budgets[index];
               return Card(
@@ -96,7 +98,8 @@ class _BudgetScreenState extends State<BudgetScreen> {
                         // Category icon
                         CategoryIcon(
                           category: b.category,
-                          icon: Icons.category, // Fallback, widget should handle category-specific icon
+                          icon: Icons
+                              .category, // Fallback, widget should handle category-specific icon
                           size: 40,
                         ),
                         const SizedBox(width: AppConstants.spaceMedium),
@@ -107,9 +110,12 @@ class _BudgetScreenState extends State<BudgetScreen> {
                             children: [
                               Text(
                                 b.category ?? 'عمومی',
-                                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                                  fontWeight: FontWeight.w600,
-                                ),
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .titleMedium
+                                    ?.copyWith(
+                                      fontWeight: FontWeight.w600,
+                                    ),
                               ),
                               const SizedBox(height: AppConstants.spaceXSmall),
                               FutureBuilder<int>(
