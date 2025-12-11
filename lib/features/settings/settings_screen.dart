@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import '../../core/settings/settings_repository.dart';
+import '../../core/privacy/privacy_gateway.dart';
+import '../../core/security/local_auth_service.dart';
+import '../../core/security/pin_service.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -19,6 +22,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   int _offsetDays = 0;
   String _calendar = 'gregorian';
   String _language = 'en';
+  bool _hasPin = false;
 
   @override
   void initState() {
@@ -36,8 +40,28 @@ class _SettingsScreenState extends State<SettingsScreen> {
       _offsetDays = _settings.reminderOffsetDays;
       _calendar = _settings.calendarType == CalendarType.jalali ? 'jalali' : 'gregorian';
       _language = _settings.languageCode;
+      // Check for PIN stored
+      _hasPin = false;
+      // async check for stored PIN
+      PinService().hasPin().then((v) => setState(() => _hasPin = v));
       _ready = true;
     });
+  }
+
+  Future<String?> _askForPin({bool verify = false}) async {
+    final controller = TextEditingController();
+    final ok = await showDialog<bool?>(context: context, builder: (ctx) {
+      return AlertDialog(
+        title: Text(verify ? 'Enter PIN' : 'Set PIN'),
+        content: TextField(controller: controller, keyboardType: TextInputType.number, obscureText: true, maxLength: 8),
+        actions: [
+          TextButton(onPressed: () => Navigator.of(ctx).pop(false), child: const Text('Cancel')),
+          TextButton(onPressed: () => Navigator.of(ctx).pop(true), child: const Text('OK')),
+        ],
+      );
+    });
+    if (ok == true) return controller.text;
+    return null;
   }
 
   Future<void> _save() async {
@@ -81,6 +105,82 @@ class _SettingsScreenState extends State<SettingsScreen> {
             },
             child: const Text('Replay onboarding'),
           ),
+          const SizedBox(height: 24),
+          const Divider(),
+          const SizedBox(height: 12),
+          const Text('Privacy & Security', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+          const SizedBox(height: 8),
+          const Text('Data stored locally: loans, installments, counterparties, and backups.'),
+          const SizedBox(height: 4),
+          const Text('Encryption: backups are encrypted with a password-derived key; secrets are stored in platform secure storage.'),
+          const SizedBox(height: 8),
+          Row(children: [
+            ElevatedButton(
+              onPressed: () async {
+                // set/remove PIN
+                final pinSvc = PinService();
+                if (await pinSvc.hasPin()) {
+                  // remove
+                  await pinSvc.removePin();
+                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('PIN removed')));
+                } else {
+                  final pin = await _askForPin();
+                  if (pin != null && pin.length >= 4) {
+                    await pinSvc.setPin(pin);
+                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('PIN set')));
+                  }
+                }
+                setState(() {});
+              },
+              child: const Text('Set / Remove PIN'),
+            ),
+            const SizedBox(width: 12),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+              onPressed: () async {
+              // Confirm and require PIN/biometric check. For now show a dialog and proceed to panic wipe.
+                final ok = await showDialog<bool>(context: context, builder: (ctx) {
+                  return AlertDialog(
+                    title: const Text('Panic wipe'),
+                    content: const Text('This will permanently delete all local data and backups. This action is irreversible. Are you sure?'),
+                    actions: [
+                      TextButton(onPressed: () => Navigator.of(ctx).pop(false), child: const Text('Cancel')),
+                      TextButton(onPressed: () => Navigator.of(ctx).pop(true), child: const Text('Wipe')),
+                    ],
+                  );
+                });
+
+                if (ok == true) {
+                  // Attempt biometric auth first
+                  final la = LocalAuthService();
+                  final didAuth = await la.authenticate(reason: 'Authenticate to perform panic wipe');
+                  var pinOk = false;
+                  if (!didAuth) {
+                    // fallback to PIN
+                    final pin = await _askForPin(verify: true);
+                    if (pin != null) {
+                      final pinSvc = PinService();
+                      pinOk = await pinSvc.verifyPin(pin);
+                    }
+                  }
+
+                  if (didAuth || pinOk) {
+                    try {
+                      final pg = PrivacyGateway();
+                      await pg.panicWipe();
+                      await pg.audit('panic_wipe', details: 'User initiated panic wipe via settings');
+                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('All local data wiped')));
+                    } catch (e) {
+                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Failed to wipe data')));
+                    }
+                  } else {
+                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Authentication failed. Wipe aborted.')));
+                  }
+                }
+            },
+            child: const Text('Panic wipe (delete all local data)'),
+          ),
+          ]),
         ],
       ),
     );
