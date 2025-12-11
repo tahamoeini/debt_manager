@@ -7,13 +7,14 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:debt_manager/app.dart';
 
 void main() {
   testWidgets('App shell shows home and opens settings', (WidgetTester tester) async {
     // Build the app.
-    await tester.pumpWidget(const DebtManagerApp());
+    await tester.pumpWidget(const ProviderScope(child: DebtManagerApp()));
 
     // Initial app bar title should be the home label 'خانه'.
     expect(find.widgetWithText(AppBar, 'خانه'), findsOneWidget);
