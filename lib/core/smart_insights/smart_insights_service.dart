@@ -32,7 +32,6 @@ class SmartInsightsService {
     for (final entry in byDate.entries) {
       if (entry.value.length >= 3 && notify) {
         // create a suggestion notification
-        final jal = Jalali.fromDateTime(DateTime.now());
         final scheduled = DateTime.now().add(const Duration(seconds: 5));
         await _notifier.scheduleSmartSuggestion(
           notificationId: 9000 + scheduled.millisecondsSinceEpoch % 1000,

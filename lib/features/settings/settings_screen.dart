@@ -25,7 +25,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
   int _offsetDays = 0;
   String _calendar = 'gregorian';
   String _language = 'en';
-  bool _hasPin = false;
 
   @override
   void initState() {
@@ -111,9 +110,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
           const SizedBox(height: 12),
           Row(children: [const Text('Reminder offset (days): '), const SizedBox(width: 8), Expanded(child: TextFormField(initialValue: _offsetDays.toString(), keyboardType: TextInputType.number, onChanged: (v) => _offsetDays = int.tryParse(v) ?? 0))]),
           const SizedBox(height: 12),
-          DropdownButtonFormField<String>(value: _calendar, decoration: const InputDecoration(labelText: 'Calendar'), items: const [DropdownMenuItem(value: 'gregorian', child: Text('Gregorian')), DropdownMenuItem(value: 'jalali', child: Text('Jalali'))], onChanged: (v) => setState(() => _calendar = v ?? 'gregorian')),
+          DropdownButtonFormField<String>(initialValue: _calendar, decoration: const InputDecoration(labelText: 'Calendar'), items: const [DropdownMenuItem(value: 'gregorian', child: Text('Gregorian')), DropdownMenuItem(value: 'jalali', child: Text('Jalali'))], onChanged: (v) => setState(() => _calendar = v ?? 'gregorian')),
           const SizedBox(height: 12),
-          DropdownButtonFormField<String>(value: _language, decoration: const InputDecoration(labelText: 'Language'), items: const [DropdownMenuItem(value: 'en', child: Text('English')), DropdownMenuItem(value: 'fa', child: Text('فارسی'))], onChanged: (v) => setState(() => _language = v ?? 'en')),
+          DropdownButtonFormField<String>(initialValue: _language, decoration: const InputDecoration(labelText: 'Language'), items: const [DropdownMenuItem(value: 'en', child: Text('English')), DropdownMenuItem(value: 'fa', child: Text('فارسی'))], onChanged: (v) => setState(() => _language = v ?? 'en')),
           const SizedBox(height: 24),
           ElevatedButton(onPressed: _save, child: const Text('Save')),
           const SizedBox(height: 12),

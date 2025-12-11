@@ -185,7 +185,6 @@ class SettingsRepository {
       case FontSizeOption.large:
         return 1.15;
       case FontSizeOption.defaultSize:
-      default:
         return 1.0;
     }
   }

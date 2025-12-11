@@ -11,6 +11,7 @@ Future<dynamic> showCalendarAwareDatePicker(BuildContext context, {required Date
   final settings = SettingsRepository();
   await settings.init();
 
+  // ignore: use_build_context_synchronously
   final picked = await showDatePicker(context: context, initialDate: initialDate, firstDate: firstDate, lastDate: lastDate);
   if (picked == null) return null;
   if (settings.calendarType == CalendarType.jalali) {

@@ -1,6 +1,7 @@
 /// Defines the interface for a zero-knowledge, client-side-encrypted
 /// cloud backup provider. Implementations should not hold any user
 /// encryption keys; encryption/decryption is performed on the client.
+library;
 
 import 'dart:typed_data';
 

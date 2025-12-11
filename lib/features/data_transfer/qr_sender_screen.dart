@@ -58,11 +58,14 @@ class _QrSenderScreenState extends State<QrSenderScreen> {
         _index = 0;
       });
 
-      if (_autoPlay) _startAutoPlay();
+      if (_autoPlay) {
+        _startAutoPlay();
+      }
     } catch (e) {
-      if (mounted)
+      if (mounted) {
         ScaffoldMessenger.of(context)
             .showSnackBar(SnackBar(content: Text('Export failed: $e')));
+      }
     } finally {
       setState(() => _loading = false);
     }

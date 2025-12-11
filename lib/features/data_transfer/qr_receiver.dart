@@ -35,7 +35,9 @@ class _QrReceiverScreenState extends State<QrReceiverScreen> {
           // assembled
           setState(() => _scanning = false);
           final list = List<String>.filled(_total!, '');
-          for (var i = 0; i < _total!; i++) list[i] = _chunks[i]!;
+          for (var i = 0; i < _total!; i++) {
+            list[i] = _chunks[i]!;
+          }
           final bytes = BackupService.assembleFromChunks(list);
           final pw = await _askPassword();
           if (pw == null) return;

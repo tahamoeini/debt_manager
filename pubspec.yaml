@@ -63,6 +63,7 @@ dependencies:
   crypto: any
   mobile_scanner: any
   qr_flutter: any
+  archive: any
 
 dev_dependencies:
   flutter_test:

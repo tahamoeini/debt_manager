@@ -15,7 +15,7 @@ class CategoryPieChart extends StatelessWidget {
     final sections = data.entries.map((e) {
       final value = e.value;
       final percent = (value / total) * 100;
-      final color = Colors.primaries[i % Colors.primaries.length].withOpacity(0.8);
+      final color = Colors.primaries[i % Colors.primaries.length].withValues(alpha: 0.8);
       i++;
       return PieChartSectionData(
         value: value,

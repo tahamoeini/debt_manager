@@ -57,14 +57,16 @@ class _QrReceiverScreenState extends State<QrReceiverScreen> {
               Uint8List.fromList(bytes),
               password: password,
               requireAuth: true);
-          if (mounted)
+          if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(content: Text('Import completed')));
+          }
           Navigator.of(context).pop();
         } catch (e) {
-          if (mounted)
+          if (mounted) {
             ScaffoldMessenger.of(context)
                 .showSnackBar(SnackBar(content: Text('Import failed: $e')));
+          }
           setState(() => _scanning = true);
         }
       }
