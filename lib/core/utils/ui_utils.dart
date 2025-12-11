@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'color_extensions.dart';
 export 'color_extensions.dart';
 
 // Small UI helpers used across screens for consistent SnackBar and async

@@ -1,7 +1,6 @@
 // ignore_for_file: use_build_context_synchronously
 
 import 'package:flutter/material.dart';
-import '../../../core/utils/color_extensions.dart';
 import 'package:debt_manager/core/categories/category_service.dart';
 import 'package:debt_manager/core/utils/category_colors.dart';
 import 'package:debt_manager/features/budget/budgets_repository.dart';

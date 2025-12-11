@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import '../../core/settings/settings_repository.dart';
 import '../../core/privacy/privacy_gateway.dart';
 import '../../core/privacy/backup_service.dart';
-import '../../core/notifications/notification_service.dart';
 import '../data_transfer/qr_sender.dart';
 import '../data_transfer/qr_receiver.dart';
 import '../../core/security/local_auth_service.dart';

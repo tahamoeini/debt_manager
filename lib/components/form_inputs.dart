@@ -5,7 +5,6 @@ library;
 /// Reusable form field components with consistent styling.
 
 import 'package:flutter/material.dart';
-import '../core/utils/color_extensions.dart';
 import 'package:flutter/services.dart';
 import 'design_system.dart';
 

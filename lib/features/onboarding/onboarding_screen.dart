@@ -30,7 +30,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     final settings = SettingsRepository();
     await settings.init();
     await settings.setLanguageCode(_language);
-    await settings.setThemeMode(_theme);
+    final themeMode = _theme == 'light' ? ThemeMode.light : _theme == 'dark' ? ThemeMode.dark : ThemeMode.system;
+    await settings.setThemeMode(themeMode);
     await settings.setCalendarType(_calendar == 'jalali' ? CalendarType.jalali : CalendarType.gregorian);
     await settings.setRemindersEnabled(_reminders);
     await settings.setBudgetAlertsEnabled(_budgetAlerts);

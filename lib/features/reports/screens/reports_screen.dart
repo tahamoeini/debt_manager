@@ -4,8 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:debt_manager/core/db/database_helper.dart';
 import 'package:debt_manager/core/utils/format_utils.dart';
 import 'package:debt_manager/core/utils/jalali_utils.dart';
-import '../../../core/charts/chart_section.dart';
-import '../../../core/charts/bar_chart_widget.dart';
 import 'package:debt_manager/features/shared/summary_cards.dart';
 import 'package:debt_manager/features/loans/models/installment.dart';
 import 'package:debt_manager/features/loans/models/loan.dart';

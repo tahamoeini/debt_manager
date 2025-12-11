@@ -1,6 +1,5 @@
 // Reusable form input widgets with consistent styling.
 import 'package:flutter/material.dart';
-import '../utils/color_extensions.dart';
 import 'package:flutter/services.dart';
 import 'package:debt_manager/core/theme/app_constants.dart';
 

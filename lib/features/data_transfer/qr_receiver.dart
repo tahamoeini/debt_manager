@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import '../../core/privacy/backup_service.dart';
-import '../../core/security/local_auth_service.dart';
 import '../../core/privacy/privacy_gateway.dart';
 import 'dart:convert';
  

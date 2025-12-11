@@ -3,11 +3,7 @@ import 'package:flutter/material.dart';
 
 import 'package:debt_manager/core/utils/format_utils.dart';
 import 'package:debt_manager/core/utils/jalali_utils.dart';
-import 'package:debt_manager/core/utils/ui_utils.dart';
-import '../../../core/charts/sparkline_chart.dart';
-import '../../../core/notifications/notification_service.dart';
 import 'package:debt_manager/core/theme/app_constants.dart';
-import 'package:debt_manager/features/shared/summary_cards.dart';
 // Installment model is referenced via HomeStats; no direct import required here.
 import 'package:debt_manager/core/db/database_helper.dart';
 import 'package:debt_manager/features/loans/models/loan.dart';
