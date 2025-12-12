@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:debt_manager/features/budget/budgets_repository.dart';
 import 'package:debt_manager/features/budget/models/budget.dart';
 import 'package:debt_manager/core/utils/jalali_utils.dart';
@@ -6,18 +7,17 @@ import 'package:debt_manager/core/utils/ui_utils.dart';
 import 'package:debt_manager/core/widgets/budget_bar.dart';
 import 'package:debt_manager/core/widgets/category_icon.dart';
 import 'package:debt_manager/core/theme/app_constants.dart';
-import 'package:debt_manager/core/notifications/smart_notification_service.dart';
+import 'package:debt_manager/core/providers/core_providers.dart';
 import 'add_budget_screen.dart';
 
-class BudgetScreen extends StatefulWidget {
+class BudgetScreen extends ConsumerStatefulWidget {
   const BudgetScreen({super.key});
 
   @override
-  State<BudgetScreen> createState() => _BudgetScreenState();
+  ConsumerState<BudgetScreen> createState() => _BudgetScreenState();
 }
 
-class _BudgetScreenState extends State<BudgetScreen> {
-  final _repo = BudgetsRepository();
+class _BudgetScreenState extends ConsumerState<BudgetScreen> {
   late Future<List<Budget>> _budgetsFuture;
 
   String _currentPeriod() {
@@ -30,21 +30,23 @@ class _BudgetScreenState extends State<BudgetScreen> {
   @override
   void initState() {
     super.initState();
-    _budgetsFuture = _repo.getBudgetsByPeriod(_currentPeriod());
+    final repo = ref.read(budgetsRepositoryProvider);
+    _budgetsFuture = repo.getBudgetsByPeriod(_currentPeriod());
     _checkBudgetThresholds();
   }
 
   void _refresh() {
     setState(() {
-      _budgetsFuture = _repo.getBudgetsByPeriod(_currentPeriod());
+      final repo = ref.read(budgetsRepositoryProvider);
+      _budgetsFuture = repo.getBudgetsByPeriod(_currentPeriod());
     });
     _checkBudgetThresholds();
   }
 
   Future<void> _checkBudgetThresholds() async {
     try {
-      await SmartNotificationService.instance
-          .checkBudgetThresholds(_currentPeriod());
+      final svc = ref.read(smartNotificationServiceProvider);
+      await svc.checkBudgetThresholds(_currentPeriod());
     } catch (e) {
       // Silently fail - don't disrupt the UI if notifications fail
     }
@@ -121,7 +123,9 @@ class _BudgetScreenState extends State<BudgetScreen> {
                                 const SizedBox(
                                     height: AppConstants.spaceXSmall),
                                 FutureBuilder<int>(
-                                  future: _repo.computeUtilization(b),
+                                  future: ref
+                                      .read(budgetsRepositoryProvider)
+                                      .computeUtilization(b),
                                   builder: (c, s) {
                                     final used = s.data ?? 0;
                                     return BudgetBar(

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:debt_manager/features/budget/budgets_repository.dart';
 import 'package:debt_manager/features/budget/models/budget.dart';
 import 'package:debt_manager/core/utils/jalali_utils.dart';
@@ -6,21 +7,21 @@ import 'package:debt_manager/core/utils/ui_utils.dart';
 import 'package:debt_manager/core/widgets/form_inputs.dart';
 import 'package:debt_manager/core/theme/app_constants.dart';
 
-class AddBudgetScreen extends StatefulWidget {
+class AddBudgetScreen extends ConsumerStatefulWidget {
   final Budget? budget;
   const AddBudgetScreen({super.key, this.budget});
 
   @override
-  State<AddBudgetScreen> createState() => _AddBudgetScreenState();
+  ConsumerState<AddBudgetScreen> createState() => _AddBudgetScreenState();
 }
 
-class _AddBudgetScreenState extends State<AddBudgetScreen> {
+class _AddBudgetScreenState extends ConsumerState<AddBudgetScreen> {
   final _formKey = GlobalKey<FormState>();
   final _categoryCtrl = TextEditingController();
   final _amountCtrl = TextEditingController();
   final _periodCtrl = TextEditingController();
   bool _rollover = false;
-  final _repo = BudgetsRepository();
+  
 
   String _currentPeriod() {
     final j = dateTimeToJalali(DateTime.now());
@@ -71,11 +72,13 @@ class _AddBudgetScreenState extends State<AddBudgetScreen> {
 
     try {
       if (widget.budget == null) {
-        await _repo.insertBudget(budget);
+        final repo = ref.read(budgetsRepositoryProvider);
+        await repo.insertBudget(budget);
         if (!mounted) return;
         UIUtils.showAppSnackBar(context, 'بودجه ذخیره شد');
       } else {
-        await _repo.updateBudget(budget);
+        final repo = ref.read(budgetsRepositoryProvider);
+        await repo.updateBudget(budget);
         if (!mounted) return;
         UIUtils.showAppSnackBar(context, 'تغییرات ذخیره شد');
       }

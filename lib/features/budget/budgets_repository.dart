@@ -1,3 +1,4 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:debt_manager/core/db/database_helper.dart';
 import 'package:debt_manager/features/budget/models/budget.dart';
 import 'package:shamsi_date/shamsi_date.dart';
@@ -99,3 +100,8 @@ class BudgetsRepository {
     }
   }
 }
+
+// Provider for injecting the repository into widgets/notifiers.
+final budgetsRepositoryProvider = Provider<BudgetsRepository>((ref) {
+  return BudgetsRepository();
+});

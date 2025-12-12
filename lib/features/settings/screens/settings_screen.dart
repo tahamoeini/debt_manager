@@ -2,6 +2,7 @@
 
 // Settings screen: adjust local app settings like reminder offsets.
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:debt_manager/core/settings/settings_repository.dart';
 import 'package:debt_manager/core/notifications/notification_service.dart';
@@ -13,17 +14,17 @@ import 'dart:convert';
 import 'package:debt_manager/core/backup/backup_service.dart';
 import 'package:debt_manager/features/help/help_screen.dart';
 import 'package:debt_manager/features/automation/screens/automation_rules_screen.dart';
-import 'package:debt_manager/core/db/database_helper.dart';
+import 'package:debt_manager/core/providers/core_providers.dart';
 import 'package:debt_manager/core/utils/bug_report_utils.dart';
 
-class SettingsScreen extends StatefulWidget {
+class SettingsScreen extends ConsumerStatefulWidget {
   const SettingsScreen({super.key});
 
   @override
-  State<SettingsScreen> createState() => _SettingsScreenState();
+  ConsumerState<SettingsScreen> createState() => _SettingsScreenState();
 }
 
-class _SettingsScreenState extends State<SettingsScreen> {
+class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   final _repo = SettingsRepository();
   int _offset = 3;
   ThemeMode _themeMode = ThemeMode.system;
@@ -894,18 +895,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                 final messenger = ScaffoldMessenger.of(context);
                                 try {
                                   // Delete all loans (which also deletes installments)
-                                  final loans = await DatabaseHelper.instance
-                                      .getAllLoans();
+                                  final dbHelper = ref.read(databaseHelperProvider);
+                                  final loans = await dbHelper.getAllLoans();
                                   for (final loan in loans) {
                                     if (loan.id != null) {
-                                      await DatabaseHelper.instance
-                                          .deleteLoanWithInstallments(loan.id!);
+                                      await dbHelper.deleteLoanWithInstallments(loan.id!);
                                     }
                                   }
 
                                   // Delete all budgets
-                                  final db =
-                                      await DatabaseHelper.instance.database;
+                                  final db = await dbHelper.database;
                                   await db.delete('budgets');
 
                                   if (!mounted) return;

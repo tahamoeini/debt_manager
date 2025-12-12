@@ -1,5 +1,6 @@
 // Advanced reports screen with charts and insights
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:debt_manager/features/reports/reports_repository.dart';
 import 'package:debt_manager/core/utils/format_utils.dart';
@@ -10,15 +11,15 @@ import 'package:debt_manager/features/budget/screens/budget_comparison_screen.da
 import 'package:debt_manager/features/reports/screens/debt_payoff_projection_screen.dart';
 import 'package:share_plus/share_plus.dart';
 
-class AdvancedReportsScreen extends StatefulWidget {
+class AdvancedReportsScreen extends ConsumerStatefulWidget {
   const AdvancedReportsScreen({super.key});
 
   @override
-  State<AdvancedReportsScreen> createState() => _AdvancedReportsScreenState();
+  ConsumerState<AdvancedReportsScreen> createState() => _AdvancedReportsScreenState();
 }
 
-class _AdvancedReportsScreenState extends State<AdvancedReportsScreen> {
-  final _repo = ReportsRepository();
+class _AdvancedReportsScreenState extends ConsumerState<AdvancedReportsScreen> {
+  late ReportsRepository _repo;
   final _exportService = ExportService.instance;
 
   late int _selectedYear;
@@ -31,6 +32,7 @@ class _AdvancedReportsScreenState extends State<AdvancedReportsScreen> {
     final now = dateTimeToJalali(DateTime.now());
     _selectedYear = now.year;
     _selectedMonth = now.month;
+    _repo = ReportsRepository(ref);
   }
 
   Future<void> _exportCSV() async {

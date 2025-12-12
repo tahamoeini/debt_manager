@@ -1,19 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fl_chart/fl_chart.dart';
-import 'package:debt_manager/core/db/database_helper.dart';
+import 'package:debt_manager/features/loans/loan_list_notifier.dart';
 import 'package:debt_manager/core/utils/format_utils.dart';
 import 'package:debt_manager/features/loans/models/loan.dart';
 import 'package:debt_manager/features/loans/models/installment.dart';
 
-class PayoffSimulatorScreen extends StatefulWidget {
+class PayoffSimulatorScreen extends ConsumerStatefulWidget {
   const PayoffSimulatorScreen({super.key});
 
   @override
-  State<PayoffSimulatorScreen> createState() => _PayoffSimulatorScreenState();
+  ConsumerState<PayoffSimulatorScreen> createState() => _PayoffSimulatorScreenState();
 }
 
-class _PayoffSimulatorScreenState extends State<PayoffSimulatorScreen> {
-  final _db = DatabaseHelper.instance;
+class _PayoffSimulatorScreenState extends ConsumerState<PayoffSimulatorScreen> {
   bool _loading = true;
   List<_DebtItem> _debts = [];
   int _extraPerMonth = 500000; // default slider value
@@ -29,13 +29,13 @@ class _PayoffSimulatorScreenState extends State<PayoffSimulatorScreen> {
 
   Future<void> _loadData() async {
     setState(() => _loading = true);
-    final loans = await _db.getAllLoans(direction: LoanDirection.borrowed);
+    final repo = ref.read(loanRepositoryProvider);
+    final loans = await repo.getAllLoans(direction: LoanDirection.borrowed);
     final debts = <_DebtItem>[];
     for (final loan in loans) {
       if (loan.id == null) continue;
-      final insts = await _db.getInstallmentsByLoanId(loan.id!);
-      final unpaid =
-          insts.where((i) => i.status != InstallmentStatus.paid).toList();
+      final insts = await repo.getInstallmentsByLoanId(loan.id!);
+      final unpaid = insts.where((i) => i.status != InstallmentStatus.paid).toList();
       final balance = unpaid.fold<int>(0, (s, i) => s + i.amount);
       if (balance > 0) {
         debts.add(_DebtItem(

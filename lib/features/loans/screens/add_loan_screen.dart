@@ -3,8 +3,8 @@
 // Add loan screen: form for creating a loan and its installments.
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:debt_manager/core/db/database_helper.dart';
 import 'package:debt_manager/core/utils/jalali_utils.dart';
 import 'package:debt_manager/core/utils/ui_utils.dart';
 import 'package:debt_manager/core/notifications/notification_service.dart';
@@ -13,8 +13,9 @@ import 'package:debt_manager/features/loans/models/counterparty.dart';
 import 'package:debt_manager/features/loans/models/loan.dart';
 import 'package:debt_manager/features/loans/models/installment.dart';
 import 'package:shamsi_date/shamsi_date.dart';
+import 'package:debt_manager/features/loans/loan_list_notifier.dart';
 
-class AddLoanScreen extends StatefulWidget {
+class AddLoanScreen extends ConsumerStatefulWidget {
   // If [existingLoan] is provided the screen operates in edit mode and will
   // update the loan metadata instead of creating a new loan and installments.
   final Loan? existingLoan;
@@ -27,10 +28,10 @@ class AddLoanScreen extends StatefulWidget {
   });
 
   @override
-  State<AddLoanScreen> createState() => _AddLoanScreenState();
+  ConsumerState<AddLoanScreen> createState() => _AddLoanScreenState();
 }
 
-class _AddLoanScreenState extends State<AddLoanScreen> {
+class _AddLoanScreenState extends ConsumerState<AddLoanScreen> {
   final _formKey = GlobalKey<FormState>();
   final _counterpartyController = TextEditingController();
   final _counterpartyTagController = TextEditingController();
@@ -47,7 +48,7 @@ class _AddLoanScreenState extends State<AddLoanScreen> {
   late FocusNode _titleFocus;
   bool _isDirty = false;
 
-  final _db = DatabaseHelper.instance;
+  // Use repository via Riverpod when performing DB operations
 
   bool get _isEdit => widget.existingLoan != null;
 
@@ -130,13 +131,14 @@ class _AddLoanScreenState extends State<AddLoanScreen> {
       final cpTagRaw = _counterpartyTagController.text.trim();
       final cpTag = cpTagRaw.isEmpty ? null : cpTagRaw;
       int cpId;
+      final repo = ref.read(loanRepositoryProvider);
       if (_isEdit &&
           widget.existingCounterparty != null &&
           widget.existingCounterparty!.name == cpName &&
           widget.existingCounterparty!.id != null) {
         cpId = widget.existingCounterparty!.id!;
       } else {
-        cpId = await _db.insertCounterparty(
+        cpId = await repo.insertCounterparty(
           Counterparty(name: cpName, type: _counterpartyType, tag: cpTag),
         );
       }
@@ -206,7 +208,7 @@ class _AddLoanScreenState extends State<AddLoanScreen> {
           notes: _notesController.text.trim(),
         );
 
-        await _db.updateLoan(updated);
+        await repo.updateLoan(updated);
       } else {
         // Create new loan and its installments.
         final loan = Loan(
@@ -221,7 +223,7 @@ class _AddLoanScreenState extends State<AddLoanScreen> {
           createdAt: createdAt,
         );
 
-        final loanId = await _db.insertLoan(loan);
+        final loanId = await repo.insertLoan(loan);
 
         // Load settings (reminder offset) once per submission and generate installments.
         int offsetDays = 3;
@@ -248,7 +250,7 @@ class _AddLoanScreenState extends State<AddLoanScreen> {
             notificationId: null,
           );
 
-          final instId = await _db.insertInstallment(inst);
+          final instId = await repo.insertInstallment(inst);
 
           final dueGregorian = jalaliToDateTime(dueJalali);
           final scheduledBase =
@@ -271,7 +273,7 @@ class _AddLoanScreenState extends State<AddLoanScreen> {
             );
 
             final updated = inst.copyWith(notificationId: instId);
-            await _db.updateInstallment(updated.copyWith(id: instId));
+            await repo.updateInstallment(updated.copyWith(id: instId));
           } catch (_) {
             // ignore notification failures for now
           }

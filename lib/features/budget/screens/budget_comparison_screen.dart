@@ -1,20 +1,20 @@
 // Budget comparison screen: compare budgets vs actual spending
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:debt_manager/features/budget/budgets_repository.dart';
 import 'package:debt_manager/features/budget/models/budget.dart';
 import 'package:debt_manager/core/utils/format_utils.dart';
 import 'package:shamsi_date/shamsi_date.dart';
 
-class BudgetComparisonScreen extends StatefulWidget {
+class BudgetComparisonScreen extends ConsumerStatefulWidget {
   const BudgetComparisonScreen({super.key});
 
   @override
-  State<BudgetComparisonScreen> createState() => _BudgetComparisonScreenState();
+  ConsumerState<BudgetComparisonScreen> createState() => _BudgetComparisonScreenState();
 }
 
-class _BudgetComparisonScreenState extends State<BudgetComparisonScreen> {
-  final _budgetRepo = BudgetsRepository();
+class _BudgetComparisonScreenState extends ConsumerState<BudgetComparisonScreen> {
   late String _selectedPeriod;
 
   @override
@@ -56,7 +56,7 @@ class _BudgetComparisonScreenState extends State<BudgetComparisonScreen> {
             ),
             const SizedBox(height: 16),
             FutureBuilder<List<Budget>>(
-              future: _budgetRepo.getBudgetsByPeriod(_selectedPeriod),
+              future: ref.read(budgetsRepositoryProvider).getBudgetsByPeriod(_selectedPeriod),
               builder: (context, snap) {
                 if (snap.connectionState == ConnectionState.waiting) {
                   return const Center(child: CircularProgressIndicator());
@@ -262,7 +262,7 @@ class _BudgetComparisonScreenState extends State<BudgetComparisonScreen> {
     final data = <Map<String, dynamic>>[];
 
     for (final budget in budgets) {
-      final actual = await _budgetRepo.computeUtilization(budget);
+      final actual = await ref.read(budgetsRepositoryProvider).computeUtilization(budget);
       data.add({
         'category': budget.category ?? 'عمومی',
         'budget': budget.amount,
@@ -275,7 +275,7 @@ class _BudgetComparisonScreenState extends State<BudgetComparisonScreen> {
 
   Widget _buildBudgetCard(Budget budget) {
     return FutureBuilder<int>(
-      future: _budgetRepo.computeUtilization(budget),
+      future: ref.read(budgetsRepositoryProvider).computeUtilization(budget),
       builder: (context, snap) {
         final actual = snap.data ?? 0;
         final percentage = budget.amount > 0

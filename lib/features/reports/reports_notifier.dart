@@ -190,6 +190,16 @@ class ReportsNotifier extends StateNotifier<ReportsState> {
     refreshRows();
   }
 
+  /// Set all status filters on or reset to default (pending + overdue) when false.
+  void setAllStatuses(bool all) {
+    if (all) {
+      state = state.copyWith(statusFilter: InstallmentStatus.values.toSet());
+    } else {
+      state = state.copyWith(statusFilter: {InstallmentStatus.pending, InstallmentStatus.overdue});
+    }
+    refreshRows();
+  }
+
   void setCounterpartyFilter(int? id) {
     state = state.copyWith(counterpartyFilter: id);
     refreshRows();

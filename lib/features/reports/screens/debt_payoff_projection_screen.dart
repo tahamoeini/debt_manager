@@ -1,23 +1,21 @@
 // Debt payoff projection screen: visualize debt payoff timeline
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:debt_manager/features/reports/reports_repository.dart';
-import 'package:debt_manager/core/db/database_helper.dart';
+import 'package:debt_manager/features/loans/loan_list_notifier.dart';
 import 'package:debt_manager/features/loans/models/loan.dart';
 import 'package:debt_manager/core/utils/format_utils.dart';
 
-class DebtPayoffProjectionScreen extends StatefulWidget {
+class DebtPayoffProjectionScreen extends ConsumerStatefulWidget {
   const DebtPayoffProjectionScreen({super.key});
 
   @override
-  State<DebtPayoffProjectionScreen> createState() =>
-      _DebtPayoffProjectionScreenState();
+  ConsumerState<DebtPayoffProjectionScreen> createState() => _DebtPayoffProjectionScreenState();
 }
 
-class _DebtPayoffProjectionScreenState
-    extends State<DebtPayoffProjectionScreen> {
-  final _repo = ReportsRepository();
-  final _db = DatabaseHelper.instance;
+class _DebtPayoffProjectionScreenState extends ConsumerState<DebtPayoffProjectionScreen> {
+  late ReportsRepository _repo;
 
   Loan? _selectedLoan;
   List<Loan> _borrowedLoans = [];
@@ -26,11 +24,13 @@ class _DebtPayoffProjectionScreenState
   @override
   void initState() {
     super.initState();
+    _repo = ReportsRepository(ref);
     _loadLoans();
   }
 
   Future<void> _loadLoans() async {
-    final loans = await _db.getAllLoans(direction: LoanDirection.borrowed);
+    final repo = ref.read(loanRepositoryProvider);
+    final loans = await repo.getAllLoans(direction: LoanDirection.borrowed);
     setState(() {
       _borrowedLoans = loans;
       if (loans.isNotEmpty) {
