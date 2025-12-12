@@ -18,17 +18,22 @@ class ReportsRepository {
 
   final _db = DatabaseHelper.instance;
 
-  Future<List<Counterparty>> getAllCounterparties() => _db.getAllCounterparties();
+  Future<List<Counterparty>> getAllCounterparties() =>
+      _db.getAllCounterparties();
 
-  Future<void> refreshOverdueInstallments(DateTime now) => _db.refreshOverdueInstallments(now);
+  Future<void> refreshOverdueInstallments(DateTime now) =>
+      _db.refreshOverdueInstallments(now);
 
-  Future<int> getTotalOutstandingBorrowed() => _db.getTotalOutstandingBorrowed();
+  Future<int> getTotalOutstandingBorrowed() =>
+      _db.getTotalOutstandingBorrowed();
 
   Future<int> getTotalOutstandingLent() => _db.getTotalOutstandingLent();
 
-  Future<List<Loan>> getAllLoans({LoanDirection? direction}) => _db.getAllLoans(direction: direction);
+  Future<List<Loan>> getAllLoans({LoanDirection? direction}) =>
+      _db.getAllLoans(direction: direction);
 
-  Future<List<Installment>> getInstallmentsByLoanId(int loanId) => _db.getInstallmentsByLoanId(loanId);
+  Future<List<Installment>> getInstallmentsByLoanId(int loanId) =>
+      _db.getInstallmentsByLoanId(loanId);
 
   // Get spending by category (counterparty type) for a given month
   // Returns a map of category name to total amount spent
@@ -139,7 +144,6 @@ class ReportsRepository {
     }
   }
 
-
   // Get net worth over time (monthly snapshots for the last N months)
   // Net worth = total assets (lent) - total debts (borrowed)
   Future<List<Map<String, dynamic>>> getNetWorthOverTime(int monthsBack) async {
@@ -193,8 +197,6 @@ class ReportsRepository {
     }
   }
 
-
-
   // Project debt payoff for a specific loan
   // Returns monthly balance projections
   Future<List<Map<String, dynamic>>> projectDebtPayoff(int loanId,
@@ -229,6 +231,50 @@ class ReportsRepository {
         _ref!.read(reportsCacheProvider.notifier).put(cacheKey, fallback);
       }
       return fallback;
+    }
+
+    // Project payoff across all borrowed loans under a given strategy
+    // strategy: 'snowball' or 'avalanche'
+    Future<List<Map<String, dynamic>>> projectAllDebtsPayoff({
+      int? extraPayment,
+      String strategy = 'snowball',
+    }) async {
+      final loans = await _db.getAllLoans(direction: LoanDirection.borrowed);
+      final loanIds = loans.map((e) => e.id).whereType<int>().toList();
+      final grouped = loanIds.isNotEmpty
+          ? await _db.getInstallmentsGroupedByLoanId(loanIds)
+          : <int, List<Installment>>{};
+      final allInstallments = grouped.values.expand((l) => l).toList();
+
+      final loanMaps = loans.map((l) => l.toMap()).toList();
+      final instMaps = allInstallments.map((i) => i.toMap()).toList();
+
+      final cacheKey =
+          'projectAllDebtsPayoff:extra=${extraPayment ?? 0}:strategy=$strategy';
+
+      try {
+        final res =
+            await compute<Map<String, dynamic>, List<Map<String, dynamic>>>(
+          projectAllDebtsPayoffEntry,
+          {
+            'loans': loanMaps,
+            'insts': instMaps,
+            'extraPayment': extraPayment,
+            'strategy': strategy,
+          },
+        );
+        if (_ref != null) {
+          _ref!.read(reportsCacheProvider.notifier).put(cacheKey, res);
+        }
+        return res;
+      } catch (e) {
+        final fallback = computeProjectAllDebtsPayoff(
+            loanMaps, instMaps, extraPayment, strategy);
+        if (_ref != null) {
+          _ref!.read(reportsCacheProvider.notifier).put(cacheKey, fallback);
+        }
+        return fallback;
+      }
     }
   }
 

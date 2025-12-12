@@ -16,6 +16,11 @@ class Loan {
   final String? notes;
   final String createdAt; // ISO 8601 datetime string
   final double? interestRate; // annual percentage (e.g., 5.5)
+  // How often interest compounds per year. If null, monthly is assumed.
+  final String?
+      compoundingFrequency; // 'daily', 'monthly', 'quarterly', 'yearly'
+  // Optional grace period in days where interest may not accrue or payments can be deferred
+  final int? gracePeriodDays;
   final int? monthlyPayment;
   final int? termMonths;
 
@@ -30,6 +35,8 @@ class Loan {
     required this.startDateJalali,
     this.notes,
     this.interestRate,
+    this.compoundingFrequency,
+    this.gracePeriodDays,
     this.monthlyPayment,
     this.termMonths,
     required this.createdAt,
@@ -46,6 +53,8 @@ class Loan {
     String? startDateJalali,
     String? notes,
     double? interestRate,
+    String? compoundingFrequency,
+    int? gracePeriodDays,
     int? monthlyPayment,
     int? termMonths,
     String? createdAt,
@@ -61,6 +70,8 @@ class Loan {
       startDateJalali: startDateJalali ?? this.startDateJalali,
       notes: notes ?? this.notes,
       interestRate: interestRate ?? this.interestRate,
+      compoundingFrequency: compoundingFrequency ?? this.compoundingFrequency,
+      gracePeriodDays: gracePeriodDays ?? this.gracePeriodDays,
       monthlyPayment: monthlyPayment ?? this.monthlyPayment,
       termMonths: termMonths ?? this.termMonths,
       createdAt: createdAt ?? this.createdAt,
@@ -79,6 +90,8 @@ class Loan {
       'start_date_jalali': startDateJalali,
       'notes': notes,
       'interest_rate': interestRate,
+      'compounding_frequency': compoundingFrequency,
+      'grace_period_days': gracePeriodDays,
       'monthly_payment': monthlyPayment,
       'term_months': termMonths,
       'created_at': createdAt,
@@ -115,6 +128,12 @@ class Loan {
           ? (map['interest_rate'] as num).toDouble()
           : (map['interest_rate'] is String
               ? double.tryParse(map['interest_rate'])
+              : null),
+      compoundingFrequency: map['compounding_frequency'] as String?,
+      gracePeriodDays: map['grace_period_days'] is int
+          ? map['grace_period_days'] as int
+          : (map['grace_period_days'] != null
+              ? int.tryParse(map['grace_period_days'].toString())
               : null),
       monthlyPayment: map['monthly_payment'] is int
           ? map['monthly_payment'] as int

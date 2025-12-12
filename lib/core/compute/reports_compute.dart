@@ -1,4 +1,5 @@
 import 'package:shamsi_date/shamsi_date.dart';
+import 'dart:math';
 
 // Top-level, isolate-safe functions for reports computation.
 
@@ -92,6 +93,16 @@ List<Map<String, dynamic>> projectDebtPayoffEntry(Map<String, dynamic> input) {
     Map<String, dynamic>.from(input['loan'] as Map),
     List<Map<String, dynamic>>.from(input['insts'] as List),
     input['extraPayment'] as int?,
+  );
+}
+
+List<Map<String, dynamic>> projectAllDebtsPayoffEntry(
+    Map<String, dynamic> input) {
+  return computeProjectAllDebtsPayoff(
+    List<Map<String, dynamic>>.from(input['loans'] as List),
+    List<Map<String, dynamic>>.from(input['insts'] as List),
+    input['extraPayment'] as int?,
+    input['strategy'] as String? ?? 'snowball',
   );
 }
 
@@ -298,6 +309,186 @@ List<Map<String, dynamic>> computeProjectDebtPayoff(
     });
 
     if (balance == 0) break;
+  }
+
+  return projections;
+}
+
+List<Map<String, dynamic>> computeProjectAllDebtsPayoff(
+  List<Map<String, dynamic>> loans,
+  List<Map<String, dynamic>> installments,
+  int? extraPayment,
+  String strategy,
+) {
+  // Build unpaid balances per loan
+  final loanMap = <int, Map<String, dynamic>>{};
+  for (final l in loans) {
+    final id = l['id'] is int
+        ? l['id'] as int
+        : int.tryParse(l['id'].toString()) ?? -1;
+    loanMap[id] = l;
+  }
+
+  final instsByLoan = <int, List<Map<String, dynamic>>>{};
+  for (final inst in installments) {
+    final lid = inst['loan_id'] is int
+        ? inst['loan_id'] as int
+        : int.tryParse(inst['loan_id'].toString()) ?? -1;
+    instsByLoan.putIfAbsent(lid, () => []).add(inst);
+  }
+
+  final balances = <int, double>{};
+  final aprs = <int, double>{};
+  final minPayments = <int, double>{};
+  final compounds = <int, int>{};
+  final grace = <int, int>{};
+
+  for (final entry in loanMap.entries) {
+    final lid = entry.key;
+    final loan = entry.value;
+    final insts = instsByLoan[lid] ?? [];
+    var bal = 0;
+    for (final i in insts) {
+      final status = i['status'] as String? ?? '';
+      if (status != 'paid') {
+        bal +=
+            (i['amount'] as int? ?? int.tryParse(i['amount'].toString()) ?? 0);
+      }
+    }
+    balances[lid] = bal.toDouble();
+
+    final apr = loan['interest_rate'] is num
+        ? (loan['interest_rate'] as num).toDouble()
+        : (loan['interest_rate'] is String
+            ? double.tryParse(loan['interest_rate']) ?? 0.0
+            : 0.0);
+    aprs[lid] = apr;
+
+    final mp = loan['monthly_payment'] is int
+        ? (loan['monthly_payment'] as int).toDouble()
+        : (insts.isNotEmpty
+            ? (insts.first['amount'] as int? ?? 0).toDouble()
+            : 0.0);
+    minPayments[lid] = mp > 0 ? mp : 0.0;
+
+    final cf = (loan['compounding_frequency'] as String?) ?? 'monthly';
+    final compCount = cf == 'daily'
+        ? 365
+        : (cf == 'quarterly' ? 4 : (cf == 'yearly' ? 1 : 12));
+    compounds[lid] = compCount;
+
+    final gp = loan['grace_period_days'] is int
+        ? loan['grace_period_days'] as int
+        : (loan['grace_period_days'] != null
+            ? int.tryParse(loan['grace_period_days'].toString()) ?? 0
+            : 0);
+    grace[lid] = gp;
+  }
+
+  // Simulation loop - month by month using Jalali months
+  var nowJ = Jalali.now();
+  final projections = <Map<String, dynamic>>[];
+
+  double totalInterestAccrued = 0.0;
+
+  int monthIndex = 0;
+  const maxMonths = 600; // safety cap ~50 years
+
+  double totalBalance() => balances.values.fold(0.0, (a, b) => a + b);
+
+  while (totalBalance() > 0.5 && monthIndex < maxMonths) {
+    final targetMonth = nowJ.month + monthIndex;
+    var year = nowJ.year;
+    var month = targetMonth;
+    while (month > 12) {
+      month -= 12;
+      year += 1;
+    }
+    final daysInMonth = Jalali(year, month, 1).monthLength;
+
+    // Accrue interest for each loan
+    double monthlyInterest = 0.0;
+    for (final lid in balances.keys) {
+      final bal = balances[lid]!;
+      if (bal <= 0) continue;
+
+      // respect grace period only for first month(s)
+      if (grace[lid]! > 0 && monthIndex == 0) {
+        continue;
+      }
+
+      final apr = aprs[lid]! / 100.0;
+      final comp = compounds[lid]!;
+      final dailyRate = (pow(1 + apr / comp, comp / 365.0) - 1);
+      final interest = bal * (pow(1 + dailyRate, daysInMonth) - 1);
+      balances[lid] = bal + interest;
+      monthlyInterest += interest;
+      totalInterestAccrued += interest;
+    }
+
+    // Determine payment pool: sum of mins + extra
+    double totalMin = 0.0;
+    for (final lid in balances.keys) {
+      if (balances[lid]! > 0) totalMin += minPayments[lid]!;
+    }
+    var paymentPool =
+        totalMin + (extraPayment != null ? extraPayment.toDouble() : 0.0);
+
+    double paymentThisMonth = 0.0;
+
+    // First pay minimums in loan id order
+    for (final lid in balances.keys.toList()) {
+      if (balances[lid]! <= 0) continue;
+      final need = minPayments[lid]!;
+      final pay = need <= paymentPool ? need : paymentPool;
+      balances[lid] = (balances[lid]! - pay).clamp(0.0, double.infinity);
+      paymentPool -= pay;
+      paymentThisMonth += pay;
+      if (paymentPool <= 0) break;
+    }
+
+    // Distribute remaining paymentPool per strategy
+    if (paymentPool > 0) {
+      if (strategy == 'snowball') {
+        // target smallest positive balance
+        final target = balances.entries.where((e) => e.value > 0).toList()
+          ..sort((a, b) => a.value.compareTo(b.value));
+        if (target.isNotEmpty) {
+          final lid = target.first.key;
+          final pay =
+              paymentPool <= balances[lid]! ? paymentPool : balances[lid]!;
+          balances[lid] = (balances[lid]! - pay).clamp(0.0, double.infinity);
+          paymentThisMonth += pay;
+          paymentPool -= pay;
+        }
+      } else {
+        // avalanche - highest APR first
+        final target = balances.entries.where((e) => e.value > 0).toList()
+          ..sort((a, b) => aprs[b.key]!.compareTo(aprs[a.key]!));
+        if (target.isNotEmpty) {
+          final lid = target.first.key;
+          final pay =
+              paymentPool <= balances[lid]! ? paymentPool : balances[lid]!;
+          balances[lid] = (balances[lid]! - pay).clamp(0.0, double.infinity);
+          paymentThisMonth += pay;
+          paymentPool -= pay;
+        }
+      }
+    }
+
+    projections.add({
+      'year': year,
+      'month': month,
+      'label': '$year/${month.toString().padLeft(2, '0')}',
+      'totalBalance': totalBalance().round(),
+      'monthlyInterest': monthlyInterest.round(),
+      'totalInterestAccrued': totalInterestAccrued.round(),
+      'payment': paymentThisMonth.round(),
+      'extraPayment': extraPayment ?? 0,
+    });
+
+    // Next month
+    monthIndex += 1;
   }
 
   return projections;

@@ -12,15 +12,18 @@ class DebtPayoffProjectionScreen extends ConsumerStatefulWidget {
   const DebtPayoffProjectionScreen({super.key});
 
   @override
-  ConsumerState<DebtPayoffProjectionScreen> createState() => _DebtPayoffProjectionScreenState();
+  ConsumerState<DebtPayoffProjectionScreen> createState() =>
+      _DebtPayoffProjectionScreenState();
 }
 
-class _DebtPayoffProjectionScreenState extends ConsumerState<DebtPayoffProjectionScreen> {
+class _DebtPayoffProjectionScreenState
+    extends ConsumerState<DebtPayoffProjectionScreen> {
   late ReportsRepository _repo;
 
   Loan? _selectedLoan;
   List<Loan> _borrowedLoans = [];
   int _extraPayment = 0;
+  String _strategy = 'single'; // 'single', 'snowball', 'avalanche'
 
   @override
   void initState() {
@@ -83,14 +86,47 @@ class _DebtPayoffProjectionScreenState extends ConsumerState<DebtPayoffProjectio
                             },
                           ),
                           const SizedBox(height: 16),
+                          const Text('راهبرد بازپرداخت:'),
+                          const SizedBox(height: 8),
+                          DropdownButton<String>(
+                            value: _strategy,
+                            items: const [
+                              DropdownMenuItem(
+                                  value: 'single', child: Text('یک وام')),
+                              DropdownMenuItem(
+                                  value: 'snowball',
+                                  child: Text('Snowball (کوچک‌ترین مانده)')),
+                              DropdownMenuItem(
+                                  value: 'avalanche',
+                                  child: Text('Avalanche (بالاترین نرخ)')),
+                            ],
+                            onChanged: (v) {
+                              if (v != null) setState(() => _strategy = v);
+                            },
+                          ),
+                          const SizedBox(height: 16),
                           const Text('پرداخت اضافی ماهانه (تومان):'),
                           const SizedBox(height: 8),
+                          Slider(
+                            value: _extraPayment.toDouble(),
+                            min: 0,
+                            max: 2000000,
+                            divisions: 40,
+                            label: _extraPayment.toString(),
+                            onChanged: (v) {
+                              setState(() {
+                                _extraPayment = v.toInt();
+                              });
+                            },
+                          ),
                           TextField(
                             keyboardType: TextInputType.number,
                             decoration: const InputDecoration(
                               hintText: '0',
                               border: OutlineInputBorder(),
                             ),
+                            controller: TextEditingController(
+                                text: _extraPayment.toString()),
                             onChanged: (v) {
                               setState(() {
                                 _extraPayment = int.tryParse(v) ?? 0;
@@ -102,38 +138,47 @@ class _DebtPayoffProjectionScreenState extends ConsumerState<DebtPayoffProjectio
                     ),
                   ),
                   const SizedBox(height: 16),
-                  if (_selectedLoan != null && _selectedLoan!.id != null)
-                    FutureBuilder<List<Map<String, dynamic>>>(
-                      future: _repo.projectDebtPayoff(
-                        _selectedLoan!.id!,
-                        extraPayment: _extraPayment > 0 ? _extraPayment : null,
-                      ),
-                      builder: (context, snap) {
-                        if (snap.connectionState == ConnectionState.waiting) {
-                          return const Center(
-                              child: CircularProgressIndicator());
-                        }
+                  // Decide which projection to compute based on strategy
+                  FutureBuilder<List<Map<String, dynamic>>>(
+                    future: _strategy == 'single' &&
+                            _selectedLoan != null &&
+                            _selectedLoan!.id != null
+                        ? _repo.projectDebtPayoff(
+                            _selectedLoan!.id!,
+                            extraPayment:
+                                _extraPayment > 0 ? _extraPayment : null,
+                          )
+                        : _repo.projectAllDebtsPayoff(
+                            extraPayment:
+                                _extraPayment > 0 ? _extraPayment : null,
+                            strategy:
+                                _strategy == 'single' ? 'snowball' : _strategy,
+                          ),
+                    builder: (context, snap) {
+                      if (snap.connectionState == ConnectionState.waiting) {
+                        return const Center(child: CircularProgressIndicator());
+                      }
 
-                        final projections = snap.data ?? [];
-                        if (projections.isEmpty) {
-                          return const Card(
-                            child: Padding(
-                              padding: EdgeInsets.all(32.0),
-                              child: Center(
-                                  child: Text('این وام بازپرداخت شده است')),
-                            ),
-                          );
-                        }
-
-                        return Column(
-                          children: [
-                            _buildProjectionChart(projections),
-                            const SizedBox(height: 16),
-                            _buildProjectionSummary(projections),
-                          ],
+                      final projections = snap.data ?? [];
+                      if (projections.isEmpty) {
+                        return const Card(
+                          child: Padding(
+                            padding: EdgeInsets.all(32.0),
+                            child: Center(
+                                child: Text('این وام بازپرداخت شده است')),
+                          ),
                         );
-                      },
-                    ),
+                      }
+
+                      return Column(
+                        children: [
+                          _buildProjectionChart(projections),
+                          const SizedBox(height: 16),
+                          _buildProjectionSummary(projections),
+                        ],
+                      );
+                    },
+                  ),
                 ],
               ),
       ),
@@ -240,10 +285,20 @@ class _DebtPayoffProjectionScreenState extends ConsumerState<DebtPayoffProjectio
 
   Widget _buildProjectionSummary(List<Map<String, dynamic>> projections) {
     final monthsToPayoff = projections.length;
-    final firstBalance = projections.first['balance'] as int;
+    final firstBalance = (projections.isNotEmpty
+        ? (projections.first['totalBalance'] ?? projections.first['balance'])
+        : 0) as int;
     final totalPayments = projections.fold<int>(0, (sum, item) {
-      return sum + (item['payment'] as int) + (item['extraPayment'] as int);
+      return sum +
+          (item['payment'] as int? ?? 0) +
+          (item['extraPayment'] as int? ?? 0);
     });
+    final totalInterest = projections.isNotEmpty
+        ? (projections.last['totalInterestAccrued'] as int? ?? 0)
+        : 0;
+    final perDayCost = projections.isNotEmpty
+        ? ((projections.first['monthlyInterest'] as int? ?? 0) / 30.0)
+        : 0.0;
 
     return Card(
       child: Padding(
@@ -261,9 +316,14 @@ class _DebtPayoffProjectionScreenState extends ConsumerState<DebtPayoffProjectio
             _buildSummaryRow('تعداد اقساط باقی‌مانده', '$monthsToPayoff قسط'),
             const SizedBox(height: 8),
             _buildSummaryRow('مجموع پرداخت‌ها', formatCurrency(totalPayments)),
+            const SizedBox(height: 8),
+            _buildSummaryRow('کل بهره پرداختی', formatCurrency(totalInterest)),
+            const SizedBox(height: 8),
+            _buildSummaryRow(
+                'هزینه تقریبی بهره در روز', formatCurrency(perDayCost.round())),
             if (_extraPayment > 0) ...[
               const SizedBox(height: 8),
-                _buildSummaryRow(
+              _buildSummaryRow(
                   'پرداخت اضافی ماهانه', formatCurrency(_extraPayment)),
               const SizedBox(height: 12),
               Container(
