@@ -5,6 +5,7 @@ import 'package:debt_manager/core/settings/settings_repository.dart';
 import 'package:debt_manager/core/db/database_helper.dart';
 import 'package:debt_manager/features/budget/budgets_repository.dart';
 import 'package:debt_manager/features/budget/models/budget.dart';
+import 'package:debt_manager/features/budget/irregular_income_service.dart';
 import 'package:debt_manager/features/loans/models/installment.dart';
 
 class SmartNotificationService {
@@ -18,6 +19,7 @@ class SmartNotificationService {
   final _settings = SettingsRepository();
   final _db = DatabaseHelper.instance;
   final _budgetRepo = BudgetsRepository();
+  final _irregular = IrregularIncomeService();
 
   static const String _channelIdBudget = 'budget_alerts_channel';
   static const String _channelNameBudget = 'Budget Alerts';
@@ -80,21 +82,43 @@ class SmartNotificationService {
     final threshold90 = await _settings.getBudgetThreshold90Enabled();
     final threshold100 = await _settings.getBudgetThreshold100Enabled();
 
-    // If irregular income mode is enabled, be conservative with 90% alerts
+    // If irregular income mode is enabled, use rolling-average to moderate 90% alerts
     final irregularMode = await _settings.getIrregularIncomeModeEnabled();
-    final effectiveThreshold90 = irregularMode ? false : threshold90;
 
     if (!threshold90 && !threshold100) return;
 
     try {
       final budgets = await _budgetRepo.getBudgetsByPeriod(period);
 
+      // If irregular mode, compute a rolling-average and a safe-extra suggestion
+      int rollingAvg = 0;
+      int safeExtra = 0;
+      if (irregularMode) {
+        try {
+          rollingAvg = await _irregular.computeRollingAverage(3);
+          // compute total of all budgets for this period to estimate essentials
+          final total = budgets.fold<int>(0, (acc, b) => acc + (b.amount));
+          safeExtra = await _irregular.suggestSafeExtra(
+              months: 3, essentialBudget: total, safetyFactor: 1.2);
+        } catch (e) {
+          // ignore and fallback to conservative behavior
+          rollingAvg = 0;
+          safeExtra = 0;
+        }
+      }
+
       for (final budget in budgets) {
+        // Determine effective budget amount considering per-month override
+        final override = await _budgetRepo.getOverrideForCategoryPeriod(
+            budget.category, period);
+        final effectiveAmount =
+            override != null ? override.amount : budget.amount;
+
         final utilization = await _budgetRepo.computeUtilization(budget);
         final percentage =
-            budget.amount > 0 ? (utilization / budget.amount) : 0.0;
+            effectiveAmount > 0 ? (utilization / effectiveAmount) : 0.0;
 
-        // Check 100% threshold
+        // Always notify on 100%+ breach
         if (threshold100 && percentage >= 1.0) {
           await _sendBudgetAlert(
             budget,
@@ -102,17 +126,27 @@ class SmartNotificationService {
             '⚠️ بودجه تمام شد',
             'شما از بودجه ${budget.category ?? 'عمومی'} در این دوره فراتر رفته‌اید.',
           );
+          continue;
         }
-        // Check 90% threshold (but not if already at 100%)
-        else if (effectiveThreshold90 &&
-            percentage >= 0.9 &&
-            percentage < 1.0) {
-          await _sendBudgetAlert(
-            budget,
-            percentage,
-            '⚠️ هشدار بودجه',
-            'شما ${(percentage * 100).toStringAsFixed(0)}٪ از بودجه ${budget.category ?? 'عمومی'} خود را استفاده کرده‌اید.',
-          );
+
+        // For the 90% threshold, if irregular income mode is enabled and there
+        // is a safe extra buffer, send a gentle suggestion instead of a hard alert.
+        if (threshold90 && percentage >= 0.9 && percentage < 1.0) {
+          if (irregularMode && safeExtra > 0) {
+            // Send a softer smart suggestion recommending reallocation or
+            // to hold off on new discretionary spends.
+            final title = '💡 پیشنهاد مالی: بودجه نزدیک به تکمیل';
+            final body =
+                'شما ${(percentage * 100).toStringAsFixed(0)}٪ از بودجه ${budget.category ?? 'عمومی'} را استفاده کرده‌اید. با توجه به درآمد نامنظم، پیشنهاد می‌شود تا حدود ${safeExtra} ریال را برای هزینه‌های ضروری نگه دارید.';
+            await sendSmartSuggestion(title, body, budget.id ?? 1);
+          } else {
+            await _sendBudgetAlert(
+              budget,
+              percentage,
+              '⚠️ هشدار بودجه',
+              'شما ${(percentage * 100).toStringAsFixed(0)}٪ از بودجه ${budget.category ?? 'عمومی'} خود را استفاده کرده‌اید.',
+            );
+          }
         }
       }
     } catch (e) {
