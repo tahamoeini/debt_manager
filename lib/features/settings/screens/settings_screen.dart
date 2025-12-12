@@ -39,6 +39,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   bool _financeCoach = true;
   bool _monthEndSummary = true;
   bool _biometricEnabled = false;
+  bool _appLockEnabled = false;
+  int _lockTimeout = 5;
+  bool _strictLock = false;
 
   final List<int> _options = const [0, 1, 3, 7];
 
@@ -61,6 +64,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     final fc = await _repo.getFinanceCoachEnabled();
     final mes = await _repo.getMonthEndSummaryEnabled();
     final bio = await _repo.getBiometricEnabled();
+    final appLock = await _repo.getAppLockEnabled();
+    final timeout = await _repo.getLockTimeoutMinutes();
+    final strict = await _repo.getStrictLockEnabled();
     if (mounted) {
       setState(() {
         _offset = v;
@@ -75,6 +81,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         _financeCoach = fc;
         _monthEndSummary = mes;
         _biometricEnabled = bio;
+        _appLockEnabled = appLock;
+        _lockTimeout = timeout;
+        _strictLock = strict;
         _loading = false;
       });
     }
@@ -191,6 +200,113 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       setState(() {
         _biometricEnabled = enabled;
       });
+    }
+  }
+
+  Future<void> _saveAppLockEnabled(bool enabled) async {
+    // If enabling, ensure user has either biometric enabled or a PIN set.
+    if (enabled) {
+      final hasPin = await SecurityService.instance.hasPin();
+      final bio = await SecurityService.instance.isBiometricAvailable();
+      if (!hasPin && !bio) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+            content: Text('برای فعال‌سازی قفل برنامه ابتدا باید PIN تنظیم کنید یا احراز هویت بیومتریک فعال باشد.'),
+          ));
+        }
+        return;
+      }
+    }
+
+    await _repo.setAppLockEnabled(enabled);
+    if (mounted) {
+      setState(() {
+        _appLockEnabled = enabled;
+      });
+    }
+  }
+
+  Future<void> _saveLockTimeout(int minutes) async {
+    await _repo.setLockTimeoutMinutes(minutes);
+    if (mounted) {
+      setState(() {
+        _lockTimeout = minutes;
+      });
+    }
+  }
+
+  Future<void> _saveStrictLock(bool enabled) async {
+    await _repo.setStrictLockEnabled(enabled);
+    if (mounted) {
+      setState(() {
+        _strictLock = enabled;
+      });
+    }
+  }
+
+  Future<void> _setOrChangePin() async {
+    final first = TextEditingController();
+    final second = TextEditingController();
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('تنظیم PIN'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+              controller: first,
+              obscureText: true,
+              keyboardType: TextInputType.number,
+              decoration: const InputDecoration(labelText: 'PIN'),
+            ),
+            TextField(
+              controller: second,
+              obscureText: true,
+              keyboardType: TextInputType.number,
+              decoration: const InputDecoration(labelText: 'تأیید PIN'),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.of(ctx).pop(false), child: const Text('لغو')),
+          FilledButton(
+              onPressed: () {
+                if (first.text.trim().isEmpty) return;
+                if (first.text != second.text) return;
+                Navigator.of(ctx).pop(true);
+              },
+              child: const Text('ذخیره'))
+        ],
+      ),
+    );
+
+    if (ok == true) {
+      await SecurityService.instance.setPin(first.text.trim());
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('PIN ذخیره شد')));
+      }
+    }
+  }
+
+  Future<void> _removePin() async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('حذف PIN'),
+        content: const Text('آیا مطمئن هستید که می‌خواهید PIN را حذف کنید؟'),
+        actions: [
+          TextButton(onPressed: () => Navigator.of(ctx).pop(false), child: const Text('لغو')),
+          FilledButton(onPressed: () => Navigator.of(ctx).pop(true), child: const Text('حذف'))
+        ],
+      ),
+    );
+
+    if (confirmed == true) {
+      await SecurityService.instance.deletePin();
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('PIN حذف شد')));
+      }
     }
   }
 
@@ -420,6 +536,66 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                             onChanged: (v) async {
                               await _saveBiometricEnabled(v);
                             },
+                          ),
+                          const Divider(),
+                          // App Lock card controls
+                          ListTile(
+                            title: const Text('قفل برنامه'),
+                            subtitle: const Text('قفل‌گذاری برنامه با PIN یا بیومتریک'),
+                          ),
+                          SwitchListTile(
+                            title: const Text('فعال‌سازی قفل برنامه'),
+                            value: _appLockEnabled,
+                            onChanged: (v) async {
+                              await _saveAppLockEnabled(v);
+                            },
+                          ),
+                          Row(
+                            children: [
+                              const Text('زمان قفل (دقیقه): '),
+                              const SizedBox(width: 8),
+                              DropdownButton<int>(
+                                value: _lockTimeout,
+                                items: [1, 3, 5, 10, 30]
+                                    .map((m) => DropdownMenuItem(
+                                          value: m,
+                                          child: Text('$m'),
+                                        ))
+                                    .toList(),
+                                onChanged: (v) async {
+                                  if (v == null) return;
+                                  await _saveLockTimeout(v);
+                                },
+                              ),
+                              const SizedBox(width: 12),
+                              const Spacer(),
+                            ],
+                          ),
+                          SwitchListTile(
+                            title: const Text('قفل سخت (بلافاصله پس از خروج)'),
+                            subtitle: const Text(
+                                'با فعال کردن، برنامه هنگام پس‌زمینه شدن بلافاصله قفل می‌شود'),
+                            value: _strictLock,
+                            onChanged: (v) async {
+                              await _saveStrictLock(v);
+                            },
+                          ),
+                          Row(
+                            children: [
+                              FilledButton(
+                                onPressed: _setOrChangePin,
+                                child: const Text('تنظیم/تغییر PIN'),
+                              ),
+                              const SizedBox(width: 8),
+                              FilledButton(
+                                onPressed: _removePin,
+                                style: FilledButton.styleFrom(
+                                  backgroundColor:
+                                      Theme.of(context).colorScheme.error,
+                                ),
+                                child: const Text('حذف PIN'),
+                              ),
+                            ],
                           ),
                         ],
                       ),

@@ -20,7 +20,7 @@ class AdvancedReportsScreen extends ConsumerStatefulWidget {
 
 class _AdvancedReportsScreenState extends ConsumerState<AdvancedReportsScreen> {
   late ReportsRepository _repo;
-  final _exportService = ExportService.instance;
+  final exportService = ExportService.instance;
 
   late int _selectedYear;
   late int _selectedMonth;
@@ -35,16 +35,16 @@ class _AdvancedReportsScreenState extends ConsumerState<AdvancedReportsScreen> {
     _repo = ReportsRepository(ref);
   }
 
-  Future<void> _exportCSV() async {
+  Future<void> exportCsv() async {
     try {
-      final filePath = await _exportService.exportInstallmentsCSV();
+      final filePath = await exportService.exportInstallmentsCSV();
 
       if (!mounted) return;
 
-      await Share.shareXFiles(
-        [XFile(filePath)],
+      await SharePlus.instance.share(ShareParams(
+        files: [XFile(filePath)],
         text: 'خروجی اقساط',
-      );
+      ));
 
       if (!mounted) return;
 
@@ -69,7 +69,7 @@ class _AdvancedReportsScreenState extends ConsumerState<AdvancedReportsScreen> {
         actions: [
           IconButton(
             icon: const Icon(Icons.file_download),
-            onPressed: _exportCSV,
+            onPressed: exportCsv,
             tooltip: 'خروجی CSV',
           ),
         ],

@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -16,6 +17,10 @@ class DebtManagerApp extends ConsumerStatefulWidget {
 class _DebtManagerAppState extends ConsumerState<DebtManagerApp>
     with WidgetsBindingObserver {
   final _settings = SettingsRepository();
+  Timer? _lockTimer;
+  int _timeoutMinutes = 5;
+  bool _appLockEnabled = false;
+  bool _strictLock = false;
 
   @override
   void initState() {
@@ -39,6 +44,17 @@ class _DebtManagerAppState extends ConsumerState<DebtManagerApp>
       final auth = ref.read(authNotifierProvider);
       auth.tryUnlock();
     });
+    // Load app lock settings and start inactivity timer if enabled.
+    _settings.getAppLockEnabled().then((enabled) {
+      _appLockEnabled = enabled;
+      if (enabled) {
+        _settings.getLockTimeoutMinutes().then((m) {
+          _timeoutMinutes = m;
+          _startLockTimer();
+        });
+      }
+    });
+    _settings.getStrictLockEnabled().then((s) => _strictLock = s);
   }
 
   @override
@@ -49,10 +65,42 @@ class _DebtManagerAppState extends ConsumerState<DebtManagerApp>
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.resumed) {
-      ref.read(authNotifierProvider).lock();
-      ref.read(authNotifierProvider).tryUnlock();
+    final auth = ref.read(authNotifierProvider);
+    if (state == AppLifecycleState.paused || state == AppLifecycleState.inactive) {
+      if (_appLockEnabled && _strictLock) {
+        auth.lock();
+      }
+      _cancelLockTimer();
     }
+
+    if (state == AppLifecycleState.resumed) {
+      // On resume, require unlock if app lock is enabled
+      if (_appLockEnabled) {
+        auth.lock();
+        auth.tryUnlock();
+      }
+      // Restart inactivity timer
+      if (_appLockEnabled) _startLockTimer();
+    }
+  }
+
+  void _startLockTimer() {
+    _cancelLockTimer();
+    if (!_appLockEnabled) return;
+    _lockTimer = Timer(Duration(minutes: _timeoutMinutes), () {
+      final auth = ref.read(authNotifierProvider);
+      auth.lock();
+    });
+  }
+
+  void _cancelLockTimer() {
+    _lockTimer?.cancel();
+    _lockTimer = null;
+  }
+
+  void _resetLockTimer() {
+    if (!_appLockEnabled) return;
+    _startLockTimer();
   }
 
   @override
@@ -161,8 +209,12 @@ class _DebtManagerAppState extends ConsumerState<DebtManagerApp>
               routerConfig: goRouter,
               // Navigator observers are attached via GoRouter; remove invalid parameter here.
               // Inject debug overlay at the top-level so it wraps all routes.
-              builder: (context, child) =>
-                  DebugOverlay(child: child ?? const SizedBox.shrink()),
+              builder: (context, child) => GestureDetector(
+                behavior: HitTestBehavior.translucent,
+                onTap: _resetLockTimer,
+                onPanDown: (_) => _resetLockTimer(),
+                child: DebugOverlay(child: child ?? const SizedBox.shrink()),
+                  ),
             );
           },
         );

@@ -1,19 +1,24 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:debt_manager/core/security/security_service.dart';
+import 'package:flutter/services.dart';
+import 'package:debt_manager/core/providers/core_providers.dart';
 
 // A full-screen modal that requests biometric authentication and only
 // dismisses when authentication succeeds. Useful for locking the app on
 // launch/resume.
-class LockScreen extends StatefulWidget {
+class LockScreen extends ConsumerStatefulWidget {
   const LockScreen({super.key});
 
   @override
-  State<LockScreen> createState() => _LockScreenState();
+  ConsumerState<LockScreen> createState() => _LockScreenState();
 }
 
-class _LockScreenState extends State<LockScreen> {
+class _LockScreenState extends ConsumerState<LockScreen> {
   bool _authenticating = false;
   String? _error;
+  bool _showPin = false;
+  final _pinCtrl = TextEditingController();
 
   @override
   void initState() {
@@ -27,18 +32,51 @@ class _LockScreenState extends State<LockScreen> {
       _error = null;
     });
 
-    final ok = await SecurityService.instance.authenticate();
+    // Try biometric first. If unavailable or authentication fails,
+    // fall back to PIN entry if a PIN exists.
+    final avail = await SecurityService.instance.isBiometricAvailable();
+    if (avail) {
+      final ok = await SecurityService.instance.authenticate();
+      if (!mounted) return;
+      if (ok) {
+        ref.read(authNotifierProvider).unlock();
+        Navigator.of(context).pop(true);
+        return;
+      }
+    }
 
+    // If biometric not available or failed, check if PIN exists.
+    final hasPin = await SecurityService.instance.hasPin();
     if (!mounted) return;
-
-    if (ok) {
-      Navigator.of(context).pop(true);
+    if (hasPin) {
+      setState(() {
+        _authenticating = false;
+        _showPin = true;
+      });
       return;
     }
 
     setState(() {
       _authenticating = false;
       _error = 'احراز هویت ناموفق بود. لطفاً دوباره تلاش کنید.';
+    });
+  }
+
+  Future<void> _verifyPin() async {
+    setState(() {
+      _authenticating = true;
+      _error = null;
+    });
+    final ok = await SecurityService.instance.verifyPin(_pinCtrl.text.trim());
+    if (!mounted) return;
+    if (ok) {
+      ref.read(authNotifierProvider).unlock();
+      Navigator.of(context).pop(true);
+      return;
+    }
+    setState(() {
+      _authenticating = false;
+      _error = 'PIN نامعتبر است.';
     });
   }
 
@@ -62,6 +100,24 @@ class _LockScreenState extends State<LockScreen> {
                       style: Theme.of(context).textTheme.titleLarge),
                   const SizedBox(height: 12),
                   if (_authenticating) const CircularProgressIndicator(),
+                  if (_showPin) ...[
+                    const SizedBox(height: 12),
+                    SizedBox(
+                      width: 200,
+                      child: TextField(
+                        controller: _pinCtrl,
+                        keyboardType: TextInputType.number,
+                        obscureText: true,
+                        decoration: const InputDecoration(hintText: 'PIN'),
+                        inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    ElevatedButton(
+                      onPressed: _authenticating ? null : _verifyPin,
+                      child: const Text('بازکردن با PIN'),
+                    ),
+                  ],
                   if (_error != null) ...[
                     const SizedBox(height: 12),
                     Text(_error!,

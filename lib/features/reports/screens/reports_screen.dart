@@ -21,21 +21,21 @@ class ReportsScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final state = ref.watch(reportsProvider);
     final notifier = ref.read(reportsProvider.notifier);
-    final _exportService = ExportService.instance;
+    final exportService = ExportService.instance;
 
-    Future<void> _exportCSV() async {
+    Future<void> exportCsv() async {
       try {
-        final filePath = await _exportService.exportInstallmentsCSV(
+        final filePath = await exportService.exportInstallmentsCSV(
           fromDate: state.from,
           toDate: state.to,
         );
 
         if (!context.mounted) return;
 
-        await Share.shareXFiles(
-          [XFile(filePath)],
+        await SharePlus.instance.share(ShareParams(
+          files: [XFile(filePath)],
           text: 'خروجی اقساط',
-        );
+        ));
 
         if (!context.mounted) return;
 
@@ -51,13 +51,16 @@ class ReportsScreen extends ConsumerWidget {
       }
     }
 
-    Future<void> _exportPdf() async {
+    Future<void> exportPdf() async {
       try {
-        final filePath = await _exportService.exportReportPdf();
+        final filePath = await exportService.exportReportPdf();
 
         if (!context.mounted) return;
 
-        await Share.shareXFiles([XFile(filePath)], text: 'گزارش PDF');
+        await SharePlus.instance.share(ShareParams(
+          files: [XFile(filePath)],
+          text: 'گزارش PDF',
+        ));
 
         if (!context.mounted) return;
 
@@ -73,7 +76,7 @@ class ReportsScreen extends ConsumerWidget {
       }
     }
 
-    String _statusLabel(InstallmentStatus s) {
+    String statusLabel(InstallmentStatus s) {
     switch (s) {
       case InstallmentStatus.paid:
         return 'پرداخت شده';
@@ -106,14 +109,14 @@ class ReportsScreen extends ConsumerWidget {
             ),
             const SizedBox(width: 8),
             FilledButton.icon(
-              onPressed: () => _exportCSV(),
+              onPressed: () => exportCsv(),
               icon: const Icon(Icons.file_download),
               label: const Text('خروجی CSV'),
             ),
             const SizedBox(width: 8),
             FilledButton.icon(
               onPressed: () async {
-                await _exportPdf();
+                await exportPdf();
               },
               icon: const Icon(Icons.picture_as_pdf),
               label: const Text('گزارش PDF'),
@@ -408,7 +411,7 @@ class ReportsScreen extends ConsumerWidget {
                                 ),
                                 const SizedBox(height: 4),
                                 Text(
-                                  _statusLabel(inst.status),
+                                  statusLabel(inst.status),
                                   style: Theme.of(context)
                                       .textTheme
                                       .bodyMedium

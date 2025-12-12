@@ -37,6 +37,12 @@ class AuthNotifier extends ChangeNotifier {
     _unlocked = false;
     notifyListeners();
   }
+
+  /// Mark app as unlocked (used after successful PIN/biometric via UI).
+  void unlock() {
+    _unlocked = true;
+    notifyListeners();
+  }
 }
 
 final authNotifierProvider = Provider<AuthNotifier>((ref) {

@@ -22,6 +22,9 @@ class SettingsRepository {
   static const _keyFinanceCoachEnabled = 'finance_coach_enabled';
   static const _keyMonthEndSummaryEnabled = 'month_end_summary_enabled';
   static const _keyBiometricEnabled = 'biometric_enabled';
+  static const _keyAppLockEnabled = 'app_lock_enabled';
+  static const _keyLockTimeoutMinutes = 'lock_timeout_minutes';
+  static const _keyStrictLock = 'strict_lock';
   static const _keyBudgetThreshold90 = 'budget_threshold_90';
   static const _keyBudgetThreshold100 = 'budget_threshold_100';
   static const _keyOnboardingComplete = 'onboarding_complete';
@@ -35,6 +38,9 @@ class SettingsRepository {
   bool financeCoachEnabled = true;
   bool monthEndSummaryEnabled = true;
   bool biometricEnabled = false;
+  bool appLockEnabled = false;
+  int lockTimeoutMinutes = 5;
+  bool strictLock = false;
 
   int reminderOffsetDays = 3;
   ThemeMode themeMode = ThemeMode.system;
@@ -93,6 +99,9 @@ class SettingsRepository {
     monthEndSummaryEnabled = prefs.getBool(_keyMonthEndSummaryEnabled) ?? true;
     biometricEnabled = prefs.getBool(_keyBiometricEnabled) ?? false;
     biometricEnabledNotifier.value = biometricEnabled;
+    appLockEnabled = prefs.getBool(_keyAppLockEnabled) ?? false;
+    lockTimeoutMinutes = prefs.getInt(_keyLockTimeoutMinutes) ?? 5;
+    strictLock = prefs.getBool(_keyStrictLock) ?? false;
   }
 
   // Backward-compatible async getters/setters used throughout code.
@@ -201,6 +210,27 @@ class SettingsRepository {
     await prefs.setBool(_keyBiometricEnabled, enabled);
     biometricEnabled = enabled;
     biometricEnabledNotifier.value = enabled;
+  }
+
+  Future<bool> getAppLockEnabled() async => appLockEnabled;
+  Future<void> setAppLockEnabled(bool enabled) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_keyAppLockEnabled, enabled);
+    appLockEnabled = enabled;
+  }
+
+  Future<int> getLockTimeoutMinutes() async => lockTimeoutMinutes;
+  Future<void> setLockTimeoutMinutes(int minutes) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt(_keyLockTimeoutMinutes, minutes);
+    lockTimeoutMinutes = minutes;
+  }
+
+  Future<bool> getStrictLockEnabled() async => strictLock;
+  Future<void> setStrictLockEnabled(bool enabled) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_keyStrictLock, enabled);
+    strictLock = enabled;
   }
 
   // Compatibility helpers expected by older code
