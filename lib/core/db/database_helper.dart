@@ -13,6 +13,7 @@ import 'package:debt_manager/core/notifications/notification_service.dart';
 import 'package:debt_manager/core/db/installment_dao.dart';
 import 'package:debt_manager/core/smart_insights/smart_insights_service.dart';
 import 'package:debt_manager/core/settings/settings_repository.dart';
+import 'package:debt_manager/features/automation/automation_rules_repository.dart';
 import 'package:debt_manager/core/security/secure_storage_service.dart';
 import 'package:debt_manager/core/security/security_service.dart';
 // crypto/dart:convert not required here
@@ -57,9 +58,11 @@ class DatabaseHelper {
     // If DB marked as encrypted, require opening with a derived key via
     // `openWithKey` to avoid attempting to open an encrypted DB without
     // password and causing failures. Callers should call `openWithKey`.
-    final encryptedFlag = await SecureStorageService.instance.read('db_encrypted');
+    final encryptedFlag =
+        await SecureStorageService.instance.read('db_encrypted');
     if (encryptedFlag == '1') {
-      throw Exception('Database is encrypted; open with key using openWithKey().');
+      throw Exception(
+          'Database is encrypted; open with key using openWithKey().');
     }
 
     return openDatabase(
@@ -180,6 +183,19 @@ class DatabaseHelper {
     ''');
 
     await db.execute('''
+      CREATE TABLE budget_entries (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        category TEXT,
+        amount INTEGER NOT NULL,
+        period TEXT, -- yyyy-MM; null for one-off entries with date_jalali
+        date_jalali TEXT, -- for one-off entries exact date (yyyy-MM-dd)
+        is_one_off INTEGER NOT NULL DEFAULT 0,
+        note TEXT,
+        created_at TEXT NOT NULL
+      )
+    ''');
+
+    await db.execute('''
       CREATE TABLE installments (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         loan_id INTEGER NOT NULL,
@@ -219,6 +235,17 @@ class DatabaseHelper {
         action_value TEXT NOT NULL,
         enabled INTEGER NOT NULL DEFAULT 1,
         created_at TEXT NOT NULL
+      )
+    ''');
+
+    await db.execute('''
+      CREATE TABLE income_profiles (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        counterparty_id INTEGER,
+        label TEXT,
+        mode TEXT NOT NULL, -- 'fixed' or 'variable'
+        created_at TEXT NOT NULL,
+        FOREIGN KEY(counterparty_id) REFERENCES counterparties(id)
       )
     ''');
   }
@@ -269,6 +296,20 @@ class DatabaseHelper {
             created_at TEXT NOT NULL
           )
         ''');
+        try {
+          await db.execute('''
+          CREATE TABLE IF NOT EXISTS budget_entries (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            category TEXT,
+            amount INTEGER NOT NULL,
+            period TEXT,
+            date_jalali TEXT,
+            is_one_off INTEGER NOT NULL DEFAULT 0,
+            note TEXT,
+            created_at TEXT NOT NULL
+          )
+        ''');
+        } catch (_) {}
       } catch (_) {}
     }
 
@@ -441,6 +482,29 @@ class DatabaseHelper {
       if (smartEnabled) {
         await SmartInsightsService().runInsights(notify: true);
       }
+      // Apply automation rules to potentially tag the counterparty/loan
+      try {
+        final loanRows = await db.query('loans',
+            where: 'id = ?', whereArgs: [installment.loanId], limit: 1);
+        if (loanRows.isNotEmpty) {
+          final loan = Loan.fromMap(loanRows.first);
+          final cpRows = await db.query('counterparties',
+              where: 'id = ?', whereArgs: [loan.counterpartyId], limit: 1);
+          final payee = (cpRows.isNotEmpty
+                  ? cpRows.first['name'] as String?
+                  : loan.title) ??
+              '';
+          final desc = loan.notes ?? '';
+          final amt = installment.actualPaidAmount ?? installment.amount;
+          final repo = AutomationRulesRepository();
+          final suggestion = await repo.applyRules(payee, desc, amt);
+          final cat = suggestion['category'];
+          if (cat != null && cpRows.isNotEmpty) {
+            await db.update('counterparties', {'tag': cat},
+                where: 'id = ?', whereArgs: [loan.counterpartyId]);
+          }
+        }
+      } catch (_) {}
     } catch (_) {}
     await NotificationService().rebuildScheduledNotifications();
     return id;
@@ -501,6 +565,28 @@ class DatabaseHelper {
       if (smartEnabled) {
         await SmartInsightsService().runInsights(notify: true);
       }
+      try {
+        final loanRows = await db.query('loans',
+            where: 'id = ?', whereArgs: [installment.loanId], limit: 1);
+        if (loanRows.isNotEmpty) {
+          final loan = Loan.fromMap(loanRows.first);
+          final cpRows = await db.query('counterparties',
+              where: 'id = ?', whereArgs: [loan.counterpartyId], limit: 1);
+          final payee = (cpRows.isNotEmpty
+                  ? cpRows.first['name'] as String?
+                  : loan.title) ??
+              '';
+          final desc = loan.notes ?? '';
+          final amt = installment.actualPaidAmount ?? installment.amount;
+          final repo = AutomationRulesRepository();
+          final suggestion = await repo.applyRules(payee, desc, amt);
+          final cat = suggestion['category'];
+          if (cat != null && cpRows.isNotEmpty) {
+            await db.update('counterparties', {'tag': cat},
+                where: 'id = ?', whereArgs: [loan.counterpartyId]);
+          }
+        }
+      } catch (_) {}
     } catch (_) {}
     await NotificationService().rebuildScheduledNotifications();
     return res;

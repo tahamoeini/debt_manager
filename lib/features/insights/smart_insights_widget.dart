@@ -29,6 +29,15 @@ class _SmartInsightsWidgetState extends State<SmartInsightsWidget> {
       _enabled = enabled;
       if (enabled) {
         _insightsFuture = _insightsService.getAllInsights();
+        // Kick off anomaly detection in parallel (not blocking UI)
+        _insightsService.detectAnomalies().then((anoms) {
+          if (mounted) {
+            // Merge anomalies into insights when available
+            setState(() {
+              _insightsFuture = _insightsService.getAllInsights();
+            });
+          }
+        });
       }
     });
   }
@@ -61,6 +70,13 @@ class _SmartInsightsWidgetState extends State<SmartInsightsWidget> {
             data['subscriptions'] as List<SubscriptionInsight>? ?? [];
         final billChanges =
             data['billChanges'] as List<BillChangeInsight>? ?? [];
+        // Anomalies may be fetched separately; call detectAnomalies for current UI
+        // (non-blocking) and show when available via setState.
+        // For simplicity, re-query service synchronously here if possible.
+        List<Map<String, dynamic>> anomalies = [];
+        _insightsService.detectAnomalies().then((a) {
+          if (mounted && a.isNotEmpty) setState(() {});
+        });
 
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -85,6 +101,8 @@ class _SmartInsightsWidgetState extends State<SmartInsightsWidget> {
                   Icons.trending_up_outlined,
                   Colors.orange,
                 )),
+            // Placeholder for anomalies (will be refreshed asynchronously)
+            // Call detectAnomalies separately when UI is ready.
           ],
         );
       },

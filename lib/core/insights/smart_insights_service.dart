@@ -47,18 +47,27 @@ class SmartInsightsService {
   final _db = DatabaseHelper.instance;
 
   // Detect potential subscriptions by analyzing payment patterns
-  // Returns a list of subscriptions where the same amount has been paid to the same payee
-  // for 3 or more consecutive months
+  // Returns a list of subscriptions where similar amounts have been paid to the
+  // same payee in multiple months. Uses an isolate for heavy work and allows
+  // small amount variance to detect subscription 'creep'.
   Future<List<SubscriptionInsight>> detectSubscriptions() async {
     try {
       final loans = await _db.getAllLoans();
       final loanMaps = loans.map((l) => l.toMap()).toList();
+      final loanIds = loans.map((e) => e.id).whereType<int>().toList();
+      final grouped = loanIds.isNotEmpty
+          ? await _db.getInstallmentsGroupedByLoanId(loanIds)
+          : <int, List<Installment>>{};
+      final allInstallments = grouped.values.expand((l) => l).toList();
+      final instMaps = allInstallments.map((i) => i.toMap()).toList();
 
       try {
-        final rows = await compute<List<Map<String, dynamic>>,
-            List<Map<String, dynamic>>>(
-          computeDetectSubscriptions,
-          loanMaps,
+        final rows =
+            await compute<Map<String, dynamic>, List<Map<String, dynamic>>>(
+          (msg) => computeDetectSubscriptions(
+              List<Map<String, dynamic>>.from(msg['loans'] as List),
+              List<Map<String, dynamic>>.from(msg['insts'] as List)),
+          {'loans': loanMaps, 'insts': instMaps},
         );
 
         return rows
@@ -71,7 +80,7 @@ class SmartInsightsService {
             .toList();
       } catch (e) {
         // fallback: run on main isolate
-        final rows = computeDetectSubscriptions(loanMaps);
+        final rows = computeDetectSubscriptions(loanMaps, instMaps);
         return rows
             .map((r) => SubscriptionInsight(
                   payee: r['payee'] as String? ?? 'ناشناس',
@@ -149,6 +158,52 @@ class SmartInsightsService {
       }
     } catch (e) {
       debugPrint('Error detecting bill changes: $e');
+      return [];
+    }
+  }
+
+  // Anomaly detection: detect categories (loan titles) where current month
+  // spending is significantly higher than the rolling average (e.g., >3x).
+  Future<List<Map<String, dynamic>>> detectAnomalies(
+      {int monthsBack = 6}) async {
+    try {
+      final loans = await _db.getAllLoans();
+      final loanMaps = loans.map((l) => l.toMap()).toList();
+      final loanIds = loans.map((e) => e.id).whereType<int>().toList();
+      final grouped = loanIds.isNotEmpty
+          ? await _db.getInstallmentsGroupedByLoanId(loanIds)
+          : <int, List<Installment>>{};
+      final allInstallments = grouped.values.expand((l) => l).toList();
+      final instMaps = allInstallments.map((i) => i.toMap()).toList();
+
+      final now = DateTime.now();
+      final nowJ = dateTimeToJalali(now);
+      final currentPeriod =
+          '${nowJ.year.toString().padLeft(4, '0')}-${nowJ.month.toString().padLeft(2, '0')}';
+
+      try {
+        final rows =
+            await compute<Map<String, dynamic>, List<Map<String, dynamic>>>(
+          (msg) => computeDetectAnomalies(
+              List<Map<String, dynamic>>.from(msg['loans'] as List),
+              List<Map<String, dynamic>>.from(msg['insts'] as List),
+              msg['current'] as String,
+              msg['monthsBack'] as int),
+          {
+            'loans': loanMaps,
+            'insts': instMaps,
+            'current': currentPeriod,
+            'monthsBack': monthsBack
+          },
+        );
+        return rows;
+      } catch (e) {
+        final rows = computeDetectAnomalies(
+            loanMaps, instMaps, currentPeriod, monthsBack);
+        return rows;
+      }
+    } catch (e) {
+      debugPrint('Error detecting anomalies: $e');
       return [];
     }
   }

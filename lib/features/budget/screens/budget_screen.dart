@@ -9,6 +9,8 @@ import 'package:debt_manager/core/widgets/category_icon.dart';
 import 'package:debt_manager/core/theme/app_constants.dart';
 import 'package:debt_manager/core/providers/core_providers.dart';
 import 'add_budget_screen.dart';
+import 'add_budget_entry_screen.dart';
+import 'package:debt_manager/features/budget/irregular_income_service.dart';
 
 class BudgetScreen extends ConsumerStatefulWidget {
   const BudgetScreen({super.key});
@@ -33,6 +35,22 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
     final repo = ref.read(budgetsRepositoryProvider);
     _budgetsFuture = repo.getBudgetsByPeriod(_currentPeriod());
     _checkBudgetThresholds();
+    _loadIncomeSuggestion();
+  }
+
+  int _incomeSuggestion = 0;
+
+  Future<void> _loadIncomeSuggestion() async {
+    try {
+      final repo = ref.read(budgetsRepositoryProvider);
+      final budgets = await repo.getBudgetsByPeriod(_currentPeriod());
+      final totalBudgets = budgets.fold<int>(0, (s, b) => s + b.amount);
+      final svc = IrregularIncomeService();
+      final safe = await svc.suggestSafeExtra(months: 3, essentialBudget: totalBudgets, safetyFactor: 1.2);
+      setState(() {
+        _incomeSuggestion = safe;
+      });
+    } catch (_) {}
   }
 
   void _refresh() {
@@ -82,7 +100,9 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
                   const SizedBox(height: AppConstants.spaceMedium),
               itemBuilder: (context, index) {
                 final b = budgets[index];
-                return Card(
+                return Column(
+                  children: [
+                    Card(
                   shape: const RoundedRectangleBorder(
                     borderRadius: AppConstants.borderRadiusSmall,
                   ),
@@ -142,21 +162,63 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
                         ],
                       ),
                     ),
-                  ),
+                    ),
+                    // Show override/entry buttons under each budget
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 8.0),
+                      child: Row(
+                        children: [
+                          TextButton.icon(
+                            onPressed: () async {
+                              final res = await Navigator.of(context).push(MaterialPageRoute(builder: (_) => AddBudgetEntryScreen(presetCategory: b.category, presetPeriod: b.period)));
+                              if (res == true) _refresh();
+                            },
+                            icon: const Icon(Icons.edit_calendar),
+                            label: const Text('Override / Override ماهانه'),
+                          ),
+                          const SizedBox(width: 8),
+                          TextButton.icon(
+                            onPressed: () async {
+                              final res = await Navigator.of(context).push(MaterialPageRoute(builder: (_) => AddBudgetEntryScreen(presetCategory: b.category, )));
+                              if (res == true) _refresh();
+                            },
+                            icon: const Icon(Icons.calendar_today_outlined),
+                            label: const Text('افزودن یک‌بار'),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
                 );
               },
             );
           },
         ),
       ),
-      floatingActionButton: FloatingActionButton.large(
-        onPressed: () async {
-          await Navigator.of(context).push(MaterialPageRoute(
-            builder: (_) => const AddBudgetScreen(),
-          ));
-          _refresh();
-        },
-        child: const Icon(Icons.add_outlined),
+      floatingActionButton: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (_incomeSuggestion > 0)
+            Padding(
+              padding: const EdgeInsets.only(bottom: 8.0),
+              child: FloatingActionButton.extended(
+                onPressed: () {
+                  UIUtils.showAppSnackBar(context, 'پیشنهاد: پرداخت اضافی ایمن ${_incomeSuggestion}');
+                },
+                icon: const Icon(Icons.savings),
+                label: Text('پیشنهاد: ${_incomeSuggestion}'),
+              ),
+            ),
+          FloatingActionButton.large(
+            onPressed: () async {
+              await Navigator.of(context).push(MaterialPageRoute(
+                builder: (_) => const AddBudgetScreen(),
+              ));
+              _refresh();
+            },
+            child: const Icon(Icons.add_outlined),
+          ),
+        ],
       ),
     );
   }

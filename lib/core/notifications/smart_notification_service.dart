@@ -80,6 +80,10 @@ class SmartNotificationService {
     final threshold90 = await _settings.getBudgetThreshold90Enabled();
     final threshold100 = await _settings.getBudgetThreshold100Enabled();
 
+    // If irregular income mode is enabled, be conservative with 90% alerts
+    final irregularMode = await _settings.getIrregularIncomeModeEnabled();
+    final effectiveThreshold90 = irregularMode ? false : threshold90;
+
     if (!threshold90 && !threshold100) return;
 
     try {
@@ -100,7 +104,9 @@ class SmartNotificationService {
           );
         }
         // Check 90% threshold (but not if already at 100%)
-        else if (threshold90 && percentage >= 0.9 && percentage < 1.0) {
+        else if (effectiveThreshold90 &&
+            percentage >= 0.9 &&
+            percentage < 1.0) {
           await _sendBudgetAlert(
             budget,
             percentage,

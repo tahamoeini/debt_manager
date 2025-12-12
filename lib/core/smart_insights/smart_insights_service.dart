@@ -1,9 +1,12 @@
 import '../db/database_helper.dart';
 import '../notifications/notification_service.dart';
 import '../settings/settings_repository.dart';
-import '../../features/loans/models/installment.dart';
-// removed unused import
+import 'package:debt_manager/core/insights/smart_insights_service.dart'
+    as InsightsEngine;
 
+// Lightweight orchestrator that runs the insights detection engine and
+// converts findings into scheduled suggestion notifications. The heavy
+// detection work runs in isolates inside `core/insights/smart_insights_service.dart`.
 class SmartInsightsService {
   static final SmartInsightsService instance = SmartInsightsService._internal();
   SmartInsightsService._internal();
@@ -18,29 +21,49 @@ class SmartInsightsService {
     await settings.init();
     if (!settings.smartInsightsEnabled) return;
 
-    final now = DateTime.now();
-    final to = now.add(const Duration(days: 60));
-    final upcoming = await _db.getUpcomingInstallments(now, to);
+    try {
+      // Detect subscriptions and bill changes (runs in isolates internally)
+      final subs = await InsightsEngine.SmartInsightsService.instance
+          .detectSubscriptions();
+      final bills = await InsightsEngine.SmartInsightsService.instance
+          .detectBillChanges();
+      final anomalies =
+          await InsightsEngine.SmartInsightsService.instance.detectAnomalies();
 
-    // Simple heuristic: if many installments fall on the same date, suggest consolidation.
-    final byDate = <String, List<Installment>>{};
-    for (final i in upcoming) {
-      final key = i.dueDateJalali;
-      byDate.putIfAbsent(key, () => []).add(i);
-    }
+      if (!notify) return;
 
-    for (final entry in byDate.entries) {
-      if (entry.value.length >= 3 && notify) {
-        // create a suggestion notification
-        final scheduled = DateTime.now().add(const Duration(seconds: 5));
+      var nid = 10000;
+      for (final s in subs) {
+        final scheduled = DateTime.now().add(const Duration(seconds: 2));
         await _notifier.scheduleSmartSuggestion(
-          notificationId: 9000 + scheduled.millisecondsSinceEpoch % 1000,
+          notificationId: nid++,
           scheduledTime: scheduled,
-          title: 'Smart suggestion',
-          body:
-              'You have ${entry.value.length} payments on ${entry.key}. Consider consolidating subscriptions.',
+          title: 'Subscription detected',
+          body: InsightsEngine.SmartInsightsService()
+              .generateSuggestionMessage(s),
         );
       }
-    }
+
+      for (final b in bills) {
+        final scheduled = DateTime.now().add(const Duration(seconds: 3));
+        await _notifier.scheduleSmartSuggestion(
+          notificationId: nid++,
+          scheduledTime: scheduled,
+          title: 'Bill change detected',
+          body: InsightsEngine.SmartInsightsService()
+              .generateBillChangeMessage(b),
+        );
+      }
+
+      for (final a in anomalies) {
+        final scheduled = DateTime.now().add(const Duration(seconds: 4));
+        await _notifier.scheduleSmartSuggestion(
+          notificationId: nid++,
+          scheduledTime: scheduled,
+          title: 'Unusual spending detected',
+          body: a['description'] as String? ?? 'Anomaly detected',
+        );
+      }
+    } catch (_) {}
   }
 }

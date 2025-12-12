@@ -28,6 +28,7 @@ class SettingsRepository {
   static const _keyPrivacyMode = 'privacy_mode';
   static const _keyBudgetThreshold90 = 'budget_threshold_90';
   static const _keyBudgetThreshold100 = 'budget_threshold_100';
+  static const _keyIrregularIncomeMode = 'irregular_income_mode';
   static const _keyOnboardingComplete = 'onboarding_complete';
   static const _keyDbEncrypted = 'db_encrypted_setting';
 
@@ -39,6 +40,7 @@ class SettingsRepository {
   bool smartSuggestionsEnabled = true;
   bool financeCoachEnabled = true;
   bool monthEndSummaryEnabled = true;
+  bool irregularIncomeModeEnabled = false;
   bool biometricEnabled = false;
   bool appLockEnabled = false;
   int lockTimeoutMinutes = 5;
@@ -100,6 +102,8 @@ class SettingsRepository {
         prefs.getBool(_keySmartSuggestionsEnabled) ?? true;
     financeCoachEnabled = prefs.getBool(_keyFinanceCoachEnabled) ?? true;
     monthEndSummaryEnabled = prefs.getBool(_keyMonthEndSummaryEnabled) ?? true;
+    irregularIncomeModeEnabled =
+        prefs.getBool(_keyIrregularIncomeMode) ?? false;
     biometricEnabled = prefs.getBool(_keyBiometricEnabled) ?? false;
     biometricEnabledNotifier.value = biometricEnabled;
     appLockEnabled = prefs.getBool(_keyAppLockEnabled) ?? false;
@@ -208,6 +212,14 @@ class SettingsRepository {
     monthEndSummaryEnabled = enabled;
   }
 
+  Future<bool> getIrregularIncomeModeEnabled() async =>
+      irregularIncomeModeEnabled;
+  Future<void> setIrregularIncomeModeEnabled(bool enabled) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_keyIrregularIncomeMode, enabled);
+    irregularIncomeModeEnabled = enabled;
+  }
+
   Future<bool> getBiometricEnabled() async => biometricEnabled;
   Future<void> setBiometricEnabled(bool enabled) async {
     final prefs = await SharedPreferences.getInstance();
@@ -237,8 +249,7 @@ class SettingsRepository {
     strictLock = enabled;
   }
 
-  Future<bool> getPrivacyModeEnabled() async =>
-      privacyModeNotifier.value;
+  Future<bool> getPrivacyModeEnabled() async => privacyModeNotifier.value;
 
   Future<void> setPrivacyModeEnabled(bool enabled) async {
     final prefs = await SharedPreferences.getInstance();
