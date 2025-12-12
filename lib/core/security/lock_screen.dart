@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:debt_manager/core/security/security_service.dart';
 
-/// A full-screen modal that requests biometric authentication and only
-/// dismisses when authentication succeeds. Useful for locking the app on
-/// launch/resume.
+// A full-screen modal that requests biometric authentication and only
+// dismisses when authentication succeeds. Useful for locking the app on
+// launch/resume.
 class LockScreen extends StatefulWidget {
   const LockScreen({super.key});
 

@@ -2,18 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:debt_manager/core/theme/app_dimensions.dart';
 
-/// A reusable styled text input field with consistent Material 3 decoration.
-/// Wraps TextFormField with app-wide styling.
-///
-/// Example usage:
-/// ```dart
-/// FormInput(
-///   label: 'نام',
-///   icon: Icons.person,
-///   controller: nameController,
-///   validator: (value) => value?.isEmpty ?? true ? 'الزامی' : null,
-/// )
-/// ```
+// A reusable styled text input field with consistent Material 3 decoration.
+// Wraps TextFormField with app-wide styling.
+//
+// Example usage:
+// ```dart
+// FormInput(
+//   label: 'نام',
+//   icon: Icons.person,
+//   controller: nameController,
+//   validator: (value) => value?.isEmpty ?? true ? 'الزامی' : null,
+// )
+// ```
 class FormInput extends StatelessWidget {
   final String label;
   final IconData? icon;
@@ -98,7 +98,7 @@ class FormInput extends StatelessWidget {
   }
 }
 
-/// A numeric input field with Persian/Farsi digit support
+// A numeric input field with Persian/Farsi digit support
 class NumericFormInput extends StatelessWidget {
   final String label;
   final IconData? icon;

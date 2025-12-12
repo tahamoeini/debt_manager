@@ -3,8 +3,8 @@ import 'package:debt_manager/features/loans/models/counterparty.dart';
 import 'package:debt_manager/features/loans/models/installment.dart';
 import 'package:debt_manager/features/loans/models/loan.dart';
 
-/// A small repository wrapper around [DatabaseHelper] to make it easier to
-/// inject via Riverpod and keep higher-level logic in the notifier.
+// A small repository wrapper around [DatabaseHelper] to make it easier to
+// inject via Riverpod and keep higher-level logic in the notifier.
 class LoanRepository {
   final DatabaseHelper _db = DatabaseHelper.instance;
 

@@ -7,7 +7,7 @@ import 'package:debt_manager/core/utils/jalali_utils.dart';
 import 'package:debt_manager/core/utils/format_utils.dart';
 import 'package:debt_manager/core/compute/smart_insights_compute.dart';
 
-/// Represents a detected subscription pattern
+// Represents a detected subscription pattern
 class SubscriptionInsight {
   final String payee;
   final int amount;
@@ -22,7 +22,7 @@ class SubscriptionInsight {
   });
 }
 
-/// Represents a bill amount change alert
+// Represents a bill amount change alert
 class BillChangeInsight {
   final String payee;
   final int previousAmount;
@@ -46,9 +46,9 @@ class SmartInsightsService {
 
   final _db = DatabaseHelper.instance;
 
-  /// Detect potential subscriptions by analyzing payment patterns
-  /// Returns a list of subscriptions where the same amount has been paid to the same payee
-  /// for 3 or more consecutive months
+  // Detect potential subscriptions by analyzing payment patterns
+  // Returns a list of subscriptions where the same amount has been paid to the same payee
+  // for 3 or more consecutive months
   Future<List<SubscriptionInsight>> detectSubscriptions() async {
     try {
       final loans = await _db.getAllLoans();
@@ -87,7 +87,7 @@ class SmartInsightsService {
     }
   }
 
-  /// Detect significant bill amount changes (>20% increase)
+  // Detect significant bill amount changes (>20% increase)
   Future<List<BillChangeInsight>> detectBillChanges() async {
     try {
       final now = DateTime.now();
@@ -153,7 +153,7 @@ class SmartInsightsService {
     }
   }
 
-  /// Get all smart insights (subscriptions + bill changes)
+  // Get all smart insights (subscriptions + bill changes)
   Future<Map<String, dynamic>> getAllInsights() async {
     final subscriptions = await detectSubscriptions();
     final billChanges = await detectBillChanges();
@@ -165,7 +165,7 @@ class SmartInsightsService {
     };
   }
 
-  /// Generate a smart suggestion message for detected patterns
+  // Generate a smart suggestion message for detected patterns
   String generateSuggestionMessage(SubscriptionInsight subscription) {
     return '💡 به نظر می‌رسد شما یک اشتراک دارید: ${formatCurrency(subscription.amount)} در ماه برای ${subscription.payee}. هنوز استفاده می‌کنید؟';
   }

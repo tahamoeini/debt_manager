@@ -12,7 +12,7 @@ class SmartInsightsService {
   final DatabaseHelper _db = DatabaseHelper();
   final NotificationService _notifier = NotificationService();
 
-  /// Run insights analysis once and optionally schedule suggestion notifications.
+  // Run insights analysis once and optionally schedule suggestion notifications.
   Future<void> runInsights({bool notify = true}) async {
     final settings = SettingsRepository();
     await settings.init();

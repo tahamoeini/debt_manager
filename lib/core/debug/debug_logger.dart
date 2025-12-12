@@ -1,7 +1,7 @@
 import 'dart:collection';
 import 'package:flutter/foundation.dart';
 
-/// Simple in-memory debug logger used in debug builds.
+// Simple in-memory debug logger used in debug builds.
 class DebugLogger {
   static final DebugLogger _instance = DebugLogger._internal();
   factory DebugLogger() => _instance;
@@ -10,10 +10,10 @@ class DebugLogger {
   final _lines = ListQueue<String>();
   final int _max = 200;
 
-  /// Value notifier to enable visual debug overlay in the app (debug only).
+  // Value notifier to enable visual debug overlay in the app (debug only).
   static final ValueNotifier<bool> overlayEnabled = ValueNotifier<bool>(false);
 
-  /// Value notifier to enable widget bounds overlay.
+  // Value notifier to enable widget bounds overlay.
   static final ValueNotifier<bool> showBoundsEnabled =
       ValueNotifier<bool>(false);
 
@@ -39,6 +39,6 @@ class DebugLogger {
     }
   }
 
-  /// Returns recent log lines (newest first).
+  // Returns recent log lines (newest first).
   List<String> recent([int count = 50]) => _lines.take(count).toList();
 }

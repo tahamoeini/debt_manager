@@ -23,7 +23,7 @@ class _BoundsPainter extends CustomPainter {
       !listEquals(oldDelegate.rects, rects);
 }
 
-/// Simple overlay that highlights safe area insets and shows their values.
+// Simple overlay that highlights safe area insets and shows their values.
 class DebugOverlay extends StatelessWidget {
   final Widget child;
   const DebugOverlay({required this.child, super.key});

@@ -366,7 +366,7 @@ class DatabaseHelper {
     return id;
   }
 
-  /// Delete all installments for a given loan id.
+  // Delete all installments for a given loan id.
   Future<int> deleteInstallmentsByLoanId(int loanId) async {
     if (_isWeb) {
       _installmentStore.removeWhere((r) => r['loan_id'] == loanId);
@@ -426,7 +426,7 @@ class DatabaseHelper {
     return res;
   }
 
-  /// Update an existing loan row. Requires loan.id to be non-null.
+  // Update an existing loan row. Requires loan.id to be non-null.
   Future<int> updateLoan(Loan loan) async {
     if (loan.id == null) throw ArgumentError('Loan.id is null');
     if (_isWeb) {
@@ -445,7 +445,7 @@ class DatabaseHelper {
     );
   }
 
-  /// Delete a loan row by id.
+  // Delete a loan row by id.
   Future<int> deleteLoan(int loanId) async {
     if (_isWeb) {
       _loanStore.removeWhere((r) => r['id'] == loanId);
@@ -456,9 +456,9 @@ class DatabaseHelper {
     return await db.delete('loans', where: 'id = ?', whereArgs: [loanId]);
   }
 
-  /// Delete a loan and all its installments. This method will cancel any
-  /// scheduled notifications associated with the installments before deleting
-  /// them and the loan itself.
+  // Delete a loan and all its installments. This method will cancel any
+  // scheduled notifications associated with the installments before deleting
+  // them and the loan itself.
   Future<void> deleteLoanWithInstallments(int loanId) async {
     // Fetch installments to cancel notifications
     final installments = await getInstallmentsByLoanId(loanId);
@@ -600,8 +600,8 @@ class DatabaseHelper {
     return await InstallmentDao.getUpcomingInstallments(db, from, to);
   }
 
-  /// Refresh installments that are overdue based on a provided Gregorian `now`.
-  /// Converts `now` to Jalali and updates installments whose `due_date_jalali` < today.
+  // Refresh installments that are overdue based on a provided Gregorian `now`.
+  // Converts `now` to Jalali and updates installments whose `due_date_jalali` < today.
   Future<void> refreshOverdueInstallments(DateTime now) async {
     if (_isWeb) {
       final todayJ = dateTimeToJalali(now);

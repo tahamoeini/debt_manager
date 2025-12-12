@@ -2,29 +2,29 @@
 import 'package:flutter/material.dart';
 import 'package:debt_manager/core/theme/app_dimensions.dart';
 
-/// A reusable dialog wrapper that provides consistent Material 3 styling.
-/// Use this as a base for all dialogs in the app to maintain consistency.
-///
-/// Example usage:
-/// ```dart
-/// showDialog(
-///   context: context,
-///   builder: (context) => AppDialog(
-///     title: 'تأیید حذف',
-///     content: Text('آیا مطمئن هستید؟'),
-///     actions: [
-///       TextButton(
-///         onPressed: () => Navigator.pop(context),
-///         child: Text('خیر'),
-///       ),
-///       ElevatedButton(
-///         onPressed: () => Navigator.pop(context, true),
-///         child: Text('بله'),
-///       ),
-///     ],
-///   ),
-/// )
-/// ```
+// A reusable dialog wrapper that provides consistent Material 3 styling.
+// Use this as a base for all dialogs in the app to maintain consistency.
+//
+// Example usage:
+// ```dart
+// showDialog(
+//   context: context,
+//   builder: (context) => AppDialog(
+//     title: 'تأیید حذف',
+//     content: Text('آیا مطمئن هستید؟'),
+//     actions: [
+//       TextButton(
+//         onPressed: () => Navigator.pop(context),
+//         child: Text('خیر'),
+//       ),
+//       ElevatedButton(
+//         onPressed: () => Navigator.pop(context, true),
+//         child: Text('بله'),
+//       ),
+//     ],
+//   ),
+// )
+// ```
 class AppDialog extends StatelessWidget {
   final String? title;
   final Widget? content;
@@ -68,7 +68,7 @@ class AppDialog extends StatelessWidget {
   }
 }
 
-/// A confirmation dialog with standard Yes/No actions
+// A confirmation dialog with standard Yes/No actions
 class ConfirmationDialog extends StatelessWidget {
   final String title;
   final String message;
@@ -112,7 +112,7 @@ class ConfirmationDialog extends StatelessWidget {
   }
 }
 
-/// Helper function to show a confirmation dialog
+// Helper function to show a confirmation dialog
 Future<bool> showConfirmationDialog(
   BuildContext context, {
   required String title,

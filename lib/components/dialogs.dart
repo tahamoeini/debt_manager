@@ -1,29 +1,29 @@
 // Component: Reusable Dialog Widgets
-/// Reusable Dialog Widgets
-///
-/// Consistent dialog layouts with Material 3 design.
+// Reusable Dialog Widgets
+//
+// Consistent dialog layouts with Material 3 design.
 
 import 'package:flutter/material.dart';
 import 'design_system.dart';
 
-/// A base dialog widget with consistent styling
+// A base dialog widget with consistent styling
 class AppDialog extends StatelessWidget {
-  /// Dialog title
+  // Dialog title
   final String? title;
 
-  /// Dialog content
+  // Dialog content
   final Widget content;
 
-  /// List of action buttons
+  // List of action buttons
   final List<Widget>? actions;
 
-  /// Whether the dialog is scrollable
+  // Whether the dialog is scrollable
   final bool scrollable;
 
-  /// Optional icon to display above the title
+  // Optional icon to display above the title
   final IconData? icon;
 
-  /// Optional color for the icon
+  // Optional color for the icon
   final Color? iconColor;
 
   const AppDialog({
@@ -77,24 +77,24 @@ class AppDialog extends StatelessWidget {
   }
 }
 
-/// A confirmation dialog
+// A confirmation dialog
 class ConfirmDialog extends StatelessWidget {
-  /// Dialog title
+  // Dialog title
   final String title;
 
-  /// Dialog message
+  // Dialog message
   final String message;
 
-  /// Confirm button text (default: "تأیید")
+  // Confirm button text (default: "تأیید")
   final String? confirmText;
 
-  /// Cancel button text (default: "لغو")
+  // Cancel button text (default: "لغو")
   final String? cancelText;
 
-  /// Whether this is a destructive action (uses danger color)
+  // Whether this is a destructive action (uses danger color)
   final bool isDestructive;
 
-  /// Optional icon
+  // Optional icon
   final IconData? icon;
 
   const ConfirmDialog({
@@ -139,7 +139,7 @@ class ConfirmDialog extends StatelessWidget {
     );
   }
 
-  /// Show a confirmation dialog and return the result
+  // Show a confirmation dialog and return the result
   static Future<bool> show(
     BuildContext context, {
     required String title,
@@ -164,21 +164,21 @@ class ConfirmDialog extends StatelessWidget {
   }
 }
 
-/// An information/message dialog
+// An information/message dialog
 class MessageDialog extends StatelessWidget {
-  /// Dialog title
+  // Dialog title
   final String title;
 
-  /// Dialog message
+  // Dialog message
   final String message;
 
-  /// Button text (default: "باشه")
+  // Button text (default: "باشه")
   final String? buttonText;
 
-  /// Optional icon
+  // Optional icon
   final IconData? icon;
 
-  /// Optional icon color
+  // Optional icon color
   final Color? iconColor;
 
   const MessageDialog({
@@ -210,7 +210,7 @@ class MessageDialog extends StatelessWidget {
     );
   }
 
-  /// Show a message dialog
+  // Show a message dialog
   static Future<void> show(
     BuildContext context, {
     required String title,
@@ -232,9 +232,9 @@ class MessageDialog extends StatelessWidget {
   }
 }
 
-/// A loading dialog
+// A loading dialog
 class LoadingDialog extends StatelessWidget {
-  /// Loading message
+  // Loading message
   final String? message;
 
   const LoadingDialog({
@@ -270,7 +270,7 @@ class LoadingDialog extends StatelessWidget {
     );
   }
 
-  /// Show a loading dialog
+  // Show a loading dialog
   static void show(BuildContext context, {String? message}) {
     showDialog(
       context: context,
@@ -279,7 +279,7 @@ class LoadingDialog extends StatelessWidget {
     );
   }
 
-  /// Dismiss the loading dialog
+  // Dismiss the loading dialog
   static void dismiss(BuildContext context) {
     Navigator.of(context).pop();
   }

@@ -78,7 +78,7 @@ class AchievementsRepository {
     return '${j.year.toString().padLeft(4, '0')}-${j.month.toString().padLeft(2, '0')}';
   }
 
-  /// Called after a payment is recorded. Returns list of newly awarded achievements.
+  // Called after a payment is recorded. Returns list of newly awarded achievements.
   Future<List<Achievement>> handlePayment(
       {int? loanId, required DateTime paidAt}) async {
     final newly = <Achievement>[];

@@ -1,13 +1,13 @@
 // Component: Category Icons and Colors
-/// Category Icons and Colors
-///
-/// Centralized mapping of category names to their visual representation
-/// (icons and colors). This ensures consistency across the app.
+// Category Icons and Colors
+//
+// Centralized mapping of category names to their visual representation
+// (icons and colors). This ensures consistency across the app.
 
 import 'package:flutter/material.dart';
 import 'package:debt_manager/core/utils/category_colors.dart' as legacy;
 
-/// Category icon and color data
+// Category icon and color data
 class CategoryData {
   final IconData icon;
   final Color color;
@@ -15,7 +15,7 @@ class CategoryData {
   const CategoryData({required this.icon, required this.color});
 }
 
-/// Map of category names to their visual representation
+// Map of category names to their visual representation
 class CategoryIcons {
   CategoryIcons._();
 
@@ -82,13 +82,13 @@ class CategoryIcons {
     ),
   };
 
-  /// Default category data when no match is found
+  // Default category data when no match is found
   static const CategoryData _defaultCategory = CategoryData(
     icon: Icons.help_outline,
     color: Color(0xFF9E9E9E), // grey
   );
 
-  /// Get category icon for a given category name
+  // Get category icon for a given category name
   static IconData getIcon(String? category) {
     if (category == null || category.trim().isEmpty) {
       return _defaultCategory.icon;
@@ -97,13 +97,13 @@ class CategoryIcons {
     return _categoryMap[key]?.icon ?? _defaultCategory.icon;
   }
 
-  /// Get category color for a given category name
-  /// Uses the existing colorForCategory function for consistency
+  // Get category color for a given category name
+  // Uses the existing colorForCategory function for consistency
   static Color getColor(String? category, {required Brightness brightness}) {
     return legacy.colorForCategory(category, brightness: brightness);
   }
 
-  /// Get category data (icon + color) for a given category name
+  // Get category data (icon + color) for a given category name
   static CategoryData getData(String? category) {
     if (category == null || category.trim().isEmpty) {
       return _defaultCategory;
@@ -112,6 +112,6 @@ class CategoryIcons {
     return _categoryMap[key] ?? _defaultCategory;
   }
 
-  /// Get all available categories
+  // Get all available categories
   static List<String> get allCategories => _categoryMap.keys.toList();
 }

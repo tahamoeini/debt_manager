@@ -3,18 +3,18 @@ import 'package:debt_manager/core/theme/app_dimensions.dart';
 import 'package:debt_manager/core/theme/app_colors.dart';
 import 'package:debt_manager/core/utils/format_utils.dart';
 
-/// A reusable progress bar widget for displaying budget utilization.
-/// Changes color based on utilization thresholds (green < 60%, orange < 90%, red >= 90%).
-///
-/// Example usage:
-/// ```dart
-/// BudgetProgressBar(
-///   current: 75000,
-///   limit: 100000,
-///   label: 'خرید مواد غذایی',
-///   showPercentage: true,
-/// )
-/// ```
+// A reusable progress bar widget for displaying budget utilization.
+// Changes color based on utilization thresholds (green < 60%, orange < 90%, red >= 90%).
+//
+// Example usage:
+// ```dart
+// BudgetProgressBar(
+//   current: 75000,
+//   limit: 100000,
+//   label: 'خرید مواد غذایی',
+//   showPercentage: true,
+// )
+// ```
 class BudgetProgressBar extends StatelessWidget {
   final int current;
   final int limit;

@@ -1,33 +1,33 @@
 // Core widget: Dashboard Card
-/// Dashboard Card Widget
-///
-/// A reusable card widget for displaying stats and metrics on dashboard screens.
-/// Provides consistent styling with Material 3 design principles.
+// Dashboard Card Widget
+//
+// A reusable card widget for displaying stats and metrics on dashboard screens.
+// Provides consistent styling with Material 3 design principles.
 
 import 'package:flutter/material.dart';
 import 'package:debt_manager/components/design_system.dart';
 
-/// A card widget for displaying a statistic or metric on the dashboard
+// A card widget for displaying a statistic or metric on the dashboard
 class DashboardCard extends StatelessWidget {
-  /// The title/label of the stat
+  // The title/label of the stat
   final String title;
 
-  /// The main value to display
+  // The main value to display
   final String value;
 
-  /// Optional subtitle text
+  // Optional subtitle text
   final String? subtitle;
 
-  /// Optional icon to display
+  // Optional icon to display
   final IconData? icon;
 
-  /// Optional color for the card accent
+  // Optional color for the card accent
   final Color? accentColor;
 
-  /// Whether the card is tappable
+  // Whether the card is tappable
   final VoidCallback? onTap;
 
-  /// Whether to show a loading indicator instead of the value
+  // Whether to show a loading indicator instead of the value
   final bool isLoading;
 
   const DashboardCard({

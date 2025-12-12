@@ -6,7 +6,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:debt_manager/core/security/security_service.dart';
 
-/// Auth notifier used by GoRouter as a refreshable ChangeNotifier.
+// Auth notifier used by GoRouter as a refreshable ChangeNotifier.
 class AuthNotifier extends ChangeNotifier {
   AuthNotifier(this._settings);
 
@@ -43,28 +43,28 @@ final authNotifierProvider = Provider<AuthNotifier>((ref) {
   return AuthNotifier(ref.read(settingsRepositoryProvider));
 });
 
-/// Provides the shared DatabaseHelper singleton.
+// Provides the shared DatabaseHelper singleton.
 final databaseHelperProvider = Provider<DatabaseHelper>((ref) {
   return DatabaseHelper.instance;
 });
 
-/// Provides the SmartNotificationService singleton.
+// Provides the SmartNotificationService singleton.
 final smartNotificationServiceProvider =
     Provider<SmartNotificationService>((ref) {
   return SmartNotificationService.instance;
 });
 
-/// Provides SettingsRepository singleton.
+// Provides SettingsRepository singleton.
 final settingsRepositoryProvider = Provider<SettingsRepository>((ref) {
   return SettingsRepository();
 });
 
-/// Simple refresh trigger used across the app to request reloads.
+// Simple refresh trigger used across the app to request reloads.
 final refreshTriggerProvider = StateProvider<int>((ref) => 0);
 
-/// Simple in-memory cache for report computations. Keys are arbitrary strings
-/// (e.g. 'spendingByCategory:2025-12'). Consumers should invalidate when
-/// underlying data changes (e.g. when loans/installments are modified).
+// Simple in-memory cache for report computations. Keys are arbitrary strings
+// (e.g. 'spendingByCategory:2025-12'). Consumers should invalidate when
+// underlying data changes (e.g. when loans/installments are modified).
 class ReportsCacheNotifier extends StateNotifier<Map<String, dynamic>> {
   ReportsCacheNotifier() : super({});
 

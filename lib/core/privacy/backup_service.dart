@@ -75,7 +75,7 @@ class BackupService {
     return decrypted;
   }
 
-  /// Export full dataset (loans, installments, counterparties, settings) as JSON string.
+  // Export full dataset (loans, installments, counterparties, settings) as JSON string.
   static Future<String> exportFullJson() async {
     final db = DatabaseHelper.instance;
     final settings = SettingsRepository();
@@ -111,7 +111,7 @@ class BackupService {
     return json.encode(out);
   }
 
-  /// Compress bytes using gzip and return bytes
+  // Compress bytes using gzip and return bytes
   static Uint8List gzipCompress(Uint8List input) {
     const encoder = GZipEncoder();
     final encoded = encoder.encode(input);
@@ -123,7 +123,7 @@ class BackupService {
     return Uint8List.fromList(decoder.decodeBytes(input));
   }
 
-  /// Create base64-encoded chunks suitable for QR transfer
+  // Create base64-encoded chunks suitable for QR transfer
   static List<String> chunkForQr(Uint8List bytes, {int chunkSize = 800}) {
     final b64 = base64Encode(bytes);
     final chunks = <String>[];
@@ -134,14 +134,14 @@ class BackupService {
     return chunks;
   }
 
-  /// Reassemble base64 chunks and return original bytes
+  // Reassemble base64 chunks and return original bytes
   static Uint8List assembleFromChunks(List<String> chunks) {
     final joined = chunks.join();
     final bytes = base64Decode(joined);
     return Uint8List.fromList(bytes);
   }
 
-  /// Export encrypted and compressed backup for QR transfer: returns bytes of encrypted wrapper compressed.
+  // Export encrypted and compressed backup for QR transfer: returns bytes of encrypted wrapper compressed.
   static Future<Uint8List> exportEncryptedCompressedBytes(
       String password) async {
     final jsonStr = await exportFullJson();
@@ -164,7 +164,7 @@ class BackupService {
     return Uint8List.fromList(utf8.encode(wrapper));
   }
 
-  /// Given encrypted wrapper bytes, decrypt and return the original JSON string (after decompression)
+  // Given encrypted wrapper bytes, decrypt and return the original JSON string (after decompression)
   static Future<String> decryptCompressedBytes(
       Uint8List wrapperBytes, String password) async {
     final wrapper =

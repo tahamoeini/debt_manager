@@ -2,9 +2,9 @@ import 'package:sqflite/sqflite.dart';
 import 'package:debt_manager/features/loans/models/installment.dart';
 import 'package:debt_manager/core/utils/jalali_utils.dart';
 
-/// Data Access Object for `installments` related SQL operations.
-/// All methods are written to accept an already-open `Database` instance
-/// so callers can control transaction boundaries and initialization.
+// Data Access Object for `installments` related SQL operations.
+// All methods are written to accept an already-open `Database` instance
+// so callers can control transaction boundaries and initialization.
 class InstallmentDao {
   InstallmentDao._();
 
@@ -65,10 +65,10 @@ class InstallmentDao {
     return map;
   }
 
-  /// Returns installments that are overdue based on the provided [now]
-  /// (Gregorian). The method internally converts to Jalali strings and
-  /// returns mapped [Installment] objects; callers don't need to handle
-  /// raw Jalali strings.
+  // Returns installments that are overdue based on the provided [now]
+  // (Gregorian). The method internally converts to Jalali strings and
+  // returns mapped [Installment] objects; callers don't need to handle
+  // raw Jalali strings.
   static Future<List<Installment>> getOverdueInstallments(
       Database db, DateTime now) async {
     final todayJ = dateTimeToJalali(now);
@@ -85,8 +85,8 @@ class InstallmentDao {
     return rows.map((r) => Installment.fromMap(r)).toList();
   }
 
-  /// Returns upcoming installments between [from] and [to] (inclusive).
-  /// Input is Gregorian DateTimes; conversion to Jalali is handled internally.
+  // Returns upcoming installments between [from] and [to] (inclusive).
+  // Input is Gregorian DateTimes; conversion to Jalali is handled internally.
   static Future<List<Installment>> getUpcomingInstallments(
       Database db, DateTime from, DateTime to) async {
     final fromJ = dateTimeToJalali(from);
@@ -104,9 +104,9 @@ class InstallmentDao {
     return rows.map((r) => Installment.fromMap(r)).toList();
   }
 
-  /// Update installments that are overdue based on [now] and return the
-  /// number of rows affected. This performs the same update that used to
-  /// live in `DatabaseHelper.refreshOverdueInstallments`.
+  // Update installments that are overdue based on [now] and return the
+  // number of rows affected. This performs the same update that used to
+  // live in `DatabaseHelper.refreshOverdueInstallments`.
   static Future<int> refreshOverdueInstallments(
       Database db, DateTime now) async {
     final todayJ = dateTimeToJalali(now);

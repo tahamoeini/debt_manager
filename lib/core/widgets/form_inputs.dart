@@ -3,67 +3,67 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:debt_manager/core/theme/app_constants.dart';
 
-/// A styled text form field with consistent Material 3 appearance.
-///
-/// Features:
-/// - Consistent decoration following app theme
-/// - Optional leading icon
-/// - Optional helper text and error handling
-/// - Support for various input types (text, number, multiline)
-///
-/// Example usage:
-/// ```dart
-/// FormInput(
-///   label: 'Amount',
-///   icon: Icons.attach_money,
-///   keyboardType: TextInputType.number,
-///   validator: (value) => value?.isEmpty ?? true ? 'Required' : null,
-/// )
-/// ```
+// A styled text form field with consistent Material 3 appearance.
+//
+// Features:
+// - Consistent decoration following app theme
+// - Optional leading icon
+// - Optional helper text and error handling
+// - Support for various input types (text, number, multiline)
+//
+// Example usage:
+// ```dart
+// FormInput(
+//   label: 'Amount',
+//   icon: Icons.attach_money,
+//   keyboardType: TextInputType.number,
+//   validator: (value) => value?.isEmpty ?? true ? 'Required' : null,
+// )
+// ```
 class FormInput extends StatelessWidget {
-  /// Label text for the field
+  // Label text for the field
   final String label;
 
-  /// Optional hint text
+  // Optional hint text
   final String? hint;
 
-  /// Optional icon displayed at the start
+  // Optional icon displayed at the start
   final IconData? icon;
 
-  /// Text controller
+  // Text controller
   final TextEditingController? controller;
 
-  /// Initial value
+  // Initial value
   final String? initialValue;
 
-  /// Keyboard type
+  // Keyboard type
   final TextInputType? keyboardType;
 
-  /// Input formatters
+  // Input formatters
   final List<TextInputFormatter>? inputFormatters;
 
-  /// Validator function
+  // Validator function
   final String? Function(String?)? validator;
 
-  /// On changed callback
+  // On changed callback
   final void Function(String)? onChanged;
 
-  /// Whether field is enabled
+  // Whether field is enabled
   final bool enabled;
 
-  /// Maximum lines (use >1 for multiline text)
+  // Maximum lines (use >1 for multiline text)
   final int maxLines;
 
-  /// Minimum lines for multiline text
+  // Minimum lines for multiline text
   final int? minLines;
 
-  /// Whether to obscure text (for passwords)
+  // Whether to obscure text (for passwords)
   final bool obscureText;
 
-  /// Optional suffix widget
+  // Optional suffix widget
   final Widget? suffix;
 
-  /// Optional prefix widget
+  // Optional prefix widget
   final Widget? prefix;
 
   const FormInput({
@@ -137,38 +137,38 @@ class FormInput extends StatelessWidget {
   }
 }
 
-/// A dropdown field with consistent styling.
-///
-/// Example usage:
-/// ```dart
-/// DropdownField<String>(
-///   label: 'Category',
-///   icon: Icons.category,
-///   value: selectedCategory,
-///   items: categories.map((c) => DropdownMenuItem(value: c, child: Text(c))).toList(),
-///   onChanged: (value) => setState(() => selectedCategory = value),
-/// )
-/// ```
+// A dropdown field with consistent styling.
+//
+// Example usage:
+// ```dart
+// DropdownField<String>(
+//   label: 'Category',
+//   icon: Icons.category,
+//   value: selectedCategory,
+//   items: categories.map((c) => DropdownMenuItem(value: c, child: Text(c))).toList(),
+//   onChanged: (value) => setState(() => selectedCategory = value),
+// )
+// ```
 class DropdownField<T> extends StatelessWidget {
-  /// Label text for the field
+  // Label text for the field
   final String label;
 
-  /// Optional icon displayed at the start
+  // Optional icon displayed at the start
   final IconData? icon;
 
-  /// Current selected value
+  // Current selected value
   final T? value;
 
-  /// List of dropdown items
+  // List of dropdown items
   final List<DropdownMenuItem<T>> items;
 
-  /// On changed callback
+  // On changed callback
   final void Function(T?)? onChanged;
 
-  /// Whether field is enabled
+  // Whether field is enabled
   final bool enabled;
 
-  /// Validator function
+  // Validator function
   final String? Function(T?)? validator;
 
   const DropdownField({

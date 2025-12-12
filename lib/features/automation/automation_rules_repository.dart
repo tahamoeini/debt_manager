@@ -58,8 +58,8 @@ class AutomationRulesRepository {
     return rows.map((r) => AutomationRule.fromMap(r)).toList();
   }
 
-  /// Apply all enabled rules to a transaction (payee, description, amount)
-  /// Returns suggested category/tag based on matching rules
+  // Apply all enabled rules to a transaction (payee, description, amount)
+  // Returns suggested category/tag based on matching rules
   Future<Map<String, String?>> applyRules(
     String? payee,
     String? description,

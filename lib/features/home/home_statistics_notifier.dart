@@ -4,7 +4,7 @@ import 'package:debt_manager/features/loans/models/installment.dart';
 import 'package:debt_manager/features/loans/models/loan.dart';
 import 'package:debt_manager/features/loans/models/counterparty.dart';
 
-/// Simple DTO holding home summary values.
+// Simple DTO holding home summary values.
 class HomeStats {
   final int borrowed;
   final int lent;
@@ -23,7 +23,7 @@ class HomeStats {
   });
 }
 
-/// StateNotifier that loads and holds HomeStats in an AsyncValue wrapper.
+// StateNotifier that loads and holds HomeStats in an AsyncValue wrapper.
 class HomeStatisticsNotifier extends StateNotifier<AsyncValue<HomeStats>> {
   HomeStatisticsNotifier(this.ref) : super(const AsyncValue.loading()) {
     // Recompute when refresh trigger changes

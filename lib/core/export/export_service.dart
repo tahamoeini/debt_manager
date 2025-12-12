@@ -17,8 +17,8 @@ class ExportService {
 
   final _db = DatabaseHelper.instance;
 
-  /// Export installments as CSV for a given date range
-  /// Returns the file path of the generated CSV
+  // Export installments as CSV for a given date range
+  // Returns the file path of the generated CSV
   Future<String> exportInstallmentsCSV({
     DateTime? fromDate,
     DateTime? toDate,
@@ -104,7 +104,7 @@ class ExportService {
     return filePath;
   }
 
-  /// Generate a professional PDF report (returns file path)
+  // Generate a professional PDF report (returns file path)
   Future<String> exportReportPdf() async {
     final loans = await _db.getAllLoans();
 
@@ -139,7 +139,7 @@ class ExportService {
     return filePath;
   }
 
-  /// Directly show native print/share sheet with generated PDF.
+  // Directly show native print/share sheet with generated PDF.
   Future<void> printReportPdf() async {
     final loans = await _db.getAllLoans();
     var totalDebt = 0;
@@ -175,7 +175,7 @@ class ExportService {
     }
   }
 
-  /// Export budgets as CSV
+  // Export budgets as CSV
   Future<String> exportBudgetsCSV() async {
     final db = await _db.database;
     final rows =

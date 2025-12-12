@@ -4,7 +4,7 @@ import 'package:debt_manager/features/loans/models/loan.dart';
 import 'package:debt_manager/features/loans/models/counterparty.dart';
 import 'package:debt_manager/features/loans/models/installment.dart';
 
-/// A lightweight DTO used by UI to render loan rows.
+// A lightweight DTO used by UI to render loan rows.
 class LoanSummary {
   final Loan loan;
   final String counterpartyName;

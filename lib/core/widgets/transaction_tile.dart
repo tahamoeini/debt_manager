@@ -1,53 +1,53 @@
 // Core widget: Transaction List Tile
-/// Transaction List Tile Widget
-///
-/// A reusable widget for displaying transaction items in lists.
-/// Provides consistent formatting and supports swipe actions.
+// Transaction List Tile Widget
+//
+// A reusable widget for displaying transaction items in lists.
+// Provides consistent formatting and supports swipe actions.
 
 import 'package:flutter/material.dart';
 import 'category_icon.dart';
 import 'package:debt_manager/components/design_system.dart';
 import 'package:debt_manager/core/utils/format_utils.dart';
 
-/// Type of transaction
+// Type of transaction
 enum TransactionType {
   income,
   expense,
 }
 
-/// A list tile widget for displaying transaction information
+// A list tile widget for displaying transaction information
 class TransactionTile extends StatelessWidget {
-  /// Transaction title/description
+  // Transaction title/description
   final String title;
 
-  /// Transaction amount (in base currency units)
+  // Transaction amount (in base currency units)
   final int amount;
 
-  /// Type of transaction (income or expense)
+  // Type of transaction (income or expense)
   final TransactionType type;
 
-  /// Optional date
+  // Optional date
   final String? date;
 
-  /// Optional payee/payer name
+  // Optional payee/payer name
   final String? payee;
 
-  /// Optional category
+  // Optional category
   final String? category;
 
-  /// Optional subtitle (overrides generated subtitle)
+  // Optional subtitle (overrides generated subtitle)
   final String? subtitle;
 
-  /// Tap handler
+  // Tap handler
   final VoidCallback? onTap;
 
-  /// Optional swipe to delete handler
+  // Optional swipe to delete handler
   final VoidCallback? onDelete;
 
-  /// Optional swipe to edit handler
+  // Optional swipe to edit handler
   final VoidCallback? onEdit;
 
-  /// Whether to show the category icon
+  // Whether to show the category icon
   final bool showCategoryIcon;
 
   const TransactionTile({

@@ -12,7 +12,7 @@ class BackupService {
 
   final _db = DatabaseHelper.instance;
 
-  /// Export all data as a JSON string with three arrays: counterparties, loans, installments.
+  // Export all data as a JSON string with three arrays: counterparties, loans, installments.
   Future<String> exportAll() async {
     final cps = await _db.getAllCounterparties();
     final loans = await _db.getAllLoans();
@@ -39,8 +39,8 @@ class BackupService {
     return const JsonEncoder.withIndent('  ').convert(out);
   }
 
-  /// Import JSON data. By default clears existing data and inserts everything
-  /// from the provided map. Expects the same structure produced by [exportAll].
+  // Import JSON data. By default clears existing data and inserts everything
+  // from the provided map. Expects the same structure produced by [exportAll].
   Future<void> importFromMap(
     Map<String, dynamic> json, {
     bool clearBefore = true,
@@ -89,7 +89,7 @@ class BackupService {
     // TODO: In a future version reconstruct/schedule notifications for future installments.
   }
 
-  /// Convenience: import from a JSON string.
+  // Convenience: import from a JSON string.
   Future<void> importFromJsonString(
     String jsonString, {
     bool clearBefore = true,

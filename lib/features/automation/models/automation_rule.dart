@@ -78,7 +78,7 @@ class AutomationRule {
     );
   }
 
-  /// Check if this rule matches a given payee and/or description
+  // Check if this rule matches a given payee and/or description
   bool matches(String? payee, String? description, int? amount) {
     if (!enabled) return false;
 
@@ -101,7 +101,7 @@ class AutomationRule {
     }
   }
 
-  /// Apply this rule's action
+  // Apply this rule's action
   Map<String, dynamic> applyAction() {
     return {
       'action': action,
@@ -110,7 +110,7 @@ class AutomationRule {
   }
 }
 
-/// Built-in dictionary of common payee patterns and their categories
+// Built-in dictionary of common payee patterns and their categories
 class BuiltInCategories {
   static const Map<String, String> payeePatterns = {
     // Transportation
@@ -161,7 +161,7 @@ class BuiltInCategories {
     'landlord': 'Housing',
   };
 
-  /// Try to auto-categorize based on built-in patterns
+  // Try to auto-categorize based on built-in patterns
   static String? suggestCategory(String? payee, String? description) {
     if (payee != null) {
       final lowerPayee = payee.toLowerCase();

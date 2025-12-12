@@ -44,8 +44,8 @@ class BudgetsRepository {
     return rows.map((r) => Budget.fromMap(r)).toList();
   }
 
-  /// Placeholder: computes utilization for a budget as 0 for now.
-  /// Later: sum transactions/payments in the budget.category and period.
+  // Placeholder: computes utilization for a budget as 0 for now.
+  // Later: sum transactions/payments in the budget.category and period.
   Future<int> computeUtilization(Budget budget) async {
     try {
       final period = budget.period;

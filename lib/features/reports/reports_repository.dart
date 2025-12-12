@@ -8,7 +8,7 @@ import 'package:flutter/foundation.dart' show compute;
 import 'package:debt_manager/core/compute/reports_compute.dart';
 import 'package:debt_manager/core/providers/core_providers.dart';
 
-/// ReportsRepository can optionally accept a Riverpod ref to store cached results.
+// ReportsRepository can optionally accept a Riverpod ref to store cached results.
 class ReportsRepository {
   ReportsRepository([this._ref]);
 
@@ -30,8 +30,8 @@ class ReportsRepository {
 
   Future<List<Installment>> getInstallmentsByLoanId(int loanId) => _db.getInstallmentsByLoanId(loanId);
 
-  /// Get spending by category (counterparty type) for a given month
-  /// Returns a map of category name to total amount spent
+  // Get spending by category (counterparty type) for a given month
+  // Returns a map of category name to total amount spent
   Future<Map<String, int>> getSpendingByCategory(int year, int month) async {
     await _db.refreshOverdueInstallments(DateTime.now());
 
@@ -86,8 +86,8 @@ class ReportsRepository {
     }
   }
 
-  /// Get total spending per month for the last N months
-  /// Returns a list of maps with year, month, and amount
+  // Get total spending per month for the last N months
+  // Returns a list of maps with year, month, and amount
   Future<List<Map<String, dynamic>>> getSpendingOverTime(int monthsBack) async {
     await _db.refreshOverdueInstallments(DateTime.now());
 
@@ -139,39 +139,9 @@ class ReportsRepository {
     }
   }
 
-  // ignore: unused_element
-  Future<int> _getTotalPaidInRange(
-      String startDate, String endDate, LoanDirection direction) async {
-    // Fetch all paid installments for loans with the given direction and paidAt in range
-    final db = await _db.database;
-    final directionValue = direction.index; // assuming LoanDirection is an enum
-    final List<Map<String, dynamic>> rows = await db.rawQuery('''
-      SELECT i.actualPaidAmount, i.amount
-      FROM installments i
-      JOIN loans l ON i.loanId = l.id
-      WHERE l.direction = ?
-        AND i.status = ?
-        AND i.paidAt IS NOT NULL
-        AND i.paidAt >= ?
-        AND i.paidAt <= ?
-    ''', [
-      directionValue,
-      InstallmentStatus.paid.index,
-      startDate,
-      endDate,
-    ]);
 
-    int total = 0;
-    for (final row in rows) {
-      final actualPaidAmount = row['actualPaidAmount'] as int?;
-      final amount = row['amount'] as int;
-      total += actualPaidAmount ?? amount;
-    }
-    return total;
-  }
-
-  /// Get net worth over time (monthly snapshots for the last N months)
-  /// Net worth = total assets (lent) - total debts (borrowed)
+  // Get net worth over time (monthly snapshots for the last N months)
+  // Net worth = total assets (lent) - total debts (borrowed)
   Future<List<Map<String, dynamic>>> getNetWorthOverTime(int monthsBack) async {
     await _db.refreshOverdueInstallments(DateTime.now());
 
@@ -223,34 +193,10 @@ class ReportsRepository {
     }
   }
 
-  // ignore: unused_element
-  Future<int> _getOutstandingAsOfDate(
-      String asOfDate, LoanDirection direction) async {
-    final loans = await _db.getAllLoans(direction: direction);
-    var total = 0;
 
-    for (final loan in loans) {
-      if (loan.id == null) continue;
 
-      final installments = await _db.getInstallmentsByLoanId(loan.id!);
-
-      for (final inst in installments) {
-        // Only count installments that were due on or before the date
-        if (inst.dueDateJalali.compareTo(asOfDate) > 0) continue;
-
-        // If not paid or paid after the date, count as outstanding
-        if (inst.status != InstallmentStatus.paid ||
-            (inst.paidAt != null && inst.paidAt!.compareTo(asOfDate) > 0)) {
-          total += inst.amount;
-        }
-      }
-    }
-
-    return total;
-  }
-
-  /// Project debt payoff for a specific loan
-  /// Returns monthly balance projections
+  // Project debt payoff for a specific loan
+  // Returns monthly balance projections
   Future<List<Map<String, dynamic>>> projectDebtPayoff(int loanId,
       {int? extraPayment}) async {
     final loan = await _db.getLoanById(loanId);
@@ -286,7 +232,7 @@ class ReportsRepository {
     }
   }
 
-  /// Generate insights for the current month
+  // Generate insights for the current month
   Future<List<String>> generateMonthlyInsights() async {
     final insights = <String>[];
 

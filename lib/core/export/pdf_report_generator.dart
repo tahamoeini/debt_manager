@@ -8,7 +8,7 @@ import 'package:debt_manager/core/utils/jalali_utils.dart';
 import 'package:debt_manager/core/utils/format_utils.dart';
 import 'package:debt_manager/features/loans/models/installment.dart';
 
-/// Generates professional PDF reports for legal/formal use.
+// Generates professional PDF reports for legal/formal use.
 class PdfReportGenerator {
   PdfReportGenerator._();
   static final instance = PdfReportGenerator._();
@@ -23,7 +23,7 @@ class PdfReportGenerator {
     }
   }
 
-  /// Build the PDF bytes. All text is rendered RTL and uses the embedded Persian font.
+  // Build the PDF bytes. All text is rendered RTL and uses the embedded Persian font.
   Future<Uint8List> generatePdf({
     required String appName,
     required int totalDebt,
@@ -134,7 +134,7 @@ class PdfReportGenerator {
     return doc.save();
   }
 
-  /// Convenience helper to show native print/share sheet with the generated PDF.
+  // Convenience helper to show native print/share sheet with the generated PDF.
   Future<void> printReport({
     required String appName,
     required int totalDebt,

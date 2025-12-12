@@ -1,33 +1,33 @@
 // Component: Budget Progress Bar Widget
-/// Budget Progress Bar Widget
-///
-/// A reusable widget for displaying budget utilization with a progress bar.
-/// Colors change based on utilization thresholds.
+// Budget Progress Bar Widget
+//
+// A reusable widget for displaying budget utilization with a progress bar.
+// Colors change based on utilization thresholds.
 
 import 'package:flutter/material.dart';
 import 'design_system.dart';
 
-/// A widget that displays budget progress with color-coded thresholds
+// A widget that displays budget progress with color-coded thresholds
 class BudgetBar extends StatelessWidget {
-  /// Current amount spent
+  // Current amount spent
   final int current;
 
-  /// Budget limit/maximum
+  // Budget limit/maximum
   final int limit;
 
-  /// Optional custom height (default: AppRadius.sm)
+  // Optional custom height (default: AppRadius.sm)
   final double? height;
 
-  /// Whether to show the percentage label
+  // Whether to show the percentage label
   final bool showPercentage;
 
-  /// Whether to show the amount label
+  // Whether to show the amount label
   final bool showAmount;
 
-  /// Custom low threshold (default: 0.6)
+  // Custom low threshold (default: 0.6)
   final double lowThreshold;
 
-  /// Custom medium threshold (default: 0.9)
+  // Custom medium threshold (default: 0.9)
   final double mediumThreshold;
 
   const BudgetBar({
@@ -105,21 +105,21 @@ class BudgetBar extends StatelessWidget {
   }
 }
 
-/// A widget that displays budget progress with detailed labels
+// A widget that displays budget progress with detailed labels
 class BudgetProgressCard extends StatelessWidget {
-  /// Category name
+  // Category name
   final String category;
 
-  /// Current amount spent
+  // Current amount spent
   final int current;
 
-  /// Budget limit/maximum
+  // Budget limit/maximum
   final int limit;
 
-  /// Optional icon
+  // Optional icon
   final IconData? icon;
 
-  /// Optional tap handler
+  // Optional tap handler
   final VoidCallback? onTap;
 
   const BudgetProgressCard({

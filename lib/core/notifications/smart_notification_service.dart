@@ -34,7 +34,7 @@ class SmartNotificationService {
   static const String _channelDescSummary =
       'Monthly budget performance summaries';
 
-  /// Initialize smart notification channels
+  // Initialize smart notification channels
   Future<void> init() async {
     if (kIsWeb) {
       debugPrint('SmartNotificationService: skipping initialization on web');
@@ -70,7 +70,7 @@ class SmartNotificationService {
     await android?.createNotificationChannel(summaryChannel);
   }
 
-  /// Check all budgets and send notifications for those exceeding thresholds
+  // Check all budgets and send notifications for those exceeding thresholds
   Future<void> checkBudgetThresholds(String period) async {
     if (kIsWeb) return;
 
@@ -146,7 +146,7 @@ class SmartNotificationService {
     }
   }
 
-  /// Send a monthly summary notification
+  // Send a monthly summary notification
   Future<void> sendMonthEndSummary(
       String period, Map<String, dynamic> summary) async {
     if (kIsWeb) return;
@@ -193,7 +193,7 @@ class SmartNotificationService {
     }
   }
 
-  /// Send a smart suggestion notification
+  // Send a smart suggestion notification
   Future<void> sendSmartSuggestion(
       String title, String body, int suggestionId) async {
     if (kIsWeb) return;
@@ -231,7 +231,7 @@ class SmartNotificationService {
     }
   }
 
-  /// Schedule bill reminders based on due dates
+  // Schedule bill reminders based on due dates
   Future<void> scheduleBillReminders() async {
     if (kIsWeb) return;
 
@@ -266,7 +266,7 @@ class SmartNotificationService {
         'Would schedule reminder for installment ${installment.id} with offset $daysOffset days');
   }
 
-  /// Cancel all scheduled notifications for a specific type
+  // Cancel all scheduled notifications for a specific type
   Future<void> cancelAllNotificationsOfType(String type) async {
     if (kIsWeb) return;
 

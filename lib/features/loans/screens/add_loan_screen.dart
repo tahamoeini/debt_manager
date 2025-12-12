@@ -15,8 +15,8 @@ import 'package:debt_manager/features/loans/models/installment.dart';
 import 'package:shamsi_date/shamsi_date.dart';
 
 class AddLoanScreen extends StatefulWidget {
-  /// If [existingLoan] is provided the screen operates in edit mode and will
-  /// update the loan metadata instead of creating a new loan and installments.
+  // If [existingLoan] is provided the screen operates in edit mode and will
+  // update the loan metadata instead of creating a new loan and installments.
   final Loan? existingLoan;
   final Counterparty? existingCounterparty;
 

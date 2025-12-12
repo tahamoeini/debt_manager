@@ -3,42 +3,42 @@ import 'package:flutter/material.dart';
 import 'package:debt_manager/core/theme/app_constants.dart';
 import 'package:debt_manager/core/theme/app_theme_extensions.dart';
 
-/// A reusable widget for displaying budget progress with color-coded thresholds.
-///
-/// The widget displays:
-/// - A linear progress bar with rounded ends
-/// - Color changes based on budget utilization (green < 60%, orange < 90%, red >= 90%)
-/// - Current amount and limit values
-/// - Percentage display
-///
-/// Example usage:
-/// ```dart
-/// BudgetBar(
-///   current: 450000,
-///   limit: 500000,
-///   label: 'Food Budget',
-/// )
-/// ```
+// A reusable widget for displaying budget progress with color-coded thresholds.
+//
+// The widget displays:
+// - A linear progress bar with rounded ends
+// - Color changes based on budget utilization (green < 60%, orange < 90%, red >= 90%)
+// - Current amount and limit values
+// - Percentage display
+//
+// Example usage:
+// ```dart
+// BudgetBar(
+//   current: 450000,
+//   limit: 500000,
+//   label: 'Food Budget',
+// )
+// ```
 class BudgetBar extends StatelessWidget {
-  /// Current amount spent/used
+  // Current amount spent/used
   final int current;
 
-  /// Budget limit
+  // Budget limit
   final int limit;
 
-  /// Optional label for the budget
+  // Optional label for the budget
   final String? label;
 
-  /// Show percentage text
+  // Show percentage text
   final bool showPercentage;
 
-  /// Show amount text
+  // Show amount text
   final bool showAmount;
 
-  /// Height of the progress bar
+  // Height of the progress bar
   final double? height;
 
-  /// Width of the progress bar
+  // Width of the progress bar
   final double? width;
 
   const BudgetBar({

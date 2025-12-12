@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
-/// A reusable chart section that provides title, optional legend,
-/// consistent padding, and empty state handling. Accepts a child
-/// chart widget and optional `forecast` data in the future.
+// A reusable chart section that provides title, optional legend,
+// consistent padding, and empty state handling. Accepts a child
+// chart widget and optional `forecast` data in the future.
 class ChartSection extends StatelessWidget {
   const ChartSection(
       {super.key,

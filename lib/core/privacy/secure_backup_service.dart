@@ -8,19 +8,19 @@ import '../privacy/privacy_gateway.dart';
 import '../notifications/notification_service.dart';
 import '../smart_insights/smart_insights_service.dart';
 
-/// A small wrapper that enforces authentication and coordinates
-/// export/import flows using the existing `BackupService` and
-/// `PrivacyGateway` implementations.
+// A small wrapper that enforces authentication and coordinates
+// export/import flows using the existing `BackupService` and
+// `PrivacyGateway` implementations.
 class SecureBackupService {
   SecureBackupService._private();
   static final SecureBackupService instance = SecureBackupService._private();
 
   final _localAuth = LocalAuthService.instance;
 
-  /// Create an encrypted (optionally password-protected) compressed
-  /// backup and return the bytes ready to save or chunk for QR.
-  /// If [requireAuth] is true, performs biometric/PIN authentication
-  /// before exporting.
+  // Create an encrypted (optionally password-protected) compressed
+  // backup and return the bytes ready to save or chunk for QR.
+  // If [requireAuth] is true, performs biometric/PIN authentication
+  // before exporting.
   Future<Uint8List> createEncryptedBackup(
       {String? password, bool requireAuth = true}) async {
     if (requireAuth) {
@@ -34,9 +34,9 @@ class SecureBackupService {
     return await BackupService.exportEncryptedCompressedBytes(password ?? '');
   }
 
-  /// Import encrypted/compressed bytes produced by `createEncryptedBackup`.
-  /// If [requireAuth] is true, authenticate first. After successful
-  /// import, rebuild notifications and re-run smart insights (non-notifying).
+  // Import encrypted/compressed bytes produced by `createEncryptedBackup`.
+  // If [requireAuth] is true, authenticate first. After successful
+  // import, rebuild notifications and re-run smart insights (non-notifying).
   Future<void> importEncryptedBackup(Uint8List encryptedCompressed,
       {String? password, bool requireAuth = true}) async {
     if (requireAuth) {

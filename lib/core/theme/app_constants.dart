@@ -1,7 +1,7 @@
 // Design system constants for consistent spacing, sizing, and styling.
 import 'package:flutter/material.dart';
 
-/// App-wide design constants following Material 3 guidelines.
+// App-wide design constants following Material 3 guidelines.
 class AppConstants {
   // Spacing
   static const double spaceXSmall = 4.0;

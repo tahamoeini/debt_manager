@@ -7,7 +7,7 @@ class LocalAuthService {
 
   final LocalAuthentication _auth = LocalAuthentication();
 
-  /// Attempt biometric/local device authentication. Returns true if succeeded.
+  // Attempt biometric/local device authentication. Returns true if succeeded.
   Future<bool> authenticate(
       {String reason = 'Authenticate to continue'}) async {
     try {

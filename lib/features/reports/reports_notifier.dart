@@ -125,8 +125,12 @@ class ReportsNotifier extends StateNotifier<ReportsState> {
         final installments = await _repo.getInstallmentsByLoanId(loan.id!);
         for (final inst in installments) {
           var inRange = true;
-          if (fromStr != null && inst.dueDateJalali.compareTo(fromStr) < 0) inRange = false;
-          if (toStr != null && inst.dueDateJalali.compareTo(toStr) > 0) inRange = false;
+          if (fromStr != null && inst.dueDateJalali.compareTo(fromStr) < 0) {
+            inRange = false;
+          }
+          if (toStr != null && inst.dueDateJalali.compareTo(toStr) > 0) {
+            inRange = false;
+          }
           if (!inRange) continue;
 
           if (state.statusFilter.isNotEmpty && !state.statusFilter.contains(inst.status)) continue;
@@ -177,7 +181,11 @@ class ReportsNotifier extends StateNotifier<ReportsState> {
 
   void toggleStatus(InstallmentStatus s, bool enable) {
     final copy = {...state.statusFilter};
-    if (enable) copy.add(s); else copy.remove(s);
+    if (enable) {
+      copy.add(s);
+    } else {
+      copy.remove(s);
+    }
     state = state.copyWith(statusFilter: copy);
     refreshRows();
   }

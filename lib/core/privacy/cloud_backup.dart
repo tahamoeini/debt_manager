@@ -1,12 +1,12 @@
 abstract class CloudBackupProvider {
-  /// Upload encrypted blob and return a version id / remote path.
+  // Upload encrypted blob and return a version id / remote path.
   Future<String> uploadEncryptedBlob(List<int> bytes,
       {required String filename});
 
-  /// Download encrypted blob by version id / path. Returns bytes.
+  // Download encrypted blob by version id / path. Returns bytes.
   Future<List<int>> downloadEncryptedBlob(String id);
 
-  /// List available backups (version ids or metadata).
+  // List available backups (version ids or metadata).
   Future<List<String>> listBackups();
 }
 

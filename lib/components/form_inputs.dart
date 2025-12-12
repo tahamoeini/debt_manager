@@ -1,69 +1,69 @@
 // Component: Form Input Widgets
-/// Form Input Widgets
-///
-/// Reusable form field components with consistent styling.
+// Form Input Widgets
+//
+// Reusable form field components with consistent styling.
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'design_system.dart';
 
-/// A styled text form field with consistent Material 3 design
+// A styled text form field with consistent Material 3 design
 class FormInput extends StatelessWidget {
-  /// Label text
+  // Label text
   final String label;
 
-  /// Hint text
+  // Hint text
   final String? hint;
 
-  /// Initial value
+  // Initial value
   final String? initialValue;
 
-  /// Controller
+  // Controller
   final TextEditingController? controller;
 
-  /// Validator function
+  // Validator function
   final String? Function(String?)? validator;
 
-  /// On changed callback
+  // On changed callback
   final void Function(String)? onChanged;
 
-  /// On saved callback
+  // On saved callback
   final void Function(String?)? onSaved;
 
-  /// Leading icon
+  // Leading icon
   final IconData? leadingIcon;
 
-  /// Trailing icon
+  // Trailing icon
   final Widget? suffixIcon;
 
-  /// Keyboard type
+  // Keyboard type
   final TextInputType? keyboardType;
 
-  /// Whether this is a password field
+  // Whether this is a password field
   final bool obscureText;
 
-  /// Max lines (1 for single line, null for unlimited)
+  // Max lines (1 for single line, null for unlimited)
   final int? maxLines;
 
-  /// Min lines
+  // Min lines
   final int? minLines;
 
-  /// Whether this field is read-only
+  // Whether this field is read-only
   final bool readOnly;
 
-  /// Input formatters
+  // Input formatters
   final List<TextInputFormatter>? inputFormatters;
 
-  /// Whether this field is enabled
+  // Whether this field is enabled
   final bool enabled;
 
-  /// Focus node
+  // Focus node
   final FocusNode? focusNode;
 
-  /// Text input action
+  // Text input action
   final TextInputAction? textInputAction;
 
-  /// On field submitted callback
+  // On field submitted callback
   final void Function(String)? onFieldSubmitted;
 
   const FormInput({
@@ -157,30 +157,30 @@ class FormInput extends StatelessWidget {
   }
 }
 
-/// A styled dropdown field with consistent Material 3 design
+// A styled dropdown field with consistent Material 3 design
 class DropdownField<T> extends StatelessWidget {
-  /// Label text
+  // Label text
   final String label;
 
-  /// Hint text
+  // Hint text
   final String? hint;
 
-  /// Current value
+  // Current value
   final T? value;
 
-  /// Available items
+  // Available items
   final List<DropdownMenuItem<T>> items;
 
-  /// On changed callback
+  // On changed callback
   final void Function(T?)? onChanged;
 
-  /// Validator function
+  // Validator function
   final String? Function(T?)? validator;
 
-  /// Leading icon
+  // Leading icon
   final IconData? leadingIcon;
 
-  /// Whether this field is enabled
+  // Whether this field is enabled
   final bool enabled;
 
   const DropdownField({

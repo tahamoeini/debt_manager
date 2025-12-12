@@ -22,7 +22,7 @@ class PrivacyGateway {
   final SecureStorageService _secure = SecureStorageService();
   final DatabaseHelper _db = DatabaseHelper.instance;
 
-  /// Store a secret (e.g., backup key or PIN) in secure storage.
+  // Store a secret (e.g., backup key or PIN) in secure storage.
   Future<void> storeSecret(String key, String value) async =>
       await _secure.write(key, value);
 
@@ -30,14 +30,14 @@ class PrivacyGateway {
 
   Future<void> deleteSecret(String key) async => await _secure.delete(key);
 
-  /// Export JSON (plain string) encrypted with password and save to backups folder.
+  // Export JSON (plain string) encrypted with password and save to backups folder.
   Future<String> exportEncryptedBackup(String jsonString, String password,
       {required String filename}) async {
     return await BackupService.encryptAndSave(jsonString, password,
         filename: filename);
   }
 
-  /// Import a JSON string exported by `exportFullJson` and insert into local DB.
+  // Import a JSON string exported by `exportFullJson` and insert into local DB.
   Future<void> importJsonString(String jsonStr) async {
     final map = json.decode(jsonStr) as Map<String, dynamic>;
 
@@ -96,12 +96,12 @@ class PrivacyGateway {
     } catch (_) {}
   }
 
-  /// Import and decrypt backup file with password, returning decrypted JSON.
+  // Import and decrypt backup file with password, returning decrypted JSON.
   Future<String> importEncryptedBackup(String path, String password) async {
     return await BackupService.decryptFromFile(path, password);
   }
 
-  /// Wipe local data: delete database, secure storage, backups, and any audit logs.
+  // Wipe local data: delete database, secure storage, backups, and any audit logs.
   Future<void> panicWipe() async {
     // Delete database file
     try {
@@ -124,7 +124,7 @@ class PrivacyGateway {
     // Note: app-level in-memory stores will be reset on next launch.
   }
 
-  /// Append an audit entry to a local audit file.
+  // Append an audit entry to a local audit file.
   Future<void> audit(String action, {String? details}) async {
     try {
       final dir = Directory

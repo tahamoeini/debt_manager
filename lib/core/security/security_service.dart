@@ -1,14 +1,14 @@
 import 'package:local_auth/local_auth.dart';
 
-/// SecurityService wraps the `local_auth` APIs and exposes a small,
-/// testable surface for the app to perform biometric authentication.
+// SecurityService wraps the `local_auth` APIs and exposes a small,
+// testable surface for the app to perform biometric authentication.
 class SecurityService {
   SecurityService._internal();
   static final SecurityService instance = SecurityService._internal();
 
   final LocalAuthentication _auth = LocalAuthentication();
 
-  /// Whether biometrics are available on this device and enrolled.
+  // Whether biometrics are available on this device and enrolled.
   Future<bool> isBiometricAvailable() async {
     try {
       final canCheck = await _auth.canCheckBiometrics;
@@ -20,8 +20,8 @@ class SecurityService {
     }
   }
 
-  /// Perform biometric authentication with a platform-provided prompt.
-  /// Returns true on success, false otherwise.
+  // Perform biometric authentication with a platform-provided prompt.
+  // Returns true on success, false otherwise.
   Future<bool> authenticate(
       {String reason = 'Authenticate to continue'}) async {
     try {

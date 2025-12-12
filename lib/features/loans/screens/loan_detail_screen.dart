@@ -32,7 +32,7 @@ class LoanDetailScreen extends ConsumerStatefulWidget {
 
 class _LoanDetailScreenState extends ConsumerState<LoanDetailScreen> {
 
-  /// Safe parser for Jalali dates - returns current date if parsing fails
+  // Safe parser for Jalali dates - returns current date if parsing fails
   Jalali _parseJalaliSafe(String jalaliStr) {
     try {
       return parseJalali(jalaliStr);

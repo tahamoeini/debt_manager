@@ -4,8 +4,8 @@ import 'package:debt_manager/core/utils/category_colors.dart';
 import 'package:debt_manager/core/theme/app_dimensions.dart';
 import 'package:debt_manager/core/theme/app_constants.dart';
 
-/// Mapping of category names to icons.
-/// Extend this map to add more categories.
+// Mapping of category names to icons.
+// Extend this map to add more categories.
 const Map<String, IconData> _categoryIcons = {
   'food': Icons.restaurant,
   'utilities': Icons.bolt,
@@ -19,31 +19,31 @@ const Map<String, IconData> _categoryIcons = {
   'general': Icons.category,
 };
 
-/// A widget for displaying a category icon with consistent styling.
-/// Uses a CircleAvatar with category-specific color and icon.
-///
-/// Example usage:
-/// ```dart
-/// CategoryIcon(
-///   category: 'food',
-///   icon: Icons.restaurant,
-///   size: 40,
-/// )
-/// ```
+// A widget for displaying a category icon with consistent styling.
+// Uses a CircleAvatar with category-specific color and icon.
+//
+// Example usage:
+// ```dart
+// CategoryIcon(
+//   category: 'food',
+//   icon: Icons.restaurant,
+//   size: 40,
+// )
+// ```
 class CategoryIcon extends StatelessWidget {
-  /// Category name (should match keys in _categoryIcons map)
+  // Category name (should match keys in _categoryIcons map)
   final String? category;
 
-  /// Size of the icon container (diameter of the circle)
+  // Size of the icon container (diameter of the circle)
   final double size;
 
-  /// Optional custom icon to override default
+  // Optional custom icon to override default
   final IconData? icon;
 
-  /// Optional custom color to override category color
+  // Optional custom color to override category color
   final Color? backgroundColor;
 
-  /// Optional icon color
+  // Optional icon color
   final Color? iconColor;
 
   const CategoryIcon({
@@ -94,30 +94,30 @@ class CategoryIcon extends StatelessWidget {
   }
 }
 
-/// A widget that combines a category icon with a label.
-///
-/// Example usage:
-/// ```dart
-/// CategoryIconWithLabel(
-///   category: 'food',
-///   icon: Icons.restaurant,
-///   label: 'Food & Dining',
-/// )
-/// ```
+// A widget that combines a category icon with a label.
+//
+// Example usage:
+// ```dart
+// CategoryIconWithLabel(
+//   category: 'food',
+//   icon: Icons.restaurant,
+//   label: 'Food & Dining',
+// )
+// ```
 class CategoryIconWithLabel extends StatelessWidget {
-  /// Category name
+  // Category name
   final String? category;
 
-  /// Label text to display below icon
+  // Label text to display below icon
   final String label;
 
-  /// Size of the icon
+  // Size of the icon
   final double iconSize;
 
-  /// Required icon
+  // Required icon
   final IconData icon;
 
-  /// Optional custom color
+  // Optional custom color
   final Color? color;
 
   const CategoryIconWithLabel({
@@ -154,7 +154,7 @@ class CategoryIconWithLabel extends StatelessWidget {
   }
 }
 
-/// A simplified category badge that shows just a colored circle indicator
+// A simplified category badge that shows just a colored circle indicator
 class CategoryBadge extends StatelessWidget {
   final String? category;
   final double size;

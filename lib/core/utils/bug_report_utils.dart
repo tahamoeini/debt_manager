@@ -5,16 +5,16 @@ import 'package:flutter/rendering.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 
-/// Utility class for generating and sharing bug reports.
+// Utility class for generating and sharing bug reports.
 class BugReportUtils {
   BugReportUtils._();
 
-  /// Generates a unique error ID based on timestamp
+  // Generates a unique error ID based on timestamp
   static String generateErrorId() {
     return 'ERR-${DateTime.now().millisecondsSinceEpoch}';
   }
 
-  /// Captures a screenshot of the current screen
+  // Captures a screenshot of the current screen
   static Future<File?> captureScreenshot(GlobalKey key) async {
     try {
       // Find the RenderRepaintBoundary
@@ -45,7 +45,7 @@ class BugReportUtils {
     }
   }
 
-  /// Prepares and shares a bug report via email
+  // Prepares and shares a bug report via email
   static Future<void> shareBugReport({
     required BuildContext context,
     String? errorMessage,
@@ -116,7 +116,7 @@ class BugReportUtils {
     }
   }
 
-  /// Shows a dialog to collect user feedback before sending bug report
+  // Shows a dialog to collect user feedback before sending bug report
   static Future<void> showBugReportDialog({
     required BuildContext context,
     String? errorMessage,

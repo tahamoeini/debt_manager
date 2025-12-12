@@ -1,8 +1,8 @@
 // Component: Examples and Demos
-/// Component Examples and Demos
-///
-/// This file demonstrates how to use all the reusable components in the design system.
-/// It can be used as a reference or as a visual test of all components.
+// Component Examples and Demos
+//
+// This file demonstrates how to use all the reusable components in the design system.
+// It can be used as a reference or as a visual test of all components.
 
 // ignore_for_file: use_build_context_synchronously
 import 'package:flutter/material.dart';

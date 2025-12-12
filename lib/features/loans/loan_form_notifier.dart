@@ -4,7 +4,7 @@ import 'package:debt_manager/features/loans/models/loan.dart';
 import 'package:debt_manager/features/loans/models/counterparty.dart';
 import 'package:debt_manager/features/loans/models/installment.dart';
 
-/// Minimal LoanForm state container used by Add/Edit loan UI.
+// Minimal LoanForm state container used by Add/Edit loan UI.
 class LoanFormState {
   final bool loading;
   final Loan? existingLoan;

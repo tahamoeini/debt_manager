@@ -12,8 +12,8 @@ import 'package:debt_manager/features/insights/smart_insights_widget.dart';
 import 'package:debt_manager/features/settings/screens/settings_screen.dart';
 import 'package:debt_manager/core/security/lock_screen.dart';
 
-/// Provide a GoRouter configured for the app. The router watches the
-/// [AuthNotifier] for refreshes so that redirects can react to auth changes.
+// Provide a GoRouter configured for the app. The router watches the
+// [AuthNotifier] for refreshes so that redirects can react to auth changes.
 final goRouterProvider = Provider<GoRouter>((ref) {
   final auth = ref.read(authNotifierProvider);
 

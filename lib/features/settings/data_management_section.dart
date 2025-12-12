@@ -3,10 +3,10 @@ import 'package:flutter/material.dart';
 import '../data_transfer/qr_sender_screen.dart';
 import '../data_transfer/qr_receiver_screen.dart';
 
-/// A small widget that exposes Data Management actions:
-/// - Export (uses existing export flow in Settings elsewhere)
-/// - Import (relies on existing import flow)
-/// - Offline Transfer (send/receive via QR)
+// A small widget that exposes Data Management actions:
+// - Export (uses existing export flow in Settings elsewhere)
+// - Import (relies on existing import flow)
+// - Offline Transfer (send/receive via QR)
 class DataManagementSection extends StatelessWidget {
   const DataManagementSection({super.key});
 

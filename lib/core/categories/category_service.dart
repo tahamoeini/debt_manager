@@ -15,7 +15,7 @@ class CategoryService {
     'entertainment',
   ];
 
-  /// Get all categories (default + custom)
+  // Get all categories (default + custom)
   Future<List<String>> getAllCategories() async {
     final custom = await getCustomCategories();
     final all = [...defaultCategories, ...custom];
@@ -23,7 +23,7 @@ class CategoryService {
     return all.toSet().toList();
   }
 
-  /// Get only custom categories
+  // Get only custom categories
   Future<List<String>> getCustomCategories() async {
     final prefs = await SharedPreferences.getInstance();
     final json = prefs.getString(_keyCustomCategories);
@@ -32,7 +32,7 @@ class CategoryService {
     return list.cast<String>();
   }
 
-  /// Add a new custom category
+  // Add a new custom category
   Future<void> addCategory(String category) async {
     final trimmed = category.trim().toLowerCase();
     if (trimmed.isEmpty) return;
@@ -48,7 +48,7 @@ class CategoryService {
     await _saveCustomCategories(custom);
   }
 
-  /// Rename a custom category
+  // Rename a custom category
   Future<void> renameCategory(String oldName, String newName) async {
     final trimmed = newName.trim().toLowerCase();
     if (trimmed.isEmpty) return;
@@ -70,14 +70,14 @@ class CategoryService {
     await _saveCustomCategories(custom);
   }
 
-  /// Delete a custom category
+  // Delete a custom category
   Future<void> deleteCategory(String category) async {
     final custom = await getCustomCategories();
     custom.remove(category.toLowerCase());
     await _saveCustomCategories(custom);
   }
 
-  /// Check if a category is a default (non-deletable) category
+  // Check if a category is a default (non-deletable) category
   bool isDefaultCategory(String category) {
     return defaultCategories.contains(category.toLowerCase());
   }

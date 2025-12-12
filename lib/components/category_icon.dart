@@ -1,43 +1,43 @@
 // Component: Category Icon Widget
-/// Category Icon Widget
-///
-/// A reusable widget for displaying category icons with consistent styling.
-/// Uses the centralized category icon/color mapping.
+// Category Icon Widget
+//
+// A reusable widget for displaying category icons with consistent styling.
+// Uses the centralized category icon/color mapping.
 
 import 'package:flutter/material.dart';
 import 'category_icons.dart';
 import 'design_system.dart';
 
-/// Display style for the category icon
+// Display style for the category icon
 enum CategoryIconStyle {
-  /// Icon only, no background
+  // Icon only, no background
   icon,
 
-  /// Icon in a circular avatar
+  // Icon in a circular avatar
   circle,
 
-  /// Icon in a rounded square
+  // Icon in a rounded square
   square,
 
-  /// Small dot indicator (no icon)
+  // Small dot indicator (no icon)
   dot,
 }
 
-/// A widget that displays a category icon with consistent styling
+// A widget that displays a category icon with consistent styling
 class CategoryIcon extends StatelessWidget {
-  /// The category name/tag
+  // The category name/tag
   final String? category;
 
-  /// The display style
+  // The display style
   final CategoryIconStyle style;
 
-  /// Size of the icon/container
+  // Size of the icon/container
   final double? size;
 
-  /// Optional custom icon (overrides category lookup)
+  // Optional custom icon (overrides category lookup)
   final IconData? customIcon;
 
-  /// Optional custom color (overrides category lookup)
+  // Optional custom color (overrides category lookup)
   final Color? customColor;
 
   const CategoryIcon({
@@ -112,21 +112,21 @@ class CategoryIcon extends StatelessWidget {
   }
 }
 
-/// A widget that displays a category chip (icon + label)
+// A widget that displays a category chip (icon + label)
 class CategoryChip extends StatelessWidget {
-  /// The category name/tag
+  // The category name/tag
   final String category;
 
-  /// Whether to show the icon
+  // Whether to show the icon
   final bool showIcon;
 
-  /// Optional custom color
+  // Optional custom color
   final Color? customColor;
 
-  /// Optional tap handler
+  // Optional tap handler
   final VoidCallback? onTap;
 
-  /// Whether this chip is selected
+  // Whether this chip is selected
   final bool isSelected;
 
   const CategoryChip({

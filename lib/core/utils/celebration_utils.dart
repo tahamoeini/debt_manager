@@ -5,7 +5,7 @@ import 'dart:math' as math;
 // Duration for auto-dismissing celebration dialogs
 const Duration _autoDismissDuration = Duration(seconds: 3);
 
-/// Shows a celebration animation when a debt is fully paid off
+// Shows a celebration animation when a debt is fully paid off
 Future<void> showDebtCompletionCelebration(BuildContext context) async {
   await showDialog(
     context: context,
@@ -188,7 +188,7 @@ class _ConfettiPainter extends CustomPainter {
   }
 }
 
-/// Shows a simple success animation for achieving a goal
+// Shows a simple success animation for achieving a goal
 Future<void> showSuccessAnimation(
   BuildContext context, {
   required String title,
@@ -212,7 +212,7 @@ Future<void> showSuccessAnimation(
   );
 }
 
-/// Show an achievement dialog with badge-like appearance.
+// Show an achievement dialog with badge-like appearance.
 Future<void> showAchievementDialog(BuildContext context,
     {required String title, required String message, IconData? icon}) async {
   await showDialog(

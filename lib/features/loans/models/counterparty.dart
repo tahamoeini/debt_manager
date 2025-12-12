@@ -9,7 +9,7 @@ class Counterparty {
 
   const Counterparty({this.id, required this.name, this.type, this.tag});
 
-  /// Convert this model to a map suitable for SQLite insert/update.
+  // Convert this model to a map suitable for SQLite insert/update.
   Map<String, dynamic> toMap() {
     final map = <String, dynamic>{'name': name, 'type': type, 'tag': tag};
     if (id != null) {
@@ -18,7 +18,7 @@ class Counterparty {
     return map;
   }
 
-  /// Create a [Counterparty] from a map (e.g. result from SQLite query).
+  // Create a [Counterparty] from a map (e.g. result from SQLite query).
   factory Counterparty.fromMap(Map<String, dynamic> map) {
     return Counterparty(
       id: map['id'] is int
@@ -30,7 +30,7 @@ class Counterparty {
     );
   }
 
-  /// Create a copy with optional overrides.
+  // Create a copy with optional overrides.
   Counterparty copyWith({int? id, String? name, String? type, String? tag}) {
     return Counterparty(
       id: id ?? this.id,

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-/// Design system constants for consistent spacing, padding, and border radius
-/// throughout the application. Using these constants ensures a cohesive UI.
+// Design system constants for consistent spacing, padding, and border radius
+// throughout the application. Using these constants ensures a cohesive UI.
 class AppDimensions {
   // Prevent instantiation
   AppDimensions._();
