@@ -7,6 +7,7 @@ list(APPEND FLUTTER_PLUGIN_LIST
   local_auth_windows
   printing
   share_plus
+  sqlcipher_flutter_libs
   url_launcher_windows
 )
 

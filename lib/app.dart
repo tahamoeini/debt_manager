@@ -6,6 +6,8 @@ import 'core/providers/core_providers.dart';
 import 'core/router/app_router.dart';
 import 'core/debug/debug_overlay.dart';
 import 'core/settings/settings_repository.dart';
+import 'core/db/database_helper.dart';
+import 'core/security/lock_screen.dart';
 
 class DebtManagerApp extends ConsumerStatefulWidget {
   const DebtManagerApp({super.key});
@@ -54,6 +56,15 @@ class _DebtManagerAppState extends ConsumerState<DebtManagerApp>
         });
       }
     });
+    // If DB is encrypted, prompt for PIN right after first frame so DB
+    // can be opened before other database accesses occur.
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      final dbEncrypted = await DatabaseHelper.instance.isDatabaseEncrypted();
+      if (dbEncrypted) {
+        if (!mounted) return;
+        await Navigator.of(context).push(MaterialPageRoute(builder: (_) => const LockScreen()));
+      }
+    });
     _settings.getStrictLockEnabled().then((s) => _strictLock = s);
   }
 
@@ -77,7 +88,15 @@ class _DebtManagerAppState extends ConsumerState<DebtManagerApp>
       // On resume, require unlock if app lock is enabled
       if (_appLockEnabled) {
         auth.lock();
-        auth.tryUnlock();
+        // If DB encrypted, show LockScreen to force PIN and open DB.
+        DatabaseHelper.instance.isDatabaseEncrypted().then((enc) async {
+          if (enc) {
+            if (!mounted) return;
+            await Navigator.of(context).push(MaterialPageRoute(builder: (_) => const LockScreen()));
+          } else {
+            auth.tryUnlock();
+          }
+        });
       }
       // Restart inactivity timer
       if (_appLockEnabled) _startLockTimer();

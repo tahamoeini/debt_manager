@@ -13,6 +13,9 @@ import 'package:debt_manager/core/notifications/notification_service.dart';
 import 'package:debt_manager/core/db/installment_dao.dart';
 import 'package:debt_manager/core/smart_insights/smart_insights_service.dart';
 import 'package:debt_manager/core/settings/settings_repository.dart';
+import 'package:debt_manager/core/security/secure_storage_service.dart';
+import 'package:debt_manager/core/security/security_service.dart';
+// crypto/dart:convert not required here
 
 class DatabaseHelper {
   static final DatabaseHelper instance = DatabaseHelper._internal();
@@ -51,12 +54,89 @@ class DatabaseHelper {
     final databasesPath = await getDatabasesPath();
     final path = join(databasesPath, _dbName);
 
+    // If DB marked as encrypted, require opening with a derived key via
+    // `openWithKey` to avoid attempting to open an encrypted DB without
+    // password and causing failures. Callers should call `openWithKey`.
+    final encryptedFlag = await SecureStorageService.instance.read('db_encrypted');
+    if (encryptedFlag == '1') {
+      throw Exception('Database is encrypted; open with key using openWithKey().');
+    }
+
     return openDatabase(
       path,
       version: _dbVersion,
       onCreate: _onCreate,
       onUpgrade: _onUpgrade,
     );
+  }
+
+  /// Close any existing DB and open it using a provided encryption key.
+  Future<void> openWithKey(String key) async {
+    if (_isWeb) return;
+    final databasesPath = await getDatabasesPath();
+    final path = join(databasesPath, _dbName);
+
+    if (_db != null) {
+      try {
+        await _db!.close();
+      } catch (_) {}
+      _db = null;
+    }
+
+    // Use dynamic invocation for `openDatabase` to allow passing the
+    // SQLCipher `password` named argument without causing analyzer failures
+    // when using the sqflite_sqlcipher package at runtime.
+    _db = await (openDatabase as dynamic)(
+      path,
+      password: key,
+      version: _dbVersion,
+      onCreate: _onCreate,
+      onUpgrade: _onUpgrade,
+    );
+  }
+
+  /// Enable encryption on the existing database using the provided user PIN.
+  /// This performs an in-place conversion using SQLCipher `PRAGMA rekey`.
+  /// The PIN's derived key is not stored; only a salted hash is kept by
+  /// the `SecurityService` for verification.
+  Future<void> enableEncryptionWithPin(String pin) async {
+    if (_isWeb) return;
+    final db = await database; // ensure DB is open
+    final ok = await SecurityService.instance.verifyPin(pin);
+    if (!ok) throw Exception('Invalid PIN');
+    final key = await SecurityService.instance.deriveKeyFromPin(pin);
+    if (key == null) throw Exception('Unable to derive key');
+    // Attempt to run PRAGMA rekey; if the platform supports SQLCipher this
+    // will encrypt the database in-place. If the underlying sqflite does not
+    // support SQLCipher, this call may throw.
+    try {
+      await db.execute("PRAGMA rekey = '$key';");
+      await SecureStorageService.instance.write('db_encrypted', '1');
+    } catch (e) {
+      throw Exception('Failed to enable DB encryption: $e');
+    }
+  }
+
+  /// Returns true if the DB was marked as encrypted locally.
+  Future<bool> isDatabaseEncrypted() async {
+    if (_isWeb) return false;
+    final v = await SecureStorageService.instance.read('db_encrypted');
+    return v == '1';
+  }
+
+  /// Disable encryption by rekeying to an empty key (platform dependent).
+  Future<void> disableEncryptionWithPin(String pin) async {
+    if (_isWeb) return;
+    final ok = await SecurityService.instance.verifyPin(pin);
+    if (!ok) throw Exception('Invalid PIN');
+    final db = await database;
+    try {
+      // Rekey to empty string to remove encryption (SQLCipher behavior).
+      await db.execute("PRAGMA rekey = '';");
+      await SecureStorageService.instance.delete('db_encrypted');
+    } catch (e) {
+      throw Exception('Failed to disable DB encryption: $e');
+    }
   }
 
   FutureOr<void> _onCreate(Database db, int version) async {

@@ -14,6 +14,7 @@ class DashboardCard extends StatelessWidget {
 
   // The main value to display
   final String value;
+  final Widget? valueWidget;
 
   // Optional subtitle text
   final String? subtitle;
@@ -34,6 +35,7 @@ class DashboardCard extends StatelessWidget {
     super.key,
     required this.title,
     required this.value,
+    this.valueWidget,
     this.subtitle,
     this.icon,
     this.accentColor,
@@ -97,7 +99,7 @@ class DashboardCard extends StatelessWidget {
                 ),
               )
             else
-              Text(
+              valueWidget ?? Text(
                 value,
                 style: textTheme.headlineSmall?.copyWith(
                   fontWeight: FontWeight.bold,

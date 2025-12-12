@@ -13,6 +13,7 @@ import 'package:debt_manager/core/export/export_service.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:debt_manager/features/achievements/achievements_repository.dart';
 import 'package:debt_manager/features/reports/reports_notifier.dart';
+import 'package:debt_manager/components/sensitive_text.dart';
 
 class ReportsScreen extends ConsumerWidget {
   const ReportsScreen({super.key});
@@ -325,7 +326,7 @@ class ReportsScreen extends ConsumerWidget {
                                 children: [
                                   const Text('مجموع برنامه‌ریزی‌شده'),
                                   const SizedBox(height: 6),
-                                  Text(
+                                  SensitiveText(
                                     formatCurrency(state.rows.fold<int>(0, (sum, r) {
                                       final inst = r['installment'] as Installment;
                                       return sum + inst.amount;
@@ -339,7 +340,7 @@ class ReportsScreen extends ConsumerWidget {
                                 children: [
                                   const Text('مجموع پرداخت‌شده'),
                                   const SizedBox(height: 6),
-                                  Text(
+                                  SensitiveText(
                                     formatCurrency(state.rows.fold<int>(0, (sum, r) {
                                       final inst = r['installment'] as Installment;
                                       if (inst.status == InstallmentStatus.paid) {
@@ -356,7 +357,7 @@ class ReportsScreen extends ConsumerWidget {
                                 children: [
                                   const Text('باقی‌مانده'),
                                   const SizedBox(height: 6),
-                                  Text(
+                                  SensitiveText(
                                     formatCurrency(state.rows.fold<int>(0, (sum, r) {
                                       final inst = r['installment'] as Installment;
                                       return sum + inst.amount;
@@ -419,7 +420,7 @@ class ReportsScreen extends ConsumerWidget {
                                 ),
                               ],
                             ),
-                            trailing: Text(
+                            trailing: SensitiveText(
                               formatCurrency(inst.amount),
                               style: Theme.of(context).textTheme.titleMedium,
                             ),

@@ -25,9 +25,11 @@ class SettingsRepository {
   static const _keyAppLockEnabled = 'app_lock_enabled';
   static const _keyLockTimeoutMinutes = 'lock_timeout_minutes';
   static const _keyStrictLock = 'strict_lock';
+  static const _keyPrivacyMode = 'privacy_mode';
   static const _keyBudgetThreshold90 = 'budget_threshold_90';
   static const _keyBudgetThreshold100 = 'budget_threshold_100';
   static const _keyOnboardingComplete = 'onboarding_complete';
+  static const _keyDbEncrypted = 'db_encrypted_setting';
 
   // Public (synchronous) fields used by callers in this codebase.
   // These are populated by calling `init()` at app startup or prior to use.
@@ -59,6 +61,7 @@ class SettingsRepository {
       ValueNotifier(LanguageOption.persian);
   static final ValueNotifier<bool> biometricEnabledNotifier =
       ValueNotifier(false);
+  static final ValueNotifier<bool> privacyModeNotifier = ValueNotifier(false);
 
   // Initialize repository and populate public fields from SharedPreferences.
   Future<void> init() async {
@@ -102,6 +105,7 @@ class SettingsRepository {
     appLockEnabled = prefs.getBool(_keyAppLockEnabled) ?? false;
     lockTimeoutMinutes = prefs.getInt(_keyLockTimeoutMinutes) ?? 5;
     strictLock = prefs.getBool(_keyStrictLock) ?? false;
+    privacyModeNotifier.value = prefs.getBool(_keyPrivacyMode) ?? false;
   }
 
   // Backward-compatible async getters/setters used throughout code.
@@ -233,6 +237,15 @@ class SettingsRepository {
     strictLock = enabled;
   }
 
+  Future<bool> getPrivacyModeEnabled() async =>
+      privacyModeNotifier.value;
+
+  Future<void> setPrivacyModeEnabled(bool enabled) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_keyPrivacyMode, enabled);
+    privacyModeNotifier.value = enabled;
+  }
+
   // Compatibility helpers expected by older code
   double getFontScale(FontSizeOption size) {
     switch (size) {
@@ -287,5 +300,15 @@ class SettingsRepository {
   Future<void> replayOnboarding() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool(_keyOnboardingComplete, false);
+  }
+
+  Future<bool> getDatabaseEncryptionEnabled() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getBool(_keyDbEncrypted) ?? false;
+  }
+
+  Future<void> setDatabaseEncryptionEnabled(bool enabled) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_keyDbEncrypted, enabled);
   }
 }

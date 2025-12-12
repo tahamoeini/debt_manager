@@ -8,6 +8,7 @@ import 'package:debt_manager/components/components.dart';
 import 'package:debt_manager/features/loans/models/loan.dart';
 import 'add_loan_screen.dart';
 import 'loan_detail_screen.dart';
+import 'package:debt_manager/components/sensitive_text.dart';
 
 class LoansListScreen extends ConsumerWidget {
   const LoansListScreen({super.key});
@@ -59,7 +60,7 @@ class LoansListScreen extends ConsumerWidget {
                   style: Theme.of(context).textTheme.bodySmall,
                 ),
                 const SizedBox(height: 4),
-                Text(
+                SensitiveText(
                   formatCurrency(s.remainingAmount),
                   style: Theme.of(context).textTheme.bodyMedium,
                 ),

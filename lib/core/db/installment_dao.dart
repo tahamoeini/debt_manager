@@ -40,7 +40,12 @@ class InstallmentDao {
       whereArgs: [loanId],
       orderBy: 'due_date_jalali ASC',
     );
-    return rows.map((r) => Installment.fromMap(r)).toList();
+    try {
+      return rows.map((r) => Installment.fromMap(r)).toList();
+    } catch (_) {
+      // Defensive: return empty list if parsing fails for any row
+      return [];
+    }
   }
 
   static Future<Map<int, List<Installment>>> getInstallmentsGroupedByLoanId(

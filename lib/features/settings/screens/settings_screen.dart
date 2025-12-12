@@ -16,6 +16,7 @@ import 'package:debt_manager/features/help/help_screen.dart';
 import 'package:debt_manager/features/automation/screens/automation_rules_screen.dart';
 import 'package:debt_manager/core/providers/core_providers.dart';
 import 'package:debt_manager/core/utils/bug_report_utils.dart';
+import 'package:debt_manager/core/db/database_helper.dart';
 
 class SettingsScreen extends ConsumerStatefulWidget {
   const SettingsScreen({super.key});
@@ -402,6 +403,19 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                               await _saveFontSize(v);
                             },
                           ),
+                          const Divider(),
+                          // Privacy mode toggle: hide/blur sensitive values
+                          SwitchListTile(
+                            title: const Text('حالت حریم خصوصی'),
+                            subtitle: const Text('مقادیر حساس را در داشبورد و گزارش‌ها مخفی یا بلور کن'),
+                            value: SettingsRepository.privacyModeNotifier.value,
+                            onChanged: (v) async {
+                              await _repo.setPrivacyModeEnabled(v);
+                              if (mounted) {
+                                setState(() {});
+                              }
+                            },
+                          ),
                         ],
                       ),
                     ),
@@ -594,6 +608,70 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                                       Theme.of(context).colorScheme.error,
                                 ),
                                 child: const Text('حذف PIN'),
+                              ),
+                              const SizedBox(width: 12),
+                              // Database encryption toggle and migration
+                              FutureBuilder<bool>(
+                                future: DatabaseHelper.instance.isDatabaseEncrypted(),
+                                builder: (ctx, snap) {
+                                  final dbEncrypted = snap.data ?? false;
+                                  return FilledButton.icon(
+                                    onPressed: () async {
+                                      if (dbEncrypted) {
+                                        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('پایگاه داده قبلاً رمزنگاری شده است')));
+                                        return;
+                                      }
+
+                                      final first = TextEditingController();
+                                      final second = TextEditingController();
+                                      final ok = await showDialog<bool>(
+                                        context: context,
+                                        builder: (dctx) => AlertDialog(
+                                          title: const Text('رمزنگاری پایگاه داده'),
+                                          content: Column(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              TextField(
+                                                controller: first,
+                                                obscureText: true,
+                                                keyboardType: TextInputType.number,
+                                                decoration: const InputDecoration(labelText: 'PIN'),
+                                              ),
+                                              TextField(
+                                                controller: second,
+                                                obscureText: true,
+                                                keyboardType: TextInputType.number,
+                                                decoration: const InputDecoration(labelText: 'تأیید PIN'),
+                                              ),
+                                            ],
+                                          ),
+                                          actions: [
+                                            TextButton(onPressed: () => Navigator.of(dctx).pop(false), child: const Text('لغو')),
+                                            FilledButton(onPressed: () {
+                                              if (first.text.trim().isEmpty) return;
+                                              if (first.text != second.text) return;
+                                              Navigator.of(dctx).pop(true);
+                                            }, child: const Text('رمزنگاری'))
+                                          ],
+                                        ),
+                                      );
+
+                                      if (ok == true) {
+                                        final pin = first.text.trim();
+                                        await SecurityService.instance.setPin(pin);
+                                        try {
+                                          await DatabaseHelper.instance.enableEncryptionWithPin(pin);
+                                          await SettingsRepository().setDatabaseEncryptionEnabled(true);
+                                          if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('پایگاه داده رمزنگاری شد')));
+                                        } catch (e) {
+                                          if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('خطا در رمزنگاری: $e')));
+                                        }
+                                      }
+                                    },
+                                    icon: const Icon(Icons.lock_outline),
+                                    label: const Text('رمزنگاری DB'),
+                                  );
+                                },
                               ),
                             ],
                           ),

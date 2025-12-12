@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:debt_manager/core/security/security_service.dart';
+import 'package:debt_manager/core/db/database_helper.dart';
 import 'package:flutter/services.dart';
 import 'package:debt_manager/core/providers/core_providers.dart';
 
@@ -31,6 +32,24 @@ class _LockScreenState extends ConsumerState<LockScreen> {
       _authenticating = true;
       _error = null;
     });
+    // If database is encrypted, require PIN entry (biometric can't derive key).
+    final dbEncrypted = await DatabaseHelper.instance.isDatabaseEncrypted();
+    if (dbEncrypted) {
+      final hasPin = await SecurityService.instance.hasPin();
+      if (!mounted) return;
+      if (hasPin) {
+        setState(() {
+          _authenticating = false;
+          _showPin = true;
+        });
+        return;
+      }
+      setState(() {
+        _authenticating = false;
+        _error = 'پین برای باز کردن پایگاه داده تنظیم نشده است.';
+      });
+      return;
+    }
 
     // Try biometric first. If unavailable or authentication fails,
     // fall back to PIN entry if a PIN exists.
@@ -67,10 +86,19 @@ class _LockScreenState extends ConsumerState<LockScreen> {
       _authenticating = true;
       _error = null;
     });
-    final ok = await SecurityService.instance.verifyPin(_pinCtrl.text.trim());
+    final pin = _pinCtrl.text.trim();
+    final ok = await SecurityService.instance.verifyPin(pin);
     if (!mounted) return;
     if (ok) {
+      // Derive DB key from PIN and attempt to open encrypted DB if present.
+      final key = await SecurityService.instance.deriveKeyFromPin(pin);
+      try {
+        if (key != null) {
+          await DatabaseHelper.instance.openWithKey(key);
+        }
+      } catch (_) {}
       ref.read(authNotifierProvider).unlock();
+      if (!mounted) return;
       Navigator.of(context).pop(true);
       return;
     }

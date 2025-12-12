@@ -1,7 +1,9 @@
+import 'dart:convert';
+import 'dart:math';
 import 'package:local_auth/local_auth.dart';
 import 'package:debt_manager/core/security/secure_storage_service.dart';
-import 'package:crypto/crypto.dart';
-import 'dart:convert';
+import 'package:pointycastle/pointycastle.dart';
+import 'dart:typed_data';
 
 // SecurityService wraps the `local_auth` APIs and exposes a small,
 // testable surface for the app to perform biometric authentication.
@@ -11,6 +13,7 @@ class SecurityService {
 
   final LocalAuthentication _auth = LocalAuthentication();
   static const _pinKey = 'app_pin_hash';
+  static const _pinSaltKey = 'app_pin_salt';
 
   // Whether biometrics are available on this device and enrolled.
   Future<bool> isBiometricAvailable() async {
@@ -41,23 +44,52 @@ class SecurityService {
   // PIN management using secure storage. PINs are hashed with SHA256
   // before persisting in secure storage.
   Future<void> setPin(String pin) async {
-    final hash = sha256.convert(utf8.encode(pin)).toString();
+    // Generate a random salt and store salt + salted hash.
+    final saltBytes = List<int>.generate(16, (_) => Random.secure().nextInt(256));
+    final salt = base64.encode(saltBytes);
+    // Store a salted PBKDF2-derived hash for verification
+    final hashBytes = _deriveKeyPBKDF2(Uint8List.fromList(utf8.encode(pin)), Uint8List.fromList(saltBytes), 10000, 32);
+    final hash = _bytesToHex(hashBytes);
+    await SecureStorageService.instance.write(_pinSaltKey, salt);
     await SecureStorageService.instance.write(_pinKey, hash);
   }
 
   Future<bool> verifyPin(String pin) async {
     final stored = await SecureStorageService.instance.read(_pinKey);
-    if (stored == null) return false;
-    final hash = sha256.convert(utf8.encode(pin)).toString();
+    final salt = await SecureStorageService.instance.read(_pinSaltKey);
+    if (stored == null || salt == null) return false;
+    final saltBytes = Uint8List.fromList(base64.decode(salt));
+    final hashBytes = _deriveKeyPBKDF2(Uint8List.fromList(utf8.encode(pin)), saltBytes, 10000, 32);
+    final hash = _bytesToHex(hashBytes);
     return stored == hash;
   }
 
   Future<bool> hasPin() async {
     final stored = await SecureStorageService.instance.read(_pinKey);
-    return stored != null;
+    final salt = await SecureStorageService.instance.read(_pinSaltKey);
+    return stored != null && salt != null;
   }
 
   Future<void> deletePin() async {
     await SecureStorageService.instance.delete(_pinKey);
+    await SecureStorageService.instance.delete(_pinSaltKey);
   }
+
+  /// Derive an encryption key for DB usage from the user's PIN.
+  /// The derived key is not stored; only the salt and verification hash
+  /// are persisted by `setPin`.
+  Future<String?> deriveKeyFromPin(String pin) async {
+    final salt = await SecureStorageService.instance.read(_pinSaltKey);
+    if (salt == null) return null;
+    final saltBytes = Uint8List.fromList(base64.decode(salt));
+    final derived = _deriveKeyPBKDF2(Uint8List.fromList(utf8.encode(pin)), saltBytes, 10000, 32);
+    return _bytesToHex(derived);
+  }
+  // Derive a key using PBKDF2 (HMAC-SHA256) via pointycastle
+  Uint8List _deriveKeyPBKDF2(Uint8List password, Uint8List salt, int iterations, int dkLen) {
+    final pbkdf2 = KeyDerivator('PBKDF2/HMAC/SHA-256')..init(Pbkdf2Parameters(salt, iterations, dkLen));
+    return pbkdf2.process(password);
+  }
+
+  String _bytesToHex(Uint8List bytes) => bytes.map((b) => b.toRadixString(16).padLeft(2, '0')).join();
 }

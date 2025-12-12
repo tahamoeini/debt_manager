@@ -10,6 +10,7 @@ import 'package:debt_manager/core/export/export_service.dart';
 import 'package:debt_manager/features/budget/screens/budget_comparison_screen.dart';
 import 'package:debt_manager/features/reports/screens/debt_payoff_projection_screen.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:debt_manager/components/sensitive_text.dart';
 
 class AdvancedReportsScreen extends ConsumerStatefulWidget {
   const AdvancedReportsScreen({super.key});
@@ -402,7 +403,13 @@ class _AdvancedReportsScreenState extends ConsumerState<AdvancedReportsScreen> {
                       ),
                     ),
                     const SizedBox(width: 4),
-                    Text('${e.key}: ${formatCurrency(e.value)}'),
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text('${e.key}: '),
+                        SensitiveText(formatCurrency(e.value)),
+                      ],
+                    ),
                   ],
                 );
               }).toList(),

@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:debt_manager/core/utils/format_utils.dart';
 import 'package:debt_manager/core/widgets/dashboard_card.dart';
+import 'package:debt_manager/components/sensitive_text.dart';
 import 'package:debt_manager/core/theme/app_constants.dart';
 import 'package:debt_manager/core/theme/app_colors.dart';
 
@@ -28,6 +29,7 @@ class SummaryCards extends StatelessWidget {
           child: DashboardCard(
             title: 'بدهی‌های من',
             value: formatCurrency(borrowed),
+            valueWidget: SensitiveText(formatCurrency(borrowed)),
             subtitle: 'مجموع اقساط پرداخت‌نشده‌ای که شما بدهکار هستید',
             icon: Icons.arrow_upward,
             accentColor: colorScheme.expense,
@@ -38,6 +40,7 @@ class SummaryCards extends StatelessWidget {
           child: DashboardCard(
             title: 'طلب‌های من',
             value: formatCurrency(lent),
+            valueWidget: SensitiveText(formatCurrency(lent)),
             subtitle: 'مجموع اقساط پرداخت‌نشده‌ای که دیگران به شما بدهکارند',
             icon: Icons.arrow_downward,
             accentColor: colorScheme.income,
@@ -48,6 +51,7 @@ class SummaryCards extends StatelessWidget {
           child: DashboardCard(
             title: 'وضعیت خالص',
             value: formatCurrency(net),
+            valueWidget: SensitiveText(formatCurrency(net)),
             subtitle: 'طلب منفی یعنی بیشتر بدهکار هستید',
             icon: Icons.account_balance_wallet,
             accentColor: net >= 0 ? colorScheme.income : colorScheme.expense,

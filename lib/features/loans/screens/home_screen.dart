@@ -7,6 +7,7 @@ import 'package:debt_manager/core/utils/jalali_utils.dart';
 import 'package:debt_manager/core/theme/app_constants.dart';
 // Loan/installment/counterparty types are part of HomeStats; no direct imports needed here
 import 'package:debt_manager/features/home/home_statistics_notifier.dart';
+import 'package:debt_manager/components/sensitive_text.dart';
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
@@ -40,8 +41,7 @@ class HomeScreen extends ConsumerWidget {
                           const Text('بدهی‌های من',
                               style: TextStyle(fontWeight: FontWeight.w600)),
                           const SizedBox(height: 8),
-                          Text(formatCurrency(borrowed),
-                              style: Theme.of(context).textTheme.headlineSmall),
+                            SensitiveText(formatCurrency(borrowed), style: Theme.of(context).textTheme.headlineSmall),
                         ],
                       ),
                     ),
@@ -58,8 +58,7 @@ class HomeScreen extends ConsumerWidget {
                           const Text('طلب‌های من',
                               style: TextStyle(fontWeight: FontWeight.w600)),
                           const SizedBox(height: 8),
-                          Text(formatCurrency(lent),
-                              style: Theme.of(context).textTheme.headlineSmall),
+                            SensitiveText(formatCurrency(lent), style: Theme.of(context).textTheme.headlineSmall),
                         ],
                       ),
                     ),
@@ -76,8 +75,7 @@ class HomeScreen extends ConsumerWidget {
                           const Text('وضعیت خالص',
                               style: TextStyle(fontWeight: FontWeight.w600)),
                           const SizedBox(height: 8),
-                          Text(formatCurrency(net),
-                              style: Theme.of(context).textTheme.headlineSmall),
+                            SensitiveText(formatCurrency(net), style: Theme.of(context).textTheme.headlineSmall),
                         ],
                       ),
                     ),
@@ -128,7 +126,7 @@ class HomeScreen extends ConsumerWidget {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text(dueDisplay),
-                            Text(formatCurrency(inst.amount)),
+                            SensitiveText(formatCurrency(inst.amount)),
                           ],
                         ),
                       ],

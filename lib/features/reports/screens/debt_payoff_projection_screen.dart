@@ -6,6 +6,7 @@ import 'package:debt_manager/features/reports/reports_repository.dart';
 import 'package:debt_manager/features/loans/loan_list_notifier.dart';
 import 'package:debt_manager/features/loans/models/loan.dart';
 import 'package:debt_manager/core/utils/format_utils.dart';
+import 'package:debt_manager/components/sensitive_text.dart';
 
 class DebtPayoffProjectionScreen extends ConsumerStatefulWidget {
   const DebtPayoffProjectionScreen({super.key});
@@ -262,7 +263,7 @@ class _DebtPayoffProjectionScreenState extends ConsumerState<DebtPayoffProjectio
             _buildSummaryRow('مجموع پرداخت‌ها', formatCurrency(totalPayments)),
             if (_extraPayment > 0) ...[
               const SizedBox(height: 8),
-              _buildSummaryRow(
+                _buildSummaryRow(
                   'پرداخت اضافی ماهانه', formatCurrency(_extraPayment)),
               const SizedBox(height: 12),
               Container(
@@ -291,7 +292,7 @@ class _DebtPayoffProjectionScreenState extends ConsumerState<DebtPayoffProjectio
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Text(label),
-        Text(
+        SensitiveText(
           value,
           style: Theme.of(context).textTheme.titleSmall,
         ),
