@@ -309,11 +309,7 @@ class TransferSessionManager {
 
   /// Add frame to session
   void addFrame(String transferId, TransferFrame frame) {
-    var session = _sessions[transferId];
-    if (session == null) {
-      // Auto-create session if receiving first frame
-      session = createSession(transferId, frame.totalFrames);
-    }
+    var session = _sessions[transferId] ??= createSession(transferId, frame.totalFrames);
     session.addFrame(frame);
   }
 

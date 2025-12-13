@@ -99,7 +99,7 @@ class BackupRestoreService {
 
       // Write zip file
       final zipEncoder = ZipEncoder();
-      final zipBytes = zipEncoder.encode(archive) ?? [];
+      final zipBytes = zipEncoder.encode(archive);
       if (zipBytes.isEmpty) {
         throw Exception('Failed to encode backup');
       }
@@ -246,19 +246,19 @@ class BackupRestoreService {
 
       // Import counterparties first (foreign key dependency)
       final counterparties = payload.data['counterparties'] as List? ?? [];
-      for (final cpData in counterparties) {
+      for (final _ in counterparties) {
         // TODO: Create Counterparty from map and insert
       }
 
       // Import loans (depends on counterparties)
       final loans = payload.data['loans'] as List? ?? [];
-      for (final loanData in loans) {
+      for (final _ in loans) {
         // TODO: Create Loan from map and insert
       }
 
       // Import installments (depends on loans)
       final installments = payload.data['installments'] as List? ?? [];
-      for (final instData in installments) {
+      for (final _ in installments) {
         // TODO: Create Installment from map and insert
       }
     } catch (e) {

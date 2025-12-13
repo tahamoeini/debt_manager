@@ -245,7 +245,7 @@ class _TransferSendScreenState extends ConsumerState<TransferSendScreen>
                         child: Column(
                           children: [
                             _InfoRow('حجم:', '${currentFrame.data.length} بایت'),
-                            _InfoRow('چک‌سام:', currentFrame.checksum.substring(0, 16) + '...'),
+                            _InfoRow('چک‌سام:', '${currentFrame.checksum.substring(0, 16)}...'),
                             _InfoRow('زمان:', _formatTimestamp(currentFrame.timestamp)),
                           ],
                         ),

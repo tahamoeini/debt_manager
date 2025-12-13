@@ -277,7 +277,7 @@ class HomeScreen extends ConsumerWidget {
                         titlesData: FlTitlesData(show: false),
                         borderData: FlBorderData(show: false),
                         lineBarsData: [
-                          LineBarData(
+                          LineChartBarData(
                             spots: data.spendingTrend
                                 .asMap()
                                 .entries

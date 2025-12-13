@@ -267,17 +267,16 @@ void main() {
         rolloverPercentage: 0.5,
       );
 
-      var savedMonths = 0;
       var overspentMonths = 0;
 
       for (final period in periods) {
-        if (!(period['overBudget'] as bool)) savedMonths += 1;
         if (period['overBudget'] as bool) overspentMonths += 1;
       }
 
       // With 10M budget and 12M spending, budget resets on overspend
-      // Should have at least some saved and some overspent months
+      // Should have at least some overspent months
       expect(periods.length, greaterThanOrEqualTo(1));
+      expect(overspentMonths, greaterThan(0));
     });
 
     test('Category-based budget rollover', () {

@@ -80,9 +80,11 @@ class _BackupRestoreScreenState extends State<BackupRestoreScreen> {
       if (!mounted) return;
 
       _showSuccessSnackBar('نسخه‌ی پشتیبان با موفقیت ایجاد شد');
+      if (!mounted) return;
       await _loadAvailableBackups();
 
       // Ask to share
+      if (!mounted) return;
       final shareConfirmed = await showDialog<bool>(
         context: context,
         builder: (context) => AlertDialog(
