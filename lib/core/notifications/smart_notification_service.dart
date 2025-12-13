@@ -134,7 +134,7 @@ class SmartNotificationService {
             // to hold off on new discretionary spends.
             final title = '💡 پیشنهاد مالی: بودجه نزدیک به تکمیل';
             final body =
-              'شما ${(percentage * 100).toStringAsFixed(0)}٪ از بودجه ${budget.category ?? 'عمومی'} را استفاده کرده‌اید. با توجه به درآمد نامنظم، پیشنهاد می‌شود تا حدود $safeExtra ریال را برای هزینه‌های ضروری نگه دارید.';
+                'شما ${(percentage * 100).toStringAsFixed(0)}٪ از بودجه ${budget.category ?? 'عمومی'} را استفاده کرده‌اید. با توجه به درآمد نامنظم، پیشنهاد می‌شود تا حدود $safeExtra ریال را برای هزینه‌های ضروری نگه دارید.';
             await sendSmartSuggestion(title, body, budget.id ?? 1);
           } else {
             await _sendBudgetAlert(

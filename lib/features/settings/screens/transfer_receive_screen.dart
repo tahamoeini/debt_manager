@@ -33,7 +33,8 @@ class _TransferReceiveState {
       currentTransferId: currentTransferId ?? this.currentTransferId,
       isScanning: isScanning ?? this.isScanning,
       error: error,
-      scannedTransfersHistory: scannedTransfersHistory ?? this.scannedTransfersHistory,
+      scannedTransfersHistory:
+          scannedTransfersHistory ?? this.scannedTransfersHistory,
     );
   }
 
@@ -80,7 +81,8 @@ class _TransferReceiveNotifier extends StateNotifier<_TransferReceiveState> {
 }
 
 final _transferReceiveProvider =
-    StateNotifierProvider<_TransferReceiveNotifier, _TransferReceiveState>((ref) {
+    StateNotifierProvider<_TransferReceiveNotifier, _TransferReceiveState>(
+        (ref) {
   return _TransferReceiveNotifier();
 });
 
@@ -218,9 +220,10 @@ class _TransferReceiveScreenState extends ConsumerState<TransferReceiveScreen> {
                         ),
                         Text(
                           '${(session.progress * 100).toStringAsFixed(1)}%',
-                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                fontWeight: FontWeight.bold,
-                              ),
+                          style:
+                              Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                  ),
                         ),
                       ],
                     ),

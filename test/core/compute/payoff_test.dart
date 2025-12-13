@@ -4,7 +4,8 @@ void main() {
   group('Payoff Projection Tests', () {
     // Helper: Snowball strategy (lowest balance first)
     List<Map<String, dynamic>> simulateSnowball({
-      required List<Map<String, dynamic>> debts, // [{balance, rate, minPayment}]
+      required List<Map<String, dynamic>>
+          debts, // [{balance, rate, minPayment}]
       required int extraPayment,
       required int maxMonths,
     }) {
@@ -58,7 +59,8 @@ void main() {
 
     // Helper: Avalanche strategy (highest rate first)
     List<Map<String, dynamic>> simulateAvalanche({
-      required List<Map<String, dynamic>> debts, // [{balance, rate, minPayment}]
+      required List<Map<String, dynamic>>
+          debts, // [{balance, rate, minPayment}]
       required int extraPayment,
       required int maxMonths,
     }) {
@@ -169,7 +171,8 @@ void main() {
       );
 
       // Both should have same payoff if they reach zero
-      if (snowball.last['totalBalance'] == 0 && avalanche.last['totalBalance'] == 0) {
+      if (snowball.last['totalBalance'] == 0 &&
+          avalanche.last['totalBalance'] == 0) {
         expect(snowball.length, lessThanOrEqualTo(avalanche.length + 2));
       }
     });
@@ -196,7 +199,8 @@ void main() {
 
       expect(projections.isNotEmpty, isTrue);
       // Smallest debt should be eliminated first
-      expect(projections.first['balances'][0] < projections.first['balances'][1],
+      expect(
+          projections.first['balances'][0] < projections.first['balances'][1],
           isTrue);
     });
 
@@ -228,7 +232,8 @@ void main() {
       expect(
         (firstMonth['balances'][1] as int) - (tenthMonth['balances'][1] as int),
         greaterThan(
-          (firstMonth['balances'][0] as int) - (tenthMonth['balances'][0] as int),
+          (firstMonth['balances'][0] as int) -
+              (tenthMonth['balances'][0] as int),
         ),
       );
     });
@@ -368,7 +373,8 @@ void main() {
         maxMonths: 200,
       );
 
-      final paidOffMonth = projections.indexWhere((p) => p['totalBalance'] == 0);
+      final paidOffMonth =
+          projections.indexWhere((p) => p['totalBalance'] == 0);
       expect(paidOffMonth, greaterThan(0));
       expect(paidOffMonth, lessThan(20)); // Should pay off within ~1.5 years
     });

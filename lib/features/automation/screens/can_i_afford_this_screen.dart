@@ -20,7 +20,7 @@ class _CanIAffordThisScreenState extends ConsumerState<CanIAffordThisScreen> {
   late TextEditingController _monthlyPaymentController;
   String _frequency = 'monthly'; // 'daily', 'weekly', 'monthly'
   int _durationMonths = 12;
-  
+
   CashFlowResult? _result;
   bool _isSimulating = false;
   String? _error;

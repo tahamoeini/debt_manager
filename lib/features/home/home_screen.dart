@@ -38,7 +38,8 @@ class HomeScreen extends ConsumerWidget {
                   icon: Icons.account_balance_wallet,
                   onTap: () async {
                     final res = await Navigator.of(context).push<bool>(
-                      MaterialPageRoute(builder: (_) => const LoansListScreen()),
+                      MaterialPageRoute(
+                          builder: (_) => const LoansListScreen()),
                     );
                     if (res == true) {
                       ref.read(refreshTriggerProvider.notifier).state++;
@@ -135,34 +136,47 @@ class HomeScreen extends ConsumerWidget {
                     // Show up to 3 upcoming installments
                     final items = data.upcoming.take(3).map((inst) {
                       final loan = data.loansById[inst.loanId];
-                      final cp = data.counterpartiesById[loan?.counterpartyId ?? -1];
+                      final cp =
+                          data.counterpartiesById[loan?.counterpartyId ?? -1];
                       final title = loan?.title ?? cp?.name ?? 'بدون عنوان';
-                      
+
                       // Check if overdue based on status
-                      final isOverdue = inst.status.toString() == 'InstallmentStatus.overdue';
-                      final color = isOverdue ? Colors.red.shade600 : Colors.blue.shade700;
-                      
+                      final isOverdue =
+                          inst.status.toString() == 'InstallmentStatus.overdue';
+                      final color = isOverdue
+                          ? Colors.red.shade600
+                          : Colors.blue.shade700;
+
                       return Container(
-                        margin: const EdgeInsets.only(bottom: AppDimensions.spacingS),
+                        margin: const EdgeInsets.only(
+                            bottom: AppDimensions.spacingS),
                         decoration: BoxDecoration(
                           border: Border.all(
-                            color: isOverdue ? Colors.red.shade200 : Colors.grey.shade300,
+                            color: isOverdue
+                                ? Colors.red.shade200
+                                : Colors.grey.shade300,
                             width: 1,
                           ),
                           borderRadius: BorderRadius.circular(8),
-                          color: isOverdue ? Colors.red.shade50 : Colors.grey.shade50,
+                          color: isOverdue
+                              ? Colors.red.shade50
+                              : Colors.grey.shade50,
                         ),
                         child: Material(
                           color: Colors.transparent,
                           child: InkWell(
                             onTap: () async {
-                              final res = await Navigator.of(context).push<bool>(
+                              final res =
+                                  await Navigator.of(context).push<bool>(
                                 MaterialPageRoute(
-                                  builder: (_) => LoanDetailScreen(loanId: inst.loanId),
+                                  builder: (_) =>
+                                      LoanDetailScreen(loanId: inst.loanId),
                                 ),
                               );
                               if (res == true) {
-                                ref.read(refreshTriggerProvider.notifier).state++;
+                                ref
+                                    .read(refreshTriggerProvider.notifier)
+                                    .state++;
                               }
                             },
                             borderRadius: BorderRadius.circular(8),
@@ -172,26 +186,36 @@ class HomeScreen extends ConsumerWidget {
                                 vertical: AppDimensions.spacingS,
                               ),
                               child: Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
                                 children: [
                                   Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
                                       Text(
                                         title,
-                                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                          fontWeight: FontWeight.w600,
-                                          color: color,
-                                        ),
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .bodyMedium
+                                            ?.copyWith(
+                                              fontWeight: FontWeight.w600,
+                                              color: color,
+                                            ),
                                         maxLines: 1,
                                         overflow: TextOverflow.ellipsis,
                                       ),
                                       const SizedBox(height: 4),
                                       Text(
                                         inst.dueDateJalali,
-                                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                          color: isOverdue ? Colors.red.shade600 : Colors.grey.shade700,
-                                        ),
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .bodySmall
+                                            ?.copyWith(
+                                              color: isOverdue
+                                                  ? Colors.red.shade600
+                                                  : Colors.grey.shade700,
+                                            ),
                                       ),
                                     ],
                                   ),
@@ -200,17 +224,23 @@ class HomeScreen extends ConsumerWidget {
                                     children: [
                                       Text(
                                         formatCurrency(inst.amount),
-                                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                          fontWeight: FontWeight.bold,
-                                          color: color,
-                                        ),
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .bodyMedium
+                                            ?.copyWith(
+                                              fontWeight: FontWeight.bold,
+                                              color: color,
+                                            ),
                                       ),
                                       if (isOverdue)
                                         Text(
                                           'تأخیر',
-                                          style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                                            color: Colors.red.shade600,
-                                          ),
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .labelSmall
+                                              ?.copyWith(
+                                                color: Colors.red.shade600,
+                                              ),
                                         ),
                                     ],
                                   ),
@@ -282,13 +312,16 @@ class HomeScreen extends ConsumerWidget {
                                 .asMap()
                                 .entries
                                 .map((e) => FlSpot(
-                                  e.key.toDouble(),
-                                  (e.value / 1000000).toDouble(),
-                                ))
+                                      e.key.toDouble(),
+                                      (e.value / 1000000).toDouble(),
+                                    ))
                                 .toList(),
                             isCurved: true,
                             gradient: LinearGradient(
-                              colors: [Colors.blue.shade300, Colors.blue.shade700],
+                              colors: [
+                                Colors.blue.shade300,
+                                Colors.blue.shade700
+                              ],
                             ),
                             barWidth: 3,
                             isStrokeCapRound: true,

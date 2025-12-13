@@ -4,7 +4,8 @@ import 'package:flutter/foundation.dart';
 // Debug helper to log compute function performance
 void _logComputeEntry(String functionName) {
   if (kDebugMode) {
-    print('[Compute] ▶ $functionName started at ${DateTime.now().millisecondsSinceEpoch}');
+    print(
+        '[Compute] ▶ $functionName started at ${DateTime.now().millisecondsSinceEpoch}');
   }
 }
 
@@ -78,7 +79,7 @@ class CashFlowInput {
 List<DailyCashSnapshot> simulateCashFlow(CashFlowInput input) {
   final startTime = DateTime.now().millisecondsSinceEpoch;
   _logComputeEntry('simulateCashFlow');
-  
+
   final snapshots = <DailyCashSnapshot>[];
   int balance = input.startingBalance;
 
@@ -152,7 +153,7 @@ List<DailyCashSnapshot> simulateCashFlow(CashFlowInput input) {
 
   final duration = DateTime.now().millisecondsSinceEpoch - startTime;
   _logComputeExit('simulateCashFlow', duration);
-  
+
   return snapshots;
 }
 
@@ -211,7 +212,7 @@ class CashFlowResult {
 CashFlowResult analyzeCashFlow(List<DailyCashSnapshot> snapshots) {
   final startTime = DateTime.now().millisecondsSinceEpoch;
   _logComputeEntry('analyzeCashFlow');
-  
+
   if (snapshots.isEmpty) {
     final result = CashFlowResult(
       snapshots: snapshots,
@@ -231,12 +232,10 @@ CashFlowResult analyzeCashFlow(List<DailyCashSnapshot> snapshots) {
 
   for (var i = 0; i < snapshots.length; i++) {
     final snap = snapshots[i];
-    minBalance = minBalance > snap.closingBalance
-        ? snap.closingBalance
-        : minBalance;
-    maxBalance = maxBalance < snap.closingBalance
-        ? snap.closingBalance
-        : maxBalance;
+    minBalance =
+        minBalance > snap.closingBalance ? snap.closingBalance : minBalance;
+    maxBalance =
+        maxBalance < snap.closingBalance ? snap.closingBalance : maxBalance;
 
     if (snap.isNegative && daysUntilNegative < 0) {
       daysUntilNegative = i;
@@ -250,9 +249,9 @@ CashFlowResult analyzeCashFlow(List<DailyCashSnapshot> snapshots) {
     maxBalance: maxBalance,
     daysUntilNegative: daysUntilNegative,
   );
-  
+
   final duration = DateTime.now().millisecondsSinceEpoch - startTime;
   _logComputeExit('analyzeCashFlow', duration);
-  
+
   return result;
 }

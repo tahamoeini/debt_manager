@@ -7,7 +7,8 @@ import 'package:flutter/foundation.dart';
 // Debug helper to log compute function performance
 void _logComputeEntry(String functionName) {
   if (kDebugMode) {
-    print('[Compute] ▶ $functionName started at ${DateTime.now().millisecondsSinceEpoch}');
+    print(
+        '[Compute] ▶ $functionName started at ${DateTime.now().millisecondsSinceEpoch}');
   }
 }
 
@@ -26,7 +27,7 @@ Map<String, int> computeSpendingByCategory(
 ) {
   final startTime = DateTime.now().millisecondsSinceEpoch;
   _logComputeEntry('computeSpendingByCategory');
-  
+
   final cpMap = <int, Map<String, dynamic>>{};
   for (final cp in counterparties) {
     final id = cp['id'];
@@ -72,7 +73,7 @@ Map<String, int> computeSpendingByCategory(
 
   final duration = DateTime.now().millisecondsSinceEpoch - startTime;
   _logComputeExit('computeSpendingByCategory', duration);
-  
+
   return categoryTotals;
 }
 
@@ -553,8 +554,7 @@ Map<String, List<int>> computeSpendingHeatmap(
     final lastDay = Jalali(targetYear, targetMonth, 1).monthLength;
     final mm = targetMonth.toString().padLeft(2, '0');
     final startDate = '$targetYear-$mm-01';
-    final endDate =
-        '$targetYear-$mm-${lastDay.toString().padLeft(2, '0')}';
+    final endDate = '$targetYear-$mm-${lastDay.toString().padLeft(2, '0')}';
 
     final monthCategoryTotals = <String, int>{};
 
@@ -577,7 +577,8 @@ Map<String, List<int>> computeSpendingHeatmap(
           ? loan['counterparty_id'] as int
           : int.tryParse(loan['counterparty_id'].toString()) ?? -1;
       final cp = cpMap[cpId];
-      final category = (cp != null ? (cp['type'] ?? cp['tag']) : null) ?? 'سایر';
+      final category =
+          (cp != null ? (cp['type'] ?? cp['tag']) : null) ?? 'سایر';
 
       final actual = inst['actual_paid_amount'] is int
           ? inst['actual_paid_amount'] as int
@@ -585,11 +586,15 @@ Map<String, List<int>> computeSpendingHeatmap(
               ? inst['amount'] as int
               : int.tryParse(inst['amount'].toString()) ?? 0);
 
-      monthCategoryTotals[category] = (monthCategoryTotals[category] ?? 0) + actual;
+      monthCategoryTotals[category] =
+          (monthCategoryTotals[category] ?? 0) + actual;
     }
 
     // Add monthly totals to heatmap
-    final allCategories = <String>{...monthCategoryTotals.keys, ...heatmapData.keys};
+    final allCategories = <String>{
+      ...monthCategoryTotals.keys,
+      ...heatmapData.keys
+    };
     for (final category in allCategories) {
       heatmapData.putIfAbsent(category, () => []);
       heatmapData[category]!.add(monthCategoryTotals[category] ?? 0);

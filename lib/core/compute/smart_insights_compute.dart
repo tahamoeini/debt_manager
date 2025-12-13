@@ -190,7 +190,8 @@ List<Map<String, dynamic>> computeDetectAnomalies(
         'average': avg.round(),
         'current': current.round(),
         'multiplier': (current / avg),
-        'description': 'هزینه در $title بیش از 3× میانگین $monthsBack ماه گذشته است',
+        'description':
+            'هزینه در $title بیش از 3× میانگین $monthsBack ماه گذشته است',
       });
     }
   }

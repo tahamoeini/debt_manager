@@ -21,7 +21,6 @@ class _AddBudgetScreenState extends ConsumerState<AddBudgetScreen> {
   final _amountCtrl = TextEditingController();
   final _periodCtrl = TextEditingController();
   bool _rollover = false;
-  
 
   String _currentPeriod() {
     final j = dateTimeToJalali(DateTime.now());

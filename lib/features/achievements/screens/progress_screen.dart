@@ -236,7 +236,7 @@ class ProgressScreen extends ConsumerWidget {
                                   decoration: BoxDecoration(
                                     color: Colors.yellow.shade300,
                                     shape: BoxShape.circle,
-                              ),
+                                  ),
                                   child: Center(
                                     child: Icon(
                                       Icons.star,
@@ -292,7 +292,8 @@ final _userProgressProvider = FutureProvider<UserProgress>((ref) async {
   return repo.getUserProgress();
 });
 
-final _earnedAchievementsProvider = FutureProvider<List<Achievement>>((ref) async {
+final _earnedAchievementsProvider =
+    FutureProvider<List<Achievement>>((ref) async {
   final repo = AchievementsRepository.instance;
   return repo.getEarnedAchievements();
 });

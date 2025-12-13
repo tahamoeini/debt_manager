@@ -234,49 +234,49 @@ class ReportsRepository {
     }
   }
 
-    // Project payoff across all borrowed loans under a given strategy
-    // strategy: 'snowball' or 'avalanche'
-    Future<List<Map<String, dynamic>>> projectAllDebtsPayoff({
-      int? extraPayment,
-      String strategy = 'snowball',
-    }) async {
-      final loans = await _db.getAllLoans(direction: LoanDirection.borrowed);
-      final loanIds = loans.map((e) => e.id).whereType<int>().toList();
-      final grouped = loanIds.isNotEmpty
-          ? await _db.getInstallmentsGroupedByLoanId(loanIds)
-          : <int, List<Installment>>{};
-      final allInstallments = grouped.values.expand((l) => l).toList();
+  // Project payoff across all borrowed loans under a given strategy
+  // strategy: 'snowball' or 'avalanche'
+  Future<List<Map<String, dynamic>>> projectAllDebtsPayoff({
+    int? extraPayment,
+    String strategy = 'snowball',
+  }) async {
+    final loans = await _db.getAllLoans(direction: LoanDirection.borrowed);
+    final loanIds = loans.map((e) => e.id).whereType<int>().toList();
+    final grouped = loanIds.isNotEmpty
+        ? await _db.getInstallmentsGroupedByLoanId(loanIds)
+        : <int, List<Installment>>{};
+    final allInstallments = grouped.values.expand((l) => l).toList();
 
-      final loanMaps = loans.map((l) => l.toMap()).toList();
-      final instMaps = allInstallments.map((i) => i.toMap()).toList();
+    final loanMaps = loans.map((l) => l.toMap()).toList();
+    final instMaps = allInstallments.map((i) => i.toMap()).toList();
 
-      final cacheKey =
-          'projectAllDebtsPayoff:extra=${extraPayment ?? 0}:strategy=$strategy';
+    final cacheKey =
+        'projectAllDebtsPayoff:extra=${extraPayment ?? 0}:strategy=$strategy';
 
-      try {
-        final res =
-            await compute<Map<String, dynamic>, List<Map<String, dynamic>>>(
-          projectAllDebtsPayoffEntry,
-          {
-            'loans': loanMaps,
-            'insts': instMaps,
-            'extraPayment': extraPayment,
-            'strategy': strategy,
-          },
-        );
-        if (_ref != null) {
-          _ref!.read(reportsCacheProvider.notifier).put(cacheKey, res);
-        }
-        return res;
-      } catch (e) {
-        final fallback = computeProjectAllDebtsPayoff(
-            loanMaps, instMaps, extraPayment, strategy);
-        if (_ref != null) {
-          _ref!.read(reportsCacheProvider.notifier).put(cacheKey, fallback);
-        }
-        return fallback;
+    try {
+      final res =
+          await compute<Map<String, dynamic>, List<Map<String, dynamic>>>(
+        projectAllDebtsPayoffEntry,
+        {
+          'loans': loanMaps,
+          'insts': instMaps,
+          'extraPayment': extraPayment,
+          'strategy': strategy,
+        },
+      );
+      if (_ref != null) {
+        _ref!.read(reportsCacheProvider.notifier).put(cacheKey, res);
       }
+      return res;
+    } catch (e) {
+      final fallback = computeProjectAllDebtsPayoff(
+          loanMaps, instMaps, extraPayment, strategy);
+      if (_ref != null) {
+        _ref!.read(reportsCacheProvider.notifier).put(cacheKey, fallback);
+      }
+      return fallback;
     }
+  }
 
   // Generate insights for the current month
   Future<List<String>> generateMonthlyInsights() async {

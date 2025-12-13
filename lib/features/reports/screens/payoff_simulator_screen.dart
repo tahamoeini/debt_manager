@@ -10,7 +10,8 @@ class PayoffSimulatorScreen extends ConsumerStatefulWidget {
   const PayoffSimulatorScreen({super.key});
 
   @override
-  ConsumerState<PayoffSimulatorScreen> createState() => _PayoffSimulatorScreenState();
+  ConsumerState<PayoffSimulatorScreen> createState() =>
+      _PayoffSimulatorScreenState();
 }
 
 class _PayoffSimulatorScreenState extends ConsumerState<PayoffSimulatorScreen> {
@@ -35,7 +36,8 @@ class _PayoffSimulatorScreenState extends ConsumerState<PayoffSimulatorScreen> {
     for (final loan in loans) {
       if (loan.id == null) continue;
       final insts = await repo.getInstallmentsByLoanId(loan.id!);
-      final unpaid = insts.where((i) => i.status != InstallmentStatus.paid).toList();
+      final unpaid =
+          insts.where((i) => i.status != InstallmentStatus.paid).toList();
       final balance = unpaid.fold<int>(0, (s, i) => s + i.amount);
       if (balance > 0) {
         debts.add(_DebtItem(

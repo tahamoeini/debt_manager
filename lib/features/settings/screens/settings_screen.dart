@@ -212,7 +212,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       if (!hasPin && !bio) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-            content: Text('برای فعال‌سازی قفل برنامه ابتدا باید PIN تنظیم کنید یا احراز هویت بیومتریک فعال باشد.'),
+            content: Text(
+                'برای فعال‌سازی قفل برنامه ابتدا باید PIN تنظیم کنید یا احراز هویت بیومتریک فعال باشد.'),
           ));
         }
         return;
@@ -270,7 +271,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           ],
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.of(ctx).pop(false), child: const Text('لغو')),
+          TextButton(
+              onPressed: () => Navigator.of(ctx).pop(false),
+              child: const Text('لغو')),
           FilledButton(
               onPressed: () {
                 if (first.text.trim().isEmpty) return;
@@ -285,7 +288,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     if (ok == true) {
       await SecurityService.instance.setPin(first.text.trim());
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('PIN ذخیره شد')));
+        ScaffoldMessenger.of(context)
+            .showSnackBar(const SnackBar(content: Text('PIN ذخیره شد')));
       }
     }
   }
@@ -297,8 +301,12 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         title: const Text('حذف PIN'),
         content: const Text('آیا مطمئن هستید که می‌خواهید PIN را حذف کنید؟'),
         actions: [
-          TextButton(onPressed: () => Navigator.of(ctx).pop(false), child: const Text('لغو')),
-          FilledButton(onPressed: () => Navigator.of(ctx).pop(true), child: const Text('حذف'))
+          TextButton(
+              onPressed: () => Navigator.of(ctx).pop(false),
+              child: const Text('لغو')),
+          FilledButton(
+              onPressed: () => Navigator.of(ctx).pop(true),
+              child: const Text('حذف'))
         ],
       ),
     );
@@ -306,7 +314,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     if (confirmed == true) {
       await SecurityService.instance.deletePin();
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('PIN حذف شد')));
+        ScaffoldMessenger.of(context)
+            .showSnackBar(const SnackBar(content: Text('PIN حذف شد')));
       }
     }
   }
@@ -407,7 +416,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                           // Privacy mode toggle: hide/blur sensitive values
                           SwitchListTile(
                             title: const Text('حالت حریم خصوصی'),
-                            subtitle: const Text('مقادیر حساس را در داشبورد و گزارش‌ها مخفی یا بلور کن'),
+                            subtitle: const Text(
+                                'مقادیر حساس را در داشبورد و گزارش‌ها مخفی یا بلور کن'),
                             value: SettingsRepository.privacyModeNotifier.value,
                             onChanged: (v) async {
                               await _repo.setPrivacyModeEnabled(v);
@@ -555,7 +565,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                           // App Lock card controls
                           ListTile(
                             title: const Text('قفل برنامه'),
-                            subtitle: const Text('قفل‌گذاری برنامه با PIN یا بیومتریک'),
+                            subtitle: const Text(
+                                'قفل‌گذاری برنامه با PIN یا بیومتریک'),
                           ),
                           SwitchListTile(
                             title: const Text('فعال‌سازی قفل برنامه'),
@@ -612,13 +623,17 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                               const SizedBox(width: 12),
                               // Database encryption toggle and migration
                               FutureBuilder<bool>(
-                                future: DatabaseHelper.instance.isDatabaseEncrypted(),
+                                future: DatabaseHelper.instance
+                                    .isDatabaseEncrypted(),
                                 builder: (ctx, snap) {
                                   final dbEncrypted = snap.data ?? false;
                                   return FilledButton.icon(
                                     onPressed: () async {
                                       if (dbEncrypted) {
-                                        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('پایگاه داده قبلاً رمزنگاری شده است')));
+                                        ScaffoldMessenger.of(context)
+                                            .showSnackBar(const SnackBar(
+                                                content: Text(
+                                                    'پایگاه داده قبلاً رمزنگاری شده است')));
                                         return;
                                       }
 
@@ -627,44 +642,78 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                                       final ok = await showDialog<bool>(
                                         context: context,
                                         builder: (dctx) => AlertDialog(
-                                          title: const Text('رمزنگاری پایگاه داده'),
+                                          title: const Text(
+                                              'رمزنگاری پایگاه داده'),
                                           content: Column(
                                             mainAxisSize: MainAxisSize.min,
                                             children: [
                                               TextField(
                                                 controller: first,
                                                 obscureText: true,
-                                                keyboardType: TextInputType.number,
-                                                decoration: const InputDecoration(labelText: 'PIN'),
+                                                keyboardType:
+                                                    TextInputType.number,
+                                                decoration:
+                                                    const InputDecoration(
+                                                        labelText: 'PIN'),
                                               ),
                                               TextField(
                                                 controller: second,
                                                 obscureText: true,
-                                                keyboardType: TextInputType.number,
-                                                decoration: const InputDecoration(labelText: 'تأیید PIN'),
+                                                keyboardType:
+                                                    TextInputType.number,
+                                                decoration:
+                                                    const InputDecoration(
+                                                        labelText: 'تأیید PIN'),
                                               ),
                                             ],
                                           ),
                                           actions: [
-                                            TextButton(onPressed: () => Navigator.of(dctx).pop(false), child: const Text('لغو')),
-                                            FilledButton(onPressed: () {
-                                              if (first.text.trim().isEmpty) return;
-                                              if (first.text != second.text) return;
-                                              Navigator.of(dctx).pop(true);
-                                            }, child: const Text('رمزنگاری'))
+                                            TextButton(
+                                                onPressed: () =>
+                                                    Navigator.of(dctx)
+                                                        .pop(false),
+                                                child: const Text('لغو')),
+                                            FilledButton(
+                                                onPressed: () {
+                                                  if (first.text
+                                                      .trim()
+                                                      .isEmpty) {
+                                                    return;
+                                                  }
+                                                  if (first.text !=
+                                                      second.text) {
+                                                    return;
+                                                  }
+                                                  Navigator.of(dctx).pop(true);
+                                                },
+                                                child: const Text('رمزنگاری'))
                                           ],
                                         ),
                                       );
 
                                       if (ok == true) {
                                         final pin = first.text.trim();
-                                        await SecurityService.instance.setPin(pin);
+                                        await SecurityService.instance
+                                            .setPin(pin);
                                         try {
-                                          await DatabaseHelper.instance.enableEncryptionWithPin(pin);
-                                          await SettingsRepository().setDatabaseEncryptionEnabled(true);
-                                          if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('پایگاه داده رمزنگاری شد')));
+                                          await DatabaseHelper.instance
+                                              .enableEncryptionWithPin(pin);
+                                          await SettingsRepository()
+                                              .setDatabaseEncryptionEnabled(
+                                                  true);
+                                          if (mounted) {
+                                            ScaffoldMessenger.of(context)
+                                                .showSnackBar(const SnackBar(
+                                                    content: Text(
+                                                        'پایگاه داده رمزنگاری شد')));
+                                          }
                                         } catch (e) {
-                                          if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('خطا در رمزنگاری: $e')));
+                                          if (mounted) {
+                                            ScaffoldMessenger.of(context)
+                                                .showSnackBar(SnackBar(
+                                                    content: Text(
+                                                        'خطا در رمزنگاری: $e')));
+                                          }
                                         }
                                       }
                                     },
@@ -1149,11 +1198,13 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                                 final messenger = ScaffoldMessenger.of(context);
                                 try {
                                   // Delete all loans (which also deletes installments)
-                                  final dbHelper = ref.read(databaseHelperProvider);
+                                  final dbHelper =
+                                      ref.read(databaseHelperProvider);
                                   final loans = await dbHelper.getAllLoans();
                                   for (final loan in loans) {
                                     if (loan.id != null) {
-                                      await dbHelper.deleteLoanWithInstallments(loan.id!);
+                                      await dbHelper
+                                          .deleteLoanWithInstallments(loan.id!);
                                     }
                                   }
 

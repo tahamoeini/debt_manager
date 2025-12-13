@@ -187,7 +187,8 @@ class AchievementsRepository {
   Future<UserProgress> getUserProgress() async {
     final prefs = await SharedPreferences.getInstance();
     final totalXp = prefs.getInt(_keyTotalXp) ?? 0;
-    final streakStr = prefs.getString(_keyStreak) ?? '0:${DateTime.now().toIso8601String()}';
+    final streakStr =
+        prefs.getString(_keyStreak) ?? '0:${DateTime.now().toIso8601String()}';
     final parts = streakStr.split(':');
     final streak = int.tryParse(parts.first) ?? 0;
 
@@ -204,7 +205,8 @@ class AchievementsRepository {
           final projection = await reportsRepo.projectDebtPayoff(loan.id!);
           if (projection.isNotEmpty) {
             // Estimate payoff from projection length
-            final estimatedDate = DateTime.now().add(Duration(days: projection.length));
+            final estimatedDate =
+                DateTime.now().add(Duration(days: projection.length));
             maxDate = maxDate == null || estimatedDate.isAfter(maxDate)
                 ? estimatedDate
                 : maxDate;
@@ -239,9 +241,12 @@ class AchievementsRepository {
   // Update payment streak
   Future<int> updatePaymentStreak() async {
     final prefs = await SharedPreferences.getInstance();
-    final streakStr = prefs.getString(_keyStreak) ?? '0:${DateTime.now().toIso8601String()}';
+    final streakStr =
+        prefs.getString(_keyStreak) ?? '0:${DateTime.now().toIso8601String()}';
     final parts = streakStr.split(':');
-    final lastDateStr = parts.length > 1 ? parts.sublist(1).join(':') : DateTime.now().toIso8601String();
+    final lastDateStr = parts.length > 1
+        ? parts.sublist(1).join(':')
+        : DateTime.now().toIso8601String();
     final lastDate = DateTime.parse(lastDateStr);
     final today = DateTime.now();
 
@@ -249,7 +254,9 @@ class AchievementsRepository {
     if (lastDate.difference(today).inDays == -1) {
       // Consecutive day
       newStreak = (int.tryParse(parts.first) ?? 0) + 1;
-    } else if (lastDate.year == today.year && lastDate.month == today.month && lastDate.day == today.day) {
+    } else if (lastDate.year == today.year &&
+        lastDate.month == today.month &&
+        lastDate.day == today.day) {
       // Same day, no change
       newStreak = int.tryParse(parts.first) ?? 1;
     } else {

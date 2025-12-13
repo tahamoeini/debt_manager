@@ -51,7 +51,7 @@ class HomeStatisticsNotifier extends StateNotifier<AsyncValue<HomeStats>> {
       final now = DateTime.now();
       final startOfMonth = DateTime(now.year, now.month, 1);
       final endOfMonth = DateTime(now.year, now.month + 1, 0);
-      
+
       int monthlySpending = 0;
       // Get all loans and their installments
       final loans = await db.getAllLoans(direction: LoanDirection.borrowed);
@@ -59,12 +59,13 @@ class HomeStatisticsNotifier extends StateNotifier<AsyncValue<HomeStats>> {
       final grouped = allLoanIds.isNotEmpty
           ? await db.getInstallmentsGroupedByLoanId(allLoanIds)
           : <int, List<Installment>>{};
-      
+
       for (final installments in grouped.values) {
         for (final inst in installments) {
           if (inst.paidAt != null) {
             final paidDate = DateTime.parse(inst.paidAt!);
-            if (paidDate.isAfter(startOfMonth) && paidDate.isBefore(endOfMonth)) {
+            if (paidDate.isAfter(startOfMonth) &&
+                paidDate.isBefore(endOfMonth)) {
               monthlySpending += inst.actualPaidAmount ?? inst.amount;
             }
           }
@@ -76,10 +77,10 @@ class HomeStatisticsNotifier extends StateNotifier<AsyncValue<HomeStats>> {
       for (var i = 5; i >= 0; i--) {
         final monthDate = DateTime(now.year, now.month - i, 1);
         final monthStart = DateTime(monthDate.year, monthDate.month, 1);
-        final monthEnd = monthDate.month == 12 
+        final monthEnd = monthDate.month == 12
             ? DateTime(monthDate.year + 1, 1, 1)
             : DateTime(monthDate.year, monthDate.month + 1, 1);
-        
+
         int monthSpending = 0;
         for (final installments in grouped.values) {
           for (final inst in installments) {

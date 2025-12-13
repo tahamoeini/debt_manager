@@ -31,7 +31,6 @@ class LoanDetailScreen extends ConsumerStatefulWidget {
 }
 
 class _LoanDetailScreenState extends ConsumerState<LoanDetailScreen> {
-
   // Safe parser for Jalali dates - returns current date if parsing fails
   Jalali _parseJalaliSafe(String jalaliStr) {
     try {
@@ -142,12 +141,11 @@ class _LoanDetailScreenState extends ConsumerState<LoanDetailScreen> {
                         FilledButton(
                           onPressed: () async {
                             // Capture navigator context for bottom sheet
-                            
+
                             // Build updated installment
                             final entered = amountController.text.trim();
-                            final actualAmt = entered.isEmpty
-                                ? null
-                                : int.tryParse(entered);
+                            final actualAmt =
+                                entered.isEmpty ? null : int.tryParse(entered);
 
                             final dueStr = formatJalali(selectedJalali);
 
@@ -158,8 +156,8 @@ class _LoanDetailScreenState extends ConsumerState<LoanDetailScreen> {
                             final newStatus = isPaid
                                 ? InstallmentStatus.paid
                                 : (dueStr.compareTo(todayStr) < 0
-                                      ? InstallmentStatus.overdue
-                                      : InstallmentStatus.pending);
+                                    ? InstallmentStatus.overdue
+                                    : InstallmentStatus.pending);
 
                             final updated = inst.copyWith(
                               dueDateJalali: dueStr,
@@ -179,12 +177,16 @@ class _LoanDetailScreenState extends ConsumerState<LoanDetailScreen> {
                               try {
                                 final paidDate = DateTime.now();
                                 final j = dateTimeToJalali(paidDate);
-                                final period = '${j.year.toString().padLeft(4, '0')}-${j.month.toString().padLeft(2, '0')}';
+                                final period =
+                                    '${j.year.toString().padLeft(4, '0')}-${j.month.toString().padLeft(2, '0')}';
 
                                 final repo = BudgetsRepository();
-                                final budgets = await repo.getBudgetsByPeriod(period);
+                                final budgets =
+                                    await repo.getBudgetsByPeriod(period);
 
-                                final amountPaid = actualAmt ?? inst.actualPaidAmount ?? inst.amount;
+                                final amountPaid = actualAmt ??
+                                    inst.actualPaidAmount ??
+                                    inst.amount;
 
                                 final exceeded = <Budget>[];
                                 for (final b in budgets) {
@@ -206,18 +208,20 @@ class _LoanDetailScreenState extends ConsumerState<LoanDetailScreen> {
                                       title: const Text('هشدار بودجه'),
                                       content: Text(
                                         'این پرداخت باعث می‌شود بودجه "$title" از حد تعیین‌شده فراتر رود:\n\n'
-                                            'بودجه: ${formatCurrency(b.amount)}\n'
-                                            'استفاده تا کنون: ${formatCurrency(used)}\n'
-                                            'پس از پرداخت: ${formatCurrency(projected)}\n\n'
-                                            'آیا مایل به ادامه هستید؟',
+                                        'بودجه: ${formatCurrency(b.amount)}\n'
+                                        'استفاده تا کنون: ${formatCurrency(used)}\n'
+                                        'پس از پرداخت: ${formatCurrency(projected)}\n\n'
+                                        'آیا مایل به ادامه هستید؟',
                                       ),
                                       actions: [
                                         TextButton(
-                                          onPressed: () => Navigator.of(dctx).pop(false),
+                                          onPressed: () =>
+                                              Navigator.of(dctx).pop(false),
                                           child: const Text('انصراف'),
                                         ),
                                         FilledButton(
-                                          onPressed: () => Navigator.of(dctx).pop(true),
+                                          onPressed: () =>
+                                              Navigator.of(dctx).pop(true),
                                           child: const Text('ادامه'),
                                         ),
                                       ],
@@ -235,7 +239,10 @@ class _LoanDetailScreenState extends ConsumerState<LoanDetailScreen> {
                             }
 
                             // Persist via provider notifier
-                            await ref.read(loanDetailProvider(widget.loanId).notifier).updateInstallment(updated);
+                            await ref
+                                .read(
+                                    loanDetailProvider(widget.loanId).notifier)
+                                .updateInstallment(updated);
 
                             // Cancel notification if marking paid
                             if (isPaid && inst.notificationId != null) {
@@ -248,8 +255,13 @@ class _LoanDetailScreenState extends ConsumerState<LoanDetailScreen> {
 
                             // Check if all installments are now paid and celebrate!
                             if (isPaid) {
-                              final allInst = ref.read(loanDetailProvider(widget.loanId)).value?.installments ?? [];
-                              final allPaid = allInst.every((i) => i.status == InstallmentStatus.paid);
+                              final allInst = ref
+                                      .read(loanDetailProvider(widget.loanId))
+                                      .value
+                                      ?.installments ??
+                                  [];
+                              final allPaid = allInst.every(
+                                  (i) => i.status == InstallmentStatus.paid);
                               if (allPaid) {
                                 if (!mounted) {
                                   // Widget disposed; bail out
@@ -259,11 +271,16 @@ class _LoanDetailScreenState extends ConsumerState<LoanDetailScreen> {
                                   if (!mounted) return;
                                   showDebtCompletionCelebration(context);
                                   try {
-                                    final newly = await AchievementsRepository.instance.handlePayment(loanId: widget.loanId, paidAt: DateTime.now());
+                                    final newly = await AchievementsRepository
+                                        .instance
+                                        .handlePayment(
+                                            loanId: widget.loanId,
+                                            paidAt: DateTime.now());
                                     if (!mounted) return;
                                     if (newly.isNotEmpty) {
                                       for (final a in newly) {
-                                        showAchievementDialog(context, title: a.title, message: a.message);
+                                        showAchievementDialog(context,
+                                            title: a.title, message: a.message);
                                       }
                                     }
                                   } catch (_) {}
@@ -363,7 +380,9 @@ class _LoanDetailScreenState extends ConsumerState<LoanDetailScreen> {
                     if (confirm == true) {
                       try {
                         if (loan.id != null) {
-                          await ref.read(loanDetailProvider(widget.loanId).notifier).deleteLoan(loan.id!);
+                          await ref
+                              .read(loanDetailProvider(widget.loanId).notifier)
+                              .deleteLoan(loan.id!);
                         }
 
                         if (!mounted) return;
@@ -393,72 +412,75 @@ class _LoanDetailScreenState extends ConsumerState<LoanDetailScreen> {
             child: ListView(
               padding: const EdgeInsets.all(16),
               children: [
-              Card(
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        loan.title,
-                        style: Theme.of(context).textTheme.headlineSmall,
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        cp?.name ?? 'نامشخص',
-                        style: Theme.of(context).textTheme.bodyMedium,
-                      ),
-                      const SizedBox(height: 8),
-                      Text(_directionText(loan.direction)),
-                      const SizedBox(height: 12),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            'مبلغ اصلی: ${formatCurrency(loan.principalAmount)}',
-                          ),
-                          Text(
-                            'تعداد اقساط: ${toPersianDigits(loan.installmentCount)}',
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        'مبلغ قسط: ${formatCurrency(loan.installmentAmount)}',
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        'شروع: ${formatJalaliForDisplay(_parseJalaliSafe(loan.startDateJalali))}',
-                      ),
-                    ],
+                Card(
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          loan.title,
+                          style: Theme.of(context).textTheme.headlineSmall,
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          cp?.name ?? 'نامشخص',
+                          style: Theme.of(context).textTheme.bodyMedium,
+                        ),
+                        const SizedBox(height: 8),
+                        Text(_directionText(loan.direction)),
+                        const SizedBox(height: 12),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              'مبلغ اصلی: ${formatCurrency(loan.principalAmount)}',
+                            ),
+                            Text(
+                              'تعداد اقساط: ${toPersianDigits(loan.installmentCount)}',
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          'مبلغ قسط: ${formatCurrency(loan.installmentAmount)}',
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          'شروع: ${formatJalaliForDisplay(_parseJalaliSafe(loan.startDateJalali))}',
+                        ),
+                      ],
+                    ),
                   ),
                 ),
-              ),
-              const SizedBox(height: 16),
-              Text(
-                'اقساط',
-                style: Theme.of(
-                  context,
-                ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
-              ),
-              const SizedBox(height: 8),
-              ...installments
-                  .map((inst) => Card(
-                        child: ListTile(
-                          title: Text(
-                            formatJalaliForDisplay(_parseJalaliSafe(inst.dueDateJalali)),
-                          ),
-                          subtitle: Text(_statusText(inst.status)),
-                          trailing: IconButton(
-                            icon: const Icon(Icons.edit),
-                            onPressed: () => _showEditInstallmentSheet(inst),
-                          ),
+                const SizedBox(height: 16),
+                Text(
+                  'اقساط',
+                  style: Theme.of(
+                    context,
+                  )
+                      .textTheme
+                      .titleMedium
+                      ?.copyWith(fontWeight: FontWeight.w700),
+                ),
+                const SizedBox(height: 8),
+                ...installments.map((inst) => Card(
+                      child: ListTile(
+                        title: Text(
+                          formatJalaliForDisplay(
+                              _parseJalaliSafe(inst.dueDateJalali)),
                         ),
-                      )),
-            ],
+                        subtitle: Text(_statusText(inst.status)),
+                        trailing: IconButton(
+                          icon: const Icon(Icons.edit),
+                          onPressed: () => _showEditInstallmentSheet(inst),
+                        ),
+                      ),
+                    )),
+              ],
+            ),
           ),
-        ),
-      );
+        );
       },
     );
   }

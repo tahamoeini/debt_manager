@@ -134,7 +134,9 @@ class CsvJsonImporter {
 
       // Check required fields
       for (final field in mapping.fields) {
-        if (field.isRequired && (row[field.columnName] == null || row[field.columnName].toString().trim().isEmpty)) {
+        if (field.isRequired &&
+            (row[field.columnName] == null ||
+                row[field.columnName].toString().trim().isEmpty)) {
           errors.add('سطر ${i + 1}: فیلد ضروری "${field.columnName}" خالی است');
           rowValid = false;
         }
@@ -235,7 +237,8 @@ class CsvJsonImporter {
     // Extract unique counterparties
     final counterpartyMap = <String, Counterparty>{};
     for (final row in rows) {
-      final cpName = _extractValue(row, mapping, ImportFieldType.counterpartyName);
+      final cpName =
+          _extractValue(row, mapping, ImportFieldType.counterpartyName);
       if (cpName != null && cpName.isNotEmpty) {
         if (!counterpartyMap.containsKey(cpName)) {
           counterpartyMap[cpName] = Counterparty(
@@ -252,31 +255,47 @@ class CsvJsonImporter {
     // Extract loans and installments
     for (final row in rows) {
       try {
-        final cpName = _extractValue(row, mapping, ImportFieldType.counterpartyName);
+        final cpName =
+            _extractValue(row, mapping, ImportFieldType.counterpartyName);
         final cp = counterpartyMap[cpName];
 
         if (cp != null) {
           final loan = Loan(
             counterpartyId: cp.id ?? 0, // Temporary ID
-            title: _extractValue(row, mapping, ImportFieldType.loanTitle) ?? 'بدون عنوان',
-            direction: _parseDirection(_extractValue(row, mapping, ImportFieldType.loanDirection)),
-            principalAmount: int.parse(_extractValue(row, mapping, ImportFieldType.principalAmount)?.toString() ?? '0'),
-            installmentCount: int.parse(_extractValue(row, mapping, ImportFieldType.installmentCount)?.toString() ?? '1'),
-            installmentAmount: int.parse(_extractValue(row, mapping, ImportFieldType.installmentAmount)?.toString() ?? '0'),
-            startDateJalali: _extractValue(row, mapping, ImportFieldType.startDateJalali) ?? formatJalaliNow(),
+            title: _extractValue(row, mapping, ImportFieldType.loanTitle) ??
+                'بدون عنوان',
+            direction: _parseDirection(
+                _extractValue(row, mapping, ImportFieldType.loanDirection)),
+            principalAmount: int.parse(
+                _extractValue(row, mapping, ImportFieldType.principalAmount)
+                        ?.toString() ??
+                    '0'),
+            installmentCount: int.parse(
+                _extractValue(row, mapping, ImportFieldType.installmentCount)
+                        ?.toString() ??
+                    '1'),
+            installmentAmount: int.parse(
+                _extractValue(row, mapping, ImportFieldType.installmentAmount)
+                        ?.toString() ??
+                    '0'),
+            startDateJalali:
+                _extractValue(row, mapping, ImportFieldType.startDateJalali) ??
+                    formatJalaliNow(),
             notes: _extractValue(row, mapping, ImportFieldType.loanNotes),
             createdAt: DateTime.now().toIso8601String(),
           );
           loansToAdd.add(loan);
 
           // Create sample installment
-          final dueDate = _extractValue(row, mapping, ImportFieldType.dueDateJalali);
+          final dueDate =
+              _extractValue(row, mapping, ImportFieldType.dueDateJalali);
           if (dueDate != null) {
             final inst = Installment(
               loanId: 0, // Temporary ID
               dueDateJalali: dueDate,
               amount: loan.installmentAmount,
-              status: _parseInstallmentStatus(_extractValue(row, mapping, ImportFieldType.installmentStatus)),
+              status: _parseInstallmentStatus(_extractValue(
+                  row, mapping, ImportFieldType.installmentStatus)),
               paidAt: null,
               actualPaidAmount: null,
             );

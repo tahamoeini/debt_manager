@@ -8,7 +8,11 @@ void main() {
       required Map<String, dynamic> rule,
     }) {
       final conditionsRaw = rule['conditions'];
-      final conditions = conditionsRaw is Map<String, dynamic> ? conditionsRaw : (conditionsRaw is Map ? Map<String, dynamic>.from(conditionsRaw) : <String, dynamic>{});
+      final conditions = conditionsRaw is Map<String, dynamic>
+          ? conditionsRaw
+          : (conditionsRaw is Map
+              ? Map<String, dynamic>.from(conditionsRaw)
+              : <String, dynamic>{});
 
       // Check amount range
       if (conditions.containsKey('minAmount')) {
@@ -24,14 +28,17 @@ void main() {
       // Check category
       if (conditions.containsKey('category')) {
         final category = conditions['category'] as String?;
-        if (category != null && transaction['category'] != category) return false;
+        if (category != null && transaction['category'] != category) {
+          return false;
+        }
       }
 
       // Check payee/title
       if (conditions.containsKey('payeePattern')) {
         final pattern = conditions['payeePattern'] as String?;
         final payee = transaction['payee'] as String? ?? '';
-        if (pattern != null && !payee.toLowerCase().contains(pattern.toLowerCase())) {
+        if (pattern != null &&
+            !payee.toLowerCase().contains(pattern.toLowerCase())) {
           return false;
         }
       }
@@ -51,7 +58,11 @@ void main() {
       required Map<String, dynamic> rule,
     }) {
       final actionRaw = rule['action'];
-      final action = actionRaw is Map<String, dynamic> ? actionRaw : (actionRaw is Map ? Map<String, dynamic>.from(actionRaw) : <String, dynamic>{});
+      final action = actionRaw is Map<String, dynamic>
+          ? actionRaw
+          : (actionRaw is Map
+              ? Map<String, dynamic>.from(actionRaw)
+              : <String, dynamic>{});
       final result = Map<String, dynamic>.from(transaction);
 
       if (action.containsKey('categorize')) {
@@ -119,13 +130,16 @@ void main() {
 
       for (final rule in rules) {
         final ruleId = rule['id'];
-        final matchCount = processedTransactions.where((t) => t['ruleApplied'] == ruleId).length;
+        final matchCount = processedTransactions
+            .where((t) => t['ruleApplied'] == ruleId)
+            .length;
         final successCount = (rule['successCount'] as int? ?? 0) + matchCount;
 
         metrics[ruleId] = {
           'matchCount': matchCount,
           'totalMatches': successCount,
-          'successRate': successCount > 0 ? (matchCount / successCount * 100).toInt() : 0,
+          'successRate':
+              successCount > 0 ? (matchCount / successCount * 100).toInt() : 0,
         };
       }
 
@@ -133,7 +147,11 @@ void main() {
     }
 
     test('Basic rule matching - amount range', () {
-      final transaction = {'amount': 5000000, 'category': 'groceries', 'payee': 'Bazaar'};
+      final transaction = {
+        'amount': 5000000,
+        'category': 'groceries',
+        'payee': 'Bazaar'
+      };
       final rule = {
         'id': 'rule1',
         'conditions': {
@@ -149,7 +167,11 @@ void main() {
     });
 
     test('Rule matching fails - amount too low', () {
-      final transaction = {'amount': 500000, 'category': 'groceries', 'payee': 'Bazaar'};
+      final transaction = {
+        'amount': 500000,
+        'category': 'groceries',
+        'payee': 'Bazaar'
+      };
       final rule = {
         'id': 'rule1',
         'conditions': {
@@ -165,7 +187,11 @@ void main() {
     });
 
     test('Rule matching fails - amount too high', () {
-      final transaction = {'amount': 15000000, 'category': 'luxury', 'payee': 'Store'};
+      final transaction = {
+        'amount': 15000000,
+        'category': 'luxury',
+        'payee': 'Store'
+      };
       final rule = {
         'id': 'rule1',
         'conditions': {
@@ -181,7 +207,11 @@ void main() {
     });
 
     test('Rule matching - category filter', () {
-      final transaction = {'amount': 5000000, 'category': 'groceries', 'payee': 'Bazaar'};
+      final transaction = {
+        'amount': 5000000,
+        'category': 'groceries',
+        'payee': 'Bazaar'
+      };
       final rule = {
         'id': 'rule1',
         'conditions': {
@@ -196,7 +226,11 @@ void main() {
     });
 
     test('Rule matching - category mismatch', () {
-      final transaction = {'amount': 5000000, 'category': 'dining', 'payee': 'Restaurant'};
+      final transaction = {
+        'amount': 5000000,
+        'category': 'dining',
+        'payee': 'Restaurant'
+      };
       final rule = {
         'id': 'rule1',
         'conditions': {
@@ -211,7 +245,11 @@ void main() {
     });
 
     test('Rule matching - payee pattern', () {
-      final transaction = {'amount': 500000, 'category': 'utilities', 'payee': 'Electric Company'};
+      final transaction = {
+        'amount': 500000,
+        'category': 'utilities',
+        'payee': 'Electric Company'
+      };
       final rule = {
         'id': 'rule1',
         'conditions': {
@@ -226,7 +264,11 @@ void main() {
     });
 
     test('Rule matching - payee pattern case-insensitive', () {
-      final transaction = {'amount': 500000, 'category': 'utilities', 'payee': 'ELECTRIC COMPANY'};
+      final transaction = {
+        'amount': 500000,
+        'category': 'utilities',
+        'payee': 'ELECTRIC COMPANY'
+      };
       final rule = {
         'id': 'rule1',
         'conditions': {
@@ -255,7 +297,11 @@ void main() {
     });
 
     test('Rule action - auto-tag', () {
-      final transaction = {'amount': 500000, 'payee': 'Electric Company', 'tags': []};
+      final transaction = {
+        'amount': 500000,
+        'payee': 'Electric Company',
+        'tags': []
+      };
       final rule = {
         'id': 'rule1',
         'conditions': {'payeePattern': 'electric'},
@@ -306,7 +352,8 @@ void main() {
 
       expect(results.length, equals(1));
       expect(results[0]['category'], equals('utilities'));
-      expect((results[0]['tags'] as List<String>).contains('recurring'), isTrue);
+      expect(
+          (results[0]['tags'] as List<String>).contains('recurring'), isTrue);
     });
 
     test('Stop-if-matched flag prevents further rule execution', () {
@@ -395,7 +442,8 @@ void main() {
         {'ruleApplied': 'rule2'},
       ];
 
-      final metrics = calculateRuleMetrics(rules: rules, processedTransactions: transactions);
+      final metrics = calculateRuleMetrics(
+          rules: rules, processedTransactions: transactions);
 
       expect(metrics['rule1']['matchCount'], equals(2));
       expect(metrics['rule2']['matchCount'], equals(1));

@@ -37,44 +37,43 @@ class _BackupRestoreScreenState extends State<BackupRestoreScreen> {
 
   Future<void> _createBackup() async {
     final nameController = TextEditingController();
-    
+
     final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('ایجاد نسخه‌ی پشتیبان'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextField(
-              controller: nameController,
-              decoration: InputDecoration(
-                hintText: 'نام نسخه‌ی پشتیبان (اختیاری)',
-                border: OutlineInputBorder(),
-              ),
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text('ایجاد نسخه‌ی پشتیبان'),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextField(
+                  controller: nameController,
+                  decoration: InputDecoration(
+                    hintText: 'نام نسخه‌ی پشتیبان (اختیاری)',
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+              ],
             ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text('لغو'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context, false),
+                child: const Text('لغو'),
+              ),
+              FilledButton(
+                onPressed: () => Navigator.pop(context, true),
+                child: const Text('ایجاد'),
+              ),
+            ],
           ),
-          FilledButton(
-            onPressed: () => Navigator.pop(context, true),
-            child: const Text('ایجاد'),
-          ),
-        ],
-      ),
-    ) ?? false;
+        ) ??
+        false;
 
     if (!confirmed) return;
 
     setState(() => _isLoading = true);
     try {
       final backupPath = await _service.exportData(
-        backupName: nameController.text.isNotEmpty
-            ? nameController.text
-            : null,
+        backupName: nameController.text.isNotEmpty ? nameController.text : null,
       );
 
       if (!mounted) return;
@@ -86,22 +85,24 @@ class _BackupRestoreScreenState extends State<BackupRestoreScreen> {
       // Ask to share
       if (!mounted) return;
       final shareConfirmed = await showDialog<bool>(
-        context: context,
-        builder: (context) => AlertDialog(
-          title: const Text('اشتراک‌گذاری نسخه‌ی پشتیبان'),
-          content: const Text('آیا می‌خواهید این نسخه‌ی پشتیبان را با دیگران به اشتراک بگذارید؟'),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context, false),
-              child: const Text('خیر'),
+            context: context,
+            builder: (context) => AlertDialog(
+              title: const Text('اشتراک‌گذاری نسخه‌ی پشتیبان'),
+              content: const Text(
+                  'آیا می‌خواهید این نسخه‌ی پشتیبان را با دیگران به اشتراک بگذارید؟'),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context, false),
+                  child: const Text('خیر'),
+                ),
+                FilledButton(
+                  onPressed: () => Navigator.pop(context, true),
+                  child: const Text('بله'),
+                ),
+              ],
             ),
-            FilledButton(
-              onPressed: () => Navigator.pop(context, true),
-              child: const Text('بله'),
-            ),
-          ],
-        ),
-      ) ?? false;
+          ) ??
+          false;
 
       if (shareConfirmed) {
         await share.SharePlus.instance.share(share.ShareParams(
@@ -118,26 +119,26 @@ class _BackupRestoreScreenState extends State<BackupRestoreScreen> {
     }
   }
 
-
   Future<void> _deleteBackup(String filePath) async {
     final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('حذف نسخه‌ی پشتیبان'),
-        content: const Text('آیا مطمئن هستید؟'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text('لغو'),
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text('حذف نسخه‌ی پشتیبان'),
+            content: const Text('آیا مطمئن هستید؟'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context, false),
+                child: const Text('لغو'),
+              ),
+              FilledButton(
+                onPressed: () => Navigator.pop(context, true),
+                style: FilledButton.styleFrom(backgroundColor: Colors.red),
+                child: const Text('حذف'),
+              ),
+            ],
           ),
-          FilledButton(
-            onPressed: () => Navigator.pop(context, true),
-            style: FilledButton.styleFrom(backgroundColor: Colors.red),
-            child: const Text('حذف'),
-          ),
-        ],
-      ),
-    ) ?? false;
+        ) ??
+        false;
 
     if (!confirmed) return;
 
@@ -149,7 +150,6 @@ class _BackupRestoreScreenState extends State<BackupRestoreScreen> {
       _showErrorSnackBar('خطا در حذف نسخه‌ی پشتیبان');
     }
   }
-
 
   void _showSuccessSnackBar(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
@@ -208,9 +208,10 @@ class _BackupRestoreScreenState extends State<BackupRestoreScreen> {
                         const SizedBox(width: 8),
                         Text(
                           'اطلاعات',
-                          style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                            color: Colors.blue.shade700,
-                          ),
+                          style:
+                              Theme.of(context).textTheme.titleMedium?.copyWith(
+                                    color: Colors.blue.shade700,
+                                  ),
                         ),
                       ],
                     ),
@@ -302,9 +303,12 @@ class _BackupRestoreScreenState extends State<BackupRestoreScreen> {
                                 const SizedBox(height: 4),
                                 Text(
                                   '${metadata.loansCount} وام، ${metadata.installmentsCount} قسط',
-                                  style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                                    color: Colors.grey.shade600,
-                                  ),
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .labelSmall
+                                      ?.copyWith(
+                                        color: Colors.grey.shade600,
+                                      ),
                                 ),
                               ],
                             ],
@@ -320,7 +324,8 @@ class _BackupRestoreScreenState extends State<BackupRestoreScreen> {
                               PopupMenuItem(
                                 child: const Text('اشتراک‌گذاری'),
                                 onTap: () {
-                                  share.SharePlus.instance.share(share.ShareParams(
+                                  share.SharePlus.instance
+                                      .share(share.ShareParams(
                                     files: [share.XFile(backup.path)],
                                   ));
                                 },

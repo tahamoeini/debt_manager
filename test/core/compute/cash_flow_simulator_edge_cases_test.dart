@@ -20,7 +20,8 @@ void main() {
 
       expect(snapshots.length, equals(30));
       // Should gradually improve due to income exceeding expenses
-      expect(snapshots.last.closingBalance, greaterThan(snapshots.first.openingBalance));
+      expect(snapshots.last.closingBalance,
+          greaterThan(snapshots.first.openingBalance));
     });
 
     test('simulateCashFlow with negative starting balance', () {
@@ -155,9 +156,7 @@ void main() {
 
       expect(snapshots.length, equals(90));
       // Should have multiple weeks where recurring applies
-      final weeklyExpenses = snapshots
-          .where((s) => s.expenses >= 50000)
-          .length;
+      final weeklyExpenses = snapshots.where((s) => s.expenses >= 50000).length;
       expect(weeklyExpenses, greaterThan(0));
     });
 
@@ -250,7 +249,7 @@ void main() {
 
       expect(snapshots.length, equals(90));
       expect(snapshots.every((s) => s.dateJalaliString.isNotEmpty), isTrue);
-      
+
       // Verify all snapshots have proper structure
       for (final snap in snapshots) {
         expect(snap.openingBalance, isNotNull);
@@ -279,8 +278,12 @@ void main() {
       final firstHalf = snapshots.take(45).toList();
       final secondHalf = snapshots.skip(45).toList();
 
-      final avgFirstHalf = firstHalf.fold<int>(0, (sum, s) => sum + s.closingBalance) ~/ firstHalf.length;
-      final avgSecondHalf = secondHalf.fold<int>(0, (sum, s) => sum + s.closingBalance) ~/ secondHalf.length;
+      final avgFirstHalf =
+          firstHalf.fold<int>(0, (sum, s) => sum + s.closingBalance) ~/
+              firstHalf.length;
+      final avgSecondHalf =
+          secondHalf.fold<int>(0, (sum, s) => sum + s.closingBalance) ~/
+              secondHalf.length;
 
       expect(avgSecondHalf, greaterThan(avgFirstHalf));
     });
@@ -305,7 +308,9 @@ void main() {
 
       // Should produce valid result
       expect(result.safetyLevel, isNotNull);
-      expect(['safe', 'tight', 'risky', 'critical'].contains(result.safetyLevel), isTrue);
+      expect(
+          ['safe', 'tight', 'risky', 'critical'].contains(result.safetyLevel),
+          isTrue);
     });
   });
 }

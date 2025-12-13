@@ -40,14 +40,14 @@ class BackupPayload {
 
   /// Convert to JSON-serializable map
   Map<String, dynamic> toJson() => {
-    'version': version,
-    'timestamp': timestamp,
-    'appVersion': appVersion,
-    'checksum': checksum,
-    'name': name,
-    'data': data,
-    'metadata': metadata.toJson(),
-  };
+        'version': version,
+        'timestamp': timestamp,
+        'appVersion': appVersion,
+        'checksum': checksum,
+        'name': name,
+        'data': data,
+        'metadata': metadata.toJson(),
+      };
 
   /// Create from JSON map
   factory BackupPayload.fromJson(Map<String, dynamic> json) {
@@ -57,7 +57,8 @@ class BackupPayload {
       checksum: json['checksum'] as String,
       name: json['name'] as String,
       data: Map<String, dynamic>.from(json['data'] as Map),
-      metadata: BackupMetadata.fromJson(json['metadata'] as Map<String, dynamic>),
+      metadata:
+          BackupMetadata.fromJson(json['metadata'] as Map<String, dynamic>),
     );
   }
 
@@ -119,16 +120,16 @@ class BackupMetadata {
 
   /// Convert to JSON
   Map<String, dynamic> toJson() => {
-    'loansCount': loansCount,
-    'installmentsCount': installmentsCount,
-    'counterpartiesCount': counterpartiesCount,
-    'budgetsCount': budgetsCount,
-    'transactionsCount': transactionsCount,
-    'sizeBytes': sizeBytes,
-    'netWorth': netWorth,
-    'totalBorrowed': totalBorrowed,
-    'totalLent': totalLent,
-  };
+        'loansCount': loansCount,
+        'installmentsCount': installmentsCount,
+        'counterpartiesCount': counterpartiesCount,
+        'budgetsCount': budgetsCount,
+        'transactionsCount': transactionsCount,
+        'sizeBytes': sizeBytes,
+        'netWorth': netWorth,
+        'totalBorrowed': totalBorrowed,
+        'totalLent': totalLent,
+      };
 
   /// Create from JSON
   factory BackupMetadata.fromJson(Map<String, dynamic> json) {

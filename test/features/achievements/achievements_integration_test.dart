@@ -10,7 +10,7 @@ void main() {
 
     test('XP progression through multiple levels', () async {
       final repo = AchievementsRepository.instance;
-      
+
       // Progress through levels
       await repo.addXp(99);
       var progress = await repo.getUserProgress();
@@ -33,7 +33,7 @@ void main() {
 
     test('Streak calculation with multiple updates', () async {
       final repo = AchievementsRepository.instance;
-      
+
       final streak1 = await repo.updatePaymentStreak();
       expect(streak1, greaterThanOrEqualTo(0));
 
@@ -48,7 +48,7 @@ void main() {
 
     test('UserProgress contains all required fields', () async {
       final repo = AchievementsRepository.instance;
-      
+
       await repo.addXp(150);
       final progress = await repo.getUserProgress();
 
@@ -60,7 +60,7 @@ void main() {
 
     test('Multiple consecutive XP additions', () async {
       final repo = AchievementsRepository.instance;
-      
+
       final amounts = [10, 20, 30, 40, 50];
       int expectedTotal = 0;
 
@@ -76,9 +76,9 @@ void main() {
 
     test('Earned achievements list', () async {
       final repo = AchievementsRepository.instance;
-      
+
       final achievements = await repo.getEarnedAchievements();
-      
+
       expect(achievements, isA<List<Achievement>>());
       // Initially should be empty or have some default achievements
       expect(achievements, isNotNull);
@@ -86,10 +86,10 @@ void main() {
 
     test('Achievement unlock workflow', () async {
       final repo = AchievementsRepository.instance;
-      
+
       // Get initial achievements
       final initial = await repo.getEarnedAchievements();
-      
+
       // The count should make sense
       expect(initial.length, greaterThanOrEqualTo(0));
     });
@@ -98,7 +98,7 @@ void main() {
   group('UserProgress - Model Tests', () {
     test('empty() factory creates zero values', () {
       final progress = UserProgress.empty();
-      
+
       expect(progress.totalXp, equals(0));
       expect(progress.level, equals(0));
       expect(progress.streaks, isEmpty);
@@ -196,9 +196,8 @@ void main() {
     });
 
     test('XpRewards can be used in calculations', () {
-      final totalXp = XpRewards.paymentMade +
-          XpRewards.budgetKept +
-          XpRewards.earlyPayment;
+      final totalXp =
+          XpRewards.paymentMade + XpRewards.budgetKept + XpRewards.earlyPayment;
 
       expect(totalXp, equals(10 + 20 + 25));
       expect(totalXp, equals(55));
@@ -206,7 +205,7 @@ void main() {
 
     test('XpRewards for milestone achievement', () {
       final milestoneXp = XpRewards.loanCompleted;
-      
+
       expect(milestoneXp, equals(100));
       expect(milestoneXp > XpRewards.paymentMade * 5, isTrue);
     });
@@ -230,7 +229,7 @@ void main() {
 
     test('Multiple XP additions are cumulative', () async {
       final repo = AchievementsRepository.instance;
-      
+
       await repo.addXp(50);
       var progress = await repo.getUserProgress();
       expect(progress.totalXp, equals(50));
@@ -246,7 +245,7 @@ void main() {
 
     test('Level calculation reflects XP correctly', () async {
       final repo = AchievementsRepository.instance;
-      
+
       await repo.addXp(450);
       final progress = await repo.getUserProgress();
 

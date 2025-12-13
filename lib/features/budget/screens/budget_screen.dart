@@ -46,7 +46,8 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
       final budgets = await repo.getBudgetsByPeriod(_currentPeriod());
       final totalBudgets = budgets.fold<int>(0, (s, b) => s + b.amount);
       final svc = IrregularIncomeService();
-      final safe = await svc.suggestSafeExtra(months: 3, essentialBudget: totalBudgets, safetyFactor: 1.2);
+      final safe = await svc.suggestSafeExtra(
+          months: 3, essentialBudget: totalBudgets, safetyFactor: 1.2);
       setState(() {
         _incomeSuggestion = safe;
       });
@@ -135,9 +136,11 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
                                       style: Theme.of(context)
                                           .textTheme
                                           .titleMedium
-                                          ?.copyWith(fontWeight: FontWeight.w600),
+                                          ?.copyWith(
+                                              fontWeight: FontWeight.w600),
                                     ),
-                                    const SizedBox(height: AppConstants.spaceXSmall),
+                                    const SizedBox(
+                                        height: AppConstants.spaceXSmall),
                                     FutureBuilder<int>(
                                       future: ref
                                           .read(budgetsRepositoryProvider)
@@ -214,7 +217,8 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
               padding: const EdgeInsets.only(bottom: 8.0),
               child: FloatingActionButton.extended(
                 onPressed: () {
-                  UIUtils.showAppSnackBar(context, 'پیشنهاد: پرداخت اضافی ایمن $_incomeSuggestion');
+                  UIUtils.showAppSnackBar(
+                      context, 'پیشنهاد: پرداخت اضافی ایمن $_incomeSuggestion');
                 },
                 icon: const Icon(Icons.savings),
                 label: Text('پیشنهاد: $_incomeSuggestion'),

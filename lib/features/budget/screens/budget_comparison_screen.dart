@@ -11,10 +11,12 @@ class BudgetComparisonScreen extends ConsumerStatefulWidget {
   const BudgetComparisonScreen({super.key});
 
   @override
-  ConsumerState<BudgetComparisonScreen> createState() => _BudgetComparisonScreenState();
+  ConsumerState<BudgetComparisonScreen> createState() =>
+      _BudgetComparisonScreenState();
 }
 
-class _BudgetComparisonScreenState extends ConsumerState<BudgetComparisonScreen> {
+class _BudgetComparisonScreenState
+    extends ConsumerState<BudgetComparisonScreen> {
   late String _selectedPeriod;
 
   @override
@@ -56,7 +58,9 @@ class _BudgetComparisonScreenState extends ConsumerState<BudgetComparisonScreen>
             ),
             const SizedBox(height: 16),
             FutureBuilder<List<Budget>>(
-              future: ref.read(budgetsRepositoryProvider).getBudgetsByPeriod(_selectedPeriod),
+              future: ref
+                  .read(budgetsRepositoryProvider)
+                  .getBudgetsByPeriod(_selectedPeriod),
               builder: (context, snap) {
                 if (snap.connectionState == ConnectionState.waiting) {
                   return const Center(child: CircularProgressIndicator());
@@ -262,7 +266,8 @@ class _BudgetComparisonScreenState extends ConsumerState<BudgetComparisonScreen>
     final data = <Map<String, dynamic>>[];
 
     for (final budget in budgets) {
-      final actual = await ref.read(budgetsRepositoryProvider).computeUtilization(budget);
+      final actual =
+          await ref.read(budgetsRepositoryProvider).computeUtilization(budget);
       data.add({
         'category': budget.category ?? 'عمومی',
         'budget': budget.amount,

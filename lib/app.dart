@@ -62,7 +62,8 @@ class _DebtManagerAppState extends ConsumerState<DebtManagerApp>
       final dbEncrypted = await DatabaseHelper.instance.isDatabaseEncrypted();
       if (dbEncrypted) {
         if (!mounted) return;
-        await Navigator.of(context).push(MaterialPageRoute(builder: (_) => const LockScreen()));
+        await Navigator.of(context)
+            .push(MaterialPageRoute(builder: (_) => const LockScreen()));
       }
     });
     _settings.getStrictLockEnabled().then((s) => _strictLock = s);
@@ -77,7 +78,8 @@ class _DebtManagerAppState extends ConsumerState<DebtManagerApp>
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     final auth = ref.read(authNotifierProvider);
-    if (state == AppLifecycleState.paused || state == AppLifecycleState.inactive) {
+    if (state == AppLifecycleState.paused ||
+        state == AppLifecycleState.inactive) {
       if (_appLockEnabled && _strictLock) {
         auth.lock();
       }
@@ -92,7 +94,8 @@ class _DebtManagerAppState extends ConsumerState<DebtManagerApp>
         DatabaseHelper.instance.isDatabaseEncrypted().then((enc) async {
           if (enc) {
             if (!mounted) return;
-            await Navigator.of(context).push(MaterialPageRoute(builder: (_) => const LockScreen()));
+            await Navigator.of(context)
+                .push(MaterialPageRoute(builder: (_) => const LockScreen()));
           } else {
             auth.tryUnlock();
           }
@@ -233,7 +236,7 @@ class _DebtManagerAppState extends ConsumerState<DebtManagerApp>
                 onTap: _resetLockTimer,
                 onPanDown: (_) => _resetLockTimer(),
                 child: DebugOverlay(child: child ?? const SizedBox.shrink()),
-                  ),
+              ),
             );
           },
         );

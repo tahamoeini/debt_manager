@@ -30,7 +30,8 @@ class ReportsState {
     List<Map<String, dynamic>>? rows,
     this.loadingSummary = false,
     this.loadingRows = false,
-  })  : statusFilter = statusFilter ?? {InstallmentStatus.pending, InstallmentStatus.overdue},
+  })  : statusFilter = statusFilter ??
+            {InstallmentStatus.pending, InstallmentStatus.overdue},
         counterparties = counterparties ?? [],
         rows = rows ?? [];
 
@@ -53,7 +54,8 @@ class ReportsState {
       to: to ?? this.to,
       statusFilter: statusFilter ?? this.statusFilter,
       counterpartyFilter: counterpartyFilter ?? this.counterpartyFilter,
-      counterpartyTypeFilter: counterpartyTypeFilter ?? this.counterpartyTypeFilter,
+      counterpartyTypeFilter:
+          counterpartyTypeFilter ?? this.counterpartyTypeFilter,
       counterparties: counterparties ?? this.counterparties,
       summary: summary ?? this.summary,
       rows: rows ?? this.rows,
@@ -67,7 +69,9 @@ class ReportsNotifier extends StateNotifier<ReportsState> {
   final ReportsRepository _repo;
   final Ref ref;
 
-  ReportsNotifier(this.ref) : _repo = ReportsRepository(ref.read), super(ReportsState()) {
+  ReportsNotifier(this.ref)
+      : _repo = ReportsRepository(ref.read),
+        super(ReportsState()) {
     _init();
   }
 
@@ -94,7 +98,9 @@ class ReportsNotifier extends StateNotifier<ReportsState> {
       final borrowed = await _repo.getTotalOutstandingBorrowed();
       final lent = await _repo.getTotalOutstandingLent();
       final net = lent - borrowed;
-      state = state.copyWith(summary: {'borrowed': borrowed, 'lent': lent, 'net': net}, loadingSummary: false);
+      state = state.copyWith(
+          summary: {'borrowed': borrowed, 'lent': lent, 'net': net},
+          loadingSummary: false);
     } catch (e) {
       state = state.copyWith(loadingSummary: false);
     }
@@ -116,11 +122,16 @@ class ReportsNotifier extends StateNotifier<ReportsState> {
         if (loan.id == null) continue;
 
         if (state.counterpartyTypeFilter != null) {
-          final cp = state.counterparties.firstWhere((c) => c.id == loan.counterpartyId, orElse: () => const Counterparty(id: null, name: 'نامشخص'));
+          final cp = state.counterparties.firstWhere(
+              (c) => c.id == loan.counterpartyId,
+              orElse: () => const Counterparty(id: null, name: 'نامشخص'));
           if (cp.type != state.counterpartyTypeFilter) continue;
         }
 
-        if (state.counterpartyFilter != null && loan.counterpartyId != state.counterpartyFilter) continue;
+        if (state.counterpartyFilter != null &&
+            loan.counterpartyId != state.counterpartyFilter) {
+          continue;
+        }
 
         final installments = await _repo.getInstallmentsByLoanId(loan.id!);
         for (final inst in installments) {
@@ -133,7 +144,10 @@ class ReportsNotifier extends StateNotifier<ReportsState> {
           }
           if (!inRange) continue;
 
-          if (state.statusFilter.isNotEmpty && !state.statusFilter.contains(inst.status)) continue;
+          if (state.statusFilter.isNotEmpty &&
+              !state.statusFilter.contains(inst.status)) {
+            continue;
+          }
 
           rows.add({'installment': inst, 'loan': loan});
         }
@@ -195,7 +209,8 @@ class ReportsNotifier extends StateNotifier<ReportsState> {
     if (all) {
       state = state.copyWith(statusFilter: InstallmentStatus.values.toSet());
     } else {
-      state = state.copyWith(statusFilter: {InstallmentStatus.pending, InstallmentStatus.overdue});
+      state = state.copyWith(
+          statusFilter: {InstallmentStatus.pending, InstallmentStatus.overdue});
     }
     refreshRows();
   }
@@ -211,6 +226,7 @@ class ReportsNotifier extends StateNotifier<ReportsState> {
   }
 }
 
-final reportsProvider = StateNotifierProvider<ReportsNotifier, ReportsState>((ref) {
+final reportsProvider =
+    StateNotifierProvider<ReportsNotifier, ReportsState>((ref) {
   return ReportsNotifier(ref);
 });

@@ -40,7 +40,8 @@ class TransferFrame {
       'id': frameId,
       'idx': frameIndex,
       'total': totalFrames,
-      'data': base64Encode(data).replaceAll(RegExp(r'[/+=]'), ''), // URL-safe base64
+      'data': base64Encode(data)
+          .replaceAll(RegExp(r'[/+=]'), ''), // URL-safe base64
       'chk': checksum,
       'ts': timestamp,
     };
@@ -72,7 +73,8 @@ class TransferFrame {
 /// Manages QR code chunking and transfer
 class TransferService {
   static const int maxQrDataSize = 2953; // Max alphanumeric QR data
-  static const int maxPayloadSize = maxQrDataSize - 200; // Safety margin for metadata
+  static const int maxPayloadSize =
+      maxQrDataSize - 200; // Safety margin for metadata
 
   /// Chunk data into frames for QR transmission
   List<TransferFrame> chunkDataForTransfer(
@@ -297,7 +299,8 @@ class TransferSessionManager {
     if (_sessions.containsKey(transferId)) {
       throw TransferException('جلسه‌ی انتقال از قبل وجود دارد');
     }
-    final session = TransferSession(transferId: transferId, totalFrames: totalFrames);
+    final session =
+        TransferSession(transferId: transferId, totalFrames: totalFrames);
     _sessions[transferId] = session;
     return session;
   }
@@ -309,7 +312,8 @@ class TransferSessionManager {
 
   /// Add frame to session
   void addFrame(String transferId, TransferFrame frame) {
-    var session = _sessions[transferId] ??= createSession(transferId, frame.totalFrames);
+    var session =
+        _sessions[transferId] ??= createSession(transferId, frame.totalFrames);
     session.addFrame(frame);
   }
 

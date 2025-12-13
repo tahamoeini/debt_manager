@@ -78,16 +78,15 @@ class ReportsScreen extends ConsumerWidget {
     }
 
     String statusLabel(InstallmentStatus s) {
-    switch (s) {
-      case InstallmentStatus.paid:
-        return 'پرداخت شده';
-      case InstallmentStatus.overdue:
-        return 'عقب‌افتاده';
-      case InstallmentStatus.pending:
-        return 'در انتظار';
+      switch (s) {
+        case InstallmentStatus.paid:
+          return 'پرداخت شده';
+        case InstallmentStatus.overdue:
+          return 'عقب‌افتاده';
+        case InstallmentStatus.pending:
+          return 'در انتظار';
+      }
     }
-  }
-
 
     return ListView(
       padding: const EdgeInsets.all(16),
@@ -253,23 +252,30 @@ class ReportsScreen extends ConsumerWidget {
                 children: [
                   FilterChip(
                     label: const Text('همه'),
-                    selected: state.statusFilter.length == InstallmentStatus.values.length,
+                    selected: state.statusFilter.length ==
+                        InstallmentStatus.values.length,
                     onSelected: (v) => notifier.setAllStatuses(v),
                   ),
                   FilterChip(
                     label: const Text('در انتظار'),
-                    selected: state.statusFilter.contains(InstallmentStatus.pending),
-                    onSelected: (v) => notifier.toggleStatus(InstallmentStatus.pending, v),
+                    selected:
+                        state.statusFilter.contains(InstallmentStatus.pending),
+                    onSelected: (v) =>
+                        notifier.toggleStatus(InstallmentStatus.pending, v),
                   ),
                   FilterChip(
                     label: const Text('عقب‌افتاده'),
-                    selected: state.statusFilter.contains(InstallmentStatus.overdue),
-                    onSelected: (v) => notifier.toggleStatus(InstallmentStatus.overdue, v),
+                    selected:
+                        state.statusFilter.contains(InstallmentStatus.overdue),
+                    onSelected: (v) =>
+                        notifier.toggleStatus(InstallmentStatus.overdue, v),
                   ),
                   FilterChip(
                     label: const Text('پرداخت شده'),
-                    selected: state.statusFilter.contains(InstallmentStatus.paid),
-                    onSelected: (v) => notifier.toggleStatus(InstallmentStatus.paid, v),
+                    selected:
+                        state.statusFilter.contains(InstallmentStatus.paid),
+                    onSelected: (v) =>
+                        notifier.toggleStatus(InstallmentStatus.paid, v),
                   ),
                 ],
               ),
@@ -327,11 +333,14 @@ class ReportsScreen extends ConsumerWidget {
                                   const Text('مجموع برنامه‌ریزی‌شده'),
                                   const SizedBox(height: 6),
                                   SensitiveText(
-                                    formatCurrency(state.rows.fold<int>(0, (sum, r) {
-                                      final inst = r['installment'] as Installment;
+                                    formatCurrency(
+                                        state.rows.fold<int>(0, (sum, r) {
+                                      final inst =
+                                          r['installment'] as Installment;
                                       return sum + inst.amount;
                                     })),
-                                    style: Theme.of(context).textTheme.titleMedium,
+                                    style:
+                                        Theme.of(context).textTheme.titleMedium,
                                   ),
                                 ],
                               ),
@@ -341,14 +350,20 @@ class ReportsScreen extends ConsumerWidget {
                                   const Text('مجموع پرداخت‌شده'),
                                   const SizedBox(height: 6),
                                   SensitiveText(
-                                    formatCurrency(state.rows.fold<int>(0, (sum, r) {
-                                      final inst = r['installment'] as Installment;
-                                      if (inst.status == InstallmentStatus.paid) {
-                                        return sum + (inst.actualPaidAmount ?? inst.amount);
+                                    formatCurrency(
+                                        state.rows.fold<int>(0, (sum, r) {
+                                      final inst =
+                                          r['installment'] as Installment;
+                                      if (inst.status ==
+                                          InstallmentStatus.paid) {
+                                        return sum +
+                                            (inst.actualPaidAmount ??
+                                                inst.amount);
                                       }
                                       return sum;
                                     })),
-                                    style: Theme.of(context).textTheme.titleMedium,
+                                    style:
+                                        Theme.of(context).textTheme.titleMedium,
                                   ),
                                 ],
                               ),
@@ -358,17 +373,25 @@ class ReportsScreen extends ConsumerWidget {
                                   const Text('باقی‌مانده'),
                                   const SizedBox(height: 6),
                                   SensitiveText(
-                                    formatCurrency(state.rows.fold<int>(0, (sum, r) {
-                                      final inst = r['installment'] as Installment;
-                                      return sum + inst.amount;
-                                    }) - state.rows.fold<int>(0, (sum, r) {
-                                      final inst = r['installment'] as Installment;
-                                      if (inst.status == InstallmentStatus.paid) {
-                                        return sum + (inst.actualPaidAmount ?? inst.amount);
-                                      }
-                                      return sum;
-                                    })),
-                                    style: Theme.of(context).textTheme.titleMedium,
+                                    formatCurrency(state.rows.fold<int>(0,
+                                            (sum, r) {
+                                          final inst =
+                                              r['installment'] as Installment;
+                                          return sum + inst.amount;
+                                        }) -
+                                        state.rows.fold<int>(0, (sum, r) {
+                                          final inst =
+                                              r['installment'] as Installment;
+                                          if (inst.status ==
+                                              InstallmentStatus.paid) {
+                                            return sum +
+                                                (inst.actualPaidAmount ??
+                                                    inst.amount);
+                                          }
+                                          return sum;
+                                        })),
+                                    style:
+                                        Theme.of(context).textTheme.titleMedium,
                                   ),
                                 ],
                               ),
@@ -378,11 +401,13 @@ class ReportsScreen extends ConsumerWidget {
                       ),
                       const SizedBox(height: 12),
                       ...state.rows.map((r) {
-                        final Installment inst = r['installment'] as Installment;
+                        final Installment inst =
+                            r['installment'] as Installment;
                         final Loan loan = r['loan'] as Loan;
                         final cp = state.counterparties.firstWhere(
                           (c) => c.id == loan.counterpartyId,
-                          orElse: () => const Counterparty(id: null, name: 'نامشخص'),
+                          orElse: () =>
+                              const Counterparty(id: null, name: 'نامشخص'),
                         );
 
                         final cs = Theme.of(context).colorScheme;
@@ -402,7 +427,8 @@ class ReportsScreen extends ConsumerWidget {
                         return Card(
                           child: ListTile(
                             title: Text(
-                              formatJalaliForDisplay(parseJalali(inst.dueDateJalali)),
+                              formatJalaliForDisplay(
+                                  parseJalali(inst.dueDateJalali)),
                             ),
                             subtitle: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,

@@ -4,7 +4,8 @@ class AchievementType {
   static const String budgetKept = 'budget_kept';
   static const String reportChecked = 'report_checked';
   static const String debtFreeDay = 'debt_free_day';
-  static const String speedyPayoff = 'speedy_payoff'; // paid off loan in <6 months
+  static const String speedyPayoff =
+      'speedy_payoff'; // paid off loan in <6 months
 }
 
 class Achievement {

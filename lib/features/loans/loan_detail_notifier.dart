@@ -12,7 +12,10 @@ class LoanDetailState {
 
   LoanDetailState({this.loan, this.counterparty, this.installments = const []});
 
-  LoanDetailState copyWith({Loan? loan, Counterparty? counterparty, List<Installment>? installments}) {
+  LoanDetailState copyWith(
+      {Loan? loan,
+      Counterparty? counterparty,
+      List<Installment>? installments}) {
     return LoanDetailState(
       loan: loan ?? this.loan,
       counterparty: counterparty ?? this.counterparty,
@@ -25,7 +28,8 @@ class LoanDetailNotifier extends StateNotifier<AsyncValue<LoanDetailState>> {
   final Ref ref;
   final int loanId;
 
-  LoanDetailNotifier(this.ref, this.loanId) : super(const AsyncValue.loading()) {
+  LoanDetailNotifier(this.ref, this.loanId)
+      : super(const AsyncValue.loading()) {
     _load();
   }
 
@@ -36,10 +40,14 @@ class LoanDetailNotifier extends StateNotifier<AsyncValue<LoanDetailState>> {
       final loan = await _repo.getLoanById(loanId);
       final cps = await _repo.getAllCounterparties();
       final cp = loan != null
-          ? cps.firstWhere((c) => c.id == loan.counterpartyId, orElse: () => const Counterparty(id: null, name: 'نامشخص'))
+          ? cps.firstWhere((c) => c.id == loan.counterpartyId,
+              orElse: () => const Counterparty(id: null, name: 'نامشخص'))
           : const Counterparty(id: null, name: 'نامشخص');
-      final installments = loan != null ? await _repo.getInstallmentsByLoanId(loanId) : <Installment>[];
-      state = AsyncValue.data(LoanDetailState(loan: loan, counterparty: cp, installments: installments));
+      final installments = loan != null
+          ? await _repo.getInstallmentsByLoanId(loanId)
+          : <Installment>[];
+      state = AsyncValue.data(LoanDetailState(
+          loan: loan, counterparty: cp, installments: installments));
     } catch (e, st) {
       state = AsyncValue.error(e, st);
     }
@@ -61,13 +69,15 @@ class LoanDetailNotifier extends StateNotifier<AsyncValue<LoanDetailState>> {
     try {
       state = const AsyncValue.loading();
       await _repo.deleteLoanWithInstallments(id);
-      state = AsyncValue.data(LoanDetailState(loan: null, counterparty: null, installments: []));
+      state = AsyncValue.data(
+          LoanDetailState(loan: null, counterparty: null, installments: []));
     } catch (e, st) {
       state = AsyncValue.error(e, st);
     }
   }
 }
 
-final loanDetailProvider = StateNotifierProvider.family<LoanDetailNotifier, AsyncValue<LoanDetailState>, int>((ref, loanId) {
+final loanDetailProvider = StateNotifierProvider.family<LoanDetailNotifier,
+    AsyncValue<LoanDetailState>, int>((ref, loanId) {
   return LoanDetailNotifier(ref, loanId);
 });

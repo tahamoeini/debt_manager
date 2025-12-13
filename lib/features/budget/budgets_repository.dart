@@ -99,7 +99,7 @@ class BudgetsRepository {
 
       final db = await _db.database;
 
-          // No-op: per-month overrides not used in current utilization calculation
+      // No-op: per-month overrides not used in current utilization calculation
 
       if (budget.category == null) {
         final rows = await db.rawQuery('''

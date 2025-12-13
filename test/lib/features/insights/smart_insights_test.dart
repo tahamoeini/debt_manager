@@ -27,15 +27,16 @@ void main() {
       if (monthlySpending.length < 2) return 'insufficient_data';
 
       final first3Months = monthlySpending.take(3).fold<double>(
-            0,
-            (sum, val) => sum + val,
-          ) /
+                0,
+                (sum, val) => sum + val,
+              ) /
           3;
-      final last3Months = monthlySpending.skip(monthlySpending.length - 3).fold<double>(
-            0,
-            (sum, val) => sum + val,
-          ) /
-          3;
+      final last3Months =
+          monthlySpending.skip(monthlySpending.length - 3).fold<double>(
+                    0,
+                    (sum, val) => sum + val,
+                  ) /
+              3;
 
       final changePercent = (last3Months - first3Months) / first3Months;
 
@@ -62,21 +63,22 @@ void main() {
 
       // Group by amount (with tolerance)
       final clusters = <List<int>>[];
-      
+
       for (final txn in transactions) {
         final amount = txn['amount'] as int;
         var foundCluster = false;
-        
+
         // Check if this amount belongs to any existing cluster
         for (final cluster in clusters) {
-          final clusterAvg = cluster.fold<int>(0, (sum, a) => sum + a) ~/ cluster.length;
+          final clusterAvg =
+              cluster.fold<int>(0, (sum, a) => sum + a) ~/ cluster.length;
           if ((amount - clusterAvg).abs() <= tolerance) {
             cluster.add(amount);
             foundCluster = true;
             break;
           }
         }
-        
+
         // Create new cluster if not found
         if (!foundCluster) {
           clusters.add([amount]);
@@ -105,7 +107,8 @@ void main() {
           : 0;
       final debtToIncomeRatio =
           monthlyIncome > 0 ? (totalDebt / monthlyIncome).toDouble() : 0.0;
-      final emergencyFund = monthlyExpenses > 0 ? savingsBalance ~/ monthlyExpenses : 0;
+      final emergencyFund =
+          monthlyExpenses > 0 ? savingsBalance ~/ monthlyExpenses : 0;
 
       String healthScore = 'poor';
       if (savingsRate >= 20 && debtToIncomeRatio < 2.0 && emergencyFund >= 3) {

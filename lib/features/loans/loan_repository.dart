@@ -31,11 +31,12 @@ class LoanRepository {
 
   Future<int> insertLoan(Loan loan) => _db.insertLoan(loan);
 
-    Future<int> insertCounterparty(Counterparty cp) => _db.insertCounterparty(cp);
+  Future<int> insertCounterparty(Counterparty cp) => _db.insertCounterparty(cp);
 
-    Future<int> insertInstallment(Installment inst) => _db.insertInstallment(inst);
+  Future<int> insertInstallment(Installment inst) =>
+      _db.insertInstallment(inst);
 
-    Future<int> updateLoan(Loan loan) => _db.updateLoan(loan);
+  Future<int> updateLoan(Loan loan) => _db.updateLoan(loan);
 
   Future<void> deleteLoanWithInstallments(int loanId) =>
       _db.deleteLoanWithInstallments(loanId);

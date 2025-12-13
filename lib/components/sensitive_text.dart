@@ -25,17 +25,27 @@ class SensitiveText extends ConsumerWidget {
             child: Stack(
               alignment: Alignment.centerLeft,
               children: [
-                Text(text, style: style?.copyWith(color: Colors.transparent) ?? const TextStyle(color: Colors.transparent)),
+                Text(text,
+                    style: style?.copyWith(color: Colors.transparent) ??
+                        const TextStyle(color: Colors.transparent)),
                 BackdropFilter(
                   filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
                   child: Container(
-                    color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.2),
+                    color: Theme.of(context)
+                        .colorScheme
+                        .surface
+                        .withValues(alpha: 0.2),
                     padding: EdgeInsets.zero,
                   ),
                 ),
                 Positioned.fill(
                   child: Center(
-                    child: Icon(Icons.visibility_off, size: 16, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6)),
+                    child: Icon(Icons.visibility_off,
+                        size: 16,
+                        color: Theme.of(context)
+                            .colorScheme
+                            .onSurface
+                            .withValues(alpha: 0.6)),
                   ),
                 ),
               ],

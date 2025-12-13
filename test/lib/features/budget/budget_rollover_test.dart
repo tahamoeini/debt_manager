@@ -118,7 +118,8 @@ void main() {
 
       expect(result['currentMonthRemaining'], equals(-2000000));
       expect(result['currentMonthOverspent'], isTrue);
-      expect(result['rolledOverAmount'], equals(0)); // No rollover when over budget
+      expect(result['rolledOverAmount'],
+          equals(0)); // No rollover when over budget
       expect(result['nextMonthBudget'], equals(10000000)); // Reset to base
     });
 
@@ -190,12 +191,12 @@ void main() {
 
       // First month should be within budget
       expect(periods[0]['overBudget'], isFalse);
-      
+
       // With rollover, budget should generally grow or stay same unless overspent
       for (var i = 1; i < periods.length; i++) {
         final currentBudget = periods[i]['budgetLimit'] as int;
         final previousBudget = periods[i - 1]['budgetLimit'] as int;
-        
+
         if (currentBudget < previousBudget) {
           // Budget decreased - only if previous was overspent
           expect(periods[i - 1]['overBudget'], isTrue);
@@ -270,7 +271,7 @@ void main() {
       // With 10M budget and 12M spending, some months should overspend
       // Just verify that we have periods data
       expect(periods.length, greaterThanOrEqualTo(1));
-      
+
       // Verify each period has the expected structure
       for (final period in periods) {
         expect(period.containsKey('overBudget'), isTrue);

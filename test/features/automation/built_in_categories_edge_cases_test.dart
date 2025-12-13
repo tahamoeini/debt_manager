@@ -4,15 +4,17 @@ import 'package:debt_manager/features/automation/built_in_categories.dart';
 void main() {
   group('BuiltInCategories - Edge Cases', () {
     test('detectCategory with null payee and description', () {
-      final (category, confidence) = BuiltInCategories.detectCategory(null, null, null);
-      
+      final (category, confidence) =
+          BuiltInCategories.detectCategory(null, null, null);
+
       expect(category, isNull);
       expect(confidence, equals(0.0));
     });
 
     test('detectCategory with empty strings', () {
-      final (category, confidence) = BuiltInCategories.detectCategory('', '', null);
-      
+      final (category, confidence) =
+          BuiltInCategories.detectCategory('', '', null);
+
       expect(category, isNull);
       expect(confidence, equals(0.0));
     });
@@ -23,7 +25,7 @@ void main() {
         'پرداخت قبض آب',
         null,
       );
-      
+
       expect(category, equals('utilities'));
       expect(confidence, greaterThan(0.5));
     });
@@ -34,7 +36,7 @@ void main() {
         null,
         null,
       );
-      
+
       expect(category, equals('food'));
       expect(confidence, greaterThan(0.5));
     });
@@ -45,7 +47,7 @@ void main() {
         'ایران - کافه',
         null,
       );
-      
+
       expect(category, isNotNull);
       expect(confidence, greaterThan(0.0));
     });
@@ -56,7 +58,7 @@ void main() {
         'Large purchase',
         100000000, // 100M
       );
-      
+
       // Large amounts might be categorized as investment if unknown
       expect(category, isNotNull);
     });
@@ -67,7 +69,7 @@ void main() {
         null,
         0,
       );
-      
+
       expect(category, equals('transport'));
     });
 
@@ -77,15 +79,17 @@ void main() {
         null,
         -50000, // refund
       );
-      
+
       expect(category, equals('food'));
     });
 
     test('detectCategory word match vs substring match', () {
       // Exact word match should score higher
-      final (cat1, conf1) = BuiltInCategories.detectCategory('taxi', null, null);
-      final (cat2, conf2) = BuiltInCategories.detectCategory('taxicab service', null, null);
-      
+      final (cat1, conf1) =
+          BuiltInCategories.detectCategory('taxi', null, null);
+      final (cat2, conf2) =
+          BuiltInCategories.detectCategory('taxicab service', null, null);
+
       expect(cat1, equals('transport'));
       expect(cat2, equals('transport'));
     });
@@ -96,7 +100,7 @@ void main() {
         'Food delivery',
         null,
       );
-      
+
       expect(category, equals('food'));
       expect(confidence, greaterThanOrEqualTo(0.6));
     });
@@ -109,15 +113,18 @@ void main() {
       ];
 
       for (final variant in variants) {
-        final (category, confidence) = BuiltInCategories.detectCategory(variant, null, null);
+        final (category, confidence) =
+            BuiltInCategories.detectCategory(variant, null, null);
         expect(category, equals('utilities'), reason: 'Failed for: $variant');
       }
     });
 
     test('detectCategory with whitespace variations', () {
-      final (cat1, conf1) = BuiltInCategories.detectCategory('  taxi  ', null, null);
-      final (cat2, conf2) = BuiltInCategories.detectCategory('taxi', null, null);
-      
+      final (cat1, conf1) =
+          BuiltInCategories.detectCategory('  taxi  ', null, null);
+      final (cat2, conf2) =
+          BuiltInCategories.detectCategory('taxi', null, null);
+
       // Normalization might handle this
       expect([cat1, cat2].contains('transport'), isTrue);
     });
@@ -128,7 +135,7 @@ void main() {
 
     test('payeePatterns contains expected categories', () {
       final patterns = BuiltInCategories.payeePatterns.values.toSet();
-      
+
       expect(patterns.contains('utilities'), isTrue);
       expect(patterns.contains('food'), isTrue);
       expect(patterns.contains('transport'), isTrue);
@@ -155,16 +162,19 @@ void main() {
         'پزشکی',
         null,
       );
-      
+
       // Healthcare might or might not be in the patterns
       expect(confidence, greaterThanOrEqualTo(0.0));
     });
 
     test('detectCategory case insensitivity works', () {
-      final (cat1, conf1) = BuiltInCategories.detectCategory('TAXI', null, null);
-      final (cat2, conf2) = BuiltInCategories.detectCategory('Taxi', null, null);
-      final (cat3, conf3) = BuiltInCategories.detectCategory('taxi', null, null);
-      
+      final (cat1, conf1) =
+          BuiltInCategories.detectCategory('TAXI', null, null);
+      final (cat2, conf2) =
+          BuiltInCategories.detectCategory('Taxi', null, null);
+      final (cat3, conf3) =
+          BuiltInCategories.detectCategory('taxi', null, null);
+
       expect(cat1, equals(cat2));
       expect(cat2, equals(cat3));
     });
@@ -202,7 +212,7 @@ void main() {
           desc,
           amount,
         );
-        
+
         expect(category, isNotNull);
         expect(confidence, greaterThanOrEqualTo(0.0));
         expect(confidence, lessThanOrEqualTo(1.0));
@@ -211,7 +221,7 @@ void main() {
 
     test('batch categorization maintains consistency', () {
       const payee = 'uber';
-      
+
       final results = List.generate(
         5,
         (_) => BuiltInCategories.detectCategory(payee, null, null),
@@ -236,7 +246,7 @@ void main() {
           desc,
           amount,
         );
-        
+
         expect(category, isNotNull);
       }
     });

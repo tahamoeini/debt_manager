@@ -137,7 +137,9 @@ class _LockScreenState extends ConsumerState<LockScreen> {
                         keyboardType: TextInputType.number,
                         obscureText: true,
                         decoration: const InputDecoration(hintText: 'PIN'),
-                        inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                        inputFormatters: [
+                          FilteringTextInputFormatter.digitsOnly
+                        ],
                       ),
                     ),
                     const SizedBox(height: 12),

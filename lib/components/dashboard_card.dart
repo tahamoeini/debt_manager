@@ -99,13 +99,14 @@ class DashboardCard extends StatelessWidget {
                 ),
               )
             else
-              valueWidget ?? Text(
-                value,
-                style: textTheme.headlineSmall?.copyWith(
-                  fontWeight: FontWeight.bold,
-                  color: accentColor ?? colorScheme.onSurface,
-                ),
-              ),
+              valueWidget ??
+                  Text(
+                    value,
+                    style: textTheme.headlineSmall?.copyWith(
+                      fontWeight: FontWeight.bold,
+                      color: accentColor ?? colorScheme.onSurface,
+                    ),
+                  ),
             if (subtitle != null) ...[
               const SizedBox(height: AppSpacing.xs),
               Text(

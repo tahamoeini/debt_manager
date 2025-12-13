@@ -173,8 +173,8 @@ class _AutomationRulesScreenState extends State<AutomationRulesScreen> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 TextField(
-                  controller: nameCtrl,
-                  decoration: const InputDecoration(labelText: 'نام')),
+                    controller: nameCtrl,
+                    decoration: const InputDecoration(labelText: 'نام')),
                 const SizedBox(height: 8),
                 DropdownButton<String>(
                   value: ruleType,
@@ -193,9 +193,9 @@ class _AutomationRulesScreenState extends State<AutomationRulesScreen> {
                 ),
                 const SizedBox(height: 8),
                 TextField(
-                  controller: patternCtrl,
-                  decoration: const InputDecoration(
-                    labelText: 'الگو (مثلا Uber یا 199000)')),
+                    controller: patternCtrl,
+                    decoration: const InputDecoration(
+                        labelText: 'الگو (مثلا Uber یا 199000)')),
                 const SizedBox(height: 8),
                 DropdownButton<String>(
                   value: action,
@@ -210,10 +210,10 @@ class _AutomationRulesScreenState extends State<AutomationRulesScreen> {
                 ),
                 const SizedBox(height: 8),
                 TextField(
-                  controller: actionValueCtrl,
-                  decoration: const InputDecoration(
-                    labelText:
-                      'مقدار اقدام (مثلا Transport یا Subscription)')),
+                    controller: actionValueCtrl,
+                    decoration: const InputDecoration(
+                        labelText:
+                            'مقدار اقدام (مثلا Transport یا Subscription)')),
                 const SizedBox(height: 12),
                 const Divider(),
                 const SizedBox(height: 8),
@@ -261,7 +261,7 @@ class _AutomationRulesScreenState extends State<AutomationRulesScreen> {
             TextButton(
                 onPressed: () => Navigator.of(ctx).pop(),
                 child: const Text('لغو')),
-                ElevatedButton(
+            ElevatedButton(
               onPressed: () async {
                 final now = DateTime.now().toIso8601String();
                 final rule = AutomationRule(

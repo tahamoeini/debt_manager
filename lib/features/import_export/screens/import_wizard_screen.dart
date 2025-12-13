@@ -181,9 +181,10 @@ class _StepSelectFile extends ConsumerWidget {
                         const SizedBox(height: 4),
                         Text(
                           state.selectedFilePath!.split('/').last,
-                          style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                                fontWeight: FontWeight.bold,
-                              ),
+                          style:
+                              Theme.of(context).textTheme.bodyLarge?.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                  ),
                         ),
                       ],
                     ),
@@ -353,9 +354,10 @@ class _StepMapFields extends ConsumerWidget {
                       children: [
                         Text(
                           field.columnName,
-                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                fontWeight: FontWeight.bold,
-                              ),
+                          style:
+                              Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                  ),
                         ),
                         const SizedBox(height: 8),
                         DropdownButton<ImportFieldType>(
@@ -364,7 +366,8 @@ class _StepMapFields extends ConsumerWidget {
                           items: ImportFieldType.values
                               .map((type) => DropdownMenuItem(
                                     value: type,
-                                    child: Text(type.toString().split('.').last),
+                                    child:
+                                        Text(type.toString().split('.').last),
                                   ))
                               .toList(),
                           onChanged: (value) {
@@ -468,7 +471,10 @@ class _StepPreview extends ConsumerWidget {
                             children: [
                               Text(
                                 'تعارض‌های شناسایی‌شده',
-                                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .bodyMedium
+                                    ?.copyWith(
                                       color: Colors.orange.shade900,
                                       fontWeight: FontWeight.bold,
                                     ),
@@ -496,7 +502,8 @@ class _StepPreview extends ConsumerWidget {
                 child: const Text('بازگشت'),
               ),
               ElevatedButton(
-                onPressed: state.preview != null ? () => notifier.setStep(4) : null,
+                onPressed:
+                    state.preview != null ? () => notifier.setStep(4) : null,
                 child: const Text('ادامه'),
               ),
             ],

@@ -114,7 +114,8 @@ class CategoryHeatmap extends StatelessWidget {
                             child: Padding(
                               padding: const EdgeInsets.only(right: 8),
                               child: ConstrainedBox(
-                                constraints: const BoxConstraints(maxWidth: 100),
+                                constraints:
+                                    const BoxConstraints(maxWidth: 100),
                                 child: Text(
                                   category,
                                   style: Theme.of(context).textTheme.bodySmall,
@@ -152,9 +153,11 @@ class CategoryHeatmap extends StatelessWidget {
                       ),
                       // Heatmap rows
                       ...categories.asMap().entries.map((entry) {
-                        final monthValues = categoryMonthlySpending[entry.value]!;
+                        final monthValues =
+                            categoryMonthlySpending[entry.value]!;
                         return Row(
-                          children: List.generate(monthLabels.length, (monthIndex) {
+                          children:
+                              List.generate(monthLabels.length, (monthIndex) {
                             final value = monthIndex < monthValues.length
                                 ? monthValues[monthIndex]
                                 : 0;

@@ -10,7 +10,8 @@ import 'package:path_provider/path_provider.dart';
 
 /// Service for backing up and restoring database data
 class BackupRestoreService {
-  static final BackupRestoreService _instance = BackupRestoreService._internal();
+  static final BackupRestoreService _instance =
+      BackupRestoreService._internal();
 
   factory BackupRestoreService() {
     return _instance;
@@ -74,7 +75,8 @@ class BackupRestoreService {
         timestamp: now.toIso8601String(),
         appVersion: '1.0.0', // TODO: Get from pubspec or constants
         checksum: checksum,
-        name: backupName ?? 'Backup-${DateFormat('yyyy-MM-dd-HHmmss').format(now)}',
+        name: backupName ??
+            'Backup-${DateFormat('yyyy-MM-dd-HHmmss').format(now)}',
         data: backupData,
         metadata: metadata,
       );
@@ -92,10 +94,9 @@ class BackupRestoreService {
       ));
 
       // Get directory to save backup
-      final saveDir = backupDirectory ??
-          (await getApplicationDocumentsDirectory()).path;
-      final backupFilePath =
-          '$saveDir/${payload.name}.backup.zip';
+      final saveDir =
+          backupDirectory ?? (await getApplicationDocumentsDirectory()).path;
+      final backupFilePath = '$saveDir/${payload.name}.backup.zip';
 
       // Write zip file
       final zipEncoder = ZipEncoder();
@@ -163,10 +164,10 @@ class BackupRestoreService {
 
       // Check for conflicts
       final conflicts = await _checkForConflicts(payload);
-      
+
       if (conflicts.isNotEmpty) {
         conflictCallback?.call(conflicts);
-        
+
         // In dryRun mode, only report conflicts
         if (mode == BackupMergeMode.dryRun) {
           return conflicts;
@@ -226,7 +227,7 @@ class BackupRestoreService {
     try {
       // Get existing data to delete
       final existingLoans = await _db.getAllLoans();
-      
+
       // Delete all loans (which cascades to installments)
       for (final loan in existingLoans) {
         if (loan.id != null) {
@@ -276,13 +277,13 @@ class BackupRestoreService {
       final existingLoans = await _db.getAllLoans();
       final existingCounterparties = await _db.getAllCounterparties();
 
-      final backupCounterparties = payload.data['counterparties'] as List? ?? [];
+      final backupCounterparties =
+          payload.data['counterparties'] as List? ?? [];
       final backupLoans = payload.data['loans'] as List? ?? [];
       final backupInstallments = payload.data['installments'] as List? ?? [];
 
       // Merge counterparties
-      final existingCpIds =
-          existingCounterparties.map((c) => c.id).toSet();
+      final existingCpIds = existingCounterparties.map((c) => c.id).toSet();
       for (final cpData in backupCounterparties) {
         final cpId = cpData['id'];
         if (cpId != null && !existingCpIds.contains(cpId)) {
@@ -310,7 +311,7 @@ class BackupRestoreService {
           final existingInstallments =
               await _db.getInstallmentsByLoanId(loanId as int);
           final existingIds = existingInstallments.map((i) => i.id).toSet();
-          
+
           if (instId != null && !existingIds.contains(instId)) {
             // Insert new installment
             // TODO: Create Installment from map and insert
@@ -325,8 +326,8 @@ class BackupRestoreService {
   /// Get list of available backups in directory
   Future<List<File>> getAvailableBackups({String? directory}) async {
     try {
-      final backupDir = directory ??
-          (await getApplicationDocumentsDirectory()).path;
+      final backupDir =
+          directory ?? (await getApplicationDocumentsDirectory()).path;
       final dir = Directory(backupDir);
 
       if (!await dir.exists()) {
@@ -341,8 +342,8 @@ class BackupRestoreService {
       }
 
       // Sort by modification time (newest first)
-      backups.sort((a, b) =>
-          b.statSync().modified.compareTo(a.statSync().modified));
+      backups.sort(
+          (a, b) => b.statSync().modified.compareTo(a.statSync().modified));
 
       return backups;
     } catch (e) {

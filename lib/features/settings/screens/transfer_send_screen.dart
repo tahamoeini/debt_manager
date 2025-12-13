@@ -74,7 +74,8 @@ class _TransferSendNotifier extends StateNotifier<_TransferSendState> {
   }
 
   void nextFrame() {
-    if (state.frames != null && state.currentFrameIndex < state.frames!.length - 1) {
+    if (state.frames != null &&
+        state.currentFrameIndex < state.frames!.length - 1) {
       state = state.copyWith(
         currentFrameIndex: state.currentFrameIndex + 1,
       );
@@ -125,7 +126,8 @@ class _TransferSendScreenState extends ConsumerState<TransferSendScreen>
       final notifier = ref.read(_transferSendProvider.notifier);
       final state = ref.read(_transferSendProvider);
 
-      if (state.frames != null && state.currentFrameIndex < state.frames!.length - 1) {
+      if (state.frames != null &&
+          state.currentFrameIndex < state.frames!.length - 1) {
         notifier.nextFrame();
         _frameController.reset();
         _frameController.forward();
@@ -244,9 +246,12 @@ class _TransferSendScreenState extends ConsumerState<TransferSendScreen>
                         padding: const EdgeInsets.all(12),
                         child: Column(
                           children: [
-                            _InfoRow('حجم:', '${currentFrame.data.length} بایت'),
-                            _InfoRow('چک‌سام:', '${currentFrame.checksum.substring(0, 16)}...'),
-                            _InfoRow('زمان:', _formatTimestamp(currentFrame.timestamp)),
+                            _InfoRow(
+                                'حجم:', '${currentFrame.data.length} بایت'),
+                            _InfoRow('چک‌سام:',
+                                '${currentFrame.checksum.substring(0, 16)}...'),
+                            _InfoRow('زمان:',
+                                _formatTimestamp(currentFrame.timestamp)),
                           ],
                         ),
                       ),
