@@ -2,6 +2,42 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:debt_manager/core/db/database_helper.dart';
 import 'package:debt_manager/features/loans/models/installment.dart';
 import 'package:debt_manager/core/utils/jalali_utils.dart';
+import 'package:debt_manager/features/reports/reports_repository.dart';
+import 'package:debt_manager/features/loans/models/loan.dart';
+
+// XP reward values for actions
+class XpRewards {
+  static const int paymentMade = 10;
+  static const int earlyPayment = 25;
+  static const int budgetKept = 20;
+  static const int reportChecked = 5;
+  static const int loanCompleted = 100;
+}
+
+// User progress: XP, level, streaks, freedom date
+class UserProgress {
+  final int totalXp;
+  final int level;
+  final Map<String, int> streaks; // e.g., {'payments': 5}
+  final DateTime? freedomDate;
+  final int daysFreedomCountdown;
+
+  UserProgress({
+    required this.totalXp,
+    required this.level,
+    required this.streaks,
+    this.freedomDate,
+    required this.daysFreedomCountdown,
+  });
+
+  factory UserProgress.empty() => UserProgress(
+        totalXp: 0,
+        level: 0,
+        streaks: {},
+        freedomDate: null,
+        daysFreedomCountdown: 0,
+      );
+}
 
 class Achievement {
   final String id;
@@ -18,6 +54,8 @@ class AchievementsRepository {
 
   static const _keyEarned = 'achievements_earned';
   static const _keyPaidMonths = 'achievements_paid_months';
+  static const _keyTotalXp = 'total_xp';
+  static const _keyStreak = 'payment_streak_days';
 
   Future<Set<String>> _getEarnedSet() async {
     final prefs = await SharedPreferences.getInstance();
@@ -143,5 +181,83 @@ class AchievementsRepository {
     }
 
     return newly;
+  }
+
+  // Get current user progress (XP, level, streaks, freedom date)
+  Future<UserProgress> getUserProgress() async {
+    final prefs = await SharedPreferences.getInstance();
+    final totalXp = prefs.getInt(_keyTotalXp) ?? 0;
+    final streakStr = prefs.getString(_keyStreak) ?? '0:${DateTime.now().toIso8601String()}';
+    final parts = streakStr.split(':');
+    final streak = int.tryParse(parts.first) ?? 0;
+
+    // Compute freedom date from debt projections
+    DateTime? freedomDate;
+    try {
+      final reportsRepo = ReportsRepository();
+      final loans = await DatabaseHelper.instance
+          .getAllLoans(direction: LoanDirection.borrowed);
+      if (loans.isNotEmpty) {
+        DateTime? maxDate;
+        for (final loan in loans) {
+          if (loan.id == null) continue;
+          final projection = await reportsRepo.projectDebtPayoff(loan.id!);
+          if (projection.isNotEmpty) {
+            // Estimate payoff from projection length
+            final estimatedDate = DateTime.now().add(Duration(days: projection.length));
+            maxDate = maxDate == null || estimatedDate.isAfter(maxDate)
+                ? estimatedDate
+                : maxDate;
+          }
+        }
+        freedomDate = maxDate;
+      }
+    } catch (e) {
+      // Error computing freedom date, skip
+    }
+
+    return UserProgress(
+      totalXp: totalXp,
+      level: totalXp ~/ 100,
+      streaks: {'payments': streak},
+      freedomDate: freedomDate,
+      daysFreedomCountdown: freedomDate != null
+          ? freedomDate.difference(DateTime.now()).inDays
+          : 0,
+    );
+  }
+
+  // Add XP to user progress
+  Future<int> addXp(int xpAmount) async {
+    final prefs = await SharedPreferences.getInstance();
+    final current = prefs.getInt(_keyTotalXp) ?? 0;
+    final newTotal = current + xpAmount;
+    await prefs.setInt(_keyTotalXp, newTotal);
+    return newTotal;
+  }
+
+  // Update payment streak
+  Future<int> updatePaymentStreak() async {
+    final prefs = await SharedPreferences.getInstance();
+    final streakStr = prefs.getString(_keyStreak) ?? '0:${DateTime.now().toIso8601String()}';
+    final parts = streakStr.split(':');
+    final lastDateStr = parts.length > 1 ? parts.sublist(1).join(':') : DateTime.now().toIso8601String();
+    final lastDate = DateTime.parse(lastDateStr);
+    final today = DateTime.now();
+
+    int newStreak;
+    if (lastDate.difference(today).inDays == -1) {
+      // Consecutive day
+      newStreak = (int.tryParse(parts.first) ?? 0) + 1;
+    } else if (lastDate.year == today.year && lastDate.month == today.month && lastDate.day == today.day) {
+      // Same day, no change
+      newStreak = int.tryParse(parts.first) ?? 1;
+    } else {
+      // Broken streak, restart
+      newStreak = 1;
+    }
+
+    await prefs.setString(_keyStreak, '$newStreak:${today.toIso8601String()}');
+    return newStreak;
   }
 }

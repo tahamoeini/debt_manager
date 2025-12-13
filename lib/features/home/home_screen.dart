@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:fl_chart/fl_chart.dart';
 import 'package:debt_manager/features/loans/screens/loans_list_screen.dart';
 import 'package:debt_manager/features/loans/screens/loan_detail_screen.dart';
 import 'package:debt_manager/features/reports/screens/reports_screen.dart';
+import 'package:debt_manager/features/automation/screens/can_i_afford_this_screen.dart';
+import 'package:debt_manager/features/achievements/screens/progress_screen.dart';
 import 'package:debt_manager/core/widgets/stat_card.dart';
 import 'package:debt_manager/core/theme/app_dimensions.dart';
 import 'package:debt_manager/features/insights/smart_insights_widget.dart';
@@ -92,7 +95,7 @@ class HomeScreen extends ConsumerWidget {
                 ),
                 data: (data) => StatCard(
                   title: 'هزینه این ماه',
-                  value: formatOrDash(0),
+                  value: formatOrDash(data.monthlySpending),
                   icon: Icons.receipt_long,
                   onTap: () async {
                     await Navigator.of(context).push(MaterialPageRoute(
@@ -174,6 +177,141 @@ class HomeScreen extends ConsumerWidget {
               ],
             ),
           ),
+        ),
+        const SizedBox(height: AppDimensions.spacingM),
+        // Spending trend chart
+        statsAsync.when(
+          loading: () => Card(
+            child: Padding(
+              padding: AppDimensions.cardPadding,
+              child: Center(
+                child: CircularProgressIndicator(strokeWidth: 2),
+              ),
+            ),
+          ),
+          error: (e, st) => Card(
+            child: Padding(
+              padding: AppDimensions.cardPadding,
+              child: Text(
+                'خطا در بارگذاری نمودار',
+                style: Theme.of(context).textTheme.bodySmall,
+              ),
+            ),
+          ),
+          data: (data) => Card(
+            child: Padding(
+              padding: AppDimensions.cardPadding,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'روند هزینه (6 ماه)',
+                        style: Theme.of(context).textTheme.titleMedium,
+                      ),
+                      Text(
+                        'میانگین: ${formatCurrency((data.spendingTrend.fold<int>(0, (a, b) => a + b) ~/ data.spendingTrend.length))}',
+                        style: Theme.of(context).textTheme.bodySmall,
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: AppDimensions.spacingM),
+                  SizedBox(
+                    height: 150,
+                    child: LineChart(
+                      LineChartData(
+                        gridData: FlGridData(show: false),
+                        titlesData: FlTitlesData(show: false),
+                        borderData: FlBorderData(show: false),
+                        spots: data.spendingTrend
+                            .asMap()
+                            .entries
+                            .map((e) => FlSpot(
+                              e.key.toDouble(),
+                              (e.value / 1000000).toDouble(), // Scale to millions
+                            ))
+                            .toList(),
+                        isCurved: true,
+                        preventCurveOvershootingThreshold: 0,
+                        lineBarsData: [
+                          LineBarData(
+                            spots: data.spendingTrend
+                                .asMap()
+                                .entries
+                                .map((e) => FlSpot(
+                                  e.key.toDouble(),
+                                  (e.value / 1000000).toDouble(),
+                                ))
+                                .toList(),
+                            isCurved: true,
+                            gradient: LinearGradient(
+                              colors: [Colors.blue.shade300, Colors.blue.shade700],
+                            ),
+                            barWidth: 3,
+                            isStrokeCapRound: true,
+                            dotData: FlDotData(
+                              show: true,
+                              getDotPainter: (spot, percent, barData, index) =>
+                                  FlDotCirclePainter(
+                                radius: 4,
+                                color: Colors.blue.shade700,
+                              ),
+                            ),
+                            belowBarData: BarAreaData(
+                              show: true,
+                              gradient: LinearGradient(
+                                colors: [
+                                  Colors.blue.shade300.withAlpha(100),
+                                  Colors.blue.shade700.withAlpha(50),
+                                ],
+                                begin: Alignment.topCenter,
+                                end: Alignment.bottomCenter,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(height: AppDimensions.spacingM),
+        // Action buttons for new features
+        Row(
+          children: [
+            Expanded(
+              child: ElevatedButton.icon(
+                onPressed: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (_) => const CanIAffordThisScreen(),
+                    ),
+                  );
+                },
+                icon: Icon(Icons.trending_up),
+                label: Text('آیا می‌توانم؟'),
+              ),
+            ),
+            const SizedBox(width: AppDimensions.spacingM),
+            Expanded(
+              child: ElevatedButton.icon(
+                onPressed: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (_) => const ProgressScreen(),
+                    ),
+                  );
+                },
+                icon: Icon(Icons.emoji_events),
+                label: Text('پیشرفت'),
+              ),
+            ),
+          ],
         ),
         const SizedBox(height: AppDimensions.spacingM),
         const SmartInsightsWidget(),
