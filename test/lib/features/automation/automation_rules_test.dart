@@ -7,7 +7,8 @@ void main() {
       required Map<String, dynamic> transaction,
       required Map<String, dynamic> rule,
     }) {
-      final conditions = rule['conditions'] as Map<String, dynamic>? ?? {};
+      final conditionsRaw = rule['conditions'];
+      final conditions = conditionsRaw is Map ? Map<String, dynamic>.from(conditionsRaw as Map) : <String, dynamic>{};
 
       // Check amount range
       if (conditions.containsKey('minAmount')) {
@@ -49,7 +50,8 @@ void main() {
       required Map<String, dynamic> transaction,
       required Map<String, dynamic> rule,
     }) {
-      final action = rule['action'] as Map<String, dynamic>? ?? {};
+      final actionRaw = rule['action'];
+      final action = actionRaw is Map ? Map<String, dynamic>.from(actionRaw as Map) : <String, dynamic>{};
       final result = Map<String, dynamic>.from(transaction);
 
       if (action.containsKey('categorize')) {
@@ -57,8 +59,12 @@ void main() {
       }
 
       if (action.containsKey('tag')) {
-        final tags = (result['tags'] as List<String>?) ?? [];
-        tags.add(action['tag']);
+        final existingTags = result['tags'];
+        final tags = <String>[];
+        if (existingTags is List) {
+          tags.addAll((existingTags as List).cast<String>());
+        }
+        tags.add(action['tag'] as String);
         result['tags'] = tags;
       }
 
