@@ -1,46 +1,34 @@
-# This workflow uses actions that are not certified by GitHub.
-# They are provided by a third-party and are governed by
-# separate terms of service, privacy policy, and support
-# documentation.
-
 name: Flutter CI
 
 on:
   push:
-    branches: [ "master" ]
+    branches: [master]
   pull_request:
-    branches: [ "master" ]
+    branches: [master]
 
 jobs:
-  build:
+  analyze-and-test:
     runs-on: ubuntu-latest
+    timeout-minutes: 30
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
 
-      # Use a Flutter setup action (this repo is a Flutter app).
-      - uses: subosito/flutter-action@v2
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
         with:
-          channel: 'stable'
+          channel: stable
           cache: true
 
-      - name: Install dependencies
+      - name: Get dependencies
         run: flutter pub get
 
-      # Uncomment this step to verify the use of 'dart format' on each commit.
-      # - name: Verify formatting
-      #   run: dart format --output=none --set-exit-if-changed .
+      - name: Check code formatting
+        run: dart format --output=none --set-exit-if-changed .
 
-      # Analyze project source for issues.
-      # Use --no-fatal-infos to not fail CI on info-level alerts
-      - name: Analyze project source
+      - name: Analyze code
         run: flutter analyze --no-fatal-infos
 
-      # Run Flutter tests.
       - name: Run tests
         run: flutter test
-
-      # Note: APK builds and artifacts are handled by the dedicated
-      # `build-and-release.yml` workflow to produce GitHub Release assets.
-      # This CI job focuses on analysis and tests to avoid creating
-      # upload-only artifacts that are hard to discover.

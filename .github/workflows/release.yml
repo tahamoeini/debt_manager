@@ -1,56 +1,85 @@
-name: Create Release
+name: Version Release
 
 on:
   push:
     tags:
       - 'v*'
 
+permissions:
+  contents: write
+
 jobs:
-  build-and-release:
-    if: false
+  build-release:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
+    timeout-minutes: 60
 
     steps:
-      - uses: actions/checkout@v4
-
-      - uses: subosito/flutter-action@v2
+      - name: Checkout
+        uses: actions/checkout@v4
         with:
-          channel: 'stable'
+          fetch-depth: 0
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
           cache: true
 
-      - name: Install dependencies
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: gradle
+
+      - name: Get dependencies
         run: flutter pub get
 
       - name: Run tests
         run: flutter test
 
-      - name: Build Android Release APK
-        run: flutter build apk --release
+      - name: Build APK
+        run: flutter build apk --release -v
 
-      - name: Build Android App Bundle
-        run: flutter build appbundle --release
+      - name: Build App Bundle
+        run: flutter build appbundle --release -v
 
-      - name: Get version from tag
+      - name: Extract version from tag
         id: version
         run: |
-          VERSION=${GITHUB_REF#refs/tags/v}
+          TAG=${{ github.ref_name }}
+          VERSION=${TAG#v}
           echo "version=$VERSION" >> $GITHUB_OUTPUT
-          echo "tag=$GITHUB_REF_NAME" >> $GITHUB_OUTPUT
+          echo "tag=$TAG" >> $GITHUB_OUTPUT
 
-      - name: Rename APK and AAB with version
+      - name: Get APK info
+        id: apk_info
         run: |
-          mkdir -p release-artifacts
-          cp build/app/outputs/flutter-apk/app-release.apk "release-artifacts/debt_manager-v${{ steps.version.outputs.version }}.apk"
-          cp build/app/outputs/bundle/release/app-release.aab "release-artifacts/debt_manager-v${{ steps.version.outputs.version }}.aab"
+          APK_PATH="build/app/outputs/flutter-apk/app-release.apk"
+          APK_SIZE=$(du -h "$APK_PATH" | cut -f1)
+          echo "apk_size=$APK_SIZE" >> $GITHUB_OUTPUT
+
+      - name: Create Release Notes
+        id: notes
+        run: |
+          echo "## Debt Manager v${{ steps.version.outputs.version }}" > release_notes.md
+          echo "" >> release_notes.md
+          echo "### Artifacts" >> release_notes.md
+          echo "- **APK Size**: ${{ steps.apk_info.outputs.apk_size }}" >> release_notes.md
+          echo "" >> release_notes.md
+          echo "### Installation" >> release_notes.md
+          echo "Download the APK file and install it on your Android device." >> release_notes.md
 
       - name: Create Release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v1
         with:
-          files: |
-            release-artifacts/debt_manager-v${{ steps.version.outputs.version }}.apk
-            release-artifacts/debt_manager-v${{ steps.version.outputs.version }}.aab
-          generate_release_notes: true
+          tag_name: ${{ steps.version.outputs.tag }}
+          name: "Debt Manager v${{ steps.version.outputs.version }}"
+          body_path: release_notes.md
           draft: false
           prerelease: false
+          files: |
+            build/app/outputs/flutter-apk/app-release.apk
+            build/app/outputs/bundle/release/app-release.aab
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
