@@ -1,4 +1,5 @@
 import 'package:debt_manager/core/utils/format_utils.dart';
+import 'package:shamsi_date/shamsi_date.dart';
 
 // Top-level compute functions for SmartInsights. Return plain Maps so
 // they can be reconstructed on the main isolate.
@@ -132,12 +133,12 @@ List<Map<String, dynamic>> computeDetectAnomalies(
   final results = <Map<String, dynamic>>[];
 
   // Compute category averages over the previous monthsBack months
-  final categoryTotals = <String, List<int>>{};
 
   for (final inst in installments) {
     final paidAt = inst['paid_at'] as String?;
-    if (paidAt == null || !paidAt.startsWith(currentPeriod.substring(0, 7)))
+    if (paidAt == null || !paidAt.startsWith(currentPeriod.substring(0, 7))) {
       continue;
+    }
   }
 
   // For simplicity, reuse loan titles as categories
@@ -189,8 +190,7 @@ List<Map<String, dynamic>> computeDetectAnomalies(
         'average': avg.round(),
         'current': current.round(),
         'multiplier': (current / avg),
-        'description':
-            'هزینه در ${title} بیش از 3× میانگین ${monthsBack} ماه گذشته است',
+        'description': 'هزینه در $title بیش از 3× میانگین $monthsBack ماه گذشته است',
       });
     }
   }

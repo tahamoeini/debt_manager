@@ -99,11 +99,7 @@ class BudgetsRepository {
 
       final db = await _db.database;
 
-      // Check for a per-month override for this category
-      final override =
-          await getOverrideForCategoryPeriod(budget.category, period);
-      final effectiveAmount =
-          override != null ? override.amount : budget.amount;
+          // No-op: per-month overrides not used in current utilization calculation
 
       if (budget.category == null) {
         final rows = await db.rawQuery('''

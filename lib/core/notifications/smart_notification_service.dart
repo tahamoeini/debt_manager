@@ -90,19 +90,16 @@ class SmartNotificationService {
     try {
       final budgets = await _budgetRepo.getBudgetsByPeriod(period);
 
-      // If irregular mode, compute a rolling-average and a safe-extra suggestion
-      int rollingAvg = 0;
+      // If irregular mode, compute a safe-extra suggestion
       int safeExtra = 0;
       if (irregularMode) {
         try {
-          rollingAvg = await _irregular.computeRollingAverage(3);
           // compute total of all budgets for this period to estimate essentials
           final total = budgets.fold<int>(0, (acc, b) => acc + (b.amount));
           safeExtra = await _irregular.suggestSafeExtra(
               months: 3, essentialBudget: total, safetyFactor: 1.2);
         } catch (e) {
           // ignore and fallback to conservative behavior
-          rollingAvg = 0;
           safeExtra = 0;
         }
       }
@@ -137,7 +134,7 @@ class SmartNotificationService {
             // to hold off on new discretionary spends.
             final title = '💡 پیشنهاد مالی: بودجه نزدیک به تکمیل';
             final body =
-                'شما ${(percentage * 100).toStringAsFixed(0)}٪ از بودجه ${budget.category ?? 'عمومی'} را استفاده کرده‌اید. با توجه به درآمد نامنظم، پیشنهاد می‌شود تا حدود ${safeExtra} ریال را برای هزینه‌های ضروری نگه دارید.';
+              'شما ${(percentage * 100).toStringAsFixed(0)}٪ از بودجه ${budget.category ?? 'عمومی'} را استفاده کرده‌اید. با توجه به درآمد نامنظم، پیشنهاد می‌شود تا حدود $safeExtra ریال را برای هزینه‌های ضروری نگه دارید.';
             await sendSmartSuggestion(title, body, budget.id ?? 1);
           } else {
             await _sendBudgetAlert(

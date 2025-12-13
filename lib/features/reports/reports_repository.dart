@@ -232,6 +232,7 @@ class ReportsRepository {
       }
       return fallback;
     }
+  }
 
     // Project payoff across all borrowed loans under a given strategy
     // strategy: 'snowball' or 'avalanche'
@@ -276,7 +277,6 @@ class ReportsRepository {
         return fallback;
       }
     }
-  }
 
   // Generate insights for the current month
   Future<List<String>> generateMonthlyInsights() async {

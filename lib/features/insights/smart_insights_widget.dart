@@ -73,7 +73,6 @@ class _SmartInsightsWidgetState extends State<SmartInsightsWidget> {
         // Anomalies may be fetched separately; call detectAnomalies for current UI
         // (non-blocking) and show when available via setState.
         // For simplicity, re-query service synchronously here if possible.
-        List<Map<String, dynamic>> anomalies = [];
         _insightsService.detectAnomalies().then((a) {
           if (mounted && a.isNotEmpty) setState(() {});
         });

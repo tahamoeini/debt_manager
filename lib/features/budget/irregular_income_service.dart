@@ -22,8 +22,8 @@ class IrregularIncomeService {
       }
       final lastDay = Jalali(targetYear, targetMonth, 1).monthLength;
       final mm = targetMonth.toString().padLeft(2, '0');
-      final start = '${targetYear}-$mm-01';
-      final end = '${targetYear}-$mm-${lastDay.toString().padLeft(2, '0')}';
+      final start = '$targetYear-$mm-01';
+      final end = '$targetYear-$mm-${lastDay.toString().padLeft(2, '0')}';
 
       final db = await _db.database;
       final rows = await db.rawQuery('''

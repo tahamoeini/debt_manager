@@ -86,15 +86,17 @@ class _AddBudgetEntryScreenState extends ConsumerState<AddBudgetEntryScreen> {
       final repo = ref.read(budgetsRepositoryProvider);
       if (widget.entry == null) {
         await repo.insertBudgetEntry(entry);
+        if (!mounted) return;
         UIUtils.showAppSnackBar(context, 'ورودی بودجه ذخیره شد');
       } else {
         await repo.updateBudgetEntry(entry);
+        if (!mounted) return;
         UIUtils.showAppSnackBar(context, 'ورودی بودجه به‌روزرسانی شد');
       }
       if (!mounted) return;
       Navigator.of(context).pop(true);
     } catch (e) {
-      UIUtils.showAppSnackBar(context, 'خطا در ذخیره‌سازی ورودی');
+      if (mounted) UIUtils.showAppSnackBar(context, 'خطا در ذخیره‌سازی ورودی');
     }
   }
 

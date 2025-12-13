@@ -144,9 +144,9 @@ class _AutomationRulesScreenState extends State<AutomationRulesScreen> {
   }
 
   void _showAddRuleDialog(BuildContext context) {
-    final _nameCtrl = TextEditingController();
-    final _patternCtrl = TextEditingController();
-    final _actionValueCtrl = TextEditingController();
+    final nameCtrl = TextEditingController();
+    final patternCtrl = TextEditingController();
+    final actionValueCtrl = TextEditingController();
     String ruleType = 'payee_contains';
     String action = 'set_category';
     bool enabled = true;
@@ -173,8 +173,8 @@ class _AutomationRulesScreenState extends State<AutomationRulesScreen> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 TextField(
-                    controller: _nameCtrl,
-                    decoration: const InputDecoration(labelText: 'نام')),
+                  controller: nameCtrl,
+                  decoration: const InputDecoration(labelText: 'نام')),
                 const SizedBox(height: 8),
                 DropdownButton<String>(
                   value: ruleType,
@@ -193,9 +193,9 @@ class _AutomationRulesScreenState extends State<AutomationRulesScreen> {
                 ),
                 const SizedBox(height: 8),
                 TextField(
-                    controller: _patternCtrl,
-                    decoration: const InputDecoration(
-                        labelText: 'الگو (مثلا Uber یا 199000)')),
+                  controller: patternCtrl,
+                  decoration: const InputDecoration(
+                    labelText: 'الگو (مثلا Uber یا 199000)')),
                 const SizedBox(height: 8),
                 DropdownButton<String>(
                   value: action,
@@ -210,10 +210,10 @@ class _AutomationRulesScreenState extends State<AutomationRulesScreen> {
                 ),
                 const SizedBox(height: 8),
                 TextField(
-                    controller: _actionValueCtrl,
-                    decoration: const InputDecoration(
-                        labelText:
-                            'مقدار اقدام (مثلا Transport یا Subscription)')),
+                  controller: actionValueCtrl,
+                  decoration: const InputDecoration(
+                    labelText:
+                      'مقدار اقدام (مثلا Transport یا Subscription)')),
                 const SizedBox(height: 12),
                 const Divider(),
                 const SizedBox(height: 8),
@@ -261,23 +261,24 @@ class _AutomationRulesScreenState extends State<AutomationRulesScreen> {
             TextButton(
                 onPressed: () => Navigator.of(ctx).pop(),
                 child: const Text('لغو')),
-            ElevatedButton(
+                ElevatedButton(
               onPressed: () async {
                 final now = DateTime.now().toIso8601String();
                 final rule = AutomationRule(
                   id: null,
-                  name: _nameCtrl.text.trim().isEmpty
+                  name: nameCtrl.text.trim().isEmpty
                       ? 'قانون جدید'
-                      : _nameCtrl.text.trim(),
+                      : nameCtrl.text.trim(),
                   ruleType: ruleType,
-                  pattern: _patternCtrl.text.trim(),
+                  pattern: patternCtrl.text.trim(),
                   action: action,
-                  actionValue: _actionValueCtrl.text.trim(),
+                  actionValue: actionValueCtrl.text.trim(),
                   enabled: enabled,
                   createdAt: now,
                 );
                 await _repo.insertRule(rule);
-                Navigator.of(ctx).pop();
+                if (!mounted) return;
+                Navigator.of(this.context).pop();
                 _refresh();
               },
               child: const Text('ذخیره'),

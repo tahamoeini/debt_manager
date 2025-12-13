@@ -100,69 +100,67 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
                   const SizedBox(height: AppConstants.spaceMedium),
               itemBuilder: (context, index) {
                 final b = budgets[index];
+
                 return Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     Card(
-                  shape: const RoundedRectangleBorder(
-                    borderRadius: AppConstants.borderRadiusSmall,
-                  ),
-                  child: InkWell(
-                    onTap: () async {
-                      // Edit
-                      await Navigator.of(context).push(MaterialPageRoute(
-                        builder: (_) => AddBudgetScreen(budget: b),
-                      ));
-                      _refresh();
-                    },
-                    child: Padding(
-                      padding: AppConstants.cardPadding,
-                      child: Row(
-                        children: [
-                          // Category icon
-                          CategoryIcon(
-                            category: b.category,
-                            icon: Icons
-                                .category, // Fallback, widget should handle category-specific icon
-                            size: 40,
-                          ),
-                          const SizedBox(width: AppConstants.spaceMedium),
-                          // Budget info and progress bar
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  b.category ?? 'عمومی',
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .titleMedium
-                                      ?.copyWith(
-                                        fontWeight: FontWeight.w600,
-                                      ),
+                      shape: const RoundedRectangleBorder(
+                        borderRadius: AppConstants.borderRadiusSmall,
+                      ),
+                      child: InkWell(
+                        onTap: () async {
+                          // Edit
+                          await Navigator.of(context).push(MaterialPageRoute(
+                            builder: (_) => AddBudgetScreen(budget: b),
+                          ));
+                          _refresh();
+                        },
+                        child: Padding(
+                          padding: AppConstants.cardPadding,
+                          child: Row(
+                            children: [
+                              CategoryIcon(
+                                category: b.category,
+                                icon: Icons.category,
+                                size: 40,
+                              ),
+                              const SizedBox(width: AppConstants.spaceMedium),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      b.category ?? 'عمومی',
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .titleMedium
+                                          ?.copyWith(fontWeight: FontWeight.w600),
+                                    ),
+                                    const SizedBox(height: AppConstants.spaceXSmall),
+                                    FutureBuilder<int>(
+                                      future: ref
+                                          .read(budgetsRepositoryProvider)
+                                          .computeUtilization(b),
+                                      builder: (c, s) {
+                                        final used = s.data ?? 0;
+                                        return BudgetBar(
+                                          current: used,
+                                          limit: b.amount,
+                                          showPercentage: true,
+                                          showAmount: false,
+                                        );
+                                      },
+                                    ),
+                                  ],
                                 ),
-                                const SizedBox(
-                                    height: AppConstants.spaceXSmall),
-                                FutureBuilder<int>(
-                                  future: ref
-                                      .read(budgetsRepositoryProvider)
-                                      .computeUtilization(b),
-                                  builder: (c, s) {
-                                    final used = s.data ?? 0;
-                                    return BudgetBar(
-                                      current: used,
-                                      limit: b.amount,
-                                      showPercentage: true,
-                                      showAmount: false,
-                                    );
-                                  },
-                                ),
-                              ],
-                            ),
+                              ),
+                            ],
                           ),
-                        ],
+                        ),
                       ),
                     ),
-                    ),
+
                     // Show override/entry buttons under each budget
                     Padding(
                       padding: const EdgeInsets.symmetric(vertical: 8.0),
@@ -170,7 +168,14 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
                         children: [
                           TextButton.icon(
                             onPressed: () async {
-                              final res = await Navigator.of(context).push(MaterialPageRoute(builder: (_) => AddBudgetEntryScreen(presetCategory: b.category, presetPeriod: b.period)));
+                              final res = await Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (_) => AddBudgetEntryScreen(
+                                    presetCategory: b.category,
+                                    presetPeriod: b.period,
+                                  ),
+                                ),
+                              );
                               if (res == true) _refresh();
                             },
                             icon: const Icon(Icons.edit_calendar),
@@ -179,7 +184,13 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
                           const SizedBox(width: 8),
                           TextButton.icon(
                             onPressed: () async {
-                              final res = await Navigator.of(context).push(MaterialPageRoute(builder: (_) => AddBudgetEntryScreen(presetCategory: b.category, )));
+                              final res = await Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (_) => AddBudgetEntryScreen(
+                                    presetCategory: b.category,
+                                  ),
+                                ),
+                              );
                               if (res == true) _refresh();
                             },
                             icon: const Icon(Icons.calendar_today_outlined),
@@ -203,10 +214,10 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
               padding: const EdgeInsets.only(bottom: 8.0),
               child: FloatingActionButton.extended(
                 onPressed: () {
-                  UIUtils.showAppSnackBar(context, 'پیشنهاد: پرداخت اضافی ایمن ${_incomeSuggestion}');
+                  UIUtils.showAppSnackBar(context, 'پیشنهاد: پرداخت اضافی ایمن $_incomeSuggestion');
                 },
                 icon: const Icon(Icons.savings),
-                label: Text('پیشنهاد: ${_incomeSuggestion}'),
+                label: Text('پیشنهاد: $_incomeSuggestion'),
               ),
             ),
           FloatingActionButton.large(
