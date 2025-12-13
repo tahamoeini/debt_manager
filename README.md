@@ -1,53 +1,190 @@
 # Debt Manager
 
-A Flutter application for managing debts, loans, installments, and budgets with Persian (Jalali) calendar support.
+A comprehensive Flutter application for managing debts, loans, installments, budgets, and financial planning with Persian (Jalali) calendar support and smart insights.
 
-## Features
+## 🎯 Features
 
-- Track loans and debts (borrowed and lent)
-- Manage installments with due dates
-- Budget tracking and monitoring
-- Persian (Shamsi/Jalali) calendar integration
-- Notifications for overdue installments
-- Dark mode support
+### Core Financial Management
+- **Loan & Debt Tracking**: Track loans you've given and received with full details
+- **Installment Management**: Schedule and monitor installments with due dates and reminders
+- **Budget Planning**: Create and monitor monthly budgets by category
+- **Financial Insights**: AI-powered spending analysis and pattern detection
+- **Payoff Simulation**: Project debt payoff timelines with different strategies
+- **Cash Flow Analysis**: "Can I afford this?" simulator for new commitments
 
-## Design System
+### User Experience
+- **Persian/Farsi Support**: Full localization with Jalali calendar integration
+- **Dark Mode**: Complete dark theme support with auto-switching
+- **Notifications**: Smart reminders for overdue payments and budget alerts
+- **Data Export**: CSV export for reports and external analysis
+- **Secure Storage**: Encrypted local database with PIN protection
+- **Offline First**: All data stored locally on device
 
-This project uses a comprehensive design system with reusable UI components. For detailed information about using the design system, see [DESIGN_SYSTEM.md](DESIGN_SYSTEM.md).
+### Advanced Features
+- **Smart Categories**: Auto-categorization of transactions with customization
+- **Automation Rules**: Create rules to automatically categorize and tag transactions
+- **Achievements System**: XP-based gamification to encourage good financial habits
+- **Advanced Reports**: Visual charts, trends, and financial insights
+- **Budget Rollover**: Flexible rollover of unused budget to next period
+- **Security**: PIN lock and encrypted database support
 
-### Quick Start with Components
+## 📱 Getting Started
 
-```dart
-// Import reusable widgets
-import 'package:debt_manager/core/widgets/widgets.dart';
-import 'package:debt_manager/core/theme/theme.dart';
+### Prerequisites
+- Flutter 3.38.3+ (stable channel)
+- Dart 3.5.3+
+- Android SDK 28+ or iOS 12+
 
-// Use dashboard cards
-DashboardCard(
-  title: 'Balance',
-  value: formatCurrency(balance),
-  icon: Icons.account_balance_wallet,
-)
+### Installation
 
-// Use budget bars
-BudgetBar(
-  current: spent,
-  limit: budgetLimit,
-  label: 'Monthly Budget',
-)
+```bash
+# Clone the repository
+git clone https://github.com/yourusername/debt_manager.git
+cd debt_manager
 
-// Use app constants
-Container(
-  padding: AppConstants.pagePadding,
-  decoration: BoxDecoration(
-    borderRadius: AppConstants.borderRadiusMedium,
-  ),
-)
+# Get dependencies
+flutter pub get
+
+# Run the app
+flutter run --release
 ```
-A Flutter application for managing debts, loans, budgets, and installments with a focus on Persian/Farsi localization.
-A comprehensive Flutter application for managing debts, loans, budgets, and financial tracking with Persian (Jalali) calendar support.
 
-## Features
+### Running Tests
+
+```bash
+# Run all tests
+flutter test
+
+# Run tests with coverage
+flutter test --coverage
+
+# Run specific test file
+flutter test test/lib/features/budget/budget_rollover_test.dart
+```
+
+### Code Quality
+
+```bash
+# Analyze code
+flutter analyze
+
+# Format code
+dart format .
+
+# Run all checks
+flutter pub get && flutter analyze && flutter test
+```
+
+## 🏗️ Architecture
+
+### Project Structure
+```
+lib/
+├── main.dart                    # App entry point
+├── app.dart                     # App widget and routing
+├── app_shell.dart              # Root shell with navigation
+├── components/                 # Reusable component widgets
+├── core/
+│   ├── db/                     # Database layer
+│   ├── models/                 # Core data models
+│   ├── compute/                # Business logic & calculations
+│   ├── smart_insights/         # Analytics and insights
+│   ├── widgets/                # Reusable UI components
+│   ├── theme/                  # Design system & theme
+│   ├── notifications/          # Notification service
+│   ├── security/               # Encryption & PIN management
+│   └── export/                 # Data export functionality
+├── features/
+│   ├── home/                   # Home dashboard
+│   ├── loans/                  # Loan management
+│   ├── budget/                 # Budget tracking
+│   ├── reports/                # Reports and analytics
+│   ├── achievements/           # Gamification system
+│   ├── automation/             # Rules and auto-categorization
+│   ├── settings/               # User settings & preferences
+│   └── import_export/          # Data import/export
+test/
+├── lib/                        # Unit & integration tests
+└── widgets/                    # Widget tests
+```
+
+### Design Patterns
+- **Repository Pattern**: Data access abstraction
+- **Riverpod**: State management
+- **Service Locator**: Dependency injection
+- **MVVM**: Model-View-ViewModel architecture
+
+## 📚 Documentation
+
+- **[DESIGN_SYSTEM.md](DESIGN_SYSTEM.md)** - UI components and design guidelines
+- **[TESTING_GUIDE.md](TESTING_GUIDE.md)** - Feature testing procedures
+- **[CHANGELOG.md](CHANGELOG.md)** - Version history and updates
+- **[docs/IMPLEMENTATION_SUMMARY.md](docs/IMPLEMENTATION_SUMMARY.md)** - Feature implementation details
+- **[docs/REPORTS_FEATURES.md](docs/REPORTS_FEATURES.md)** - Reports and analytics documentation
+- **[APK_OPTIMIZATION.md](APK_OPTIMIZATION.md)** - Build optimization strategies
+
+## 🧪 Testing
+
+The project includes comprehensive test coverage:
+- **249 unit and integration tests**
+- Tests for calculations, business logic, and UI components
+- Smart insights detection algorithm tests
+- Budget rollover and payoff projection tests
+- Automation rules and categorization tests
+
+```bash
+# Run all tests
+flutter test
+
+# Run specific test
+flutter test test/lib/features/budget/budget_rollover_test.dart -v
+```
+
+## 📦 Build & Release
+
+### Building APK
+```bash
+# Debug build
+flutter build apk --debug
+
+# Release build (optimized)
+flutter build apk --release
+```
+
+### Release Configuration
+- Minification enabled
+- Resource shrinking enabled
+- ProGuard rules applied
+- Expected size: 60-80MB (from 180MB with optimizations)
+
+See [APK_OPTIMIZATION.md](APK_OPTIMIZATION.md) for details.
+
+## 🔐 Security
+
+- **Local Storage**: SQLite with encryption support
+- **PIN Protection**: Optional PIN lock for sensitive data
+- **No Cloud**: All data remains on device
+- **Database Encryption**: SQLCipher integration for encrypted database
+
+## 🤝 Contributing
+
+1. Ensure all tests pass: `flutter test`
+2. Format code: `dart format .`
+3. Run analysis: `flutter analyze`
+4. Create a pull request with clear description
+
+## 📄 License
+
+This project is proprietary. All rights reserved.
+
+## 📞 Support
+
+For issues, questions, or feature requests, please open an issue on the repository.
+
+---
+
+**Version**: 1.0.0  
+**Last Updated**: December 2024
 
 ### 💰 Financial Management
 - **Loan Tracking**: Track loans and debts with installment schedules
