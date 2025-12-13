@@ -70,14 +70,14 @@ jobs:
       - name: Flutter pub get
         run: flutter pub get
 
-      - name: Build debug APK (with retries)
+      - name: Build release APK (optimized with minification)
         run: |
           set -e
           retries=3
           attempt=0
           until [ "$attempt" -ge "$retries" ]
           do
-            if flutter build apk --debug --no-shrink; then
+            if flutter build apk --release; then
               echo "Build succeeded"
               break
             fi
@@ -102,7 +102,7 @@ jobs:
         uses: actions/create-release@v1
         with:
           tag_name: ${{ steps.tag.outputs.tag }}
-          release_name: "Debug APK - ${{ steps.tag.outputs.tag }}"
+          release_name: "Release APK - ${{ steps.tag.outputs.tag }}"
           draft: false
           prerelease: true
         env:
@@ -112,8 +112,8 @@ jobs:
         uses: actions/upload-release-asset@v1
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: build/app/outputs/flutter-apk/app-debug.apk
-          asset_name: debt_manager-app-debug.apk
+          asset_path: build/app/outputs/flutter-apk/app-release.apk
+          asset_name: debt_manager-app-release.apk
           asset_content_type: application/vnd.android.package-archive
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
