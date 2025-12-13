@@ -493,3 +493,108 @@ List<Map<String, dynamic>> computeProjectAllDebtsPayoff(
 
   return projections;
 }
+
+/// Compute spending by category across multiple months.
+/// Returns a map where:
+/// - Keys: category names
+/// - Values: lists of monthly spending (oldest to newest)
+Map<String, List<int>> computeSpendingHeatmap(
+  List<Map<String, dynamic>> loans,
+  List<Map<String, dynamic>> counterparties,
+  List<Map<String, dynamic>> installments,
+  int monthsBack,
+  int nowYear,
+  int nowMonth,
+) {
+  final cpMap = <int, Map<String, dynamic>>{};
+  for (final cp in counterparties) {
+    final id = cp['id'];
+    if (id is int) cpMap[id] = cp;
+  }
+
+  final loanMap = <int, Map<String, dynamic>>{};
+  for (final loan in loans) {
+    final id = loan['id'];
+    if (id is int) loanMap[id] = loan;
+  }
+
+  // Initialize categories with empty lists
+  final heatmapData = <String, List<int>>{};
+
+  // Iterate through months
+  for (var i = monthsBack - 1; i >= 0; i--) {
+    var targetYear = nowYear;
+    var targetMonth = nowMonth - i;
+    while (targetMonth <= 0) {
+      targetMonth += 12;
+      targetYear -= 1;
+    }
+
+    final lastDay = Jalali(targetYear, targetMonth, 1).monthLength;
+    final mm = targetMonth.toString().padLeft(2, '0');
+    final startDate = '$targetYear-$mm-01';
+    final endDate =
+        '$targetYear-$mm-${lastDay.toString().padLeft(2, '0')}';
+
+    final monthCategoryTotals = <String, int>{};
+
+    // Process installments for this month
+    for (final inst in installments) {
+      final status = inst['status'] as String? ?? '';
+      final paidAt = inst['paid_at'] as String?;
+      if (status != 'paid' || paidAt == null) continue;
+      if (paidAt.compareTo(startDate) < 0 || paidAt.compareTo(endDate) > 0) {
+        continue;
+      }
+
+      final loanId = inst['loan_id'] is int
+          ? inst['loan_id'] as int
+          : int.tryParse(inst['loan_id'].toString()) ?? -1;
+      final loan = loanMap[loanId];
+      if (loan == null) continue;
+
+      final cpId = loan['counterparty_id'] is int
+          ? loan['counterparty_id'] as int
+          : int.tryParse(loan['counterparty_id'].toString()) ?? -1;
+      final cp = cpMap[cpId];
+      final category = (cp != null ? (cp['type'] ?? cp['tag']) : null) ?? 'سایر';
+
+      final actual = inst['actual_paid_amount'] is int
+          ? inst['actual_paid_amount'] as int
+          : (inst['amount'] is int
+              ? inst['amount'] as int
+              : int.tryParse(inst['amount'].toString()) ?? 0);
+
+      monthCategoryTotals[category] = (monthCategoryTotals[category] ?? 0) + actual;
+    }
+
+    // Add monthly totals to heatmap
+    final allCategories = <String>{...monthCategoryTotals.keys, ...heatmapData.keys};
+    for (final category in allCategories) {
+      heatmapData.putIfAbsent(category, () => []);
+      heatmapData[category]!.add(monthCategoryTotals[category] ?? 0);
+    }
+  }
+
+  // Ensure all categories have the same length
+  final maxLength = monthsBack;
+  for (final category in heatmapData.keys) {
+    while (heatmapData[category]!.length < maxLength) {
+      heatmapData[category]!.insert(0, 0);
+    }
+  }
+
+  return heatmapData;
+}
+
+/// Adapter for compute() which requires a single message argument.
+Map<String, List<int>> spendingHeatmapEntry(Map<String, dynamic> input) {
+  return computeSpendingHeatmap(
+    List<Map<String, dynamic>>.from(input['loans'] as List),
+    List<Map<String, dynamic>>.from(input['cps'] as List),
+    List<Map<String, dynamic>>.from(input['insts'] as List),
+    input['monthsBack'] as int,
+    input['nowYear'] as int,
+    input['nowMonth'] as int,
+  );
+}

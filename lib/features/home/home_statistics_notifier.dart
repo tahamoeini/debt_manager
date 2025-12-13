@@ -47,17 +47,27 @@ class HomeStatisticsNotifier extends StateNotifier<AsyncValue<HomeStats>> {
       final borrowed = await db.getTotalOutstandingBorrowed();
       final lent = await db.getTotalOutstandingLent();
       final net = lent - borrowed;
-
-      // Calculate current month spending
+      // Calculate current month spending from paid installments
       final now = DateTime.now();
       final startOfMonth = DateTime(now.year, now.month, 1);
       final endOfMonth = DateTime(now.year, now.month + 1, 0);
       
       int monthlySpending = 0;
-      final monthlyTransactions = await db.getTransactionsByDateRange(startOfMonth, endOfMonth);
-      for (final txn in monthlyTransactions) {
-        if (txn.amount < 0) {
-          monthlySpending += (-txn.amount).abs();
+      // Get all loans and their installments
+      final loans = await db.getAllLoans(direction: LoanDirection.borrowed);
+      final allLoanIds = loans.map((l) => l.id).whereType<int>().toList();
+      final grouped = allLoanIds.isNotEmpty
+          ? await db.getInstallmentsGroupedByLoanId(allLoanIds)
+          : <int, List<Installment>>{};
+      
+      for (final installments in grouped.values) {
+        for (final inst in installments) {
+          if (inst.paidAt != null) {
+            final paidDate = DateTime.parse(inst.paidAt!);
+            if (paidDate.isAfter(startOfMonth) && paidDate.isBefore(endOfMonth)) {
+              monthlySpending += inst.actualPaidAmount ?? inst.amount;
+            }
+          }
         }
       }
 
@@ -66,19 +76,20 @@ class HomeStatisticsNotifier extends StateNotifier<AsyncValue<HomeStats>> {
       for (var i = 5; i >= 0; i--) {
         final monthDate = DateTime(now.year, now.month - i, 1);
         final monthStart = DateTime(monthDate.year, monthDate.month, 1);
-        final monthEnd = DateTime(monthDate.year, monthDate.month + 1, 0);
+        final monthEnd = monthDate.month == 12 
+            ? DateTime(monthDate.year + 1, 1, 1)
+            : DateTime(monthDate.year, monthDate.month + 1, 1);
         
         int monthSpending = 0;
-        try {
-          final txns = await db.getTransactionsByDateRange(monthStart, monthEnd);
-          for (final txn in txns) {
-            if (txn.amount < 0) {
-              monthSpending += (-txn.amount).abs();
+        for (final installments in grouped.values) {
+          for (final inst in installments) {
+            if (inst.paidAt != null) {
+              final paidDate = DateTime.parse(inst.paidAt!);
+              if (paidDate.isAfter(monthStart) && paidDate.isBefore(monthEnd)) {
+                monthSpending += inst.actualPaidAmount ?? inst.amount;
+              }
             }
           }
-        } catch (_) {
-          // If month doesn't exist, use 0
-          monthSpending = 0;
         }
         spendingTrend.add(monthSpending);
       }

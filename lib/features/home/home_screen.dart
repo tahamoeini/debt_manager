@@ -137,35 +137,86 @@ class HomeScreen extends ConsumerWidget {
                       final loan = data.loansById[inst.loanId];
                       final cp = data.counterpartiesById[loan?.counterpartyId ?? -1];
                       final title = loan?.title ?? cp?.name ?? 'بدون عنوان';
-                      return InkWell(
-                        onTap: () async {
-                          final res = await Navigator.of(context).push<bool>(
-                            MaterialPageRoute(
-                              builder: (_) => LoanDetailScreen(loanId: inst.loanId),
-                            ),
-                          );
-                          if (res == true) {
-                            ref.read(refreshTriggerProvider.notifier).state++;
-                          }
-                        },
-                        child: Padding(
-                          padding: const EdgeInsets.only(bottom: 6.0),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Expanded(
-                                child: Text(
-                                  '${inst.dueDateJalali} • $title',
-                                  style: Theme.of(context).textTheme.bodySmall,
-                                  overflow: TextOverflow.ellipsis,
+                      
+                      // Check if overdue based on status
+                      final isOverdue = inst.status.toString() == 'InstallmentStatus.overdue';
+                      final color = isOverdue ? Colors.red.shade600 : Colors.blue.shade700;
+                      
+                      return Container(
+                        margin: const EdgeInsets.only(bottom: AppDimensions.spacingS),
+                        decoration: BoxDecoration(
+                          border: Border.all(
+                            color: isOverdue ? Colors.red.shade200 : Colors.grey.shade300,
+                            width: 1,
+                          ),
+                          borderRadius: BorderRadius.circular(8),
+                          color: isOverdue ? Colors.red.shade50 : Colors.grey.shade50,
+                        ),
+                        child: Material(
+                          color: Colors.transparent,
+                          child: InkWell(
+                            onTap: () async {
+                              final res = await Navigator.of(context).push<bool>(
+                                MaterialPageRoute(
+                                  builder: (_) => LoanDetailScreen(loanId: inst.loanId),
                                 ),
+                              );
+                              if (res == true) {
+                                ref.read(refreshTriggerProvider.notifier).state++;
+                              }
+                            },
+                            borderRadius: BorderRadius.circular(8),
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: AppDimensions.spacingM,
+                                vertical: AppDimensions.spacingS,
                               ),
-                              const SizedBox(width: 8),
-                              Text(
-                                formatCurrency(inst.amount),
-                                style: Theme.of(context).textTheme.bodySmall,
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        title,
+                                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                          fontWeight: FontWeight.w600,
+                                          color: color,
+                                        ),
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                      const SizedBox(height: 4),
+                                      Text(
+                                        inst.dueDateJalali,
+                                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                          color: isOverdue ? Colors.red.shade600 : Colors.grey.shade700,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  Column(
+                                    crossAxisAlignment: CrossAxisAlignment.end,
+                                    children: [
+                                      Text(
+                                        formatCurrency(inst.amount),
+                                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                          fontWeight: FontWeight.bold,
+                                          color: color,
+                                        ),
+                                      ),
+                                      if (isOverdue)
+                                        Text(
+                                          'تأخیر',
+                                          style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                                            color: Colors.red.shade600,
+                                          ),
+                                        ),
+                                    ],
+                                  ),
+                                ],
                               ),
-                            ],
+                            ),
                           ),
                         ),
                       );
@@ -225,16 +276,6 @@ class HomeScreen extends ConsumerWidget {
                         gridData: FlGridData(show: false),
                         titlesData: FlTitlesData(show: false),
                         borderData: FlBorderData(show: false),
-                        spots: data.spendingTrend
-                            .asMap()
-                            .entries
-                            .map((e) => FlSpot(
-                              e.key.toDouble(),
-                              (e.value / 1000000).toDouble(), // Scale to millions
-                            ))
-                            .toList(),
-                        isCurved: true,
-                        preventCurveOvershootingThreshold: 0,
                         lineBarsData: [
                           LineBarData(
                             spots: data.spendingTrend
