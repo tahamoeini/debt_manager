@@ -640,4 +640,7 @@ The investment in this design system will pay dividends in:
 
 ---
 
-**Note**: For detailed usage instructions and API documentation, refer to `lib/components/README.md`.
+**Related Documentation**:
+- `lib/components/README.md` - Detailed API documentation and usage instructions
+- [DESIGN_SYSTEM_EXAMPLES.md](DESIGN_SYSTEM_EXAMPLES.md) - Extended component examples and before/after patterns
+- `lib/core/widgets/README.md` - Reusable widget documentation

@@ -117,11 +117,13 @@ test/
 ## 📚 Documentation
 
 - **[DESIGN_SYSTEM.md](DESIGN_SYSTEM.md)** - UI components and design guidelines
-- **[TESTING_GUIDE.md](TESTING_GUIDE.md)** - Feature testing procedures
-- **[CHANGELOG.md](CHANGELOG.md)** - Version history and updates
-- **[docs/IMPLEMENTATION_SUMMARY.md](docs/IMPLEMENTATION_SUMMARY.md)** - Feature implementation details
-- **[docs/REPORTS_FEATURES.md](docs/REPORTS_FEATURES.md)** - Reports and analytics documentation
-- **[APK_OPTIMIZATION.md](APK_OPTIMIZATION.md)** - Build optimization strategies
+- **[DESIGN_SYSTEM_EXAMPLES.md](DESIGN_SYSTEM_EXAMPLES.md)** - Component examples and code patterns
+- **[CHANGELOG.md](CHANGELOG.md)** - Version history and feature updates
+- **[IMPLEMENTATION_ROADMAP.md](IMPLEMENTATION_ROADMAP.md)** - Project status and future enhancements
+- **[docs/APK_OPTIMIZATION.md](docs/APK_OPTIMIZATION.md)** - Build optimization strategies and size reduction
+- **[docs/ARCHIVED_ROADMAP.md](docs/ARCHIVED_ROADMAP.md)** - Original development roadmap (historical reference)
+- **[docs/IMPLEMENTATION_SUMMARY.md](docs/IMPLEMENTATION_SUMMARY.md)** - Reports and analytics implementation
+- **[docs/REPORTS_FEATURES.md](docs/REPORTS_FEATURES.md)** - Reports and analytics feature documentation
 
 ## 🧪 Testing
 
