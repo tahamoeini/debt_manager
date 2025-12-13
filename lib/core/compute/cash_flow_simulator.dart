@@ -1,4 +1,18 @@
 import 'package:debt_manager/core/utils/jalali_utils.dart';
+import 'package:flutter/foundation.dart';
+
+// Debug helper to log compute function performance
+void _logComputeEntry(String functionName) {
+  if (kDebugMode) {
+    print('[Compute] ▶ $functionName started at ${DateTime.now().millisecondsSinceEpoch}');
+  }
+}
+
+void _logComputeExit(String functionName, int durationMs) {
+  if (kDebugMode) {
+    print('[Compute] ✓ $functionName completed in ${durationMs}ms');
+  }
+}
 
 /// DTO for a single day's cash snapshot
 class DailyCashSnapshot {
@@ -62,6 +76,9 @@ class CashFlowInput {
 /// Top-level compute entry: simulate cash flow for N days ahead.
 /// All inputs are plain Maps/Lists (isolate-safe).
 List<DailyCashSnapshot> simulateCashFlow(CashFlowInput input) {
+  final startTime = DateTime.now().millisecondsSinceEpoch;
+  _logComputeEntry('simulateCashFlow');
+  
   final snapshots = <DailyCashSnapshot>[];
   int balance = input.startingBalance;
 
@@ -133,6 +150,9 @@ List<DailyCashSnapshot> simulateCashFlow(CashFlowInput input) {
     ));
   }
 
+  final duration = DateTime.now().millisecondsSinceEpoch - startTime;
+  _logComputeExit('simulateCashFlow', duration);
+  
   return snapshots;
 }
 
@@ -189,14 +209,20 @@ class CashFlowResult {
 
 /// Post-process snapshots to compute result
 CashFlowResult analyzeCashFlow(List<DailyCashSnapshot> snapshots) {
+  final startTime = DateTime.now().millisecondsSinceEpoch;
+  _logComputeEntry('analyzeCashFlow');
+  
   if (snapshots.isEmpty) {
-    return CashFlowResult(
+    final result = CashFlowResult(
       snapshots: snapshots,
       hasNegativeCash: false,
       minBalance: 0,
       maxBalance: 0,
       daysUntilNegative: -1,
     );
+    final duration = DateTime.now().millisecondsSinceEpoch - startTime;
+    _logComputeExit('analyzeCashFlow', duration);
+    return result;
   }
 
   int minBalance = snapshots.first.closingBalance;
@@ -217,11 +243,16 @@ CashFlowResult analyzeCashFlow(List<DailyCashSnapshot> snapshots) {
     }
   }
 
-  return CashFlowResult(
+  final result = CashFlowResult(
     snapshots: snapshots,
     hasNegativeCash: daysUntilNegative >= 0,
     minBalance: minBalance,
     maxBalance: maxBalance,
     daysUntilNegative: daysUntilNegative,
   );
+  
+  final duration = DateTime.now().millisecondsSinceEpoch - startTime;
+  _logComputeExit('analyzeCashFlow', duration);
+  
+  return result;
 }

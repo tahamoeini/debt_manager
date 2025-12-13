@@ -1,7 +1,21 @@
 import 'package:shamsi_date/shamsi_date.dart';
 import 'dart:math';
+import 'package:flutter/foundation.dart';
 
 // Top-level, isolate-safe functions for reports computation.
+
+// Debug helper to log compute function performance
+void _logComputeEntry(String functionName) {
+  if (kDebugMode) {
+    print('[Compute] ▶ $functionName started at ${DateTime.now().millisecondsSinceEpoch}');
+  }
+}
+
+void _logComputeExit(String functionName, int durationMs) {
+  if (kDebugMode) {
+    print('[Compute] ✓ $functionName completed in ${durationMs}ms');
+  }
+}
 
 Map<String, int> computeSpendingByCategory(
   List<Map<String, dynamic>> loans,
@@ -10,6 +24,9 @@ Map<String, int> computeSpendingByCategory(
   int year,
   int month,
 ) {
+  final startTime = DateTime.now().millisecondsSinceEpoch;
+  _logComputeEntry('computeSpendingByCategory');
+  
   final cpMap = <int, Map<String, dynamic>>{};
   for (final cp in counterparties) {
     final id = cp['id'];
@@ -53,6 +70,9 @@ Map<String, int> computeSpendingByCategory(
     categoryTotals[category] = (categoryTotals[category] ?? 0) + actual;
   }
 
+  final duration = DateTime.now().millisecondsSinceEpoch - startTime;
+  _logComputeExit('computeSpendingByCategory', duration);
+  
   return categoryTotals;
 }
 
