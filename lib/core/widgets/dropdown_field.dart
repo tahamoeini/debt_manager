@@ -57,22 +57,15 @@ class DropdownField<T> extends StatelessWidget {
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: AppDimensions.inputBorderRadius,
-          borderSide: BorderSide(
-            color: theme.colorScheme.outline,
-          ),
+          borderSide: BorderSide(color: theme.colorScheme.outline),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: AppDimensions.inputBorderRadius,
-          borderSide: BorderSide(
-            color: theme.colorScheme.primary,
-            width: 2,
-          ),
+          borderSide: BorderSide(color: theme.colorScheme.primary, width: 2),
         ),
         errorBorder: OutlineInputBorder(
           borderRadius: AppDimensions.inputBorderRadius,
-          borderSide: BorderSide(
-            color: theme.colorScheme.error,
-          ),
+          borderSide: BorderSide(color: theme.colorScheme.error),
         ),
         floatingLabelStyle: TextStyle(
           fontWeight: FontWeight.w600,
@@ -109,10 +102,12 @@ class CategoryDropdownField extends StatelessWidget {
       icon: Icons.category,
       value: value,
       items: categories
-          .map((category) => DropdownMenuItem<String>(
-                value: category,
-                child: Text(category),
-              ))
+          .map(
+            (category) => DropdownMenuItem<String>(
+              value: category,
+              child: Text(category),
+            ),
+          )
           .toList(),
       onChanged: onChanged,
       validator: validator,

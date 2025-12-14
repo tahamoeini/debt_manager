@@ -47,7 +47,10 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
       final totalBudgets = budgets.fold<int>(0, (s, b) => s + b.amount);
       final svc = IrregularIncomeService();
       final safe = await svc.suggestSafeExtra(
-          months: 3, essentialBudget: totalBudgets, safetyFactor: 1.2);
+        months: 3,
+        essentialBudget: totalBudgets,
+        safetyFactor: 1.2,
+      );
       setState(() {
         _incomeSuggestion = safe;
       });
@@ -112,9 +115,11 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
                       child: InkWell(
                         onTap: () async {
                           // Edit
-                          await Navigator.of(context).push(MaterialPageRoute(
-                            builder: (_) => AddBudgetScreen(budget: b),
-                          ));
+                          await Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (_) => AddBudgetScreen(budget: b),
+                            ),
+                          );
                           _refresh();
                         },
                         child: Padding(
@@ -137,10 +142,12 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
                                           .textTheme
                                           .titleMedium
                                           ?.copyWith(
-                                              fontWeight: FontWeight.w600),
+                                            fontWeight: FontWeight.w600,
+                                          ),
                                     ),
                                     const SizedBox(
-                                        height: AppConstants.spaceXSmall),
+                                      height: AppConstants.spaceXSmall,
+                                    ),
                                     FutureBuilder<int>(
                                       future: ref
                                           .read(budgetsRepositoryProvider)
@@ -218,7 +225,9 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
               child: FloatingActionButton.extended(
                 onPressed: () {
                   UIUtils.showAppSnackBar(
-                      context, 'پیشنهاد: پرداخت اضافی ایمن $_incomeSuggestion');
+                    context,
+                    'پیشنهاد: پرداخت اضافی ایمن $_incomeSuggestion',
+                  );
                 },
                 icon: const Icon(Icons.savings),
                 label: Text('پیشنهاد: $_incomeSuggestion'),
@@ -226,9 +235,9 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
             ),
           FloatingActionButton.large(
             onPressed: () async {
-              await Navigator.of(context).push(MaterialPageRoute(
-                builder: (_) => const AddBudgetScreen(),
-              ));
+              await Navigator.of(context).push(
+                MaterialPageRoute(builder: (_) => const AddBudgetScreen()),
+              );
               _refresh();
             },
             child: const Icon(Icons.add_outlined),

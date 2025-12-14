@@ -38,8 +38,8 @@ class _ImportWizardState {
 
 final _importWizardProvider =
     StateNotifierProvider<_ImportWizardNotifier, _ImportWizardState>((ref) {
-  return _ImportWizardNotifier();
-});
+      return _ImportWizardNotifier();
+    });
 
 class _ImportWizardNotifier extends StateNotifier<_ImportWizardState> {
   _ImportWizardNotifier() : super(_ImportWizardState());
@@ -83,13 +83,8 @@ class ImportWizardScreen extends ConsumerWidget {
     final notifier = ref.read(_importWizardProvider.notifier);
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('درون‌ریز داده‌ها'),
-        elevation: 0,
-      ),
-      body: SafeArea(
-        child: _buildStep(context, ref, wizardState, notifier),
-      ),
+      appBar: AppBar(title: const Text('درون‌ریز داده‌ها'), elevation: 0),
+      body: SafeArea(child: _buildStep(context, ref, wizardState, notifier)),
     );
   }
 
@@ -123,10 +118,7 @@ class _StepSelectFile extends ConsumerWidget {
   final _ImportWizardNotifier notifier;
   final _ImportWizardState state;
 
-  const _StepSelectFile({
-    required this.notifier,
-    required this.state,
-  });
+  const _StepSelectFile({required this.notifier, required this.state});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -156,9 +148,9 @@ class _StepSelectFile extends ConsumerWidget {
                 const SizedBox(height: 16),
                 Text(
                   'فرمت‌های پشتیبانی‌شده: CSV, JSON',
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: Colors.grey,
-                      ),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.bodySmall?.copyWith(color: Colors.grey),
                 ),
               ],
             )
@@ -181,10 +173,8 @@ class _StepSelectFile extends ConsumerWidget {
                         const SizedBox(height: 4),
                         Text(
                           state.selectedFilePath!.split('/').last,
-                          style:
-                              Theme.of(context).textTheme.bodyLarge?.copyWith(
-                                    fontWeight: FontWeight.bold,
-                                  ),
+                          style: Theme.of(context).textTheme.bodyLarge
+                              ?.copyWith(fontWeight: FontWeight.bold),
                         ),
                       ],
                     ),
@@ -228,9 +218,9 @@ class _StepSelectFile extends ConsumerWidget {
       }
     } catch (e) {
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('خطا: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('خطا: $e')));
       }
     }
   }
@@ -247,10 +237,7 @@ class _StepDetectFields extends ConsumerWidget {
   final _ImportWizardNotifier notifier;
   final _ImportWizardState state;
 
-  const _StepDetectFields({
-    required this.notifier,
-    required this.state,
-  });
+  const _StepDetectFields({required this.notifier, required this.state});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -319,10 +306,7 @@ class _StepMapFields extends ConsumerWidget {
   final _ImportWizardNotifier notifier;
   final _ImportWizardState state;
 
-  const _StepMapFields({
-    required this.notifier,
-    required this.state,
-  });
+  const _StepMapFields({required this.notifier, required this.state});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -354,21 +338,20 @@ class _StepMapFields extends ConsumerWidget {
                       children: [
                         Text(
                           field.columnName,
-                          style:
-                              Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                    fontWeight: FontWeight.bold,
-                                  ),
+                          style: Theme.of(context).textTheme.bodyMedium
+                              ?.copyWith(fontWeight: FontWeight.bold),
                         ),
                         const SizedBox(height: 8),
                         DropdownButton<ImportFieldType>(
                           value: field.fieldType,
                           isExpanded: true,
                           items: ImportFieldType.values
-                              .map((type) => DropdownMenuItem(
-                                    value: type,
-                                    child:
-                                        Text(type.toString().split('.').last),
-                                  ))
+                              .map(
+                                (type) => DropdownMenuItem(
+                                  value: type,
+                                  child: Text(type.toString().split('.').last),
+                                ),
+                              )
                               .toList(),
                           onChanged: (value) {
                             // Update field mapping
@@ -406,10 +389,7 @@ class _StepPreview extends ConsumerWidget {
   final _ImportWizardNotifier notifier;
   final _ImportWizardState state;
 
-  const _StepPreview({
-    required this.notifier,
-    required this.state,
-  });
+  const _StepPreview({required this.notifier, required this.state});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -431,8 +411,10 @@ class _StepPreview extends ConsumerWidget {
                   children: [
                     const CircularProgressIndicator(),
                     const SizedBox(height: 16),
-                    Text('در حال تجزیه‌ی داده‌ها...',
-                        style: Theme.of(context).textTheme.bodyMedium),
+                    Text(
+                      'در حال تجزیه‌ی داده‌ها...',
+                      style: Theme.of(context).textTheme.bodyMedium,
+                    ),
                   ],
                 ),
               ),
@@ -471,9 +453,7 @@ class _StepPreview extends ConsumerWidget {
                             children: [
                               Text(
                                 'تعارض‌های شناسایی‌شده',
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .bodyMedium
+                                style: Theme.of(context).textTheme.bodyMedium
                                     ?.copyWith(
                                       color: Colors.orange.shade900,
                                       fontWeight: FontWeight.bold,
@@ -502,8 +482,9 @@ class _StepPreview extends ConsumerWidget {
                 child: const Text('بازگشت'),
               ),
               ElevatedButton(
-                onPressed:
-                    state.preview != null ? () => notifier.setStep(4) : null,
+                onPressed: state.preview != null
+                    ? () => notifier.setStep(4)
+                    : null,
                 child: const Text('ادامه'),
               ),
             ],
@@ -537,11 +518,12 @@ class _PreviewCard extends StatelessWidget {
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(title,
-                    style: Theme.of(context)
-                        .textTheme
-                        .bodyMedium
-                        ?.copyWith(fontWeight: FontWeight.bold)),
+                Text(
+                  title,
+                  style: Theme.of(
+                    context,
+                  ).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.bold),
+                ),
                 Text(
                   '$count مورد',
                   style: Theme.of(context).textTheme.bodySmall,
@@ -560,10 +542,7 @@ class _StepConfirm extends ConsumerWidget {
   final _ImportWizardNotifier notifier;
   final _ImportWizardState state;
 
-  const _StepConfirm({
-    required this.notifier,
-    required this.state,
-  });
+  const _StepConfirm({required this.notifier, required this.state});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -589,21 +568,27 @@ class _StepConfirm extends ConsumerWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _ConfirmRow('طرف‌های معاملات:',
-                        '${state.preview?.counterpartiesToAdd.length ?? 0}'),
+                    _ConfirmRow(
+                      'طرف‌های معاملات:',
+                      '${state.preview?.counterpartiesToAdd.length ?? 0}',
+                    ),
                     const SizedBox(height: 8),
                     _ConfirmRow(
-                        'وام‌ها:', '${state.preview?.loansToAdd.length ?? 0}'),
+                      'وام‌ها:',
+                      '${state.preview?.loansToAdd.length ?? 0}',
+                    ),
                     const SizedBox(height: 8),
-                    _ConfirmRow('اقساط:',
-                        '${state.preview?.installmentsToAdd.length ?? 0}'),
+                    _ConfirmRow(
+                      'اقساط:',
+                      '${state.preview?.installmentsToAdd.length ?? 0}',
+                    ),
                     const Divider(),
                     const SizedBox(height: 8),
                     Text(
                       'توجه: این عملیات قابل برگشت نیست. لطفا قبل از ادامه مطمئن شوید.',
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: Colors.red,
-                          ),
+                      style: Theme.of(
+                        context,
+                      ).textTheme.bodySmall?.copyWith(color: Colors.red),
                     ),
                   ],
                 ),
@@ -645,9 +630,9 @@ class _StepConfirm extends ConsumerWidget {
       notifier.setResult(result);
     } catch (e) {
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('خطا: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('خطا: $e')));
       }
     }
   }
@@ -665,11 +650,13 @@ class _ConfirmRow extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Text(label, style: Theme.of(context).textTheme.bodyMedium),
-        Text(value,
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  fontWeight: FontWeight.bold,
-                  color: Colors.blue,
-                )),
+        Text(
+          value,
+          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+            fontWeight: FontWeight.bold,
+            color: Colors.blue,
+          ),
+        ),
       ],
     );
   }
@@ -698,8 +685,8 @@ class _StepComplete extends ConsumerWidget {
           Text(
             result?.success == true ? 'درون‌ریز موفق‌آمیز' : 'درون‌ریز ناموفق',
             style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                  color: result?.success == true ? Colors.green : Colors.red,
-                ),
+              color: result?.success == true ? Colors.green : Colors.red,
+            ),
           ),
           const SizedBox(height: 8),
           Text(

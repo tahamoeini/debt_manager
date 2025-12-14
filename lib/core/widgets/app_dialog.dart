@@ -50,19 +50,16 @@ class AppDialog extends StatelessWidget {
       title: title != null
           ? Text(
               title!,
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
+              style: Theme.of(
+                context,
+              ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
             )
           : null,
       content: content,
       contentPadding: contentPadding ?? AppDimensions.dialogPadding,
-      actionsPadding: actionsPadding ??
-          const EdgeInsets.only(
-            left: 16,
-            right: 16,
-            bottom: 16,
-          ),
+      actionsPadding:
+          actionsPadding ??
+          const EdgeInsets.only(left: 16, right: 16, bottom: 16),
       actions: actions,
     );
   }

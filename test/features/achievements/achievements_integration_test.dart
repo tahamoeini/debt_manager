@@ -139,11 +139,7 @@ void main() {
       final progress = UserProgress(
         totalXp: 500,
         level: 5,
-        streaks: {
-          'payments': 10,
-          'budgetKept': 3,
-          'noOverdue': 5,
-        },
+        streaks: {'payments': 10, 'budgetKept': 3, 'noOverdue': 5},
         freedomDate: null,
         daysFreedomCountdown: 0,
       );

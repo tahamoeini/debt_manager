@@ -54,7 +54,8 @@ class DashboardCard extends StatelessWidget {
         color: colorScheme.surface,
         borderRadius: AppRadius.card,
         border: Border.all(
-          color: accentColor?.withValues(alpha: 0.3) ??
+          color:
+              accentColor?.withValues(alpha: 0.3) ??
               colorScheme.outline.withValues(alpha: 0.2),
           width: 1,
         ),

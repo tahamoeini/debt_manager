@@ -61,17 +61,20 @@ class CategoryIcon extends StatelessWidget {
     final brightness = theme.brightness;
 
     // Get icon from category map or use provided icon, default to general icon
-    final effectiveIcon = icon ??
+    final effectiveIcon =
+        icon ??
         (category != null ? _categoryIcons[category] : null) ??
         Icons.category;
 
     // Use category color if available, otherwise use theme color
-    final bgColor = backgroundColor ??
+    final bgColor =
+        backgroundColor ??
         (category != null
             ? colorForCategory(category, brightness: brightness)
             : theme.colorScheme.primaryContainer);
 
-    final fgColor = iconColor ??
+    final fgColor =
+        iconColor ??
         (backgroundColor != null
             ? _getContrastColor(backgroundColor!)
             : theme.colorScheme.onPrimaryContainer);
@@ -79,11 +82,7 @@ class CategoryIcon extends StatelessWidget {
     return CircleAvatar(
       radius: size / 2,
       backgroundColor: bgColor,
-      child: Icon(
-        effectiveIcon,
-        size: size * 0.5,
-        color: fgColor,
-      ),
+      child: Icon(effectiveIcon, size: size * 0.5, color: fgColor),
     );
   }
 
@@ -160,19 +159,15 @@ class CategoryBadge extends StatelessWidget {
   final double size;
   final Color? color;
 
-  const CategoryBadge({
-    super.key,
-    this.category,
-    this.size = 12.0,
-    this.color,
-  });
+  const CategoryBadge({super.key, this.category, this.size = 12.0, this.color});
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final brightness = theme.brightness;
 
-    final badgeColor = color ??
+    final badgeColor =
+        color ??
         (category != null
             ? colorForCategory(category, brightness: brightness)
             : theme.colorScheme.primary);
@@ -180,10 +175,7 @@ class CategoryBadge extends StatelessWidget {
     return Container(
       width: size,
       height: size,
-      decoration: BoxDecoration(
-        color: badgeColor,
-        shape: BoxShape.circle,
-      ),
+      decoration: BoxDecoration(color: badgeColor, shape: BoxShape.circle),
     );
   }
 }

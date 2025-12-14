@@ -31,10 +31,16 @@ class PrivacyGateway {
   Future<void> deleteSecret(String key) async => await _secure.delete(key);
 
   // Export JSON (plain string) encrypted with password and save to backups folder.
-  Future<String> exportEncryptedBackup(String jsonString, String password,
-      {required String filename}) async {
-    return await BackupService.encryptAndSave(jsonString, password,
-        filename: filename);
+  Future<String> exportEncryptedBackup(
+    String jsonString,
+    String password, {
+    required String filename,
+  }) async {
+    return await BackupService.encryptAndSave(
+      jsonString,
+      password,
+      filename: filename,
+    );
   }
 
   // Import a JSON string exported by `exportFullJson` and insert into local DB.
@@ -43,8 +49,8 @@ class PrivacyGateway {
 
     final cps = (map['counterparties'] as List<dynamic>? ?? [])
         .cast<Map<String, dynamic>>();
-    final loans =
-        (map['loans'] as List<dynamic>? ?? []).cast<Map<String, dynamic>>();
+    final loans = (map['loans'] as List<dynamic>? ?? [])
+        .cast<Map<String, dynamic>>();
     final installments = (map['installments'] as List<dynamic>? ?? [])
         .cast<Map<String, dynamic>>();
 

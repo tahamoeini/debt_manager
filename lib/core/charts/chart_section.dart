@@ -4,12 +4,13 @@ import 'package:flutter/material.dart';
 // consistent padding, and empty state handling. Accepts a child
 // chart widget and optional `forecast` data in the future.
 class ChartSection extends StatelessWidget {
-  const ChartSection(
-      {super.key,
-      required this.title,
-      required this.child,
-      this.legend,
-      this.emptyText});
+  const ChartSection({
+    super.key,
+    required this.title,
+    required this.child,
+    this.legend,
+    this.emptyText,
+  });
 
   final String title;
   final Widget child;
@@ -32,10 +33,7 @@ class ChartSection extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 8),
-            SizedBox(
-              height: 160,
-              child: child,
-            ),
+            SizedBox(height: 160, child: child),
             if (emptyText != null) ...[
               const SizedBox(height: 8),
               Text(emptyText!, style: Theme.of(context).textTheme.bodySmall),

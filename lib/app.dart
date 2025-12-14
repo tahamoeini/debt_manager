@@ -29,18 +29,18 @@ class _DebtManagerAppState extends ConsumerState<DebtManagerApp>
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     // Initialize notifier values from persisted preferences
-    _settings
-        .getThemeMode()
-        .then((m) => SettingsRepository.themeModeNotifier.value = m);
-    _settings
-        .getFontSize()
-        .then((f) => SettingsRepository.fontSizeNotifier.value = f);
-    _settings
-        .getCalendarType()
-        .then((c) => SettingsRepository.calendarTypeNotifier.value = c);
-    _settings
-        .getLanguage()
-        .then((l) => SettingsRepository.languageNotifier.value = l);
+    _settings.getThemeMode().then(
+      (m) => SettingsRepository.themeModeNotifier.value = m,
+    );
+    _settings.getFontSize().then(
+      (f) => SettingsRepository.fontSizeNotifier.value = f,
+    );
+    _settings.getCalendarType().then(
+      (c) => SettingsRepository.calendarTypeNotifier.value = c,
+    );
+    _settings.getLanguage().then(
+      (l) => SettingsRepository.languageNotifier.value = l,
+    );
     _settings.getBiometricEnabled().then((b) {
       SettingsRepository.biometricEnabledNotifier.value = b;
       final auth = ref.read(authNotifierProvider);
@@ -62,8 +62,9 @@ class _DebtManagerAppState extends ConsumerState<DebtManagerApp>
       final dbEncrypted = await DatabaseHelper.instance.isDatabaseEncrypted();
       if (dbEncrypted) {
         if (!mounted) return;
-        await Navigator.of(context)
-            .push(MaterialPageRoute(builder: (_) => const LockScreen()));
+        await Navigator.of(
+          context,
+        ).push(MaterialPageRoute(builder: (_) => const LockScreen()));
       }
     });
     _settings.getStrictLockEnabled().then((s) => _strictLock = s);
@@ -94,8 +95,9 @@ class _DebtManagerAppState extends ConsumerState<DebtManagerApp>
         DatabaseHelper.instance.isDatabaseEncrypted().then((enc) async {
           if (enc) {
             if (!mounted) return;
-            await Navigator.of(context)
-                .push(MaterialPageRoute(builder: (_) => const LockScreen()));
+            await Navigator.of(
+              context,
+            ).push(MaterialPageRoute(builder: (_) => const LockScreen()));
           } else {
             auth.tryUnlock();
           }
@@ -139,40 +141,55 @@ class _DebtManagerAppState extends ConsumerState<DebtManagerApp>
 
             const seed = Color(0xFF0D47A1);
             final lightScheme = ColorScheme.fromSeed(
-                seedColor: seed, brightness: Brightness.light);
+              seedColor: seed,
+              brightness: Brightness.light,
+            );
             final darkScheme = ColorScheme.fromSeed(
-                seedColor: seed, brightness: Brightness.dark);
+              seedColor: seed,
+              brightness: Brightness.dark,
+            );
 
             final baseTextTheme = Typography.material2021().black.apply(
-                  bodyColor: Colors.black87,
-                  displayColor: Colors.black87,
-                  fontSizeFactor: fontScale,
-                );
+              bodyColor: Colors.black87,
+              displayColor: Colors.black87,
+              fontSizeFactor: fontScale,
+            );
 
             final lightTextTheme = baseTextTheme.copyWith(
               titleLarge: baseTextTheme.titleLarge?.copyWith(
-                  fontSize: 22 * fontScale, fontWeight: FontWeight.w700),
+                fontSize: 22 * fontScale,
+                fontWeight: FontWeight.w700,
+              ),
               titleMedium: baseTextTheme.titleMedium?.copyWith(
-                  fontSize: 18 * fontScale, fontWeight: FontWeight.w600),
-              bodyMedium:
-                  baseTextTheme.bodyMedium?.copyWith(fontSize: 15 * fontScale),
-              bodySmall:
-                  baseTextTheme.bodySmall?.copyWith(fontSize: 13 * fontScale),
+                fontSize: 18 * fontScale,
+                fontWeight: FontWeight.w600,
+              ),
+              bodyMedium: baseTextTheme.bodyMedium?.copyWith(
+                fontSize: 15 * fontScale,
+              ),
+              bodySmall: baseTextTheme.bodySmall?.copyWith(
+                fontSize: 13 * fontScale,
+              ),
             );
 
             final darkBase = Typography.material2021().white.apply(
-                  bodyColor: Colors.white70,
-                  displayColor: Colors.white70,
-                  fontSizeFactor: fontScale,
-                );
+              bodyColor: Colors.white70,
+              displayColor: Colors.white70,
+              fontSizeFactor: fontScale,
+            );
 
             final darkTextTheme = darkBase.copyWith(
               titleLarge: darkBase.titleLarge?.copyWith(
-                  fontSize: 22 * fontScale, fontWeight: FontWeight.w700),
+                fontSize: 22 * fontScale,
+                fontWeight: FontWeight.w700,
+              ),
               titleMedium: darkBase.titleMedium?.copyWith(
-                  fontSize: 18 * fontScale, fontWeight: FontWeight.w600),
-              bodyMedium:
-                  darkBase.bodyMedium?.copyWith(fontSize: 15 * fontScale),
+                fontSize: 18 * fontScale,
+                fontWeight: FontWeight.w600,
+              ),
+              bodyMedium: darkBase.bodyMedium?.copyWith(
+                fontSize: 15 * fontScale,
+              ),
               bodySmall: darkBase.bodySmall?.copyWith(fontSize: 13 * fontScale),
             );
 
@@ -182,20 +199,26 @@ class _DebtManagerAppState extends ConsumerState<DebtManagerApp>
               scaffoldBackgroundColor: lightScheme.surface,
               textTheme: lightTextTheme,
               appBarTheme: AppBarTheme(
-                  backgroundColor: lightScheme.surface,
-                  foregroundColor: lightScheme.onSurface,
-                  elevation: 1),
+                backgroundColor: lightScheme.surface,
+                foregroundColor: lightScheme.onSurface,
+                elevation: 1,
+              ),
               listTileTheme: const ListTileThemeData(
-                  contentPadding:
-                      EdgeInsets.symmetric(horizontal: 16, vertical: 8)),
+                contentPadding: EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 8,
+                ),
+              ),
               materialTapTargetSize: MaterialTapTargetSize.padded,
               inputDecorationTheme: InputDecorationTheme(
                 filled: true,
                 fillColor: lightScheme.surfaceContainerHighest,
-                border:
-                    OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
-                floatingLabelStyle:
-                    const TextStyle(fontWeight: FontWeight.w600),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                floatingLabelStyle: const TextStyle(
+                  fontWeight: FontWeight.w600,
+                ),
               ),
             );
 
@@ -205,20 +228,26 @@ class _DebtManagerAppState extends ConsumerState<DebtManagerApp>
               scaffoldBackgroundColor: darkScheme.surface,
               textTheme: darkTextTheme,
               appBarTheme: AppBarTheme(
-                  backgroundColor: darkScheme.surface,
-                  foregroundColor: darkScheme.onSurface,
-                  elevation: 1),
+                backgroundColor: darkScheme.surface,
+                foregroundColor: darkScheme.onSurface,
+                elevation: 1,
+              ),
               listTileTheme: const ListTileThemeData(
-                  contentPadding:
-                      EdgeInsets.symmetric(horizontal: 16, vertical: 8)),
+                contentPadding: EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 8,
+                ),
+              ),
               materialTapTargetSize: MaterialTapTargetSize.padded,
               inputDecorationTheme: InputDecorationTheme(
                 filled: true,
                 fillColor: darkScheme.surfaceContainerHighest,
-                border:
-                    OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
-                floatingLabelStyle:
-                    const TextStyle(fontWeight: FontWeight.w600),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                floatingLabelStyle: const TextStyle(
+                  fontWeight: FontWeight.w600,
+                ),
               ),
             );
 

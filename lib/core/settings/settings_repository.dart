@@ -53,16 +53,21 @@ class SettingsRepository {
   LanguageOption language = LanguageOption.persian;
 
   // Notifiers for reactive UI
-  static final ValueNotifier<ThemeMode> themeModeNotifier =
-      ValueNotifier(ThemeMode.system);
-  static final ValueNotifier<FontSizeOption> fontSizeNotifier =
-      ValueNotifier(FontSizeOption.defaultSize);
-  static final ValueNotifier<CalendarType> calendarTypeNotifier =
-      ValueNotifier(CalendarType.jalali);
-  static final ValueNotifier<LanguageOption> languageNotifier =
-      ValueNotifier(LanguageOption.persian);
-  static final ValueNotifier<bool> biometricEnabledNotifier =
-      ValueNotifier(false);
+  static final ValueNotifier<ThemeMode> themeModeNotifier = ValueNotifier(
+    ThemeMode.system,
+  );
+  static final ValueNotifier<FontSizeOption> fontSizeNotifier = ValueNotifier(
+    FontSizeOption.defaultSize,
+  );
+  static final ValueNotifier<CalendarType> calendarTypeNotifier = ValueNotifier(
+    CalendarType.jalali,
+  );
+  static final ValueNotifier<LanguageOption> languageNotifier = ValueNotifier(
+    LanguageOption.persian,
+  );
+  static final ValueNotifier<bool> biometricEnabledNotifier = ValueNotifier(
+    false,
+  );
   static final ValueNotifier<bool> privacyModeNotifier = ValueNotifier(false);
 
   // Initialize repository and populate public fields from SharedPreferences.
@@ -73,26 +78,28 @@ class SettingsRepository {
     themeMode = tm == 'light'
         ? ThemeMode.light
         : tm == 'dark'
-            ? ThemeMode.dark
-            : ThemeMode.system;
+        ? ThemeMode.dark
+        : ThemeMode.system;
     themeModeNotifier.value = themeMode;
 
     final fs = prefs.getString(_keyFontSize) ?? 'default';
     fontSize = fs == 'small'
         ? FontSizeOption.small
         : fs == 'large'
-            ? FontSizeOption.large
-            : FontSizeOption.defaultSize;
+        ? FontSizeOption.large
+        : FontSizeOption.defaultSize;
     fontSizeNotifier.value = fontSize;
 
     final ct = prefs.getString(_keyCalendarType) ?? 'jalali';
-    calendarType =
-        ct == 'gregorian' ? CalendarType.gregorian : CalendarType.jalali;
+    calendarType = ct == 'gregorian'
+        ? CalendarType.gregorian
+        : CalendarType.jalali;
     calendarTypeNotifier.value = calendarType;
 
     final lang = prefs.getString(_keyLanguage) ?? 'persian';
-    language =
-        lang == 'english' ? LanguageOption.english : LanguageOption.persian;
+    language = lang == 'english'
+        ? LanguageOption.english
+        : LanguageOption.persian;
     languageNotifier.value = language;
 
     remindersEnabled = prefs.getBool(_keyNotificationsEnabled) ?? true;
@@ -126,8 +133,8 @@ class SettingsRepository {
     final s = mode == ThemeMode.light
         ? 'light'
         : mode == ThemeMode.dark
-            ? 'dark'
-            : 'system';
+        ? 'dark'
+        : 'system';
     await prefs.setString(_keyThemeMode, s);
     themeMode = mode;
     themeModeNotifier.value = mode;
@@ -139,8 +146,8 @@ class SettingsRepository {
     final s = size == FontSizeOption.small
         ? 'small'
         : size == FontSizeOption.large
-            ? 'large'
-            : 'default';
+        ? 'large'
+        : 'default';
     await prefs.setString(_keyFontSize, s);
     fontSize = size;
     fontSizeNotifier.value = size;

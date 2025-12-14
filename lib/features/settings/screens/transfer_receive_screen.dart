@@ -47,9 +47,7 @@ class _TransferReceiveState {
 /// Notifier for transfer receive state
 class _TransferReceiveNotifier extends StateNotifier<_TransferReceiveState> {
   _TransferReceiveNotifier()
-      : super(_TransferReceiveState(
-          sessionManager: TransferSessionManager(),
-        ));
+    : super(_TransferReceiveState(sessionManager: TransferSessionManager()));
 
   void setScanning(bool scanning) {
     state = state.copyWith(isScanning: scanning);
@@ -73,18 +71,16 @@ class _TransferReceiveNotifier extends StateNotifier<_TransferReceiveState> {
   }
 
   void reset() {
-    state = state.copyWith(
-      currentTransferId: null,
-      error: null,
-    );
+    state = state.copyWith(currentTransferId: null, error: null);
   }
 }
 
 final _transferReceiveProvider =
-    StateNotifierProvider<_TransferReceiveNotifier, _TransferReceiveState>(
-        (ref) {
-  return _TransferReceiveNotifier();
-});
+    StateNotifierProvider<_TransferReceiveNotifier, _TransferReceiveState>((
+      ref,
+    ) {
+      return _TransferReceiveNotifier();
+    });
 
 /// QR transfer receiver screen
 class TransferReceiveScreen extends ConsumerStatefulWidget {
@@ -116,10 +112,7 @@ class _TransferReceiveScreenState extends ConsumerState<TransferReceiveScreen> {
     final notifier = ref.read(_transferReceiveProvider.notifier);
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('دریافت از طریق QR Code'),
-        elevation: 0,
-      ),
+      appBar: AppBar(title: const Text('دریافت از طریق QR Code'), elevation: 0),
       body: SafeArea(
         child: Column(
           children: [
@@ -166,16 +159,16 @@ class _TransferReceiveScreenState extends ConsumerState<TransferReceiveScreen> {
               children: [
                 Text(
                   'اسکن QR Code',
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        color: Colors.white,
-                      ),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.titleMedium?.copyWith(color: Colors.white),
                 ),
                 const SizedBox(height: 8),
                 Text(
                   'قاب QR Code را در مقابل دوربین قرار دهید',
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: Colors.grey,
-                      ),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.bodySmall?.copyWith(color: Colors.grey),
                 ),
               ],
             ),
@@ -220,10 +213,8 @@ class _TransferReceiveScreenState extends ConsumerState<TransferReceiveScreen> {
                         ),
                         Text(
                           '${(session.progress * 100).toStringAsFixed(1)}%',
-                          style:
-                              Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                    fontWeight: FontWeight.bold,
-                                  ),
+                          style: Theme.of(context).textTheme.bodyMedium
+                              ?.copyWith(fontWeight: FontWeight.bold),
                         ),
                       ],
                     ),
@@ -250,8 +241,8 @@ class _TransferReceiveScreenState extends ConsumerState<TransferReceiveScreen> {
                     Text(
                       'وضعیت فریم‌ها',
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            fontWeight: FontWeight.bold,
-                          ),
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                     const SizedBox(height: 12),
                     Row(
@@ -290,9 +281,9 @@ class _TransferReceiveScreenState extends ConsumerState<TransferReceiveScreen> {
                       Text(
                         'فریم‌های باقی‌مانده:',
                         style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              fontWeight: FontWeight.bold,
-                              color: Colors.orange.shade900,
-                            ),
+                          fontWeight: FontWeight.bold,
+                          color: Colors.orange.shade900,
+                        ),
                       ),
                       const SizedBox(height: 8),
                       Wrap(
@@ -422,16 +413,13 @@ class _StatColumn extends StatelessWidget {
           child: Text(
             value,
             style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  color: color,
-                  fontWeight: FontWeight.bold,
-                ),
+              color: color,
+              fontWeight: FontWeight.bold,
+            ),
           ),
         ),
         const SizedBox(height: 8),
-        Text(
-          label,
-          style: Theme.of(context).textTheme.bodySmall,
-        ),
+        Text(label, style: Theme.of(context).textTheme.bodySmall),
       ],
     );
   }

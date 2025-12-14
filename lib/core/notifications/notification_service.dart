@@ -60,15 +60,18 @@ class NotificationService {
 
     await _plugin
         .resolvePlatformSpecificImplementation<
-            AndroidFlutterLocalNotificationsPlugin>()
+          AndroidFlutterLocalNotificationsPlugin
+        >()
         ?.createNotificationChannel(channel);
     await _plugin
         .resolvePlatformSpecificImplementation<
-            IOSFlutterLocalNotificationsPlugin>()
+          IOSFlutterLocalNotificationsPlugin
+        >()
         ?.requestPermissions(alert: true, badge: true, sound: true);
     await _plugin
         .resolvePlatformSpecificImplementation<
-            MacOSFlutterLocalNotificationsPlugin>()
+          MacOSFlutterLocalNotificationsPlugin
+        >()
         ?.requestPermissions(alert: true, badge: true, sound: true);
   }
 
@@ -96,7 +99,8 @@ class NotificationService {
 
     if (!notificationsEnabled || !billRemindersEnabled) {
       debugPrint(
-          'scheduleInstallmentReminder: notifications disabled in settings');
+        'scheduleInstallmentReminder: notifications disabled in settings',
+      );
       return;
     }
 
@@ -119,7 +123,12 @@ class NotificationService {
       try {
         final dyn = _plugin as dynamic;
         await dyn.schedule(
-            notificationId, title, body, scheduledTime, _defaultDetails);
+          notificationId,
+          title,
+          body,
+          scheduledTime,
+          _defaultDetails,
+        );
       } catch (e2) {
         debugPrint('Failed to schedule notification: $e2');
       }
@@ -133,10 +142,11 @@ class NotificationService {
     required String body,
   }) async {
     await scheduleInstallmentReminder(
-        notificationId: notificationId,
-        scheduledTime: scheduledTime,
-        title: title,
-        body: body);
+      notificationId: notificationId,
+      scheduledTime: scheduledTime,
+      title: title,
+      body: body,
+    );
   }
 
   Future<void> scheduleMonthEndSummary({
@@ -148,10 +158,11 @@ class NotificationService {
     final lastDay = DateTime(monthDate.year, monthDate.month + 1, 0);
     final scheduled = DateTime(lastDay.year, lastDay.month, lastDay.day, 18, 0);
     await scheduleInstallmentReminder(
-        notificationId: notificationId,
-        scheduledTime: scheduled,
-        title: title,
-        body: body);
+      notificationId: notificationId,
+      scheduledTime: scheduled,
+      title: title,
+      body: body,
+    );
   }
 
   Future<void> scheduleSmartSuggestion({
@@ -161,10 +172,11 @@ class NotificationService {
     required String body,
   }) async {
     await scheduleInstallmentReminder(
-        notificationId: notificationId,
-        scheduledTime: scheduledTime,
-        title: title,
-        body: body);
+      notificationId: notificationId,
+      scheduledTime: scheduledTime,
+      title: title,
+      body: body,
+    );
   }
 
   Future<void> cancelNotification(int notificationId) async {
@@ -208,10 +220,11 @@ class NotificationService {
 
       final nid = inst.id! + 1000;
       await scheduleInstallmentReminder(
-          notificationId: nid,
-          scheduledTime: scheduled,
-          title: title,
-          body: body);
+        notificationId: nid,
+        scheduledTime: scheduled,
+        title: title,
+        body: body,
+      );
     }
   }
 }

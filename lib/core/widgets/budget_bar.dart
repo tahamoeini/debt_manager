@@ -79,9 +79,7 @@ class BudgetBar extends StatelessWidget {
         if (label != null) ...[
           Text(
             label!,
-            style: textTheme.bodyMedium?.copyWith(
-              fontWeight: FontWeight.w600,
-            ),
+            style: textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600),
           ),
           const SizedBox(height: AppConstants.spaceSmall),
         ],

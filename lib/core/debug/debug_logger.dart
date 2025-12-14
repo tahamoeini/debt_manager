@@ -14,8 +14,9 @@ class DebugLogger {
   static final ValueNotifier<bool> overlayEnabled = ValueNotifier<bool>(false);
 
   // Value notifier to enable widget bounds overlay.
-  static final ValueNotifier<bool> showBoundsEnabled =
-      ValueNotifier<bool>(false);
+  static final ValueNotifier<bool> showBoundsEnabled = ValueNotifier<bool>(
+    false,
+  );
 
   void log(String message) {
     final line = '[LOG ${DateTime.now().toIso8601String()}] $message';

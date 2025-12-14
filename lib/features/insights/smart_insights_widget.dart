@@ -81,25 +81,31 @@ class _SmartInsightsWidgetState extends State<SmartInsightsWidget> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const SizedBox(height: 12),
-            Text('💡 پیشنهادهای هوشمند',
-                style: Theme.of(context).textTheme.titleMedium),
+            Text(
+              '💡 پیشنهادهای هوشمند',
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
             const SizedBox(height: 8),
 
             // Subscription insights
-            ...subscriptions.map((sub) => _buildInsightCard(
-                  context,
-                  _insightsService.generateSuggestionMessage(sub),
-                  Icons.subscriptions_outlined,
-                  Colors.blue,
-                )),
+            ...subscriptions.map(
+              (sub) => _buildInsightCard(
+                context,
+                _insightsService.generateSuggestionMessage(sub),
+                Icons.subscriptions_outlined,
+                Colors.blue,
+              ),
+            ),
 
             // Bill change insights
-            ...billChanges.map((change) => _buildInsightCard(
-                  context,
-                  _insightsService.generateBillChangeMessage(change),
-                  Icons.trending_up_outlined,
-                  Colors.orange,
-                )),
+            ...billChanges.map(
+              (change) => _buildInsightCard(
+                context,
+                _insightsService.generateBillChangeMessage(change),
+                Icons.trending_up_outlined,
+                Colors.orange,
+              ),
+            ),
             // Placeholder for anomalies (will be refreshed asynchronously)
             // Call detectAnomalies separately when UI is ready.
           ],
@@ -109,15 +115,16 @@ class _SmartInsightsWidgetState extends State<SmartInsightsWidget> {
   }
 
   Widget _buildInsightCard(
-      BuildContext context, String message, IconData icon, Color color) {
+    BuildContext context,
+    String message,
+    IconData icon,
+    Color color,
+  ) {
     return Card(
       margin: const EdgeInsets.only(bottom: 8),
       child: ListTile(
         leading: Icon(icon, color: color),
-        title: Text(
-          message,
-          style: Theme.of(context).textTheme.bodyMedium,
-        ),
+        title: Text(message, style: Theme.of(context).textTheme.bodyMedium),
         dense: true,
       ),
     );

@@ -121,11 +121,16 @@ class _LockScreenState extends ConsumerState<LockScreen> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(Icons.fingerprint,
-                      size: 96, color: Theme.of(context).colorScheme.primary),
+                  Icon(
+                    Icons.fingerprint,
+                    size: 96,
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
                   const SizedBox(height: 16),
-                  Text('برای ادامه احراز هویت کنید',
-                      style: Theme.of(context).textTheme.titleLarge),
+                  Text(
+                    'برای ادامه احراز هویت کنید',
+                    style: Theme.of(context).textTheme.titleLarge,
+                  ),
                   const SizedBox(height: 12),
                   if (_authenticating) const CircularProgressIndicator(),
                   if (_showPin) ...[
@@ -138,7 +143,7 @@ class _LockScreenState extends ConsumerState<LockScreen> {
                         obscureText: true,
                         decoration: const InputDecoration(hintText: 'PIN'),
                         inputFormatters: [
-                          FilteringTextInputFormatter.digitsOnly
+                          FilteringTextInputFormatter.digitsOnly,
                         ],
                       ),
                     ),
@@ -150,11 +155,12 @@ class _LockScreenState extends ConsumerState<LockScreen> {
                   ],
                   if (_error != null) ...[
                     const SizedBox(height: 12),
-                    Text(_error!,
-                        style: Theme.of(context)
-                            .textTheme
-                            .bodyMedium
-                            ?.copyWith(color: Colors.red)),
+                    Text(
+                      _error!,
+                      style: Theme.of(
+                        context,
+                      ).textTheme.bodyMedium?.copyWith(color: Colors.red),
+                    ),
                   ],
                   const SizedBox(height: 20),
                   ElevatedButton(

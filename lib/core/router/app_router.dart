@@ -109,11 +109,12 @@ final goRouterProvider = Provider<GoRouter>((ref) {
         '/insights',
         '/backup',
         '/settings',
-        '/export'
+        '/export',
       ];
 
-      final wantsGuarded =
-          guardedPrefixes.any((p) => currentPath.startsWith(p));
+      final wantsGuarded = guardedPrefixes.any(
+        (p) => currentPath.startsWith(p),
+      );
 
       if (!unlocked && wantsGuarded && !accessingLock) {
         return '/lock';

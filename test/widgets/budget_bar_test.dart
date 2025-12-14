@@ -5,16 +5,12 @@ import 'package:debt_manager/core/widgets/budget_bar.dart';
 
 void main() {
   group('BudgetBar', () {
-    testWidgets('displays progress bar with percentage',
-        (WidgetTester tester) async {
+    testWidgets('displays progress bar with percentage', (
+      WidgetTester tester,
+    ) async {
       await tester.pumpWidget(
         const MaterialApp(
-          home: Scaffold(
-            body: BudgetBar(
-              current: 500,
-              limit: 1000,
-            ),
-          ),
+          home: Scaffold(body: BudgetBar(current: 500, limit: 1000)),
         ),
       );
 
@@ -24,16 +20,12 @@ void main() {
       expect(find.text('50%'), findsOneWidget);
     });
 
-    testWidgets('shows green color when usage is below 60%',
-        (WidgetTester tester) async {
+    testWidgets('shows green color when usage is below 60%', (
+      WidgetTester tester,
+    ) async {
       await tester.pumpWidget(
         const MaterialApp(
-          home: Scaffold(
-            body: BudgetBar(
-              current: 500,
-              limit: 1000,
-            ),
-          ),
+          home: Scaffold(body: BudgetBar(current: 500, limit: 1000)),
         ),
       );
 
@@ -47,16 +39,12 @@ void main() {
       expect(progressIndicator.value, 0.5);
     });
 
-    testWidgets('shows warning color when usage is between 60% and 90%',
-        (WidgetTester tester) async {
+    testWidgets('shows warning color when usage is between 60% and 90%', (
+      WidgetTester tester,
+    ) async {
       await tester.pumpWidget(
         const MaterialApp(
-          home: Scaffold(
-            body: BudgetBar(
-              current: 750,
-              limit: 1000,
-            ),
-          ),
+          home: Scaffold(body: BudgetBar(current: 750, limit: 1000)),
         ),
       );
 
@@ -69,16 +57,12 @@ void main() {
       expect(progressIndicator.value, 0.75);
     });
 
-    testWidgets('shows danger color when usage is 90% or above',
-        (WidgetTester tester) async {
+    testWidgets('shows danger color when usage is 90% or above', (
+      WidgetTester tester,
+    ) async {
       await tester.pumpWidget(
         const MaterialApp(
-          home: Scaffold(
-            body: BudgetBar(
-              current: 950,
-              limit: 1000,
-            ),
-          ),
+          home: Scaffold(body: BudgetBar(current: 950, limit: 1000)),
         ),
       );
 
@@ -94,12 +78,7 @@ void main() {
     testWidgets('handles zero limit gracefully', (WidgetTester tester) async {
       await tester.pumpWidget(
         const MaterialApp(
-          home: Scaffold(
-            body: BudgetBar(
-              current: 100,
-              limit: 0,
-            ),
-          ),
+          home: Scaffold(body: BudgetBar(current: 100, limit: 0)),
         ),
       );
 
@@ -113,16 +92,12 @@ void main() {
       expect(progressIndicator.value, 0.0);
     });
 
-    testWidgets('clamps value at 100% when over budget',
-        (WidgetTester tester) async {
+    testWidgets('clamps value at 100% when over budget', (
+      WidgetTester tester,
+    ) async {
       await tester.pumpWidget(
         const MaterialApp(
-          home: Scaffold(
-            body: BudgetBar(
-              current: 1500,
-              limit: 1000,
-            ),
-          ),
+          home: Scaffold(body: BudgetBar(current: 1500, limit: 1000)),
         ),
       );
 
@@ -141,11 +116,7 @@ void main() {
       await tester.pumpWidget(
         const MaterialApp(
           home: Scaffold(
-            body: BudgetBar(
-              current: 500,
-              limit: 1000,
-              label: 'Food Budget',
-            ),
+            body: BudgetBar(current: 500, limit: 1000, label: 'Food Budget'),
           ),
         ),
       );
@@ -153,16 +124,13 @@ void main() {
       expect(find.text('Food Budget'), findsOneWidget);
     });
 
-    testWidgets('hides percentage when showPercentage is false',
-        (WidgetTester tester) async {
+    testWidgets('hides percentage when showPercentage is false', (
+      WidgetTester tester,
+    ) async {
       await tester.pumpWidget(
         const MaterialApp(
           home: Scaffold(
-            body: BudgetBar(
-              current: 500,
-              limit: 1000,
-              showPercentage: false,
-            ),
+            body: BudgetBar(current: 500, limit: 1000, showPercentage: false),
           ),
         ),
       );
@@ -170,16 +138,13 @@ void main() {
       expect(find.text('50%'), findsNothing);
     });
 
-    testWidgets('shows amount when showAmount is true',
-        (WidgetTester tester) async {
+    testWidgets('shows amount when showAmount is true', (
+      WidgetTester tester,
+    ) async {
       await tester.pumpWidget(
         const MaterialApp(
           home: Scaffold(
-            body: BudgetBar(
-              current: 500,
-              limit: 1000,
-              showAmount: true,
-            ),
+            body: BudgetBar(current: 500, limit: 1000, showAmount: true),
           ),
         ),
       );

@@ -8,10 +8,7 @@ void main() {
       await tester.pumpWidget(
         const MaterialApp(
           home: Scaffold(
-            body: CategoryIcon(
-              category: 'food',
-              style: CategoryIconStyle.icon,
-            ),
+            body: CategoryIcon(category: 'food', style: CategoryIconStyle.icon),
           ),
         ),
       );
@@ -33,9 +30,7 @@ void main() {
       );
 
       // Should have a Container with circular decoration
-      final container = tester.widget<Container>(
-        find.byType(Container).first,
-      );
+      final container = tester.widget<Container>(find.byType(Container).first);
       final decoration = container.decoration as BoxDecoration;
       expect(decoration.shape, BoxShape.circle);
     });
@@ -53,9 +48,7 @@ void main() {
       );
 
       // Should have a Container with rounded rectangle
-      final container = tester.widget<Container>(
-        find.byType(Container).first,
-      );
+      final container = tester.widget<Container>(find.byType(Container).first);
       final decoration = container.decoration as BoxDecoration;
       expect(decoration.borderRadius, isNotNull);
     });
@@ -74,9 +67,7 @@ void main() {
       );
 
       // Should have a Container with circular shape but no icon
-      final container = tester.widget<Container>(
-        find.byType(Container),
-      );
+      final container = tester.widget<Container>(find.byType(Container));
       final decoration = container.decoration as BoxDecoration;
       expect(decoration.shape, BoxShape.circle);
       expect(find.byType(Icon), findsNothing);
@@ -86,10 +77,7 @@ void main() {
       await tester.pumpWidget(
         const MaterialApp(
           home: Scaffold(
-            body: CategoryIcon(
-              category: 'food',
-              customIcon: Icons.star,
-            ),
+            body: CategoryIcon(category: 'food', customIcon: Icons.star),
           ),
         ),
       );
@@ -102,10 +90,7 @@ void main() {
       await tester.pumpWidget(
         const MaterialApp(
           home: Scaffold(
-            body: CategoryIcon(
-              category: null,
-              style: CategoryIconStyle.icon,
-            ),
+            body: CategoryIcon(category: null, style: CategoryIconStyle.icon),
           ),
         ),
       );
@@ -129,9 +114,7 @@ void main() {
         ),
       );
 
-      final container = tester.widget<Container>(
-        find.byType(Container).first,
-      );
+      final container = tester.widget<Container>(find.byType(Container).first);
       expect(container.constraints?.minWidth, customSize);
       expect(container.constraints?.minHeight, customSize);
     });
@@ -141,11 +124,7 @@ void main() {
     testWidgets('displays category name', (tester) async {
       await tester.pumpWidget(
         const MaterialApp(
-          home: Scaffold(
-            body: CategoryChip(
-              category: 'Food',
-            ),
-          ),
+          home: Scaffold(body: CategoryChip(category: 'Food')),
         ),
       );
 
@@ -155,12 +134,7 @@ void main() {
     testWidgets('displays icon when showIcon is true', (tester) async {
       await tester.pumpWidget(
         const MaterialApp(
-          home: Scaffold(
-            body: CategoryChip(
-              category: 'food',
-              showIcon: true,
-            ),
-          ),
+          home: Scaffold(body: CategoryChip(category: 'food', showIcon: true)),
         ),
       );
 
@@ -170,12 +144,7 @@ void main() {
     testWidgets('hides icon when showIcon is false', (tester) async {
       await tester.pumpWidget(
         const MaterialApp(
-          home: Scaffold(
-            body: CategoryChip(
-              category: 'food',
-              showIcon: false,
-            ),
-          ),
+          home: Scaffold(body: CategoryChip(category: 'food', showIcon: false)),
         ),
       );
 
@@ -186,10 +155,7 @@ void main() {
       await tester.pumpWidget(
         const MaterialApp(
           home: Scaffold(
-            body: CategoryChip(
-              category: 'Food',
-              isSelected: true,
-            ),
+            body: CategoryChip(category: 'Food', isSelected: true),
           ),
         ),
       );

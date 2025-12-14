@@ -46,14 +46,10 @@ class _DebtPayoffProjectionScreenState
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('پیش‌بینی بازپرداخت بدهی'),
-      ),
+      appBar: AppBar(title: const Text('پیش‌بینی بازپرداخت بدهی')),
       body: SafeArea(
         child: _borrowedLoans.isEmpty
-            ? const Center(
-                child: Text('هیچ بدهی‌ای برای نمایش وجود ندارد'),
-              )
+            ? const Center(child: Text('هیچ بدهی‌ای برای نمایش وجود ندارد'))
             : ListView(
                 padding: const EdgeInsets.all(16),
                 children: [
@@ -71,16 +67,19 @@ class _DebtPayoffProjectionScreenState
                             items: _borrowedLoans.map((loan) {
                               return DropdownMenuItem(
                                 value: loan.id,
-                                child: Text(loan.title.isNotEmpty
-                                    ? loan.title
-                                    : 'بدون عنوان'),
+                                child: Text(
+                                  loan.title.isNotEmpty
+                                      ? loan.title
+                                      : 'بدون عنوان',
+                                ),
                               );
                             }).toList(),
                             onChanged: (v) {
                               if (v != null) {
                                 setState(() {
-                                  _selectedLoan = _borrowedLoans
-                                      .firstWhere((l) => l.id == v);
+                                  _selectedLoan = _borrowedLoans.firstWhere(
+                                    (l) => l.id == v,
+                                  );
                                 });
                               }
                             },
@@ -92,13 +91,17 @@ class _DebtPayoffProjectionScreenState
                             value: _strategy,
                             items: const [
                               DropdownMenuItem(
-                                  value: 'single', child: Text('یک وام')),
+                                value: 'single',
+                                child: Text('یک وام'),
+                              ),
                               DropdownMenuItem(
-                                  value: 'snowball',
-                                  child: Text('Snowball (کوچک‌ترین مانده)')),
+                                value: 'snowball',
+                                child: Text('Snowball (کوچک‌ترین مانده)'),
+                              ),
                               DropdownMenuItem(
-                                  value: 'avalanche',
-                                  child: Text('Avalanche (بالاترین نرخ)')),
+                                value: 'avalanche',
+                                child: Text('Avalanche (بالاترین نرخ)'),
+                              ),
                             ],
                             onChanged: (v) {
                               if (v != null) setState(() => _strategy = v);
@@ -126,7 +129,8 @@ class _DebtPayoffProjectionScreenState
                               border: OutlineInputBorder(),
                             ),
                             controller: TextEditingController(
-                                text: _extraPayment.toString()),
+                              text: _extraPayment.toString(),
+                            ),
                             onChanged: (v) {
                               setState(() {
                                 _extraPayment = int.tryParse(v) ?? 0;
@@ -140,19 +144,23 @@ class _DebtPayoffProjectionScreenState
                   const SizedBox(height: 16),
                   // Decide which projection to compute based on strategy
                   FutureBuilder<List<Map<String, dynamic>>>(
-                    future: _strategy == 'single' &&
+                    future:
+                        _strategy == 'single' &&
                             _selectedLoan != null &&
                             _selectedLoan!.id != null
                         ? _repo.projectDebtPayoff(
                             _selectedLoan!.id!,
-                            extraPayment:
-                                _extraPayment > 0 ? _extraPayment : null,
+                            extraPayment: _extraPayment > 0
+                                ? _extraPayment
+                                : null,
                           )
                         : _repo.projectAllDebtsPayoff(
-                            extraPayment:
-                                _extraPayment > 0 ? _extraPayment : null,
-                            strategy:
-                                _strategy == 'single' ? 'snowball' : _strategy,
+                            extraPayment: _extraPayment > 0
+                                ? _extraPayment
+                                : null,
+                            strategy: _strategy == 'single'
+                                ? 'snowball'
+                                : _strategy,
                           ),
                     builder: (context, snap) {
                       if (snap.connectionState == ConnectionState.waiting) {
@@ -165,7 +173,8 @@ class _DebtPayoffProjectionScreenState
                           child: Padding(
                             padding: EdgeInsets.all(32.0),
                             child: Center(
-                                child: Text('این وام بازپرداخت شده است')),
+                              child: Text('این وام بازپرداخت شده است'),
+                            ),
                           ),
                         );
                       }
@@ -244,9 +253,11 @@ class _DebtPayoffProjectionScreenState
                       ),
                     ),
                     topTitles: const AxisTitles(
-                        sideTitles: SideTitles(showTitles: false)),
+                      sideTitles: SideTitles(showTitles: false),
+                    ),
                     rightTitles: const AxisTitles(
-                        sideTitles: SideTitles(showTitles: false)),
+                      sideTitles: SideTitles(showTitles: false),
+                    ),
                   ),
                   borderData: FlBorderData(show: true),
                   minY: 0,
@@ -265,10 +276,9 @@ class _DebtPayoffProjectionScreenState
                       dotData: const FlDotData(show: true),
                       belowBarData: BarAreaData(
                         show: true,
-                        color: Theme.of(context)
-                            .colorScheme
-                            .error
-                            .withValues(alpha: 0.1),
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.error.withValues(alpha: 0.1),
                       ),
                     ),
                   ],
@@ -285,9 +295,12 @@ class _DebtPayoffProjectionScreenState
 
   Widget _buildProjectionSummary(List<Map<String, dynamic>> projections) {
     final monthsToPayoff = projections.length;
-    final firstBalance = (projections.isNotEmpty
-        ? (projections.first['totalBalance'] ?? projections.first['balance'])
-        : 0) as int;
+    final firstBalance =
+        (projections.isNotEmpty
+                ? (projections.first['totalBalance'] ??
+                      projections.first['balance'])
+                : 0)
+            as int;
     final totalPayments = projections.fold<int>(0, (sum, item) {
       return sum +
           (item['payment'] as int? ?? 0) +
@@ -320,11 +333,15 @@ class _DebtPayoffProjectionScreenState
             _buildSummaryRow('کل بهره پرداختی', formatCurrency(totalInterest)),
             const SizedBox(height: 8),
             _buildSummaryRow(
-                'هزینه تقریبی بهره در روز', formatCurrency(perDayCost.round())),
+              'هزینه تقریبی بهره در روز',
+              formatCurrency(perDayCost.round()),
+            ),
             if (_extraPayment > 0) ...[
               const SizedBox(height: 8),
               _buildSummaryRow(
-                  'پرداخت اضافی ماهانه', formatCurrency(_extraPayment)),
+                'پرداخت اضافی ماهانه',
+                formatCurrency(_extraPayment),
+              ),
               const SizedBox(height: 12),
               Container(
                 padding: const EdgeInsets.all(8),
@@ -352,10 +369,7 @@ class _DebtPayoffProjectionScreenState
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Text(label),
-        SensitiveText(
-          value,
-          style: Theme.of(context).textTheme.titleSmall,
-        ),
+        SensitiveText(value, style: Theme.of(context).textTheme.titleSmall),
       ],
     );
   }

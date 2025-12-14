@@ -6,10 +6,12 @@ import 'jalali_utils.dart';
 // depending on the user's calendar preference. For Jalali selection,
 // this helper still uses the material picker (Gregorian) and converts
 // the result to Jalali for compatibility with existing code.
-Future<dynamic> showCalendarAwareDatePicker(BuildContext context,
-    {required DateTime initialDate,
-    required DateTime firstDate,
-    required DateTime lastDate}) async {
+Future<dynamic> showCalendarAwareDatePicker(
+  BuildContext context, {
+  required DateTime initialDate,
+  required DateTime firstDate,
+  required DateTime lastDate,
+}) async {
   final settings = SettingsRepository();
 
   // Show the picker immediately to avoid using `context` after an await.

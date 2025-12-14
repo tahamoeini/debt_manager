@@ -4,16 +4,22 @@ import 'package:debt_manager/features/automation/built_in_categories.dart';
 void main() {
   group('BuiltInCategories - Edge Cases', () {
     test('detectCategory with null payee and description', () {
-      final (category, confidence) =
-          BuiltInCategories.detectCategory(null, null, null);
+      final (category, confidence) = BuiltInCategories.detectCategory(
+        null,
+        null,
+        null,
+      );
 
       expect(category, isNull);
       expect(confidence, equals(0.0));
     });
 
     test('detectCategory with empty strings', () {
-      final (category, confidence) =
-          BuiltInCategories.detectCategory('', '', null);
+      final (category, confidence) = BuiltInCategories.detectCategory(
+        '',
+        '',
+        null,
+      );
 
       expect(category, isNull);
       expect(confidence, equals(0.0));
@@ -85,10 +91,16 @@ void main() {
 
     test('detectCategory word match vs substring match', () {
       // Exact word match should score higher
-      final (cat1, conf1) =
-          BuiltInCategories.detectCategory('taxi', null, null);
-      final (cat2, conf2) =
-          BuiltInCategories.detectCategory('taxicab service', null, null);
+      final (cat1, conf1) = BuiltInCategories.detectCategory(
+        'taxi',
+        null,
+        null,
+      );
+      final (cat2, conf2) = BuiltInCategories.detectCategory(
+        'taxicab service',
+        null,
+        null,
+      );
 
       expect(cat1, equals('transport'));
       expect(cat2, equals('transport'));
@@ -106,24 +118,29 @@ void main() {
     });
 
     test('detectCategory Persian utility variants', () {
-      final variants = [
-        'آب',
-        'برق',
-        'گاز',
-      ];
+      final variants = ['آب', 'برق', 'گاز'];
 
       for (final variant in variants) {
-        final (category, confidence) =
-            BuiltInCategories.detectCategory(variant, null, null);
+        final (category, confidence) = BuiltInCategories.detectCategory(
+          variant,
+          null,
+          null,
+        );
         expect(category, equals('utilities'), reason: 'Failed for: $variant');
       }
     });
 
     test('detectCategory with whitespace variations', () {
-      final (cat1, conf1) =
-          BuiltInCategories.detectCategory('  taxi  ', null, null);
-      final (cat2, conf2) =
-          BuiltInCategories.detectCategory('taxi', null, null);
+      final (cat1, conf1) = BuiltInCategories.detectCategory(
+        '  taxi  ',
+        null,
+        null,
+      );
+      final (cat2, conf2) = BuiltInCategories.detectCategory(
+        'taxi',
+        null,
+        null,
+      );
 
       // Normalization might handle this
       expect([cat1, cat2].contains('transport'), isTrue);
@@ -168,12 +185,21 @@ void main() {
     });
 
     test('detectCategory case insensitivity works', () {
-      final (cat1, conf1) =
-          BuiltInCategories.detectCategory('TAXI', null, null);
-      final (cat2, conf2) =
-          BuiltInCategories.detectCategory('Taxi', null, null);
-      final (cat3, conf3) =
-          BuiltInCategories.detectCategory('taxi', null, null);
+      final (cat1, conf1) = BuiltInCategories.detectCategory(
+        'TAXI',
+        null,
+        null,
+      );
+      final (cat2, conf2) = BuiltInCategories.detectCategory(
+        'Taxi',
+        null,
+        null,
+      );
+      final (cat3, conf3) = BuiltInCategories.detectCategory(
+        'taxi',
+        null,
+        null,
+      );
 
       expect(cat1, equals(cat2));
       expect(cat2, equals(cat3));

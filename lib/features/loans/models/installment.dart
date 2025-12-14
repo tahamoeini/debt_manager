@@ -55,8 +55,8 @@ class Installment {
       'status': status == InstallmentStatus.pending
           ? 'pending'
           : status == InstallmentStatus.paid
-              ? 'paid'
-              : 'overdue',
+          ? 'paid'
+          : 'overdue',
       'paid_at': paidAt,
       'actual_paid_amount': actualPaidAmount,
       'notification_id': notificationId,
@@ -68,8 +68,8 @@ class Installment {
     final status = statusStr == 'paid'
         ? InstallmentStatus.paid
         : (statusStr == 'overdue'
-            ? InstallmentStatus.overdue
-            : InstallmentStatus.pending);
+              ? InstallmentStatus.overdue
+              : InstallmentStatus.pending);
 
     return Installment(
       id: map['id'] is int
@@ -87,13 +87,13 @@ class Installment {
       actualPaidAmount: map['actual_paid_amount'] is int
           ? map['actual_paid_amount'] as int
           : (map['actual_paid_amount'] != null
-              ? int.tryParse(map['actual_paid_amount'].toString())
-              : null),
+                ? int.tryParse(map['actual_paid_amount'].toString())
+                : null),
       notificationId: map['notification_id'] is int
           ? map['notification_id'] as int
           : (map['notification_id'] != null
-              ? int.tryParse(map['notification_id'].toString())
-              : null),
+                ? int.tryParse(map['notification_id'].toString())
+                : null),
     );
   }
 

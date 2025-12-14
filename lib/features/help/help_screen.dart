@@ -53,18 +53,19 @@ class HelpScreen extends StatelessWidget {
                       children: [
                         Icon(
                           Icons.info_outline,
-                          color:
-                              Theme.of(context).colorScheme.onPrimaryContainer,
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.onPrimaryContainer,
                         ),
                         const SizedBox(width: 8),
                         Text(
                           'یادداشت مهم',
-                          style:
-                              Theme.of(context).textTheme.titleMedium?.copyWith(
-                                    color: Theme.of(context)
-                                        .colorScheme
-                                        .onPrimaryContainer,
-                                  ),
+                          style: Theme.of(context).textTheme.titleMedium
+                              ?.copyWith(
+                                color: Theme.of(
+                                  context,
+                                ).colorScheme.onPrimaryContainer,
+                              ),
                         ),
                       ],
                     ),
@@ -72,20 +73,15 @@ class HelpScreen extends StatelessWidget {
                     Text(
                       'تمام این ویژگی‌ها به صورت محلی و آفلاین کار می‌کنند. هیچ داده‌ای به سرور ارسال نمی‌شود و حریم خصوصی شما محفوظ است. همچنین این ویژگی‌ها برای کاهش مصرف باتری بهینه‌سازی شده‌اند.',
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            color: Theme.of(context)
-                                .colorScheme
-                                .onPrimaryContainer,
-                          ),
+                        color: Theme.of(context).colorScheme.onPrimaryContainer,
+                      ),
                     ),
                   ],
                 ),
               ),
             ),
             const SizedBox(height: 24),
-            Text(
-              'تنظیمات',
-              style: Theme.of(context).textTheme.titleLarge,
-            ),
+            Text('تنظیمات', style: Theme.of(context).textTheme.titleLarge),
             const SizedBox(height: 8),
             Text(
               'می‌توانید هر یک از این ویژگی‌ها را در قسمت تنظیمات فعال یا غیرفعال کنید. برای دسترسی به تنظیمات، از منوی پایین صفحه به قسمت "تنظیمات" بروید.',
@@ -104,15 +100,9 @@ class HelpScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              title,
-              style: Theme.of(context).textTheme.titleMedium,
-            ),
+            Text(title, style: Theme.of(context).textTheme.titleMedium),
             const SizedBox(height: 8),
-            Text(
-              description,
-              style: Theme.of(context).textTheme.bodyMedium,
-            ),
+            Text(description, style: Theme.of(context).textTheme.bodyMedium),
           ],
         ),
       ),

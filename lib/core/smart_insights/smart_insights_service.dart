@@ -25,8 +25,8 @@ class SmartInsightsService {
           .detectSubscriptions();
       final bills = await insights_engine.SmartInsightsService.instance
           .detectBillChanges();
-      final anomalies =
-          await insights_engine.SmartInsightsService.instance.detectAnomalies();
+      final anomalies = await insights_engine.SmartInsightsService.instance
+          .detectAnomalies();
 
       if (!notify) return;
 

@@ -150,9 +150,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       // Cancel all notifications when master toggle is turned off
       await NotificationService.instance.cancelAllNotifications();
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('تمام اعلان‌ها لغو شدند')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('تمام اعلان‌ها لغو شدند')));
       }
     }
     if (mounted) {
@@ -188,8 +188,10 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
-                content:
-                    Text('احراز هویت بیومتریک در این دستگاه پشتیبانی نمی‌شود')),
+              content: Text(
+                'احراز هویت بیومتریک در این دستگاه پشتیبانی نمی‌شود',
+              ),
+            ),
           );
         }
         return;
@@ -211,10 +213,13 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       final bio = await SecurityService.instance.isBiometricAvailable();
       if (!hasPin && !bio) {
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-            content: Text(
-                'برای فعال‌سازی قفل برنامه ابتدا باید PIN تنظیم کنید یا احراز هویت بیومتریک فعال باشد.'),
-          ));
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text(
+                'برای فعال‌سازی قفل برنامه ابتدا باید PIN تنظیم کنید یا احراز هویت بیومتریک فعال باشد.',
+              ),
+            ),
+          );
         }
         return;
       }
@@ -272,15 +277,17 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         ),
         actions: [
           TextButton(
-              onPressed: () => Navigator.of(ctx).pop(false),
-              child: const Text('لغو')),
+            onPressed: () => Navigator.of(ctx).pop(false),
+            child: const Text('لغو'),
+          ),
           FilledButton(
-              onPressed: () {
-                if (first.text.trim().isEmpty) return;
-                if (first.text != second.text) return;
-                Navigator.of(ctx).pop(true);
-              },
-              child: const Text('ذخیره'))
+            onPressed: () {
+              if (first.text.trim().isEmpty) return;
+              if (first.text != second.text) return;
+              Navigator.of(ctx).pop(true);
+            },
+            child: const Text('ذخیره'),
+          ),
         ],
       ),
     );
@@ -288,8 +295,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     if (ok == true) {
       await SecurityService.instance.setPin(first.text.trim());
       if (mounted) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(const SnackBar(content: Text('PIN ذخیره شد')));
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('PIN ذخیره شد')));
       }
     }
   }
@@ -302,11 +310,13 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         content: const Text('آیا مطمئن هستید که می‌خواهید PIN را حذف کنید؟'),
         actions: [
           TextButton(
-              onPressed: () => Navigator.of(ctx).pop(false),
-              child: const Text('لغو')),
+            onPressed: () => Navigator.of(ctx).pop(false),
+            child: const Text('لغو'),
+          ),
           FilledButton(
-              onPressed: () => Navigator.of(ctx).pop(true),
-              child: const Text('حذف'))
+            onPressed: () => Navigator.of(ctx).pop(true),
+            child: const Text('حذف'),
+          ),
         ],
       ),
     );
@@ -314,8 +324,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     if (confirmed == true) {
       await SecurityService.instance.deletePin();
       if (mounted) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(const SnackBar(content: Text('PIN حذف شد')));
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('PIN حذف شد')));
       }
     }
   }
@@ -323,9 +334,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('تنظیمات'),
-      ),
+      appBar: AppBar(title: const Text('تنظیمات')),
       body: _loading
           ? const SafeArea(child: Center(child: CircularProgressIndicator()))
           : SafeArea(
@@ -417,7 +426,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                           SwitchListTile(
                             title: const Text('حالت حریم خصوصی'),
                             subtitle: const Text(
-                                'مقادیر حساس را در داشبورد و گزارش‌ها مخفی یا بلور کن'),
+                              'مقادیر حساس را در داشبورد و گزارش‌ها مخفی یا بلور کن',
+                            ),
                             value: SettingsRepository.privacyModeNotifier.value,
                             onChanged: (v) async {
                               await _repo.setPrivacyModeEnabled(v);
@@ -553,9 +563,11 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                           const Divider(),
                           SwitchListTile(
                             title: const Text(
-                                'قفل بیومتریک (Fingerprint / Face ID)'),
+                              'قفل بیومتریک (Fingerprint / Face ID)',
+                            ),
                             subtitle: const Text(
-                                'استفاده از اثر انگشت یا تشخیص چهره برای باز کردن برنامه'),
+                              'استفاده از اثر انگشت یا تشخیص چهره برای باز کردن برنامه',
+                            ),
                             value: _biometricEnabled,
                             onChanged: (v) async {
                               await _saveBiometricEnabled(v);
@@ -566,7 +578,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                           ListTile(
                             title: const Text('قفل برنامه'),
                             subtitle: const Text(
-                                'قفل‌گذاری برنامه با PIN یا بیومتریک'),
+                              'قفل‌گذاری برنامه با PIN یا بیومتریک',
+                            ),
                           ),
                           SwitchListTile(
                             title: const Text('فعال‌سازی قفل برنامه'),
@@ -582,10 +595,12 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                               DropdownButton<int>(
                                 value: _lockTimeout,
                                 items: [1, 3, 5, 10, 30]
-                                    .map((m) => DropdownMenuItem(
-                                          value: m,
-                                          child: Text('$m'),
-                                        ))
+                                    .map(
+                                      (m) => DropdownMenuItem(
+                                        value: m,
+                                        child: Text('$m'),
+                                      ),
+                                    )
                                     .toList(),
                                 onChanged: (v) async {
                                   if (v == null) return;
@@ -599,7 +614,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                           SwitchListTile(
                             title: const Text('قفل سخت (بلافاصله پس از خروج)'),
                             subtitle: const Text(
-                                'با فعال کردن، برنامه هنگام پس‌زمینه شدن بلافاصله قفل می‌شود'),
+                              'با فعال کردن، برنامه هنگام پس‌زمینه شدن بلافاصله قفل می‌شود',
+                            ),
                             value: _strictLock,
                             onChanged: (v) async {
                               await _saveStrictLock(v);
@@ -615,8 +631,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                               FilledButton(
                                 onPressed: _removePin,
                                 style: FilledButton.styleFrom(
-                                  backgroundColor:
-                                      Theme.of(context).colorScheme.error,
+                                  backgroundColor: Theme.of(
+                                    context,
+                                  ).colorScheme.error,
                                 ),
                                 child: const Text('حذف PIN'),
                               ),
@@ -630,10 +647,15 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                                   return FilledButton.icon(
                                     onPressed: () async {
                                       if (dbEncrypted) {
-                                        ScaffoldMessenger.of(context)
-                                            .showSnackBar(const SnackBar(
-                                                content: Text(
-                                                    'پایگاه داده قبلاً رمزنگاری شده است')));
+                                        ScaffoldMessenger.of(
+                                          context,
+                                        ).showSnackBar(
+                                          const SnackBar(
+                                            content: Text(
+                                              'پایگاه داده قبلاً رمزنگاری شده است',
+                                            ),
+                                          ),
+                                        );
                                         return;
                                       }
 
@@ -643,7 +665,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                                         context: context,
                                         builder: (dctx) => AlertDialog(
                                           title: const Text(
-                                              'رمزنگاری پایگاه داده'),
+                                            'رمزنگاری پایگاه داده',
+                                          ),
                                           content: Column(
                                             mainAxisSize: MainAxisSize.min,
                                             children: [
@@ -654,7 +677,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                                                     TextInputType.number,
                                                 decoration:
                                                     const InputDecoration(
-                                                        labelText: 'PIN'),
+                                                      labelText: 'PIN',
+                                                    ),
                                               ),
                                               TextField(
                                                 controller: second,
@@ -663,56 +687,67 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                                                     TextInputType.number,
                                                 decoration:
                                                     const InputDecoration(
-                                                        labelText: 'تأیید PIN'),
+                                                      labelText: 'تأیید PIN',
+                                                    ),
                                               ),
                                             ],
                                           ),
                                           actions: [
                                             TextButton(
-                                                onPressed: () =>
-                                                    Navigator.of(dctx)
-                                                        .pop(false),
-                                                child: const Text('لغو')),
+                                              onPressed: () =>
+                                                  Navigator.of(dctx).pop(false),
+                                              child: const Text('لغو'),
+                                            ),
                                             FilledButton(
-                                                onPressed: () {
-                                                  if (first.text
-                                                      .trim()
-                                                      .isEmpty) {
-                                                    return;
-                                                  }
-                                                  if (first.text !=
-                                                      second.text) {
-                                                    return;
-                                                  }
-                                                  Navigator.of(dctx).pop(true);
-                                                },
-                                                child: const Text('رمزنگاری'))
+                                              onPressed: () {
+                                                if (first.text.trim().isEmpty) {
+                                                  return;
+                                                }
+                                                if (first.text != second.text) {
+                                                  return;
+                                                }
+                                                Navigator.of(dctx).pop(true);
+                                              },
+                                              child: const Text('رمزنگاری'),
+                                            ),
                                           ],
                                         ),
                                       );
 
                                       if (ok == true) {
                                         final pin = first.text.trim();
-                                        await SecurityService.instance
-                                            .setPin(pin);
+                                        await SecurityService.instance.setPin(
+                                          pin,
+                                        );
                                         try {
                                           await DatabaseHelper.instance
                                               .enableEncryptionWithPin(pin);
                                           await SettingsRepository()
                                               .setDatabaseEncryptionEnabled(
-                                                  true);
+                                                true,
+                                              );
                                           if (mounted) {
-                                            ScaffoldMessenger.of(context)
-                                                .showSnackBar(const SnackBar(
-                                                    content: Text(
-                                                        'پایگاه داده رمزنگاری شد')));
+                                            ScaffoldMessenger.of(
+                                              context,
+                                            ).showSnackBar(
+                                              const SnackBar(
+                                                content: Text(
+                                                  'پایگاه داده رمزنگاری شد',
+                                                ),
+                                              ),
+                                            );
                                           }
                                         } catch (e) {
                                           if (mounted) {
-                                            ScaffoldMessenger.of(context)
-                                                .showSnackBar(SnackBar(
-                                                    content: Text(
-                                                        'خطا در رمزنگاری: $e')));
+                                            ScaffoldMessenger.of(
+                                              context,
+                                            ).showSnackBar(
+                                              SnackBar(
+                                                content: Text(
+                                                  'خطا در رمزنگاری: $e',
+                                                ),
+                                              ),
+                                            );
                                           }
                                         }
                                       }
@@ -735,30 +770,32 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                     child: ListTile(
                       leading: Icon(
                         Icons.help_outline,
-                        color:
-                            Theme.of(context).colorScheme.onSecondaryContainer,
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.onSecondaryContainer,
                       ),
                       title: Text(
                         'راهنمای ویژگی‌های هوشمند',
                         style: TextStyle(
-                          color: Theme.of(context)
-                              .colorScheme
-                              .onSecondaryContainer,
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.onSecondaryContainer,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
                       subtitle: Text(
                         'درباره یادآورها، هشدارها و پیشنهادهای هوشمند بیشتر بدانید',
                         style: TextStyle(
-                          color: Theme.of(context)
-                              .colorScheme
-                              .onSecondaryContainer,
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.onSecondaryContainer,
                         ),
                       ),
                       trailing: Icon(
                         Icons.arrow_forward_ios,
-                        color:
-                            Theme.of(context).colorScheme.onSecondaryContainer,
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.onSecondaryContainer,
                         size: 16,
                       ),
                       onTap: () {
@@ -859,7 +896,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                           SwitchListTile(
                             title: const Text('هشدارهای بودجه'),
                             subtitle: const Text(
-                                'اطلاع‌رسانی وقتی بودجه به حد آستانه رسید'),
+                              'اطلاع‌رسانی وقتی بودجه به حد آستانه رسید',
+                            ),
                             value: _budgetAlerts,
                             onChanged: (v) async {
                               await _repo.setBudgetAlertsEnabled(v);
@@ -872,8 +910,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                           ),
                           SwitchListTile(
                             title: const Text('پیشنهادهای هوشمند'),
-                            subtitle:
-                                const Text('تشخیص اشتراک‌ها و تغییرات قبوض'),
+                            subtitle: const Text(
+                              'تشخیص اشتراک‌ها و تغییرات قبوض',
+                            ),
                             value: _smartSuggestions,
                             onChanged: (v) async {
                               await _repo.setSmartSuggestionsEnabled(v);
@@ -887,7 +926,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                           SwitchListTile(
                             title: const Text('مشاور مالی'),
                             subtitle: const Text(
-                                'نکات و راهنمایی‌های مالی در برنامه'),
+                              'نکات و راهنمایی‌های مالی در برنامه',
+                            ),
                             value: _financeCoach,
                             onChanged: (v) async {
                               await _repo.setFinanceCoachEnabled(v);
@@ -900,8 +940,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                           ),
                           SwitchListTile(
                             title: const Text('خلاصه پایان ماه'),
-                            subtitle:
-                                const Text('گزارش عملکرد بودجه در پایان ماه'),
+                            subtitle: const Text(
+                              'گزارش عملکرد بودجه در پایان ماه',
+                            ),
                             value: _monthEndSummary,
                             onChanged: (v) async {
                               await _repo.setMonthEndSummaryEnabled(v);
@@ -916,10 +957,13 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                           ListTile(
                             leading: const Icon(Icons.rule_outlined),
                             title: const Text('قوانین خودکارسازی'),
-                            subtitle:
-                                const Text('مدیریت دسته‌بندی خودکار تراکنش‌ها'),
-                            trailing:
-                                const Icon(Icons.arrow_forward_ios, size: 16),
+                            subtitle: const Text(
+                              'مدیریت دسته‌بندی خودکار تراکنش‌ها',
+                            ),
+                            trailing: const Icon(
+                              Icons.arrow_forward_ios,
+                              size: 16,
+                            ),
                             onTap: () {
                               Navigator.of(context).push(
                                 MaterialPageRoute(
@@ -954,8 +998,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                             children: [
                               FilledButton.icon(
                                 onPressed: () async {
-                                  final messenger =
-                                      ScaffoldMessenger.of(context);
+                                  final messenger = ScaffoldMessenger.of(
+                                    context,
+                                  );
                                   try {
                                     final jsonStr = await BackupService.instance
                                         .exportAll();
@@ -966,8 +1011,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                                           mainAxisSize: MainAxisSize.min,
                                           children: [
                                             Padding(
-                                              padding:
-                                                  const EdgeInsets.all(12.0),
+                                              padding: const EdgeInsets.all(
+                                                12.0,
+                                              ),
                                               child: Row(
                                                 mainAxisAlignment:
                                                     MainAxisAlignment
@@ -976,12 +1022,13 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                                                   const Text('Exported JSON'),
                                                   IconButton(
                                                     icon: const Icon(
-                                                        Icons.copy_outlined),
+                                                      Icons.copy_outlined,
+                                                    ),
                                                     onPressed: () async {
                                                       final messenger =
                                                           ScaffoldMessenger.of(
-                                                        context,
-                                                      );
+                                                            context,
+                                                          );
                                                       await Clipboard.setData(
                                                         ClipboardData(
                                                           text: jsonStr,
@@ -990,8 +1037,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                                                       if (!mounted) return;
                                                       messenger.showSnackBar(
                                                         const SnackBar(
-                                                          content:
-                                                              Text('کپی شد'),
+                                                          content: Text(
+                                                            'کپی شد',
+                                                          ),
                                                         ),
                                                       );
                                                     },
@@ -1000,14 +1048,16 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                                               ),
                                             ),
                                             SizedBox(
-                                              height: MediaQuery.of(
+                                              height:
+                                                  MediaQuery.of(
                                                     context,
                                                   ).size.height *
                                                   0.6,
                                               width: double.maxFinite,
                                               child: SingleChildScrollView(
-                                                padding:
-                                                    const EdgeInsets.all(12),
+                                                padding: const EdgeInsets.all(
+                                                  12,
+                                                ),
                                                 child: SelectableText(jsonStr),
                                               ),
                                             ),
@@ -1054,8 +1104,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                                               child: TextField(
                                                 controller: controller,
                                                 maxLines: null,
-                                                decoration:
-                                                    const InputDecoration(
+                                                decoration: const InputDecoration(
                                                   hintText:
                                                       '{ "counterparties": [...], "loans": [...], "installments": [...] }',
                                                 ),
@@ -1068,8 +1117,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                                                   onPressed: () async {
                                                     final data =
                                                         await Clipboard.getData(
-                                                      'text/plain',
-                                                    );
+                                                          'text/plain',
+                                                        );
                                                     if (data != null &&
                                                         data.text != null) {
                                                       controller.text =
@@ -1105,13 +1154,14 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                                             final txt = controller.text.trim();
                                             if (txt.isEmpty) return;
                                             try {
-                                              final parsed = json.decode(txt)
-                                                  as Map<String, dynamic>;
+                                              final parsed =
+                                                  json.decode(txt)
+                                                      as Map<String, dynamic>;
                                               await BackupService.instance
                                                   .importFromMap(
-                                                parsed,
-                                                clearBefore: true,
-                                              );
+                                                    parsed,
+                                                    clearBefore: true,
+                                                  );
                                               if (!mounted) return;
                                               messenger.showSnackBar(
                                                 const SnackBar(
@@ -1148,9 +1198,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                           const SizedBox(height: 16),
                           Text(
                             'مدیریت داده‌ها',
-                            style: Theme.of(context)
-                                .textTheme
-                                .titleMedium
+                            style: Theme.of(context).textTheme.titleMedium
                                 ?.copyWith(
                                   color: Theme.of(context).colorScheme.error,
                                 ),
@@ -1158,9 +1206,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                           const SizedBox(height: 8),
                           Text(
                             'با احتیاط استفاده کنید! این عملیات غیرقابل بازگشت است.',
-                            style: Theme.of(context)
-                                .textTheme
-                                .bodySmall
+                            style: Theme.of(context).textTheme.bodySmall
                                 ?.copyWith(
                                   color: Theme.of(context).colorScheme.error,
                                 ),
@@ -1185,8 +1231,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                                       onPressed: () =>
                                           Navigator.of(ctx).pop(true),
                                       style: FilledButton.styleFrom(
-                                        backgroundColor:
-                                            Theme.of(context).colorScheme.error,
+                                        backgroundColor: Theme.of(
+                                          context,
+                                        ).colorScheme.error,
                                       ),
                                       child: const Text('بله، پاک کن'),
                                     ),
@@ -1198,13 +1245,15 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                                 final messenger = ScaffoldMessenger.of(context);
                                 try {
                                   // Delete all loans (which also deletes installments)
-                                  final dbHelper =
-                                      ref.read(databaseHelperProvider);
+                                  final dbHelper = ref.read(
+                                    databaseHelperProvider,
+                                  );
                                   final loans = await dbHelper.getAllLoans();
                                   for (final loan in loans) {
                                     if (loan.id != null) {
-                                      await dbHelper
-                                          .deleteLoanWithInstallments(loan.id!);
+                                      await dbHelper.deleteLoanWithInstallments(
+                                        loan.id!,
+                                      );
                                     }
                                   }
 
@@ -1215,23 +1264,28 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                                   if (!mounted) return;
                                   messenger.showSnackBar(
                                     const SnackBar(
-                                        content: Text(
-                                            'تمام داده‌ها با موفقیت پاک شدند')),
+                                      content: Text(
+                                        'تمام داده‌ها با موفقیت پاک شدند',
+                                      ),
+                                    ),
                                   );
                                 } catch (e) {
                                   if (!mounted) return;
                                   messenger.showSnackBar(
                                     SnackBar(
-                                        content: Text(
-                                            'خطا در پاک کردن داده‌ها: $e')),
+                                      content: Text(
+                                        'خطا در پاک کردن داده‌ها: $e',
+                                      ),
+                                    ),
                                   );
                                 }
                               }
                             },
                             icon: const Icon(Icons.delete_forever),
                             style: FilledButton.styleFrom(
-                              backgroundColor:
-                                  Theme.of(context).colorScheme.error,
+                              backgroundColor: Theme.of(
+                                context,
+                              ).colorScheme.error,
                             ),
                             label: const Text('پاک کردن تمام داده‌ها'),
                           ),
@@ -1250,24 +1304,22 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                         children: [
                           Text(
                             'پشتیبانی و بازخورد',
-                            style: Theme.of(context)
-                                .textTheme
-                                .titleMedium
+                            style: Theme.of(context).textTheme.titleMedium
                                 ?.copyWith(
-                                  color: Theme.of(context)
-                                      .colorScheme
-                                      .onTertiaryContainer,
+                                  color: Theme.of(
+                                    context,
+                                  ).colorScheme.onTertiaryContainer,
                                 ),
                           ),
                           const SizedBox(height: 8),
                           Text(
                             'در صورت مواجهه با مشکل یا برای ارسال پیشنهاد',
-                            style:
-                                Theme.of(context).textTheme.bodySmall?.copyWith(
-                                      color: Theme.of(context)
-                                          .colorScheme
-                                          .onTertiaryContainer,
-                                    ),
+                            style: Theme.of(context).textTheme.bodySmall
+                                ?.copyWith(
+                                  color: Theme.of(
+                                    context,
+                                  ).colorScheme.onTertiaryContainer,
+                                ),
                           ),
                           const SizedBox(height: 12),
                           FilledButton.icon(
@@ -1279,10 +1331,12 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                             },
                             icon: const Icon(Icons.bug_report_outlined),
                             style: FilledButton.styleFrom(
-                              backgroundColor:
-                                  Theme.of(context).colorScheme.tertiary,
-                              foregroundColor:
-                                  Theme.of(context).colorScheme.onTertiary,
+                              backgroundColor: Theme.of(
+                                context,
+                              ).colorScheme.tertiary,
+                              foregroundColor: Theme.of(
+                                context,
+                              ).colorScheme.onTertiary,
                             ),
                             label: const Text('گزارش مشکل یا ارسال پیشنهاد'),
                           ),

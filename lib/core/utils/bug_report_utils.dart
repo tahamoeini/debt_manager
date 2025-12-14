@@ -90,17 +90,21 @@ class BugReportUtils {
 
       // Share via email client
       if (screenshot != null) {
-        await SharePlus.instance.share(ShareParams(
-          files: [XFile(screenshot.path)],
-          text: body.toString(),
-          subject: 'گزارش مشکل - مدیریت اقساط و بدهی‌ها [$errorId]',
-        ));
+        await SharePlus.instance.share(
+          ShareParams(
+            files: [XFile(screenshot.path)],
+            text: body.toString(),
+            subject: 'گزارش مشکل - مدیریت اقساط و بدهی‌ها [$errorId]',
+          ),
+        );
       } else {
         // Share without screenshot
-        await SharePlus.instance.share(ShareParams(
-          text: body.toString(),
-          subject: 'گزارش مشکل - مدیریت اقساط و بدهی‌ها [$errorId]',
-        ));
+        await SharePlus.instance.share(
+          ShareParams(
+            text: body.toString(),
+            subject: 'گزارش مشکل - مدیریت اقساط و بدهی‌ها [$errorId]',
+          ),
+        );
       }
     } catch (e) {
       debugPrint('Error sharing bug report: $e');
@@ -154,9 +158,9 @@ class BugReportUtils {
                       errorMessage,
                       style: TextStyle(
                         fontSize: 12,
-                        color: Theme.of(dialogContext)
-                            .colorScheme
-                            .onErrorContainer,
+                        color: Theme.of(
+                          dialogContext,
+                        ).colorScheme.onErrorContainer,
                       ),
                     ),
                   ),

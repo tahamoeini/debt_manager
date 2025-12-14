@@ -39,7 +39,8 @@ class HomeScreen extends ConsumerWidget {
                   onTap: () async {
                     final res = await Navigator.of(context).push<bool>(
                       MaterialPageRoute(
-                          builder: (_) => const LoansListScreen()),
+                        builder: (_) => const LoansListScreen(),
+                      ),
                     );
                     if (res == true) {
                       ref.read(refreshTriggerProvider.notifier).state++;
@@ -51,8 +52,11 @@ class HomeScreen extends ConsumerWidget {
                   value: 'خطا',
                   icon: Icons.account_balance_wallet,
                   onTap: () async {
-                    await Navigator.of(context).push(MaterialPageRoute(
-                        builder: (_) => const LoansListScreen()));
+                    await Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (_) => const LoansListScreen(),
+                      ),
+                    );
                     ref.read(refreshTriggerProvider.notifier).state++;
                   },
                 ),
@@ -61,8 +65,11 @@ class HomeScreen extends ConsumerWidget {
                   value: formatOrDash(data.net),
                   icon: Icons.account_balance_wallet,
                   onTap: () async {
-                    await Navigator.of(context).push(MaterialPageRoute(
-                        builder: (_) => const LoansListScreen()));
+                    await Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (_) => const LoansListScreen(),
+                      ),
+                    );
                     ref.read(refreshTriggerProvider.notifier).state++;
                   },
                 ),
@@ -89,8 +96,9 @@ class HomeScreen extends ConsumerWidget {
                   value: 'خطا',
                   icon: Icons.receipt_long,
                   onTap: () async {
-                    await Navigator.of(context).push(MaterialPageRoute(
-                        builder: (_) => const ReportsScreen()));
+                    await Navigator.of(context).push(
+                      MaterialPageRoute(builder: (_) => const ReportsScreen()),
+                    );
                     ref.read(refreshTriggerProvider.notifier).state++;
                   },
                 ),
@@ -99,8 +107,9 @@ class HomeScreen extends ConsumerWidget {
                   value: formatOrDash(data.monthlySpending),
                   icon: Icons.receipt_long,
                   onTap: () async {
-                    await Navigator.of(context).push(MaterialPageRoute(
-                        builder: (_) => const ReportsScreen()));
+                    await Navigator.of(context).push(
+                      MaterialPageRoute(builder: (_) => const ReportsScreen()),
+                    );
                     ref.read(refreshTriggerProvider.notifier).state++;
                   },
                 ),
@@ -115,8 +124,10 @@ class HomeScreen extends ConsumerWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('قبوض پیش رو',
-                    style: Theme.of(context).textTheme.titleMedium),
+                Text(
+                  'قبوض پیش رو',
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
                 const SizedBox(height: AppDimensions.spacingS),
                 statsAsync.when(
                   loading: () => SizedBox(
@@ -125,12 +136,16 @@ class HomeScreen extends ConsumerWidget {
                       child: CircularProgressIndicator(strokeWidth: 2),
                     ),
                   ),
-                  error: (e, st) => Text('خطا در بارگذاری',
-                      style: Theme.of(context).textTheme.bodySmall),
+                  error: (e, st) => Text(
+                    'خطا در بارگذاری',
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
                   data: (data) {
                     if (data.upcoming.isEmpty) {
-                      return Text('هیچ قبضی در چند روز آینده وجود ندارد',
-                          style: Theme.of(context).textTheme.bodySmall);
+                      return Text(
+                        'هیچ قبضی در چند روز آینده وجود ندارد',
+                        style: Theme.of(context).textTheme.bodySmall,
+                      );
                     }
 
                     // Show up to 3 upcoming installments
@@ -149,7 +164,8 @@ class HomeScreen extends ConsumerWidget {
 
                       return Container(
                         margin: const EdgeInsets.only(
-                            bottom: AppDimensions.spacingS),
+                          bottom: AppDimensions.spacingS,
+                        ),
                         decoration: BoxDecoration(
                           border: Border.all(
                             color: isOverdue
@@ -166,13 +182,13 @@ class HomeScreen extends ConsumerWidget {
                           color: Colors.transparent,
                           child: InkWell(
                             onTap: () async {
-                              final res =
-                                  await Navigator.of(context).push<bool>(
-                                MaterialPageRoute(
-                                  builder: (_) =>
-                                      LoanDetailScreen(loanId: inst.loanId),
-                                ),
-                              );
+                              final res = await Navigator.of(context)
+                                  .push<bool>(
+                                    MaterialPageRoute(
+                                      builder: (_) =>
+                                          LoanDetailScreen(loanId: inst.loanId),
+                                    ),
+                                  );
                               if (res == true) {
                                 ref
                                     .read(refreshTriggerProvider.notifier)
@@ -265,9 +281,7 @@ class HomeScreen extends ConsumerWidget {
           loading: () => Card(
             child: Padding(
               padding: AppDimensions.cardPadding,
-              child: Center(
-                child: CircularProgressIndicator(strokeWidth: 2),
-              ),
+              child: Center(child: CircularProgressIndicator(strokeWidth: 2)),
             ),
           ),
           error: (e, st) => Card(
@@ -311,16 +325,18 @@ class HomeScreen extends ConsumerWidget {
                             spots: data.spendingTrend
                                 .asMap()
                                 .entries
-                                .map((e) => FlSpot(
-                                      e.key.toDouble(),
-                                      (e.value / 1000000).toDouble(),
-                                    ))
+                                .map(
+                                  (e) => FlSpot(
+                                    e.key.toDouble(),
+                                    (e.value / 1000000).toDouble(),
+                                  ),
+                                )
                                 .toList(),
                             isCurved: true,
                             gradient: LinearGradient(
                               colors: [
                                 Colors.blue.shade300,
-                                Colors.blue.shade700
+                                Colors.blue.shade700,
                               ],
                             ),
                             barWidth: 3,
@@ -329,9 +345,9 @@ class HomeScreen extends ConsumerWidget {
                               show: true,
                               getDotPainter: (spot, percent, barData, index) =>
                                   FlDotCirclePainter(
-                                radius: 4,
-                                color: Colors.blue.shade700,
-                              ),
+                                    radius: 4,
+                                    color: Colors.blue.shade700,
+                                  ),
                             ),
                             belowBarData: BarAreaData(
                               show: true,
@@ -376,9 +392,7 @@ class HomeScreen extends ConsumerWidget {
               child: ElevatedButton.icon(
                 onPressed: () {
                   Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (_) => const ProgressScreen(),
-                    ),
+                    MaterialPageRoute(builder: (_) => const ProgressScreen()),
                   );
                 },
                 icon: Icon(Icons.emoji_events),

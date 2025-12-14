@@ -58,11 +58,13 @@ class DatabaseHelper {
     // If DB marked as encrypted, require opening with a derived key via
     // `openWithKey` to avoid attempting to open an encrypted DB without
     // password and causing failures. Callers should call `openWithKey`.
-    final encryptedFlag =
-        await SecureStorageService.instance.read('db_encrypted');
+    final encryptedFlag = await SecureStorageService.instance.read(
+      'db_encrypted',
+    );
     if (encryptedFlag == '1') {
       throw Exception(
-          'Database is encrypted; open with key using openWithKey().');
+        'Database is encrypted; open with key using openWithKey().',
+      );
     }
 
     return openDatabase(
@@ -278,8 +280,9 @@ class DatabaseHelper {
         await db.execute('ALTER TABLE loans ADD COLUMN interest_rate REAL');
       } catch (_) {}
       try {
-        await db
-            .execute('ALTER TABLE loans ADD COLUMN monthly_payment INTEGER');
+        await db.execute(
+          'ALTER TABLE loans ADD COLUMN monthly_payment INTEGER',
+        );
       } catch (_) {}
       try {
         await db.execute('ALTER TABLE loans ADD COLUMN term_months INTEGER');
@@ -374,8 +377,8 @@ class DatabaseHelper {
       final rows = List<Map<String, dynamic>>.from(_cpStore);
       rows.sort(
         (a, b) => (a['name'] as String).toLowerCase().compareTo(
-              (b['name'] as String).toLowerCase(),
-            ),
+          (b['name'] as String).toLowerCase(),
+        ),
       );
       return rows.map((r) => Counterparty.fromMap(r)).toList();
     }
@@ -417,8 +420,9 @@ class DatabaseHelper {
     if (_isWeb) {
       var rows = List<Map<String, dynamic>>.from(_loanStore);
       if (direction != null) {
-        final dirStr =
-            direction == LoanDirection.borrowed ? 'borrowed' : 'lent';
+        final dirStr = direction == LoanDirection.borrowed
+            ? 'borrowed'
+            : 'lent';
         rows = rows.where((r) => r['direction'] == dirStr).toList();
       }
       rows.sort(
@@ -477,20 +481,29 @@ class DatabaseHelper {
     final db = await database;
     final id = await db.insert('installments', installment.toMap());
     try {
-      final smartEnabled =
-          await SettingsRepository().getSmartSuggestionsEnabled();
+      final smartEnabled = await SettingsRepository()
+          .getSmartSuggestionsEnabled();
       if (smartEnabled) {
         await SmartInsightsService().runInsights(notify: true);
       }
       // Apply automation rules to potentially tag the counterparty/loan
       try {
-        final loanRows = await db.query('loans',
-            where: 'id = ?', whereArgs: [installment.loanId], limit: 1);
+        final loanRows = await db.query(
+          'loans',
+          where: 'id = ?',
+          whereArgs: [installment.loanId],
+          limit: 1,
+        );
         if (loanRows.isNotEmpty) {
           final loan = Loan.fromMap(loanRows.first);
-          final cpRows = await db.query('counterparties',
-              where: 'id = ?', whereArgs: [loan.counterpartyId], limit: 1);
-          final payee = (cpRows.isNotEmpty
+          final cpRows = await db.query(
+            'counterparties',
+            where: 'id = ?',
+            whereArgs: [loan.counterpartyId],
+            limit: 1,
+          );
+          final payee =
+              (cpRows.isNotEmpty
                   ? cpRows.first['name'] as String?
                   : loan.title) ??
               '';
@@ -500,8 +513,12 @@ class DatabaseHelper {
           final suggestion = await repo.applyRules(payee, desc, amt);
           final cat = suggestion['category'];
           if (cat != null && cpRows.isNotEmpty) {
-            await db.update('counterparties', {'tag': cat},
-                where: 'id = ?', whereArgs: [loan.counterpartyId]);
+            await db.update(
+              'counterparties',
+              {'tag': cat},
+              where: 'id = ?',
+              whereArgs: [loan.counterpartyId],
+            );
           }
         }
       } catch (_) {}
@@ -518,11 +535,14 @@ class DatabaseHelper {
     }
 
     final db = await database;
-    final res = await db
-        .delete('installments', where: 'loan_id = ?', whereArgs: [loanId]);
+    final res = await db.delete(
+      'installments',
+      where: 'loan_id = ?',
+      whereArgs: [loanId],
+    );
     try {
-      final smartEnabled =
-          await SettingsRepository().getSmartSuggestionsEnabled();
+      final smartEnabled = await SettingsRepository()
+          .getSmartSuggestionsEnabled();
       if (smartEnabled) await SmartInsightsService().runInsights(notify: true);
     } catch (_) {}
     await NotificationService().rebuildScheduledNotifications();
@@ -532,12 +552,11 @@ class DatabaseHelper {
   Future<List<Installment>> getInstallmentsByLoanId(int loanId) async {
     if (_isWeb) {
       final rows =
-          _installmentStore.where((r) => r['loan_id'] == loanId).toList()
-            ..sort(
-              (a, b) => (a['due_date_jalali'] as String).compareTo(
-                b['due_date_jalali'] as String,
-              ),
-            );
+          _installmentStore.where((r) => r['loan_id'] == loanId).toList()..sort(
+            (a, b) => (a['due_date_jalali'] as String).compareTo(
+              b['due_date_jalali'] as String,
+            ),
+          );
       return rows.map((r) => Installment.fromMap(r)).toList();
     }
 
@@ -557,22 +576,35 @@ class DatabaseHelper {
     }
 
     final db = await database;
-    final res = await db.update('installments', installment.toMap(),
-        where: 'id = ?', whereArgs: [installment.id]);
+    final res = await db.update(
+      'installments',
+      installment.toMap(),
+      where: 'id = ?',
+      whereArgs: [installment.id],
+    );
     try {
-      final smartEnabled =
-          await SettingsRepository().getSmartSuggestionsEnabled();
+      final smartEnabled = await SettingsRepository()
+          .getSmartSuggestionsEnabled();
       if (smartEnabled) {
         await SmartInsightsService().runInsights(notify: true);
       }
       try {
-        final loanRows = await db.query('loans',
-            where: 'id = ?', whereArgs: [installment.loanId], limit: 1);
+        final loanRows = await db.query(
+          'loans',
+          where: 'id = ?',
+          whereArgs: [installment.loanId],
+          limit: 1,
+        );
         if (loanRows.isNotEmpty) {
           final loan = Loan.fromMap(loanRows.first);
-          final cpRows = await db.query('counterparties',
-              where: 'id = ?', whereArgs: [loan.counterpartyId], limit: 1);
-          final payee = (cpRows.isNotEmpty
+          final cpRows = await db.query(
+            'counterparties',
+            where: 'id = ?',
+            whereArgs: [loan.counterpartyId],
+            limit: 1,
+          );
+          final payee =
+              (cpRows.isNotEmpty
                   ? cpRows.first['name'] as String?
                   : loan.title) ??
               '';
@@ -582,8 +614,12 @@ class DatabaseHelper {
           final suggestion = await repo.applyRules(payee, desc, amt);
           final cat = suggestion['category'];
           if (cat != null && cpRows.isNotEmpty) {
-            await db.update('counterparties', {'tag': cat},
-                where: 'id = ?', whereArgs: [loan.counterpartyId]);
+            await db.update(
+              'counterparties',
+              {'tag': cat},
+              where: 'id = ?',
+              whereArgs: [loan.counterpartyId],
+            );
           }
         }
       } catch (_) {}
@@ -650,14 +686,15 @@ class DatabaseHelper {
     if (loanIds.isEmpty) return {};
 
     if (_isWeb) {
-      final filtered = _installmentStore
-          .where((r) => loanIds.contains(r['loan_id'] as int))
-          .toList()
-        ..sort(
-          (a, b) => (a['due_date_jalali'] as String).compareTo(
-            b['due_date_jalali'] as String,
-          ),
-        );
+      final filtered =
+          _installmentStore
+              .where((r) => loanIds.contains(r['loan_id'] as int))
+              .toList()
+            ..sort(
+              (a, b) => (a['due_date_jalali'] as String).compareTo(
+                b['due_date_jalali'] as String,
+              ),
+            );
 
       final Map<int, List<Installment>> map = {};
       for (final row in filtered) {
@@ -747,17 +784,17 @@ class DatabaseHelper {
       final toStr = formatJalali(toJ);
 
       // Do not touch sqflite on web; use in-memory store and compare Jalali strings
-      final rows = _installmentStore.where((r) {
-        final statusOk = (r['status'] as String?) == 'pending';
-        final due = r['due_date_jalali'] as String?;
-        if (!statusOk || due == null) return false;
-        return due.compareTo(fromStr) >= 0 && due.compareTo(toStr) <= 0;
-      }).toList()
-        ..sort(
-          (a, b) => (a['due_date_jalali'] as String).compareTo(
-            b['due_date_jalali'] as String,
-          ),
-        );
+      final rows =
+          _installmentStore.where((r) {
+            final statusOk = (r['status'] as String?) == 'pending';
+            final due = r['due_date_jalali'] as String?;
+            if (!statusOk || due == null) return false;
+            return due.compareTo(fromStr) >= 0 && due.compareTo(toStr) <= 0;
+          }).toList()..sort(
+            (a, b) => (a['due_date_jalali'] as String).compareTo(
+              b['due_date_jalali'] as String,
+            ),
+          );
 
       return rows.map((r) => Installment.fromMap(r)).toList();
     }

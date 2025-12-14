@@ -43,10 +43,9 @@ class _AdvancedReportsScreenState extends ConsumerState<AdvancedReportsScreen> {
 
       if (!mounted) return;
 
-      await SharePlus.instance.share(ShareParams(
-        files: [XFile(filePath)],
-        text: 'خروجی اقساط',
-      ));
+      await SharePlus.instance.share(
+        ShareParams(files: [XFile(filePath)], text: 'خروجی اقساط'),
+      );
 
       if (!mounted) return;
 
@@ -55,9 +54,9 @@ class _AdvancedReportsScreenState extends ConsumerState<AdvancedReportsScreen> {
       );
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('خطا در ایجاد فایل: $e')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('خطا در ایجاد فایل: $e')));
     }
   }
 
@@ -180,40 +179,43 @@ class _AdvancedReportsScreenState extends ConsumerState<AdvancedReportsScreen> {
                       children: [
                         Row(
                           children: [
-                            Icon(Icons.lightbulb_outline,
-                                color: cs.onPrimaryContainer),
+                            Icon(
+                              Icons.lightbulb_outline,
+                              color: cs.onPrimaryContainer,
+                            ),
                             const SizedBox(width: 8),
                             Text(
                               'تحلیل‌ها',
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .titleMedium
-                                  ?.copyWith(
-                                    color: cs.onPrimaryContainer,
-                                  ),
+                              style: Theme.of(context).textTheme.titleMedium
+                                  ?.copyWith(color: cs.onPrimaryContainer),
                             ),
                           ],
                         ),
                         const SizedBox(height: 12),
-                        ...insights.map((insight) => Padding(
-                              padding:
-                                  const EdgeInsets.symmetric(vertical: 4.0),
-                              child: Row(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text('• ',
-                                      style: TextStyle(
-                                          color: cs.onPrimaryContainer)),
-                                  Expanded(
-                                    child: Text(
-                                      insight,
-                                      style: TextStyle(
-                                          color: cs.onPrimaryContainer),
+                        ...insights.map(
+                          (insight) => Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 4.0),
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  '• ',
+                                  style: TextStyle(
+                                    color: cs.onPrimaryContainer,
+                                  ),
+                                ),
+                                Expanded(
+                                  child: Text(
+                                    insight,
+                                    style: TextStyle(
+                                      color: cs.onPrimaryContainer,
                                     ),
                                   ),
-                                ],
-                              ),
-                            )),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
                       ],
                     ),
                   ),
@@ -230,8 +232,10 @@ class _AdvancedReportsScreenState extends ConsumerState<AdvancedReportsScreen> {
             ),
             const SizedBox(height: 8),
             FutureBuilder<Map<String, int>>(
-              future:
-                  _repo.getSpendingByCategory(_selectedYear, _selectedMonth),
+              future: _repo.getSpendingByCategory(
+                _selectedYear,
+                _selectedMonth,
+              ),
               builder: (context, snap) {
                 if (snap.connectionState == ConnectionState.waiting) {
                   return const Center(child: CircularProgressIndicator());
@@ -243,7 +247,8 @@ class _AdvancedReportsScreenState extends ConsumerState<AdvancedReportsScreen> {
                     child: Padding(
                       padding: EdgeInsets.all(32.0),
                       child: Center(
-                          child: Text('هیچ داده‌ای برای نمایش وجود ندارد')),
+                        child: Text('هیچ داده‌ای برای نمایش وجود ندارد'),
+                      ),
                     ),
                   );
                 }
@@ -290,7 +295,8 @@ class _AdvancedReportsScreenState extends ConsumerState<AdvancedReportsScreen> {
                     child: Padding(
                       padding: EdgeInsets.all(32.0),
                       child: Center(
-                          child: Text('هیچ داده‌ای برای نمایش وجود ندارد')),
+                        child: Text('هیچ داده‌ای برای نمایش وجود ندارد'),
+                      ),
                     ),
                   );
                 }
@@ -320,7 +326,8 @@ class _AdvancedReportsScreenState extends ConsumerState<AdvancedReportsScreen> {
                     child: Padding(
                       padding: EdgeInsets.all(32.0),
                       child: Center(
-                          child: Text('هیچ داده‌ای برای نمایش وجود ندارد')),
+                        child: Text('هیچ داده‌ای برای نمایش وجود ندارد'),
+                      ),
                     ),
                   );
                 }
@@ -483,9 +490,11 @@ class _AdvancedReportsScreenState extends ConsumerState<AdvancedReportsScreen> {
                       ),
                     ),
                     topTitles: const AxisTitles(
-                        sideTitles: SideTitles(showTitles: false)),
+                      sideTitles: SideTitles(showTitles: false),
+                    ),
                     rightTitles: const AxisTitles(
-                        sideTitles: SideTitles(showTitles: false)),
+                      sideTitles: SideTitles(showTitles: false),
+                    ),
                   ),
                   borderData: FlBorderData(show: false),
                   barGroups: data.asMap().entries.map((e) {
@@ -581,9 +590,11 @@ class _AdvancedReportsScreenState extends ConsumerState<AdvancedReportsScreen> {
                       ),
                     ),
                     topTitles: const AxisTitles(
-                        sideTitles: SideTitles(showTitles: false)),
+                      sideTitles: SideTitles(showTitles: false),
+                    ),
                     rightTitles: const AxisTitles(
-                        sideTitles: SideTitles(showTitles: false)),
+                      sideTitles: SideTitles(showTitles: false),
+                    ),
                   ),
                   borderData: FlBorderData(show: true),
                   minY: minValue < 0 ? minValue * 1.2 : 0,
@@ -593,8 +604,8 @@ class _AdvancedReportsScreenState extends ConsumerState<AdvancedReportsScreen> {
                       spots: data.asMap().entries.map((e) {
                         final index = e.key;
                         final item = e.value;
-                        final netWorth =
-                            (item['netWorth'] as int? ?? 0).toDouble();
+                        final netWorth = (item['netWorth'] as int? ?? 0)
+                            .toDouble();
                         return FlSpot(index.toDouble(), netWorth);
                       }).toList(),
                       isCurved: true,
@@ -603,10 +614,9 @@ class _AdvancedReportsScreenState extends ConsumerState<AdvancedReportsScreen> {
                       dotData: const FlDotData(show: true),
                       belowBarData: BarAreaData(
                         show: true,
-                        color: Theme.of(context)
-                            .colorScheme
-                            .primary
-                            .withValues(alpha: 0.1),
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.primary.withValues(alpha: 0.1),
                       ),
                     ),
                   ],

@@ -38,11 +38,15 @@ class HomeScreen extends ConsumerWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text('بدهی‌های من',
-                              style: TextStyle(fontWeight: FontWeight.w600)),
+                          const Text(
+                            'بدهی‌های من',
+                            style: TextStyle(fontWeight: FontWeight.w600),
+                          ),
                           const SizedBox(height: 8),
-                          SensitiveText(formatCurrency(borrowed),
-                              style: Theme.of(context).textTheme.headlineSmall),
+                          SensitiveText(
+                            formatCurrency(borrowed),
+                            style: Theme.of(context).textTheme.headlineSmall,
+                          ),
                         ],
                       ),
                     ),
@@ -56,11 +60,15 @@ class HomeScreen extends ConsumerWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text('طلب‌های من',
-                              style: TextStyle(fontWeight: FontWeight.w600)),
+                          const Text(
+                            'طلب‌های من',
+                            style: TextStyle(fontWeight: FontWeight.w600),
+                          ),
                           const SizedBox(height: 8),
-                          SensitiveText(formatCurrency(lent),
-                              style: Theme.of(context).textTheme.headlineSmall),
+                          SensitiveText(
+                            formatCurrency(lent),
+                            style: Theme.of(context).textTheme.headlineSmall,
+                          ),
                         ],
                       ),
                     ),
@@ -74,11 +82,15 @@ class HomeScreen extends ConsumerWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text('وضعیت خالص',
-                              style: TextStyle(fontWeight: FontWeight.w600)),
+                          const Text(
+                            'وضعیت خالص',
+                            style: TextStyle(fontWeight: FontWeight.w600),
+                          ),
                           const SizedBox(height: 8),
-                          SensitiveText(formatCurrency(net),
-                              style: Theme.of(context).textTheme.headlineSmall),
+                          SensitiveText(
+                            formatCurrency(net),
+                            style: Theme.of(context).textTheme.headlineSmall,
+                          ),
                         ],
                       ),
                     ),
@@ -87,8 +99,10 @@ class HomeScreen extends ConsumerWidget {
               ],
             ),
             const SizedBox(height: 20),
-            const Text('اقساط نزدیک',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
+            const Text(
+              'اقساط نزدیک',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+            ),
             const SizedBox(height: 8),
             if (upcoming.isEmpty)
               Card(
@@ -118,12 +132,15 @@ class HomeScreen extends ConsumerWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(loanTitle,
-                            style:
-                                const TextStyle(fontWeight: FontWeight.w600)),
+                        Text(
+                          loanTitle,
+                          style: const TextStyle(fontWeight: FontWeight.w600),
+                        ),
                         const SizedBox(height: 4),
-                        Text(cpName,
-                            style: Theme.of(context).textTheme.bodySmall),
+                        Text(
+                          cpName,
+                          style: Theme.of(context).textTheme.bodySmall,
+                        ),
                         const SizedBox(height: 8),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,

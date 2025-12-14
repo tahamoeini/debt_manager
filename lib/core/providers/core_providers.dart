@@ -55,8 +55,9 @@ final databaseHelperProvider = Provider<DatabaseHelper>((ref) {
 });
 
 // Provides the SmartNotificationService singleton.
-final smartNotificationServiceProvider =
-    Provider<SmartNotificationService>((ref) {
+final smartNotificationServiceProvider = Provider<SmartNotificationService>((
+  ref,
+) {
   return SmartNotificationService.instance;
 });
 
@@ -95,5 +96,5 @@ class ReportsCacheNotifier extends StateNotifier<Map<String, dynamic>> {
 
 final reportsCacheProvider =
     StateNotifierProvider<ReportsCacheNotifier, Map<String, dynamic>>((ref) {
-  return ReportsCacheNotifier();
-});
+      return ReportsCacheNotifier();
+    });

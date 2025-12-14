@@ -11,8 +11,12 @@ class AddBudgetEntryScreen extends ConsumerStatefulWidget {
   final String? presetCategory;
   final String? presetPeriod;
 
-  const AddBudgetEntryScreen(
-      {super.key, this.entry, this.presetCategory, this.presetPeriod});
+  const AddBudgetEntryScreen({
+    super.key,
+    this.entry,
+    this.presetCategory,
+    this.presetPeriod,
+  });
 
   @override
   ConsumerState<AddBudgetEntryScreen> createState() =>
@@ -61,12 +65,14 @@ class _AddBudgetEntryScreenState extends ConsumerState<AddBudgetEntryScreen> {
   }
 
   Future<void> _save() async {
-    final category =
-        _categoryCtrl.text.trim().isEmpty ? null : _categoryCtrl.text.trim();
+    final category = _categoryCtrl.text.trim().isEmpty
+        ? null
+        : _categoryCtrl.text.trim();
     final amt = double.tryParse(_amountCtrl.text.replaceAll(',', '')) ?? 0.0;
     final amount = (amt * 100).round();
-    final period =
-        _periodCtrl.text.trim().isEmpty ? null : _periodCtrl.text.trim();
+    final period = _periodCtrl.text.trim().isEmpty
+        ? null
+        : _periodCtrl.text.trim();
     final date = _dateCtrl.text.trim().isEmpty ? null : _dateCtrl.text.trim();
     final note = _noteCtrl.text.trim().isEmpty ? null : _noteCtrl.text.trim();
     final createdAt = DateTime.now().toIso8601String();
@@ -105,54 +111,73 @@ class _AddBudgetEntryScreenState extends ConsumerState<AddBudgetEntryScreen> {
     final isEditing = widget.entry != null;
     return Scaffold(
       appBar: AppBar(
-          title: Text(isEditing ? 'ویرایش ورودی بودجه' : 'افزودن ورودی بودجه')),
+        title: Text(isEditing ? 'ویرایش ورودی بودجه' : 'افزودن ورودی بودجه'),
+      ),
       body: SafeArea(
         child: Padding(
           padding: AppConstants.pagePadding,
           child: ListView(
             children: [
               TextField(
-                  controller: _categoryCtrl,
-                  decoration:
-                      const InputDecoration(labelText: 'دسته‌بندی (اختیاری)')),
+                controller: _categoryCtrl,
+                decoration: const InputDecoration(
+                  labelText: 'دسته‌بندی (اختیاری)',
+                ),
+              ),
               const SizedBox(height: AppConstants.spaceMedium),
               TextField(
-                  controller: _amountCtrl,
-                  keyboardType: TextInputType.numberWithOptions(decimal: true),
-                  decoration:
-                      const InputDecoration(labelText: 'مبلغ (واحد اصلی)')),
+                controller: _amountCtrl,
+                keyboardType: TextInputType.numberWithOptions(decimal: true),
+                decoration: const InputDecoration(
+                  labelText: 'مبلغ (واحد اصلی)',
+                ),
+              ),
               const SizedBox(height: AppConstants.spaceMedium),
               SwitchListTile(
-                  value: _isOneOff,
-                  onChanged: (v) => setState(() => _isOneOff = v),
-                  title: const Text('یک‌بار (One-off)')),
+                value: _isOneOff,
+                onChanged: (v) => setState(() => _isOneOff = v),
+                title: const Text('یک‌بار (One-off)'),
+              ),
               const SizedBox(height: AppConstants.spaceSmall),
               if (!_isOneOff)
                 TextField(
-                    controller: _periodCtrl,
-                    decoration:
-                        const InputDecoration(labelText: 'بازه (yyyy-MM)')),
+                  controller: _periodCtrl,
+                  decoration: const InputDecoration(
+                    labelText: 'بازه (yyyy-MM)',
+                  ),
+                ),
               if (_isOneOff)
                 TextField(
-                    controller: _dateCtrl,
-                    decoration:
-                        const InputDecoration(labelText: 'تاریخ (yyyy-MM-dd)')),
+                  controller: _dateCtrl,
+                  decoration: const InputDecoration(
+                    labelText: 'تاریخ (yyyy-MM-dd)',
+                  ),
+                ),
               const SizedBox(height: AppConstants.spaceMedium),
               TextField(
-                  controller: _noteCtrl,
-                  decoration:
-                      const InputDecoration(labelText: 'یادداشت (اختیاری)')),
+                controller: _noteCtrl,
+                decoration: const InputDecoration(
+                  labelText: 'یادداشت (اختیاری)',
+                ),
+              ),
               const SizedBox(height: AppConstants.spaceXLarge),
-              Row(children: [
-                Expanded(
+              Row(
+                children: [
+                  Expanded(
                     child: FilledButton(
-                        onPressed: _save, child: const Text('ذخیره'))),
-                const SizedBox(width: AppConstants.spaceMedium),
-                Expanded(
+                      onPressed: _save,
+                      child: const Text('ذخیره'),
+                    ),
+                  ),
+                  const SizedBox(width: AppConstants.spaceMedium),
+                  Expanded(
                     child: OutlinedButton(
-                        onPressed: () => Navigator.of(context).pop(),
-                        child: const Text('لغو'))),
-              ]),
+                      onPressed: () => Navigator.of(context).pop(),
+                      child: const Text('لغو'),
+                    ),
+                  ),
+                ],
+              ),
             ],
           ),
         ),

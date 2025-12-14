@@ -30,15 +30,15 @@ class Achievement {
   });
 
   Map<String, dynamic> toMap() => {
-        'id': id,
-        'titleEn': titleEn,
-        'titleFa': titleFa,
-        'descriptionEn': descriptionEn,
-        'descriptionFa': descriptionFa,
-        'xpValue': xpValue,
-        'category': category,
-        'iconEmoji': iconEmoji,
-      };
+    'id': id,
+    'titleEn': titleEn,
+    'titleFa': titleFa,
+    'descriptionEn': descriptionEn,
+    'descriptionFa': descriptionFa,
+    'xpValue': xpValue,
+    'category': category,
+    'iconEmoji': iconEmoji,
+  };
 }
 
 class UserProgress {
@@ -59,22 +59,22 @@ class UserProgress {
   });
 
   factory UserProgress.empty() => UserProgress(
-        totalXp: 0,
-        level: 0,
-        streaks: {},
-        unlockedAchievements: [],
-        freedomDate: null,
-        daysFreedomCountdown: 0,
-      );
+    totalXp: 0,
+    level: 0,
+    streaks: {},
+    unlockedAchievements: [],
+    freedomDate: null,
+    daysFreedomCountdown: 0,
+  );
 
   Map<String, dynamic> toMap() => {
-        'totalXp': totalXp,
-        'level': level,
-        'streaks': streaks,
-        'unlockedAchievements': unlockedAchievements,
-        'freedomDate': freedomDate?.toIso8601String(),
-        'daysFreedomCountdown': daysFreedomCountdown,
-      };
+    'totalXp': totalXp,
+    'level': level,
+    'streaks': streaks,
+    'unlockedAchievements': unlockedAchievements,
+    'freedomDate': freedomDate?.toIso8601String(),
+    'daysFreedomCountdown': daysFreedomCountdown,
+  };
 }
 
 class UserAction {
@@ -89,10 +89,10 @@ class UserAction {
   });
 
   Map<String, dynamic> toMap() => {
-        'actionType': actionType,
-        'timestamp': timestamp.toIso8601String(),
-        'metadata': metadata,
-      };
+    'actionType': actionType,
+    'timestamp': timestamp.toIso8601String(),
+    'metadata': metadata,
+  };
 }
 
 class Milestone {

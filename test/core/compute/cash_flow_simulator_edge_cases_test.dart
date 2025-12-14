@@ -20,8 +20,10 @@ void main() {
 
       expect(snapshots.length, equals(30));
       // Should gradually improve due to income exceeding expenses
-      expect(snapshots.last.closingBalance,
-          greaterThan(snapshots.first.openingBalance));
+      expect(
+        snapshots.last.closingBalance,
+        greaterThan(snapshots.first.openingBalance),
+      );
     });
 
     test('simulateCashFlow with negative starting balance', () {
@@ -280,10 +282,10 @@ void main() {
 
       final avgFirstHalf =
           firstHalf.fold<int>(0, (sum, s) => sum + s.closingBalance) ~/
-              firstHalf.length;
+          firstHalf.length;
       final avgSecondHalf =
           secondHalf.fold<int>(0, (sum, s) => sum + s.closingBalance) ~/
-              secondHalf.length;
+          secondHalf.length;
 
       expect(avgSecondHalf, greaterThan(avgFirstHalf));
     });
@@ -309,8 +311,9 @@ void main() {
       // Should produce valid result
       expect(result.safetyLevel, isNotNull);
       expect(
-          ['safe', 'tight', 'risky', 'critical'].contains(result.safetyLevel),
-          isTrue);
+        ['safe', 'tight', 'risky', 'critical'].contains(result.safetyLevel),
+        isTrue,
+      );
     });
   });
 }

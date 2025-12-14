@@ -36,16 +36,19 @@ class _PayoffSimulatorScreenState extends ConsumerState<PayoffSimulatorScreen> {
     for (final loan in loans) {
       if (loan.id == null) continue;
       final insts = await repo.getInstallmentsByLoanId(loan.id!);
-      final unpaid =
-          insts.where((i) => i.status != InstallmentStatus.paid).toList();
+      final unpaid = insts
+          .where((i) => i.status != InstallmentStatus.paid)
+          .toList();
       final balance = unpaid.fold<int>(0, (s, i) => s + i.amount);
       if (balance > 0) {
-        debts.add(_DebtItem(
-          id: loan.id!,
-          title: loan.title.isNotEmpty ? loan.title : 'بدون عنوان',
-          balance: balance.toDouble(),
-          monthlyPayment: loan.installmentAmount,
-        ));
+        debts.add(
+          _DebtItem(
+            id: loan.id!,
+            title: loan.title.isNotEmpty ? loan.title : 'بدون عنوان',
+            balance: balance.toDouble(),
+            monthlyPayment: loan.installmentAmount,
+          ),
+        );
       }
     }
 
@@ -102,10 +105,10 @@ class _PayoffSimulatorScreenState extends ConsumerState<PayoffSimulatorScreen> {
         if (snowball) {
           // sort indices by current balance ascending
           while (remainingExtra > 0) {
-            final positiveIndices =
-                List<int>.generate(balances.length, (i) => i)
-                    .where((i) => balances[i] > 0)
-                    .toList();
+            final positiveIndices = List<int>.generate(
+              balances.length,
+              (i) => i,
+            ).where((i) => balances[i] > 0).toList();
             if (positiveIndices.isEmpty) break;
             positiveIndices.sort((a, b) => balances[a].compareTo(balances[b]));
             final idx = positiveIndices.first;
@@ -153,8 +156,10 @@ class _PayoffSimulatorScreenState extends ConsumerState<PayoffSimulatorScreen> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
-                            Text('مقایسه دوره تسویه',
-                                style: Theme.of(context).textTheme.titleMedium),
+                            Text(
+                              'مقایسه دوره تسویه',
+                              style: Theme.of(context).textTheme.titleMedium,
+                            ),
                             const SizedBox(height: 8),
                             Expanded(
                               child: AnimatedSwitcher(
@@ -179,18 +184,20 @@ class _PayoffSimulatorScreenState extends ConsumerState<PayoffSimulatorScreen> {
                                     ],
                                     titlesData: FlTitlesData(
                                       leftTitles: AxisTitles(
-                                          sideTitles: SideTitles(
-                                              showTitles: true,
-                                              reservedSize: 64,
-                                              getTitlesWidget: (v, meta) =>
-                                                  Text(formatCurrency(
-                                                      v.toInt())))),
+                                        sideTitles: SideTitles(
+                                          showTitles: true,
+                                          reservedSize: 64,
+                                          getTitlesWidget: (v, meta) =>
+                                              Text(formatCurrency(v.toInt())),
+                                        ),
+                                      ),
                                       bottomTitles: AxisTitles(
                                         sideTitles: SideTitles(
-                                            showTitles: true,
-                                            interval: 12,
-                                            getTitlesWidget: (v, meta) =>
-                                                Text(v.toInt().toString())),
+                                          showTitles: true,
+                                          interval: 12,
+                                          getTitlesWidget: (v, meta) =>
+                                              Text(v.toInt().toString()),
+                                        ),
                                       ),
                                     ),
                                     gridData: const FlGridData(show: true),
@@ -204,20 +211,28 @@ class _PayoffSimulatorScreenState extends ConsumerState<PayoffSimulatorScreen> {
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                Row(children: [
-                                  Container(
-                                      width: 14, height: 8, color: Colors.blue),
-                                  const SizedBox(width: 6),
-                                  const Text('Standard')
-                                ]),
-                                Row(children: [
-                                  Container(
+                                Row(
+                                  children: [
+                                    Container(
                                       width: 14,
                                       height: 8,
-                                      color: Colors.green),
-                                  const SizedBox(width: 6),
-                                  const Text('Accelerated')
-                                ]),
+                                      color: Colors.blue,
+                                    ),
+                                    const SizedBox(width: 6),
+                                    const Text('Standard'),
+                                  ],
+                                ),
+                                Row(
+                                  children: [
+                                    Container(
+                                      width: 14,
+                                      height: 8,
+                                      color: Colors.green,
+                                    ),
+                                    const SizedBox(width: 6),
+                                    const Text('Accelerated'),
+                                  ],
+                                ),
                               ],
                             ),
                           ],
@@ -233,8 +248,9 @@ class _PayoffSimulatorScreenState extends ConsumerState<PayoffSimulatorScreen> {
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
                           Text(
-                              'مبلغ اضافه در هر ماه: ${formatCurrency(_extraPerMonth)}',
-                              style: Theme.of(context).textTheme.titleMedium),
+                            'مبلغ اضافه در هر ماه: ${formatCurrency(_extraPerMonth)}',
+                            style: Theme.of(context).textTheme.titleMedium,
+                          ),
                           Slider(
                             value: _extraPerMonth.toDouble(),
                             min: 500000,
@@ -249,8 +265,10 @@ class _PayoffSimulatorScreenState extends ConsumerState<PayoffSimulatorScreen> {
                             },
                           ),
                           const SizedBox(height: 8),
-                          Text('لیست بدهی‌ها: ${_debts.length} مورد',
-                              style: Theme.of(context).textTheme.bodyMedium),
+                          Text(
+                            'لیست بدهی‌ها: ${_debts.length} مورد',
+                            style: Theme.of(context).textTheme.bodyMedium,
+                          ),
                         ],
                       ),
                     ),
@@ -268,9 +286,10 @@ class _DebtItem {
   double balance;
   final int monthlyPayment;
 
-  _DebtItem(
-      {required this.id,
-      required this.title,
-      required this.balance,
-      required this.monthlyPayment});
+  _DebtItem({
+    required this.id,
+    required this.title,
+    required this.balance,
+    required this.monthlyPayment,
+  });
 }

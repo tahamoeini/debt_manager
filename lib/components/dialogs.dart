@@ -43,9 +43,7 @@ class AppDialog extends StatelessWidget {
     final textTheme = theme.textTheme;
 
     return AlertDialog(
-      shape: const RoundedRectangleBorder(
-        borderRadius: AppRadius.dialog,
-      ),
+      shape: const RoundedRectangleBorder(borderRadius: AppRadius.dialog),
       title: title != null || icon != null
           ? Column(
               mainAxisSize: MainAxisSize.min,
@@ -114,13 +112,11 @@ class ConfirmDialog extends StatelessWidget {
 
     return AppDialog(
       title: title,
-      icon: icon ??
+      icon:
+          icon ??
           (isDestructive ? Icons.warning_outlined : Icons.info_outlined),
       iconColor: isDestructive ? colorScheme.danger : colorScheme.primary,
-      content: Text(
-        message,
-        textAlign: TextAlign.center,
-      ),
+      content: Text(message, textAlign: TextAlign.center),
       scrollable: false,
       actions: [
         TextButton(
@@ -130,8 +126,9 @@ class ConfirmDialog extends StatelessWidget {
         TextButton(
           onPressed: () => Navigator.of(context).pop(true),
           style: TextButton.styleFrom(
-            foregroundColor:
-                isDestructive ? colorScheme.danger : colorScheme.primary,
+            foregroundColor: isDestructive
+                ? colorScheme.danger
+                : colorScheme.primary,
           ),
           child: Text(confirmText ?? 'تأیید'),
         ),
@@ -196,10 +193,7 @@ class MessageDialog extends StatelessWidget {
       title: title,
       icon: icon ?? Icons.info_outlined,
       iconColor: iconColor,
-      content: Text(
-        message,
-        textAlign: TextAlign.center,
-      ),
+      content: Text(message, textAlign: TextAlign.center),
       scrollable: false,
       actions: [
         TextButton(
@@ -237,10 +231,7 @@ class LoadingDialog extends StatelessWidget {
   // Loading message
   final String? message;
 
-  const LoadingDialog({
-    super.key,
-    this.message,
-  });
+  const LoadingDialog({super.key, this.message});
 
   @override
   Widget build(BuildContext context) {
@@ -249,9 +240,7 @@ class LoadingDialog extends StatelessWidget {
     return PopScope(
       canPop: false,
       child: AlertDialog(
-        shape: const RoundedRectangleBorder(
-          borderRadius: AppRadius.dialog,
-        ),
+        shape: const RoundedRectangleBorder(borderRadius: AppRadius.dialog),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [

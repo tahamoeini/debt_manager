@@ -41,43 +41,58 @@ class AccountsScreen extends ConsumerWidget {
         ],
         if (assets.isEmpty && debts.isEmpty)
           Center(
-              child: Text('هیچ حساب یا بدهی‌ای یافت نشد',
-                  style: Theme.of(context).textTheme.bodyMedium)),
+            child: Text(
+              'هیچ حساب یا بدهی‌ای یافت نشد',
+              style: Theme.of(context).textTheme.bodyMedium,
+            ),
+          ),
       ],
     );
   }
 
-  Widget _buildLoanTile(BuildContext context, LoanSummary s,
-      {required WidgetRef ref}) {
+  Widget _buildLoanTile(
+    BuildContext context,
+    LoanSummary s, {
+    required WidgetRef ref,
+  }) {
     final loan = s.loan;
     final total = loan.installmentCount <= 0 ? 1 : loan.installmentCount;
     final ratio = total == 0 ? 0.0 : (1 - (s.remainingCount / total));
     final remaining = s.remainingAmount;
-    final color =
-        colorForCategory(loan.title, brightness: Theme.of(context).brightness);
+    final color = colorForCategory(
+      loan.title,
+      brightness: Theme.of(context).brightness,
+    );
 
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
       child: ListTile(
-        contentPadding:
-            const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 12,
+        ),
         leading: CircleAvatar(backgroundColor: color, radius: 20),
-        title: Text(loan.title.isNotEmpty ? loan.title : 'بدون عنوان',
-            style: Theme.of(context).textTheme.titleMedium),
+        title: Text(
+          loan.title.isNotEmpty ? loan.title : 'بدون عنوان',
+          style: Theme.of(context).textTheme.titleMedium,
+        ),
         subtitle: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const SizedBox(height: 8),
             LinearProgressIndicator(
-                value: ratio,
-                minHeight: 8,
-                color: Theme.of(context).colorScheme.primary,
-                backgroundColor:
-                    Theme.of(context).colorScheme.surfaceContainerHighest),
+              value: ratio,
+              minHeight: 8,
+              color: Theme.of(context).colorScheme.primary,
+              backgroundColor: Theme.of(
+                context,
+              ).colorScheme.surfaceContainerHighest,
+            ),
             const SizedBox(height: 8),
             Text(
-                '${toPersianDigits((ratio * 100).round())}% پرداخت شده · باقی‌مانده: ${formatCurrency(remaining)}',
-                style: Theme.of(context).textTheme.bodySmall),
+              '${toPersianDigits((ratio * 100).round())}% پرداخت شده · باقی‌مانده: ${formatCurrency(remaining)}',
+              style: Theme.of(context).textTheme.bodySmall,
+            ),
           ],
         ),
         onTap: () async {

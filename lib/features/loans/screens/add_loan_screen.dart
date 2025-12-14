@@ -253,8 +253,9 @@ class _AddLoanScreenState extends ConsumerState<AddLoanScreen> {
           final instId = await repo.insertInstallment(inst);
 
           final dueGregorian = jalaliToDateTime(dueJalali);
-          final scheduledBase =
-              dueGregorian.subtract(Duration(days: offsetDays));
+          final scheduledBase = dueGregorian.subtract(
+            Duration(days: offsetDays),
+          );
           final scheduledTime = DateTime(
             scheduledBase.year,
             scheduledBase.month,

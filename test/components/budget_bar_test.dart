@@ -4,16 +4,13 @@ import 'package:debt_manager/components/budget_bar.dart';
 
 void main() {
   group('BudgetBar', () {
-    testWidgets('displays green color when under low threshold',
-        (tester) async {
+    testWidgets('displays green color when under low threshold', (
+      tester,
+    ) async {
       await tester.pumpWidget(
         const MaterialApp(
           home: Scaffold(
-            body: BudgetBar(
-              current: 500,
-              limit: 1000,
-              showPercentage: true,
-            ),
+            body: BudgetBar(current: 500, limit: 1000, showPercentage: true),
           ),
         ),
       );
@@ -28,16 +25,13 @@ void main() {
       expect(progressIndicator.value, 0.5);
     });
 
-    testWidgets('displays orange color when between thresholds',
-        (tester) async {
+    testWidgets('displays orange color when between thresholds', (
+      tester,
+    ) async {
       await tester.pumpWidget(
         const MaterialApp(
           home: Scaffold(
-            body: BudgetBar(
-              current: 750,
-              limit: 1000,
-              showPercentage: true,
-            ),
+            body: BudgetBar(current: 750, limit: 1000, showPercentage: true),
           ),
         ),
       );
@@ -55,11 +49,7 @@ void main() {
       await tester.pumpWidget(
         const MaterialApp(
           home: Scaffold(
-            body: BudgetBar(
-              current: 950,
-              limit: 1000,
-              showPercentage: true,
-            ),
+            body: BudgetBar(current: 950, limit: 1000, showPercentage: true),
           ),
         ),
       );
@@ -77,11 +67,7 @@ void main() {
       await tester.pumpWidget(
         const MaterialApp(
           home: Scaffold(
-            body: BudgetBar(
-              current: 500,
-              limit: 1000,
-              showAmount: true,
-            ),
+            body: BudgetBar(current: 500, limit: 1000, showAmount: true),
           ),
         ),
       );
@@ -93,11 +79,7 @@ void main() {
       await tester.pumpWidget(
         const MaterialApp(
           home: Scaffold(
-            body: BudgetBar(
-              current: 100,
-              limit: 0,
-              showPercentage: true,
-            ),
+            body: BudgetBar(current: 100, limit: 0, showPercentage: true),
           ),
         ),
       );
@@ -110,11 +92,7 @@ void main() {
       await tester.pumpWidget(
         const MaterialApp(
           home: Scaffold(
-            body: BudgetBar(
-              current: 1500,
-              limit: 1000,
-              showPercentage: true,
-            ),
+            body: BudgetBar(current: 1500, limit: 1000, showPercentage: true),
           ),
         ),
       );

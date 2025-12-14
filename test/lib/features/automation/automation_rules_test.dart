@@ -11,8 +11,8 @@ void main() {
       final conditions = conditionsRaw is Map<String, dynamic>
           ? conditionsRaw
           : (conditionsRaw is Map
-              ? Map<String, dynamic>.from(conditionsRaw)
-              : <String, dynamic>{});
+                ? Map<String, dynamic>.from(conditionsRaw)
+                : <String, dynamic>{});
 
       // Check amount range
       if (conditions.containsKey('minAmount')) {
@@ -61,8 +61,8 @@ void main() {
       final action = actionRaw is Map<String, dynamic>
           ? actionRaw
           : (actionRaw is Map
-              ? Map<String, dynamic>.from(actionRaw)
-              : <String, dynamic>{});
+                ? Map<String, dynamic>.from(actionRaw)
+                : <String, dynamic>{});
       final result = Map<String, dynamic>.from(transaction);
 
       if (action.containsKey('categorize')) {
@@ -138,8 +138,9 @@ void main() {
         metrics[ruleId] = {
           'matchCount': matchCount,
           'totalMatches': successCount,
-          'successRate':
-              successCount > 0 ? (matchCount / successCount * 100).toInt() : 0,
+          'successRate': successCount > 0
+              ? (matchCount / successCount * 100).toInt()
+              : 0,
         };
       }
 
@@ -150,14 +151,11 @@ void main() {
       final transaction = {
         'amount': 5000000,
         'category': 'groceries',
-        'payee': 'Bazaar'
+        'payee': 'Bazaar',
       };
       final rule = {
         'id': 'rule1',
-        'conditions': {
-          'minAmount': 1000000,
-          'maxAmount': 10000000,
-        },
+        'conditions': {'minAmount': 1000000, 'maxAmount': 10000000},
         'action': {'categorize': 'groceries'},
       };
 
@@ -170,14 +168,11 @@ void main() {
       final transaction = {
         'amount': 500000,
         'category': 'groceries',
-        'payee': 'Bazaar'
+        'payee': 'Bazaar',
       };
       final rule = {
         'id': 'rule1',
-        'conditions': {
-          'minAmount': 1000000,
-          'maxAmount': 10000000,
-        },
+        'conditions': {'minAmount': 1000000, 'maxAmount': 10000000},
         'action': {},
       };
 
@@ -190,14 +185,11 @@ void main() {
       final transaction = {
         'amount': 15000000,
         'category': 'luxury',
-        'payee': 'Store'
+        'payee': 'Store',
       };
       final rule = {
         'id': 'rule1',
-        'conditions': {
-          'minAmount': 1000000,
-          'maxAmount': 10000000,
-        },
+        'conditions': {'minAmount': 1000000, 'maxAmount': 10000000},
         'action': {},
       };
 
@@ -210,13 +202,11 @@ void main() {
       final transaction = {
         'amount': 5000000,
         'category': 'groceries',
-        'payee': 'Bazaar'
+        'payee': 'Bazaar',
       };
       final rule = {
         'id': 'rule1',
-        'conditions': {
-          'category': 'groceries',
-        },
+        'conditions': {'category': 'groceries'},
         'action': {},
       };
 
@@ -229,13 +219,11 @@ void main() {
       final transaction = {
         'amount': 5000000,
         'category': 'dining',
-        'payee': 'Restaurant'
+        'payee': 'Restaurant',
       };
       final rule = {
         'id': 'rule1',
-        'conditions': {
-          'category': 'groceries',
-        },
+        'conditions': {'category': 'groceries'},
         'action': {},
       };
 
@@ -248,13 +236,11 @@ void main() {
       final transaction = {
         'amount': 500000,
         'category': 'utilities',
-        'payee': 'Electric Company'
+        'payee': 'Electric Company',
       };
       final rule = {
         'id': 'rule1',
-        'conditions': {
-          'payeePattern': 'electric',
-        },
+        'conditions': {'payeePattern': 'electric'},
         'action': {},
       };
 
@@ -267,13 +253,11 @@ void main() {
       final transaction = {
         'amount': 500000,
         'category': 'utilities',
-        'payee': 'ELECTRIC COMPANY'
+        'payee': 'ELECTRIC COMPANY',
       };
       final rule = {
         'id': 'rule1',
-        'conditions': {
-          'payeePattern': 'electric',
-        },
+        'conditions': {'payeePattern': 'electric'},
         'action': {},
       };
 
@@ -300,7 +284,7 @@ void main() {
       final transaction = {
         'amount': 500000,
         'payee': 'Electric Company',
-        'tags': []
+        'tags': [],
       };
       final rule = {
         'id': 'rule1',
@@ -328,7 +312,7 @@ void main() {
 
     test('Execute multiple rules on transaction', () {
       final transactions = [
-        {'amount': 500000, 'payee': 'Electric Company', 'category': 'unknown'}
+        {'amount': 500000, 'payee': 'Electric Company', 'category': 'unknown'},
       ];
 
       final rules = [
@@ -353,12 +337,14 @@ void main() {
       expect(results.length, equals(1));
       expect(results[0]['category'], equals('utilities'));
       expect(
-          (results[0]['tags'] as List<String>).contains('recurring'), isTrue);
+        (results[0]['tags'] as List<String>).contains('recurring'),
+        isTrue,
+      );
     });
 
     test('Stop-if-matched flag prevents further rule execution', () {
       final transactions = [
-        {'amount': 5000000, 'category': 'unknown'}
+        {'amount': 5000000, 'category': 'unknown'},
       ];
 
       final rules = [
@@ -386,7 +372,7 @@ void main() {
 
     test('Inactive rules are skipped', () {
       final transactions = [
-        {'amount': 500000, 'payee': 'Electric Company'}
+        {'amount': 500000, 'payee': 'Electric Company'},
       ];
 
       final rules = [
@@ -443,7 +429,9 @@ void main() {
       ];
 
       final metrics = calculateRuleMetrics(
-          rules: rules, processedTransactions: transactions);
+        rules: rules,
+        processedTransactions: transactions,
+      );
 
       expect(metrics['rule1']['matchCount'], equals(2));
       expect(metrics['rule2']['matchCount'], equals(1));
@@ -514,7 +502,7 @@ void main() {
 
     test('Rule priority execution order', () {
       final transactions = [
-        {'amount': 5000000, 'category': 'unknown'}
+        {'amount': 5000000, 'category': 'unknown'},
       ];
 
       final rules = [

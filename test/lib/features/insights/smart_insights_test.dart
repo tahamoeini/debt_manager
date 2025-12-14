@@ -10,10 +10,8 @@ void main() {
     }) {
       if (previousMonthsSpending.isEmpty) return false;
 
-      final average = previousMonthsSpending.fold<double>(
-            0,
-            (sum, val) => sum + val,
-          ) /
+      final average =
+          previousMonthsSpending.fold<double>(0, (sum, val) => sum + val) /
           previousMonthsSpending.length;
 
       return currentMonthSpending > (average * threshold);
@@ -26,17 +24,13 @@ void main() {
     }) {
       if (monthlySpending.length < 2) return 'insufficient_data';
 
-      final first3Months = monthlySpending.take(3).fold<double>(
-                0,
-                (sum, val) => sum + val,
-              ) /
-          3;
+      final first3Months =
+          monthlySpending.take(3).fold<double>(0, (sum, val) => sum + val) / 3;
       final last3Months =
-          monthlySpending.skip(monthlySpending.length - 3).fold<double>(
-                    0,
-                    (sum, val) => sum + val,
-                  ) /
-              3;
+          monthlySpending
+              .skip(monthlySpending.length - 3)
+              .fold<double>(0, (sum, val) => sum + val) /
+          3;
 
       final changePercent = (last3Months - first3Months) / first3Months;
 
@@ -105,10 +99,12 @@ void main() {
       final savingsRate = monthlyIncome > 0
           ? ((monthlyIncome - monthlyExpenses) / monthlyIncome * 100).toInt()
           : 0;
-      final debtToIncomeRatio =
-          monthlyIncome > 0 ? (totalDebt / monthlyIncome).toDouble() : 0.0;
-      final emergencyFund =
-          monthlyExpenses > 0 ? savingsBalance ~/ monthlyExpenses : 0;
+      final debtToIncomeRatio = monthlyIncome > 0
+          ? (totalDebt / monthlyIncome).toDouble()
+          : 0.0;
+      final emergencyFund = monthlyExpenses > 0
+          ? savingsBalance ~/ monthlyExpenses
+          : 0;
 
       String healthScore = 'poor';
       if (savingsRate >= 20 && debtToIncomeRatio < 2.0 && emergencyFund >= 3) {

@@ -121,16 +121,11 @@ class FormInput extends StatelessWidget {
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: AppConstants.borderRadiusSmall,
-          borderSide: BorderSide(
-            color: colorScheme.primary,
-            width: 2,
-          ),
+          borderSide: BorderSide(color: colorScheme.primary, width: 2),
         ),
         errorBorder: OutlineInputBorder(
           borderRadius: AppConstants.borderRadiusSmall,
-          borderSide: BorderSide(
-            color: colorScheme.error,
-          ),
+          borderSide: BorderSide(color: colorScheme.error),
         ),
       ),
     );
@@ -210,10 +205,7 @@ class DropdownField<T> extends StatelessWidget {
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: AppConstants.borderRadiusSmall,
-          borderSide: BorderSide(
-            color: colorScheme.primary,
-            width: 2,
-          ),
+          borderSide: BorderSide(color: colorScheme.primary, width: 2),
         ),
       ),
     );

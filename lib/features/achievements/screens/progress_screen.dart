@@ -18,9 +18,7 @@ class ProgressScreen extends ConsumerWidget {
         children: [
           progressFuture.when(
             loading: () => Center(child: CircularProgressIndicator()),
-            error: (e, st) => Center(
-              child: Text('خطا در بارگذاری پیشرفت'),
-            ),
+            error: (e, st) => Center(child: Text('خطا در بارگذاری پیشرفت')),
             data: (progress) => Column(
               children: [
                 // XP & Level Card
@@ -68,8 +66,9 @@ class ProgressScreen extends ConsumerWidget {
                             value: (progress.totalXp % 100) / 100.0,
                             minHeight: 8,
                             backgroundColor: Colors.grey.shade300,
-                            valueColor:
-                                AlwaysStoppedAnimation(Colors.green.shade400),
+                            valueColor: AlwaysStoppedAnimation(
+                              Colors.green.shade400,
+                            ),
                           ),
                         ),
                         const SizedBox(height: AppDimensions.spacingS),
@@ -253,18 +252,18 @@ class ProgressScreen extends ConsumerWidget {
                                     children: [
                                       Text(
                                         achievement.title,
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .bodyMedium,
+                                        style: Theme.of(
+                                          context,
+                                        ).textTheme.bodyMedium,
                                       ),
                                       const SizedBox(
                                         height: AppDimensions.spacingS,
                                       ),
                                       Text(
                                         achievement.message,
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .bodySmall,
+                                        style: Theme.of(
+                                          context,
+                                        ).textTheme.bodySmall,
                                       ),
                                     ],
                                   ),
@@ -292,8 +291,9 @@ final _userProgressProvider = FutureProvider<UserProgress>((ref) async {
   return repo.getUserProgress();
 });
 
-final _earnedAchievementsProvider =
-    FutureProvider<List<Achievement>>((ref) async {
+final _earnedAchievementsProvider = FutureProvider<List<Achievement>>((
+  ref,
+) async {
   final repo = AchievementsRepository.instance;
   return repo.getEarnedAchievements();
 });

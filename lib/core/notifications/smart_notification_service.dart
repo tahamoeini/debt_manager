@@ -65,8 +65,10 @@ class SmartNotificationService {
       importance: Importance.defaultImportance,
     );
 
-    final android = _plugin.resolvePlatformSpecificImplementation<
-        AndroidFlutterLocalNotificationsPlugin>();
+    final android = _plugin
+        .resolvePlatformSpecificImplementation<
+          AndroidFlutterLocalNotificationsPlugin
+        >();
     await android?.createNotificationChannel(budgetChannel);
     await android?.createNotificationChannel(suggestionsChannel);
     await android?.createNotificationChannel(summaryChannel);
@@ -97,7 +99,10 @@ class SmartNotificationService {
           // compute total of all budgets for this period to estimate essentials
           final total = budgets.fold<int>(0, (acc, b) => acc + (b.amount));
           safeExtra = await _irregular.suggestSafeExtra(
-              months: 3, essentialBudget: total, safetyFactor: 1.2);
+            months: 3,
+            essentialBudget: total,
+            safetyFactor: 1.2,
+          );
         } catch (e) {
           // ignore and fallback to conservative behavior
           safeExtra = 0;
@@ -107,13 +112,17 @@ class SmartNotificationService {
       for (final budget in budgets) {
         // Determine effective budget amount considering per-month override
         final override = await _budgetRepo.getOverrideForCategoryPeriod(
-            budget.category, period);
-        final effectiveAmount =
-            override != null ? override.amount : budget.amount;
+          budget.category,
+          period,
+        );
+        final effectiveAmount = override != null
+            ? override.amount
+            : budget.amount;
 
         final utilization = await _budgetRepo.computeUtilization(budget);
-        final percentage =
-            effectiveAmount > 0 ? (utilization / effectiveAmount) : 0.0;
+        final percentage = effectiveAmount > 0
+            ? (utilization / effectiveAmount)
+            : 0.0;
 
         // Always notify on 100%+ breach
         if (threshold100 && percentage >= 1.0) {
@@ -152,7 +161,11 @@ class SmartNotificationService {
   }
 
   Future<void> _sendBudgetAlert(
-      Budget budget, double percentage, String title, String body) async {
+    Budget budget,
+    double percentage,
+    String title,
+    String body,
+  ) async {
     try {
       const androidDetails = AndroidNotificationDetails(
         _channelIdBudget,
@@ -172,12 +185,7 @@ class SmartNotificationService {
       // Use budget ID as notification ID to avoid duplicates
       final notificationId = budget.id != null ? 20000 + budget.id! : 20000;
 
-      await _plugin.show(
-        notificationId,
-        title,
-        body,
-        details,
-      );
+      await _plugin.show(notificationId, title, body, details);
     } catch (e) {
       debugPrint('Error sending budget alert: $e');
     }
@@ -185,7 +193,9 @@ class SmartNotificationService {
 
   // Send a monthly summary notification
   Future<void> sendMonthEndSummary(
-      String period, Map<String, dynamic> summary) async {
+    String period,
+    Map<String, dynamic> summary,
+  ) async {
     if (kIsWeb) return;
 
     final enabled = await _settings.getMonthEndSummaryEnabled();
@@ -232,7 +242,10 @@ class SmartNotificationService {
 
   // Send a smart suggestion notification
   Future<void> sendSmartSuggestion(
-      String title, String body, int suggestionId) async {
+    String title,
+    String body,
+    int suggestionId,
+  ) async {
     if (kIsWeb) return;
 
     final enabled = await _settings.getSmartSuggestionsEnabled();
@@ -257,12 +270,7 @@ class SmartNotificationService {
       // Use suggestion ID + offset to avoid collision with other notification types
       final notificationId = 40000 + suggestionId;
 
-      await _plugin.show(
-        notificationId,
-        title,
-        body,
-        details,
-      );
+      await _plugin.show(notificationId, title, body, details);
     } catch (e) {
       debugPrint('Error sending smart suggestion: $e');
     }
@@ -295,12 +303,15 @@ class SmartNotificationService {
   }
 
   Future<void> _scheduleReminderForInstallment(
-      Installment installment, int daysOffset) async {
+    Installment installment,
+    int daysOffset,
+  ) async {
     // This would integrate with the existing notification service
     // For now, we'll leave it as a placeholder that would call
     // the NotificationService.scheduleInstallmentReminder method
     debugPrint(
-        'Would schedule reminder for installment ${installment.id} with offset $daysOffset days');
+      'Would schedule reminder for installment ${installment.id} with offset $daysOffset days',
+    );
   }
 
   // Cancel all scheduled notifications for a specific type
