@@ -75,7 +75,8 @@ class BackupRestoreService {
         timestamp: now.toIso8601String(),
         appVersion: '1.0.0', // TODO: Get from pubspec or constants
         checksum: checksum,
-        name: backupName ??
+        name:
+            backupName ??
             'Backup-${DateFormat('yyyy-MM-dd-HHmmss').format(now)}',
         data: backupData,
         metadata: metadata,
@@ -87,11 +88,9 @@ class BackupRestoreService {
 
       // Create zip archive
       final archive = Archive();
-      archive.addFile(ArchiveFile(
-        'backup.json',
-        payloadBytes.length,
-        payloadBytes,
-      ));
+      archive.addFile(
+        ArchiveFile('backup.json', payloadBytes.length, payloadBytes),
+      );
 
       // Get directory to save backup
       final saveDir =
@@ -154,8 +153,9 @@ class BackupRestoreService {
 
       // Validate checksum
       final dataJson = jsonEncode(payload.data);
-      final calculatedChecksum =
-          sha256.convert(utf8.encode(dataJson)).toString();
+      final calculatedChecksum = sha256
+          .convert(utf8.encode(dataJson))
+          .toString();
       if (calculatedChecksum != payload.checksum) {
         throw BackupIntegrityException(
           'Backup checksum mismatch. File may be corrupted.',
@@ -192,18 +192,18 @@ class BackupRestoreService {
   }
 
   /// Check for conflicts between backup and current database
-  Future<List<BackupConflict>> _checkForConflicts(
-    BackupPayload payload,
-  ) async {
+  Future<List<BackupConflict>> _checkForConflicts(BackupPayload payload) async {
     final conflicts = <BackupConflict>[];
 
     // Check version compatibility
     if (payload.version > 1) {
-      conflicts.add(BackupConflict(
-        type: ConflictType.versionMismatch,
-        message: 'Backup was created with a newer app version',
-        resolution: 'Update the app or use the original version',
-      ));
+      conflicts.add(
+        BackupConflict(
+          type: ConflictType.versionMismatch,
+          message: 'Backup was created with a newer app version',
+          resolution: 'Update the app or use the original version',
+        ),
+      );
     }
 
     // Compare timestamps
@@ -212,11 +212,13 @@ class BackupRestoreService {
 
     if (currentLoans.isNotEmpty && backupTime.isBefore(DateTime.now())) {
       // Backup is older
-      conflicts.add(BackupConflict(
-        type: ConflictType.newerDatabase,
-        message: 'Current database has newer data than backup',
-        resolution: 'Review carefully before importing',
-      ));
+      conflicts.add(
+        BackupConflict(
+          type: ConflictType.newerDatabase,
+          message: 'Current database has newer data than backup',
+          resolution: 'Review carefully before importing',
+        ),
+      );
     }
 
     return conflicts;
@@ -268,10 +270,7 @@ class BackupRestoreService {
   }
 
   /// Merge backup data with existing database
-  Future<void> _mergeData(
-    BackupPayload payload,
-    BackupMergeMode mode,
-  ) async {
+  Future<void> _mergeData(BackupPayload payload, BackupMergeMode mode) async {
     try {
       // Get existing data
       final existingLoans = await _db.getAllLoans();
@@ -308,8 +307,9 @@ class BackupRestoreService {
         // Check if installment already exists
         final loanId = instData['loan_id'];
         if (loanId != null) {
-          final existingInstallments =
-              await _db.getInstallmentsByLoanId(loanId as int);
+          final existingInstallments = await _db.getInstallmentsByLoanId(
+            loanId as int,
+          );
           final existingIds = existingInstallments.map((i) => i.id).toSet();
 
           if (instId != null && !existingIds.contains(instId)) {
@@ -343,7 +343,8 @@ class BackupRestoreService {
 
       // Sort by modification time (newest first)
       backups.sort(
-          (a, b) => b.statSync().modified.compareTo(a.statSync().modified));
+        (a, b) => b.statSync().modified.compareTo(a.statSync().modified),
+      );
 
       return backups;
     } catch (e) {

@@ -44,10 +44,10 @@ class _AppShellState extends State<AppShell> {
         appBar: AppBar(
           title: Text(_titles[_selectedIndex]),
           systemOverlayStyle: SystemUiOverlayStyle(
-              statusBarBrightness:
-                  Theme.of(context).brightness == Brightness.dark
-                      ? Brightness.dark
-                      : Brightness.light),
+            statusBarBrightness: Theme.of(context).brightness == Brightness.dark
+                ? Brightness.dark
+                : Brightness.light,
+          ),
           actions: [
             if (kDebugMode)
               GestureDetector(
@@ -70,29 +70,41 @@ class _AppShellState extends State<AppShell> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Row(children: [
-                                ValueListenableBuilder<bool>(
-                                  valueListenable: DebugLogger.overlayEnabled,
-                                  builder: (context, val, _) => SwitchListTile(
-                                    title: const Text('SafeArea overlay'),
-                                    value: val,
-                                    onChanged: (v) =>
-                                        DebugLogger.overlayEnabled.value = v,
+                              Row(
+                                children: [
+                                  ValueListenableBuilder<bool>(
+                                    valueListenable: DebugLogger.overlayEnabled,
+                                    builder: (context, val, _) =>
+                                        SwitchListTile(
+                                          title: const Text('SafeArea overlay'),
+                                          value: val,
+                                          onChanged: (v) =>
+                                              DebugLogger.overlayEnabled.value =
+                                                  v,
+                                        ),
                                   ),
-                                ),
-                              ]),
-                              Row(children: [
-                                ValueListenableBuilder<bool>(
-                                  valueListenable:
-                                      DebugLogger.showBoundsEnabled,
-                                  builder: (context, val, _) => SwitchListTile(
-                                    title: const Text('Show widget bounds'),
-                                    value: val,
-                                    onChanged: (v) =>
-                                        DebugLogger.showBoundsEnabled.value = v,
+                                ],
+                              ),
+                              Row(
+                                children: [
+                                  ValueListenableBuilder<bool>(
+                                    valueListenable:
+                                        DebugLogger.showBoundsEnabled,
+                                    builder: (context, val, _) =>
+                                        SwitchListTile(
+                                          title: const Text(
+                                            'Show widget bounds',
+                                          ),
+                                          value: val,
+                                          onChanged: (v) =>
+                                              DebugLogger
+                                                      .showBoundsEnabled
+                                                      .value =
+                                                  v,
+                                        ),
                                   ),
-                                ),
-                              ]),
+                                ],
+                              ),
                               const Divider(),
                               const SizedBox(height: 8),
                               Text(lines),
@@ -101,8 +113,9 @@ class _AppShellState extends State<AppShell> {
                         ),
                         actions: [
                           TextButton(
-                              onPressed: () => Navigator.of(ctx).pop(),
-                              child: const Text('Close')),
+                            onPressed: () => Navigator.of(ctx).pop(),
+                            child: const Text('Close'),
+                          ),
                         ],
                       ),
                     );

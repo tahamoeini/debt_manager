@@ -64,30 +64,35 @@ class SmartInsightsService {
       try {
         final rows =
             await compute<Map<String, dynamic>, List<Map<String, dynamic>>>(
-          (msg) => computeDetectSubscriptions(
-              List<Map<String, dynamic>>.from(msg['loans'] as List),
-              List<Map<String, dynamic>>.from(msg['insts'] as List)),
-          {'loans': loanMaps, 'insts': instMaps},
-        );
+              (msg) => computeDetectSubscriptions(
+                List<Map<String, dynamic>>.from(msg['loans'] as List),
+                List<Map<String, dynamic>>.from(msg['insts'] as List),
+              ),
+              {'loans': loanMaps, 'insts': instMaps},
+            );
 
         return rows
-            .map((r) => SubscriptionInsight(
-                  payee: r['payee'] as String? ?? 'ناشناس',
-                  amount: r['amount'] as int? ?? 0,
-                  occurrences: r['occurrences'] as int? ?? 0,
-                  description: r['description'] as String? ?? '',
-                ))
+            .map(
+              (r) => SubscriptionInsight(
+                payee: r['payee'] as String? ?? 'ناشناس',
+                amount: r['amount'] as int? ?? 0,
+                occurrences: r['occurrences'] as int? ?? 0,
+                description: r['description'] as String? ?? '',
+              ),
+            )
             .toList();
       } catch (e) {
         // fallback: run on main isolate
         final rows = computeDetectSubscriptions(loanMaps, instMaps);
         return rows
-            .map((r) => SubscriptionInsight(
-                  payee: r['payee'] as String? ?? 'ناشناس',
-                  amount: r['amount'] as int? ?? 0,
-                  occurrences: r['occurrences'] as int? ?? 0,
-                  description: r['description'] as String? ?? '',
-                ))
+            .map(
+              (r) => SubscriptionInsight(
+                payee: r['payee'] as String? ?? 'ناشناس',
+                amount: r['amount'] as int? ?? 0,
+                occurrences: r['occurrences'] as int? ?? 0,
+                description: r['description'] as String? ?? '',
+              ),
+            )
             .toList();
       }
     } catch (e) {
@@ -125,35 +130,43 @@ class SmartInsightsService {
       try {
         final rows =
             await compute<Map<String, dynamic>, List<Map<String, dynamic>>>(
-          billChangeEntry,
-          {
-            'loans': loanMaps,
-            'insts': instMaps,
-            'current': currentPeriod,
-            'prev': prevPeriod,
-          },
-        );
+              billChangeEntry,
+              {
+                'loans': loanMaps,
+                'insts': instMaps,
+                'current': currentPeriod,
+                'prev': prevPeriod,
+              },
+            );
 
         return rows
-            .map((r) => BillChangeInsight(
-                  payee: r['payee'] as String? ?? 'ناشناس',
-                  previousAmount: r['previousAmount'] as int? ?? 0,
-                  currentAmount: r['currentAmount'] as int? ?? 0,
-                  percentageChange: r['percentageChange'] as double? ?? 0.0,
-                  description: r['description'] as String? ?? '',
-                ))
+            .map(
+              (r) => BillChangeInsight(
+                payee: r['payee'] as String? ?? 'ناشناس',
+                previousAmount: r['previousAmount'] as int? ?? 0,
+                currentAmount: r['currentAmount'] as int? ?? 0,
+                percentageChange: r['percentageChange'] as double? ?? 0.0,
+                description: r['description'] as String? ?? '',
+              ),
+            )
             .toList();
       } catch (e) {
         final rows = computeDetectBillChanges(
-            loanMaps, instMaps, currentPeriod, prevPeriod);
+          loanMaps,
+          instMaps,
+          currentPeriod,
+          prevPeriod,
+        );
         return rows
-            .map((r) => BillChangeInsight(
-                  payee: r['payee'] as String? ?? 'ناشناس',
-                  previousAmount: r['previousAmount'] as int? ?? 0,
-                  currentAmount: r['currentAmount'] as int? ?? 0,
-                  percentageChange: r['percentageChange'] as double? ?? 0.0,
-                  description: r['description'] as String? ?? '',
-                ))
+            .map(
+              (r) => BillChangeInsight(
+                payee: r['payee'] as String? ?? 'ناشناس',
+                previousAmount: r['previousAmount'] as int? ?? 0,
+                currentAmount: r['currentAmount'] as int? ?? 0,
+                percentageChange: r['percentageChange'] as double? ?? 0.0,
+                description: r['description'] as String? ?? '',
+              ),
+            )
             .toList();
       }
     } catch (e) {
@@ -164,8 +177,9 @@ class SmartInsightsService {
 
   // Anomaly detection: detect categories (loan titles) where current month
   // spending is significantly higher than the rolling average (e.g., >3x).
-  Future<List<Map<String, dynamic>>> detectAnomalies(
-      {int monthsBack = 6}) async {
+  Future<List<Map<String, dynamic>>> detectAnomalies({
+    int monthsBack = 6,
+  }) async {
     try {
       final loans = await _db.getAllLoans();
       final loanMaps = loans.map((l) => l.toMap()).toList();
@@ -184,22 +198,27 @@ class SmartInsightsService {
       try {
         final rows =
             await compute<Map<String, dynamic>, List<Map<String, dynamic>>>(
-          (msg) => computeDetectAnomalies(
-              List<Map<String, dynamic>>.from(msg['loans'] as List),
-              List<Map<String, dynamic>>.from(msg['insts'] as List),
-              msg['current'] as String,
-              msg['monthsBack'] as int),
-          {
-            'loans': loanMaps,
-            'insts': instMaps,
-            'current': currentPeriod,
-            'monthsBack': monthsBack
-          },
-        );
+              (msg) => computeDetectAnomalies(
+                List<Map<String, dynamic>>.from(msg['loans'] as List),
+                List<Map<String, dynamic>>.from(msg['insts'] as List),
+                msg['current'] as String,
+                msg['monthsBack'] as int,
+              ),
+              {
+                'loans': loanMaps,
+                'insts': instMaps,
+                'current': currentPeriod,
+                'monthsBack': monthsBack,
+              },
+            );
         return rows;
       } catch (e) {
         final rows = computeDetectAnomalies(
-            loanMaps, instMaps, currentPeriod, monthsBack);
+          loanMaps,
+          instMaps,
+          currentPeriod,
+          monthsBack,
+        );
         return rows;
       }
     } catch (e) {

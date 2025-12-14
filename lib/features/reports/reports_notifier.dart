@@ -30,10 +30,11 @@ class ReportsState {
     List<Map<String, dynamic>>? rows,
     this.loadingSummary = false,
     this.loadingRows = false,
-  })  : statusFilter = statusFilter ??
-            {InstallmentStatus.pending, InstallmentStatus.overdue},
-        counterparties = counterparties ?? [],
-        rows = rows ?? [];
+  }) : statusFilter =
+           statusFilter ??
+           {InstallmentStatus.pending, InstallmentStatus.overdue},
+       counterparties = counterparties ?? [],
+       rows = rows ?? [];
 
   ReportsState copyWith({
     LoanDirection? direction,
@@ -70,8 +71,8 @@ class ReportsNotifier extends StateNotifier<ReportsState> {
   final Ref ref;
 
   ReportsNotifier(this.ref)
-      : _repo = ReportsRepository(ref.read),
-        super(ReportsState()) {
+    : _repo = ReportsRepository(ref.read),
+      super(ReportsState()) {
     _init();
   }
 
@@ -99,8 +100,9 @@ class ReportsNotifier extends StateNotifier<ReportsState> {
       final lent = await _repo.getTotalOutstandingLent();
       final net = lent - borrowed;
       state = state.copyWith(
-          summary: {'borrowed': borrowed, 'lent': lent, 'net': net},
-          loadingSummary: false);
+        summary: {'borrowed': borrowed, 'lent': lent, 'net': net},
+        loadingSummary: false,
+      );
     } catch (e) {
       state = state.copyWith(loadingSummary: false);
     }
@@ -123,8 +125,9 @@ class ReportsNotifier extends StateNotifier<ReportsState> {
 
         if (state.counterpartyTypeFilter != null) {
           final cp = state.counterparties.firstWhere(
-              (c) => c.id == loan.counterpartyId,
-              orElse: () => const Counterparty(id: null, name: 'نامشخص'));
+            (c) => c.id == loan.counterpartyId,
+            orElse: () => const Counterparty(id: null, name: 'نامشخص'),
+          );
           if (cp.type != state.counterpartyTypeFilter) continue;
         }
 
@@ -210,7 +213,8 @@ class ReportsNotifier extends StateNotifier<ReportsState> {
       state = state.copyWith(statusFilter: InstallmentStatus.values.toSet());
     } else {
       state = state.copyWith(
-          statusFilter: {InstallmentStatus.pending, InstallmentStatus.overdue});
+        statusFilter: {InstallmentStatus.pending, InstallmentStatus.overdue},
+      );
     }
     refreshRows();
   }
@@ -226,7 +230,8 @@ class ReportsNotifier extends StateNotifier<ReportsState> {
   }
 }
 
-final reportsProvider =
-    StateNotifierProvider<ReportsNotifier, ReportsState>((ref) {
+final reportsProvider = StateNotifierProvider<ReportsNotifier, ReportsState>((
+  ref,
+) {
   return ReportsNotifier(ref);
 });

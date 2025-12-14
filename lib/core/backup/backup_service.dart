@@ -17,11 +17,13 @@ class BackupService {
     final cps = await _db.getAllCounterparties();
     final loans = await _db.getAllLoans();
 
-    final List<Map<String, dynamic>> cpMaps =
-        cps.map((c) => c.toMap()).toList();
+    final List<Map<String, dynamic>> cpMaps = cps
+        .map((c) => c.toMap())
+        .toList();
 
-    final List<Map<String, dynamic>> loanMaps =
-        loans.map((l) => l.toMap()).toList();
+    final List<Map<String, dynamic>> loanMaps = loans
+        .map((l) => l.toMap())
+        .toList();
 
     final List<Map<String, dynamic>> instMaps = [];
     for (final loan in loans) {

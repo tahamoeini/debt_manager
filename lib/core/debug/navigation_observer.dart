@@ -19,7 +19,8 @@ class LoggingNavigatorObserver extends NavigatorObserver {
   @override
   void didReplace({Route<dynamic>? newRoute, Route<dynamic>? oldRoute}) {
     _log.log(
-        'REPLACE ${oldRoute?.settings.name ?? oldRoute?.runtimeType} -> ${newRoute?.settings.name ?? newRoute?.runtimeType}');
+      'REPLACE ${oldRoute?.settings.name ?? oldRoute?.runtimeType} -> ${newRoute?.settings.name ?? newRoute?.runtimeType}',
+    );
     super.didReplace(newRoute: newRoute, oldRoute: oldRoute);
   }
 }

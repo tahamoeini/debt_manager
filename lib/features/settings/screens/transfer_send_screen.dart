@@ -49,9 +49,7 @@ class _TransferSendState {
 /// Notifier for transfer send state
 class _TransferSendNotifier extends StateNotifier<_TransferSendState> {
   _TransferSendNotifier()
-      : super(_TransferSendState(
-          transferId: _generateTransferId(),
-        ));
+    : super(_TransferSendState(transferId: _generateTransferId()));
 
   static String _generateTransferId() {
     return DateTime.now().millisecondsSinceEpoch.toString();
@@ -76,9 +74,7 @@ class _TransferSendNotifier extends StateNotifier<_TransferSendState> {
   void nextFrame() {
     if (state.frames != null &&
         state.currentFrameIndex < state.frames!.length - 1) {
-      state = state.copyWith(
-        currentFrameIndex: state.currentFrameIndex + 1,
-      );
+      state = state.copyWith(currentFrameIndex: state.currentFrameIndex + 1);
     }
   }
 
@@ -89,8 +85,8 @@ class _TransferSendNotifier extends StateNotifier<_TransferSendState> {
 
 final _transferSendProvider =
     StateNotifierProvider<_TransferSendNotifier, _TransferSendState>((ref) {
-  return _TransferSendNotifier();
-});
+      return _TransferSendNotifier();
+    });
 
 /// QR transfer sender screen
 class TransferSendScreen extends ConsumerStatefulWidget {
@@ -144,10 +140,7 @@ class _TransferSendScreenState extends ConsumerState<TransferSendScreen>
     final notifier = ref.read(_transferSendProvider.notifier);
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('انتقال از طریق QR Code'),
-        elevation: 0,
-      ),
+      appBar: AppBar(title: const Text('انتقال از طریق QR Code'), elevation: 0),
       body: SafeArea(
         child: state.frames == null
             ? _buildEmptyState(context, notifier)
@@ -165,10 +158,7 @@ class _TransferSendScreenState extends ConsumerState<TransferSendScreen>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            'انتقال داده‌ها',
-            style: Theme.of(context).textTheme.titleLarge,
-          ),
+          Text('انتقال داده‌ها', style: Theme.of(context).textTheme.titleLarge),
           const SizedBox(height: 16),
           Text(
             'برای شروع انتقال داده‌ها از طریق QR Code، یک نسخه‌ی پشتیبان یا داده‌ی موجود را انتخاب کنید.',
@@ -218,10 +208,7 @@ class _TransferSendScreenState extends ConsumerState<TransferSendScreen>
           const SizedBox(height: 8),
           ClipRRect(
             borderRadius: BorderRadius.circular(8),
-            child: LinearProgressIndicator(
-              value: state.progress,
-              minHeight: 8,
-            ),
+            child: LinearProgressIndicator(value: state.progress, minHeight: 8),
           ),
           const SizedBox(height: 16),
           Expanded(
@@ -247,11 +234,17 @@ class _TransferSendScreenState extends ConsumerState<TransferSendScreen>
                         child: Column(
                           children: [
                             _InfoRow(
-                                'حجم:', '${currentFrame.data.length} بایت'),
-                            _InfoRow('چک‌سام:',
-                                '${currentFrame.checksum.substring(0, 16)}...'),
-                            _InfoRow('زمان:',
-                                _formatTimestamp(currentFrame.timestamp)),
+                              'حجم:',
+                              '${currentFrame.data.length} بایت',
+                            ),
+                            _InfoRow(
+                              'چک‌سام:',
+                              '${currentFrame.checksum.substring(0, 16)}...',
+                            ),
+                            _InfoRow(
+                              'زمان:',
+                              _formatTimestamp(currentFrame.timestamp),
+                            ),
                           ],
                         ),
                       ),
@@ -353,10 +346,7 @@ class _TransferSendScreenState extends ConsumerState<TransferSendScreen>
             child: Text(
               data,
               textAlign: TextAlign.center,
-              style: const TextStyle(
-                fontSize: 8,
-                fontFamily: 'monospace',
-              ),
+              style: const TextStyle(fontSize: 8, fontFamily: 'monospace'),
               maxLines: 50,
               overflow: TextOverflow.ellipsis,
             ),
@@ -381,11 +371,13 @@ class _InfoRow extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text(label, style: Theme.of(context).textTheme.bodySmall),
-          Text(value,
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    fontWeight: FontWeight.bold,
-                    fontFamily: 'monospace',
-                  )),
+          Text(
+            value,
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+              fontWeight: FontWeight.bold,
+              fontFamily: 'monospace',
+            ),
+          ),
         ],
       ),
     );

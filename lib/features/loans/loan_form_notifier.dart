@@ -10,13 +10,17 @@ class LoanFormState {
   final Loan? existingLoan;
   final List<Counterparty> counterparties;
 
-  LoanFormState(
-      {this.loading = false,
-      this.existingLoan,
-      this.counterparties = const []});
+  LoanFormState({
+    this.loading = false,
+    this.existingLoan,
+    this.counterparties = const [],
+  });
 
-  LoanFormState copyWith(
-      {bool? loading, Loan? existingLoan, List<Counterparty>? counterparties}) {
+  LoanFormState copyWith({
+    bool? loading,
+    Loan? existingLoan,
+    List<Counterparty>? counterparties,
+  }) {
     return LoanFormState(
       loading: loading ?? this.loading,
       existingLoan: existingLoan ?? this.existingLoan,
@@ -27,7 +31,7 @@ class LoanFormState {
 
 class LoanFormNotifier extends StateNotifier<AsyncValue<LoanFormState>> {
   LoanFormNotifier(this.ref, [this.loanId])
-      : super(const AsyncValue.loading()) {
+    : super(const AsyncValue.loading()) {
     _init();
   }
 
@@ -42,8 +46,9 @@ class LoanFormNotifier extends StateNotifier<AsyncValue<LoanFormState>> {
       Loan? loan;
       if (loanId != null) loan = await db.getLoanById(loanId!);
 
-      state = AsyncValue.data(LoanFormState(
-          loading: false, existingLoan: loan, counterparties: cps));
+      state = AsyncValue.data(
+        LoanFormState(loading: false, existingLoan: loan, counterparties: cps),
+      );
     } catch (e, st) {
       state = AsyncValue.error(e, st);
     }
@@ -96,7 +101,9 @@ class LoanFormNotifier extends StateNotifier<AsyncValue<LoanFormState>> {
 }
 
 final loanFormProvider = StateNotifierProvider.family
-    .autoDispose<LoanFormNotifier, AsyncValue<LoanFormState>, int?>(
-        (ref, loanId) {
-  return LoanFormNotifier(ref, loanId);
-});
+    .autoDispose<LoanFormNotifier, AsyncValue<LoanFormState>, int?>((
+      ref,
+      loanId,
+    ) {
+      return LoanFormNotifier(ref, loanId);
+    });

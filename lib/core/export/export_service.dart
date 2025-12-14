@@ -52,10 +52,12 @@ class ExportService {
     ]);
 
     // Convert date filters to Jalali strings
-    final fromStr =
-        fromDate != null ? formatJalali(dateTimeToJalali(fromDate)) : null;
-    final toStr =
-        toDate != null ? formatJalali(dateTimeToJalali(toDate)) : null;
+    final fromStr = fromDate != null
+        ? formatJalali(dateTimeToJalali(fromDate))
+        : null;
+    final toStr = toDate != null
+        ? formatJalali(dateTimeToJalali(toDate))
+        : null;
 
     for (final loan in loans) {
       if (loan.id == null) continue;
@@ -72,8 +74,9 @@ class ExportService {
         if (fromStr != null && dueDate.compareTo(fromStr) < 0) continue;
         if (toStr != null && dueDate.compareTo(toStr) > 0) continue;
 
-        final direction =
-            loan.direction == LoanDirection.borrowed ? 'گرفته‌ام' : 'داده‌ام';
+        final direction = loan.direction == LoanDirection.borrowed
+            ? 'گرفته‌ام'
+            : 'داده‌ام';
 
         final status = _statusToString(inst.status);
 
@@ -121,8 +124,10 @@ class ExportService {
 
     // Get overdue installments from DB
     final db = await _db.database;
-    final overdue =
-        await InstallmentDao.getOverdueInstallments(db, DateTime.now());
+    final overdue = await InstallmentDao.getOverdueInstallments(
+      db,
+      DateTime.now(),
+    );
 
     final bytes = await PdfReportGenerator.instance.generatePdf(
       appName: 'Debt Manager',
@@ -153,8 +158,10 @@ class ExportService {
     }
 
     final db = await _db.database;
-    final overdue =
-        await InstallmentDao.getOverdueInstallments(db, DateTime.now());
+    final overdue = await InstallmentDao.getOverdueInstallments(
+      db,
+      DateTime.now(),
+    );
 
     await PdfReportGenerator.instance.printReport(
       appName: 'Debt Manager',
@@ -178,8 +185,10 @@ class ExportService {
   // Export budgets as CSV
   Future<String> exportBudgetsCSV() async {
     final db = await _db.database;
-    final rows =
-        await db.query('budgets', orderBy: 'period DESC, category ASC');
+    final rows = await db.query(
+      'budgets',
+      orderBy: 'period DESC, category ASC',
+    );
 
     final List<List<dynamic>> csvRows = [];
 

@@ -33,19 +33,11 @@ class CategoryHeatmap extends StatelessWidget {
     if (normalized < 0.5) {
       // Green to Yellow
       final t = normalized * 2;
-      return Color.lerp(
-        Colors.green.shade100,
-        Colors.yellow.shade300,
-        t,
-      )!;
+      return Color.lerp(Colors.green.shade100, Colors.yellow.shade300, t)!;
     } else {
       // Yellow to Red
       final t = (normalized - 0.5) * 2;
-      return Color.lerp(
-        Colors.yellow.shade300,
-        Colors.red.shade400,
-        t,
-      )!;
+      return Color.lerp(Colors.yellow.shade300, Colors.red.shade400, t)!;
     }
   }
 
@@ -87,10 +79,7 @@ class CategoryHeatmap extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               if (title != null) ...[
-                Text(
-                  title!,
-                  style: Theme.of(context).textTheme.titleMedium,
-                ),
+                Text(title!, style: Theme.of(context).textTheme.titleMedium),
                 const SizedBox(height: 16),
               ],
               Row(
@@ -102,9 +91,7 @@ class CategoryHeatmap extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
                       // Empty cell for alignment with month labels
-                      SizedBox(
-                        height: cellSize + (cellPadding * 2),
-                      ),
+                      SizedBox(height: cellSize + (cellPadding * 2)),
                       // Category names
                       ...categories.map((category) {
                         return SizedBox(
@@ -114,8 +101,9 @@ class CategoryHeatmap extends StatelessWidget {
                             child: Padding(
                               padding: const EdgeInsets.only(right: 8),
                               child: ConstrainedBox(
-                                constraints:
-                                    const BoxConstraints(maxWidth: 100),
+                                constraints: const BoxConstraints(
+                                  maxWidth: 100,
+                                ),
                                 child: Text(
                                   category,
                                   style: Theme.of(context).textTheme.bodySmall,
@@ -156,8 +144,9 @@ class CategoryHeatmap extends StatelessWidget {
                         final monthValues =
                             categoryMonthlySpending[entry.value]!;
                         return Row(
-                          children:
-                              List.generate(monthLabels.length, (monthIndex) {
+                          children: List.generate(monthLabels.length, (
+                            monthIndex,
+                          ) {
                             final value = monthIndex < monthValues.length
                                 ? monthValues[monthIndex]
                                 : 0;
@@ -221,10 +210,7 @@ class CategoryHeatmap extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(width: 8),
-                  Text(
-                    'کم',
-                    style: Theme.of(context).textTheme.labelSmall,
-                  ),
+                  Text('کم', style: Theme.of(context).textTheme.labelSmall),
                   const SizedBox(width: 24),
                   Container(
                     width: 20,
@@ -235,10 +221,7 @@ class CategoryHeatmap extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(width: 8),
-                  Text(
-                    'متوسط',
-                    style: Theme.of(context).textTheme.labelSmall,
-                  ),
+                  Text('متوسط', style: Theme.of(context).textTheme.labelSmall),
                   const SizedBox(width: 24),
                   Container(
                     width: 20,
@@ -249,10 +232,7 @@ class CategoryHeatmap extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(width: 8),
-                  Text(
-                    'زیاد',
-                    style: Theme.of(context).textTheme.labelSmall,
-                  ),
+                  Text('زیاد', style: Theme.of(context).textTheme.labelSmall),
                 ],
               ),
             ],

@@ -26,8 +26,8 @@ class LoanRepository {
       _db.updateInstallment(inst);
 
   Future<Map<int, List<Installment>>> getInstallmentsGroupedByLoanId(
-          List<int> loanIds) =>
-      _db.getInstallmentsGroupedByLoanId(loanIds);
+    List<int> loanIds,
+  ) => _db.getInstallmentsGroupedByLoanId(loanIds);
 
   Future<int> insertLoan(Loan loan) => _db.insertLoan(loan);
 

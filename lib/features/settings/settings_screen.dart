@@ -15,15 +15,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
   Widget build(BuildContext context) {
     if (!_ready) {
       return const Scaffold(
-          body: SafeArea(child: Center(child: CircularProgressIndicator())));
+        body: SafeArea(child: Center(child: CircularProgressIndicator())),
+      );
     }
 
     return Scaffold(
       appBar: AppBar(title: const Text('Settings')),
       body: const SafeArea(
-        child: Center(
-          child: Text('Settings (minimal placeholder)'),
-        ),
+        child: Center(child: Text('Settings (minimal placeholder)')),
       ),
     );
   }

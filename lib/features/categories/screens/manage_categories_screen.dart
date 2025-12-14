@@ -68,9 +68,9 @@ class _ManageCategoriesScreenState extends State<ManageCategoriesScreen> {
                 );
               } catch (e) {
                 if (!mounted) return;
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('خطا: $e')),
-                );
+                ScaffoldMessenger.of(
+                  context,
+                ).showSnackBar(SnackBar(content: Text('خطا: $e')));
               }
             },
             child: const Text('افزودن'),
@@ -84,7 +84,8 @@ class _ManageCategoriesScreenState extends State<ManageCategoriesScreen> {
     if (_categoryService.isDefaultCategory(category)) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-            content: Text('دسته‌بندی‌های پیش‌فرض قابل تغییر نام نیستند')),
+          content: Text('دسته‌بندی‌های پیش‌فرض قابل تغییر نام نیستند'),
+        ),
       );
       return;
     }
@@ -97,9 +98,7 @@ class _ManageCategoriesScreenState extends State<ManageCategoriesScreen> {
         content: TextField(
           controller: controller,
           autofocus: true,
-          decoration: const InputDecoration(
-            labelText: 'نام جدید',
-          ),
+          decoration: const InputDecoration(labelText: 'نام جدید'),
           textCapitalization: TextCapitalization.words,
         ),
         actions: [
@@ -117,14 +116,14 @@ class _ManageCategoriesScreenState extends State<ManageCategoriesScreen> {
                 Navigator.of(ctx).pop();
                 await _loadCategories();
                 if (!mounted) return;
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('نام تغییر کرد')),
-                );
+                ScaffoldMessenger.of(
+                  context,
+                ).showSnackBar(const SnackBar(content: Text('نام تغییر کرد')));
               } catch (e) {
                 if (!mounted) return;
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('خطا: $e')),
-                );
+                ScaffoldMessenger.of(
+                  context,
+                ).showSnackBar(SnackBar(content: Text('خطا: $e')));
               }
             },
             child: const Text('ذخیره'),
@@ -146,9 +145,7 @@ class _ManageCategoriesScreenState extends State<ManageCategoriesScreen> {
     final budgetsRepo = BudgetsRepository();
     final allBudgets = await budgetsRepo.getAllBudgets();
     final categoryBudgets = allBudgets
-        .where(
-          (b) => b.category?.toLowerCase() == category.toLowerCase(),
-        )
+        .where((b) => b.category?.toLowerCase() == category.toLowerCase())
         .toList();
 
     String warningText =
@@ -172,9 +169,7 @@ class _ManageCategoriesScreenState extends State<ManageCategoriesScreen> {
           ),
           FilledButton(
             onPressed: () => Navigator.of(ctx).pop(true),
-            style: FilledButton.styleFrom(
-              backgroundColor: Colors.red,
-            ),
+            style: FilledButton.styleFrom(backgroundColor: Colors.red),
             child: const Text('حذف'),
           ),
         ],
@@ -187,14 +182,14 @@ class _ManageCategoriesScreenState extends State<ManageCategoriesScreen> {
       await _categoryService.deleteCategory(category);
       await _loadCategories();
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('دسته‌بندی حذف شد')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('دسته‌بندی حذف شد')));
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('خطا: $e')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('خطا: $e')));
     }
   }
 
@@ -219,16 +214,21 @@ class _ManageCategoriesScreenState extends State<ManageCategoriesScreen> {
           return Card(
             margin: const EdgeInsets.only(bottom: 8),
             child: ListTile(
-              contentPadding:
-                  const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 16,
+                vertical: 8,
+              ),
               leading: CircleAvatar(
                 backgroundColor: color.withValues(alpha: 0.2),
                 child: Icon(Icons.label_outlined, color: color),
               ),
-              title: Text(category,
-                  style: Theme.of(context).textTheme.titleMedium),
-              subtitle:
-                  isDefault ? const Text('پیش‌فرض') : const Text('سفارشی'),
+              title: Text(
+                category,
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
+              subtitle: isDefault
+                  ? const Text('پیش‌فرض')
+                  : const Text('سفارشی'),
               trailing: isDefault
                   ? null
                   : Row(

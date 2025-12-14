@@ -22,9 +22,7 @@ class _ComponentsDemoState extends State<ComponentsDemo> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Components Demo'),
-      ),
+      appBar: AppBar(title: const Text('Components Demo')),
       body: ListView(
         padding: AppSpacing.pagePadding,
         children: [
@@ -216,14 +214,8 @@ class _ComponentsDemoState extends State<ComponentsDemo> {
                       isSelected: isSelected,
                       onTap: () => setState(() => isSelected = !isSelected),
                     ),
-                    const CategoryChip(
-                      category: 'Transport',
-                      showIcon: true,
-                    ),
-                    const CategoryChip(
-                      category: 'Shopping',
-                      showIcon: false,
-                    ),
+                    const CategoryChip(category: 'Transport', showIcon: true),
+                    const CategoryChip(category: 'Shopping', showIcon: false),
                   ],
                 ),
               ],
@@ -295,10 +287,9 @@ class _ComponentsDemoState extends State<ComponentsDemo> {
                   value: selectedCategory,
                   leadingIcon: Icons.category,
                   items: ['food', 'transport', 'shopping', 'other']
-                      .map((cat) => DropdownMenuItem(
-                            value: cat,
-                            child: Text(cat),
-                          ))
+                      .map(
+                        (cat) => DropdownMenuItem(value: cat, child: Text(cat)),
+                      )
                       .toList(),
                   onChanged: (value) {
                     setState(() {
@@ -387,9 +378,9 @@ class _ComponentsDemoState extends State<ComponentsDemo> {
       children: [
         Text(
           title,
-          style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
+          style: Theme.of(
+            context,
+          ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: AppSpacing.md),
         child,

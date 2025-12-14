@@ -5,7 +5,8 @@ import 'package:flutter/foundation.dart';
 void _logComputeEntry(String functionName) {
   if (kDebugMode) {
     print(
-        '[Compute] ▶ $functionName started at ${DateTime.now().millisecondsSinceEpoch}');
+      '[Compute] ▶ $functionName started at ${DateTime.now().millisecondsSinceEpoch}',
+    );
   }
 }
 
@@ -38,15 +39,15 @@ class DailyCashSnapshot {
   });
 
   Map<String, dynamic> toMap() => {
-        'date': date.toIso8601String(),
-        'dateJalali': dateJalaliString,
-        'openingBalance': openingBalance,
-        'income': income,
-        'expenses': expenses,
-        'debtPayments': debtPayments,
-        'closingBalance': closingBalance,
-        'isNegative': isNegative,
-      };
+    'date': date.toIso8601String(),
+    'dateJalali': dateJalaliString,
+    'openingBalance': openingBalance,
+    'income': income,
+    'expenses': expenses,
+    'debtPayments': debtPayments,
+    'closingBalance': closingBalance,
+    'isNegative': isNegative,
+  };
 }
 
 /// Input DTO for simulator
@@ -139,16 +140,18 @@ List<DailyCashSnapshot> simulateCashFlow(CashFlowInput input) {
     balance = balance + dayIncome - dayExpenses - dayDebtPayments;
     final isNegative = balance < 0;
 
-    snapshots.add(DailyCashSnapshot(
-      date: currentDate,
-      dateJalaliString: dateStr,
-      openingBalance: balance + dayExpenses + dayDebtPayments - dayIncome,
-      income: dayIncome,
-      expenses: dayExpenses,
-      debtPayments: dayDebtPayments,
-      closingBalance: balance,
-      isNegative: isNegative,
-    ));
+    snapshots.add(
+      DailyCashSnapshot(
+        date: currentDate,
+        dateJalaliString: dateStr,
+        openingBalance: balance + dayExpenses + dayDebtPayments - dayIncome,
+        income: dayIncome,
+        expenses: dayExpenses,
+        debtPayments: dayDebtPayments,
+        closingBalance: balance,
+        isNegative: isNegative,
+      ),
+    );
   }
 
   final duration = DateTime.now().millisecondsSinceEpoch - startTime;
@@ -198,14 +201,14 @@ class CashFlowResult {
   }
 
   Map<String, dynamic> toMap() => {
-        'snapshots': snapshots.map((s) => s.toMap()).toList(),
-        'hasNegativeCash': hasNegativeCash,
-        'minBalance': minBalance,
-        'maxBalance': maxBalance,
-        'daysUntilNegative': daysUntilNegative,
-        'safetyLevel': safetyLevel,
-        'recommendation': recommendation,
-      };
+    'snapshots': snapshots.map((s) => s.toMap()).toList(),
+    'hasNegativeCash': hasNegativeCash,
+    'minBalance': minBalance,
+    'maxBalance': maxBalance,
+    'daysUntilNegative': daysUntilNegative,
+    'safetyLevel': safetyLevel,
+    'recommendation': recommendation,
+  };
 }
 
 /// Post-process snapshots to compute result
@@ -232,10 +235,12 @@ CashFlowResult analyzeCashFlow(List<DailyCashSnapshot> snapshots) {
 
   for (var i = 0; i < snapshots.length; i++) {
     final snap = snapshots[i];
-    minBalance =
-        minBalance > snap.closingBalance ? snap.closingBalance : minBalance;
-    maxBalance =
-        maxBalance < snap.closingBalance ? snap.closingBalance : maxBalance;
+    minBalance = minBalance > snap.closingBalance
+        ? snap.closingBalance
+        : minBalance;
+    maxBalance = maxBalance < snap.closingBalance
+        ? snap.closingBalance
+        : maxBalance;
 
     if (snap.isNegative && daysUntilNegative < 0) {
       daysUntilNegative = i;

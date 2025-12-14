@@ -29,8 +29,9 @@ class SecurityService {
 
   // Perform biometric authentication with a platform-provided prompt.
   // Returns true on success, false otherwise.
-  Future<bool> authenticate(
-      {String reason = 'Authenticate to continue'}) async {
+  Future<bool> authenticate({
+    String reason = 'Authenticate to continue',
+  }) async {
     try {
       final bool didAuthenticate = await _auth.authenticate(
         localizedReason: reason,
@@ -45,12 +46,18 @@ class SecurityService {
   // before persisting in secure storage.
   Future<void> setPin(String pin) async {
     // Generate a random salt and store salt + salted hash.
-    final saltBytes =
-        List<int>.generate(16, (_) => Random.secure().nextInt(256));
+    final saltBytes = List<int>.generate(
+      16,
+      (_) => Random.secure().nextInt(256),
+    );
     final salt = base64.encode(saltBytes);
     // Store a salted PBKDF2-derived hash for verification
-    final hashBytes = _deriveKeyPBKDF2(Uint8List.fromList(utf8.encode(pin)),
-        Uint8List.fromList(saltBytes), 10000, 32);
+    final hashBytes = _deriveKeyPBKDF2(
+      Uint8List.fromList(utf8.encode(pin)),
+      Uint8List.fromList(saltBytes),
+      10000,
+      32,
+    );
     final hash = _bytesToHex(hashBytes);
     await SecureStorageService.instance.write(_pinSaltKey, salt);
     await SecureStorageService.instance.write(_pinKey, hash);
@@ -62,7 +69,11 @@ class SecurityService {
     if (stored == null || salt == null) return false;
     final saltBytes = Uint8List.fromList(base64.decode(salt));
     final hashBytes = _deriveKeyPBKDF2(
-        Uint8List.fromList(utf8.encode(pin)), saltBytes, 10000, 32);
+      Uint8List.fromList(utf8.encode(pin)),
+      saltBytes,
+      10000,
+      32,
+    );
     final hash = _bytesToHex(hashBytes);
     return stored == hash;
   }
@@ -86,13 +97,21 @@ class SecurityService {
     if (salt == null) return null;
     final saltBytes = Uint8List.fromList(base64.decode(salt));
     final derived = _deriveKeyPBKDF2(
-        Uint8List.fromList(utf8.encode(pin)), saltBytes, 10000, 32);
+      Uint8List.fromList(utf8.encode(pin)),
+      saltBytes,
+      10000,
+      32,
+    );
     return _bytesToHex(derived);
   }
 
   // Derive a key using PBKDF2 (HMAC-SHA256) via pointycastle
   Uint8List _deriveKeyPBKDF2(
-      Uint8List password, Uint8List salt, int iterations, int dkLen) {
+    Uint8List password,
+    Uint8List salt,
+    int iterations,
+    int dkLen,
+  ) {
     final pbkdf2 = KeyDerivator('PBKDF2/HMAC/SHA-256')
       ..init(Pbkdf2Parameters(salt, iterations, dkLen));
     return pbkdf2.process(password);

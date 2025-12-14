@@ -26,7 +26,8 @@ class IrregularIncomeService {
       final end = '$targetYear-$mm-${lastDay.toString().padLeft(2, '0')}';
 
       final db = await _db.database;
-      final rows = await db.rawQuery('''
+      final rows = await db.rawQuery(
+        '''
         SELECT COALESCE(SUM(CASE WHEN i.actual_paid_amount IS NOT NULL THEN i.actual_paid_amount ELSE i.amount END), 0) as total
         FROM installments i
         JOIN loans l ON i.loan_id = l.id
@@ -34,7 +35,9 @@ class IrregularIncomeService {
         WHERE i.paid_at BETWEEN ? AND ?
           AND l.direction = 'lent'
           AND (p.mode IS NULL OR p.mode != 'fixed')
-      ''', [start, end]);
+      ''',
+        [start, end],
+      );
 
       final value = rows.first['total'];
       final monthTotal = value is int
@@ -51,10 +54,11 @@ class IrregularIncomeService {
   /// Suggest a safe extra payment amount based on rolling [months] average
   /// and the provided monthly essential budget total. This is a conservative
   /// suggestion: max(0, rollingAvg - essentialBudget * safetyFactor).
-  Future<int> suggestSafeExtra(
-      {int months = 3,
-      required int essentialBudget,
-      double safetyFactor = 1.2}) async {
+  Future<int> suggestSafeExtra({
+    int months = 3,
+    required int essentialBudget,
+    double safetyFactor = 1.2,
+  }) async {
     final avg = await computeRollingAverage(months);
     final safe = (avg - (essentialBudget * safetyFactor)).round();
     return safe > 0 ? safe : 0;

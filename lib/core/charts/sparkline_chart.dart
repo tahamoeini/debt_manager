@@ -10,7 +10,8 @@ class SparklineChart extends StatelessWidget {
   Widget build(BuildContext context) {
     if (points.isEmpty) {
       return Center(
-          child: Text('No data', style: Theme.of(context).textTheme.bodySmall));
+        child: Text('No data', style: Theme.of(context).textTheme.bodySmall),
+      );
     }
 
     final spots = <FlSpot>[];
@@ -31,18 +32,23 @@ class SparklineChart extends StatelessWidget {
             spots: spots,
             isCurved: true,
             dotData: const FlDotData(show: false),
-            gradient: LinearGradient(colors: [
-              Theme.of(context).colorScheme.primary.withValues(alpha: 0.9),
-              Theme.of(context).colorScheme.primary.withValues(alpha: 0.5)
-            ]),
+            gradient: LinearGradient(
+              colors: [
+                Theme.of(context).colorScheme.primary.withValues(alpha: 0.9),
+                Theme.of(context).colorScheme.primary.withValues(alpha: 0.5),
+              ],
+            ),
             belowBarData: BarAreaData(
-                show: true,
-                gradient: LinearGradient(colors: [
+              show: true,
+              gradient: LinearGradient(
+                colors: [
                   Theme.of(context).colorScheme.primary.withValues(alpha: 0.2),
-                  Colors.transparent
-                ])),
+                  Colors.transparent,
+                ],
+              ),
+            ),
             barWidth: 2,
-          )
+          ),
         ],
         minY: minY * 0.95,
         maxY: maxY * 1.05,

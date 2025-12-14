@@ -144,8 +144,9 @@ class _LoanDetailScreenState extends ConsumerState<LoanDetailScreen> {
 
                             // Build updated installment
                             final entered = amountController.text.trim();
-                            final actualAmt =
-                                entered.isEmpty ? null : int.tryParse(entered);
+                            final actualAmt = entered.isEmpty
+                                ? null
+                                : int.tryParse(entered);
 
                             final dueStr = formatJalali(selectedJalali);
 
@@ -156,8 +157,8 @@ class _LoanDetailScreenState extends ConsumerState<LoanDetailScreen> {
                             final newStatus = isPaid
                                 ? InstallmentStatus.paid
                                 : (dueStr.compareTo(todayStr) < 0
-                                    ? InstallmentStatus.overdue
-                                    : InstallmentStatus.pending);
+                                      ? InstallmentStatus.overdue
+                                      : InstallmentStatus.pending);
 
                             final updated = inst.copyWith(
                               dueDateJalali: dueStr,
@@ -181,10 +182,12 @@ class _LoanDetailScreenState extends ConsumerState<LoanDetailScreen> {
                                     '${j.year.toString().padLeft(4, '0')}-${j.month.toString().padLeft(2, '0')}';
 
                                 final repo = BudgetsRepository();
-                                final budgets =
-                                    await repo.getBudgetsByPeriod(period);
+                                final budgets = await repo.getBudgetsByPeriod(
+                                  period,
+                                );
 
-                                final amountPaid = actualAmt ??
+                                final amountPaid =
+                                    actualAmt ??
                                     inst.actualPaidAmount ??
                                     inst.amount;
 
@@ -241,7 +244,8 @@ class _LoanDetailScreenState extends ConsumerState<LoanDetailScreen> {
                             // Persist via provider notifier
                             await ref
                                 .read(
-                                    loanDetailProvider(widget.loanId).notifier)
+                                  loanDetailProvider(widget.loanId).notifier,
+                                )
                                 .updateInstallment(updated);
 
                             // Cancel notification if marking paid
@@ -255,13 +259,15 @@ class _LoanDetailScreenState extends ConsumerState<LoanDetailScreen> {
 
                             // Check if all installments are now paid and celebrate!
                             if (isPaid) {
-                              final allInst = ref
+                              final allInst =
+                                  ref
                                       .read(loanDetailProvider(widget.loanId))
                                       .value
                                       ?.installments ??
                                   [];
                               final allPaid = allInst.every(
-                                  (i) => i.status == InstallmentStatus.paid);
+                                (i) => i.status == InstallmentStatus.paid,
+                              );
                               if (allPaid) {
                                 if (!mounted) {
                                   // Widget disposed; bail out
@@ -274,13 +280,17 @@ class _LoanDetailScreenState extends ConsumerState<LoanDetailScreen> {
                                     final newly = await AchievementsRepository
                                         .instance
                                         .handlePayment(
-                                            loanId: widget.loanId,
-                                            paidAt: DateTime.now());
+                                          loanId: widget.loanId,
+                                          paidAt: DateTime.now(),
+                                        );
                                     if (!mounted) return;
                                     if (newly.isNotEmpty) {
                                       for (final a in newly) {
-                                        showAchievementDialog(context,
-                                            title: a.title, message: a.message);
+                                        showAchievementDialog(
+                                          context,
+                                          title: a.title,
+                                          message: a.message,
+                                        );
                                       }
                                     }
                                   } catch (_) {}
@@ -456,27 +466,27 @@ class _LoanDetailScreenState extends ConsumerState<LoanDetailScreen> {
                 const SizedBox(height: 16),
                 Text(
                   'اقساط',
-                  style: Theme.of(
-                    context,
-                  )
-                      .textTheme
-                      .titleMedium
-                      ?.copyWith(fontWeight: FontWeight.w700),
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w700,
+                  ),
                 ),
                 const SizedBox(height: 8),
-                ...installments.map((inst) => Card(
-                      child: ListTile(
-                        title: Text(
-                          formatJalaliForDisplay(
-                              _parseJalaliSafe(inst.dueDateJalali)),
-                        ),
-                        subtitle: Text(_statusText(inst.status)),
-                        trailing: IconButton(
-                          icon: const Icon(Icons.edit),
-                          onPressed: () => _showEditInstallmentSheet(inst),
+                ...installments.map(
+                  (inst) => Card(
+                    child: ListTile(
+                      title: Text(
+                        formatJalaliForDisplay(
+                          _parseJalaliSafe(inst.dueDateJalali),
                         ),
                       ),
-                    )),
+                      subtitle: Text(_statusText(inst.status)),
+                      trailing: IconButton(
+                        icon: const Icon(Icons.edit),
+                        onPressed: () => _showEditInstallmentSheet(inst),
+                      ),
+                    ),
+                  ),
+                ),
               ],
             ),
           ),

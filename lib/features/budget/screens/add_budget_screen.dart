@@ -52,8 +52,9 @@ class _AddBudgetScreenState extends ConsumerState<AddBudgetScreen> {
 
   Future<void> _save() async {
     if (!_formKey.currentState!.validate()) return;
-    final category =
-        _categoryCtrl.text.trim().isEmpty ? null : _categoryCtrl.text.trim();
+    final category = _categoryCtrl.text.trim().isEmpty
+        ? null
+        : _categoryCtrl.text.trim();
     final amountDouble =
         double.tryParse(_amountCtrl.text.replaceAll(',', '')) ?? 0.0;
     final amount = (amountDouble * 100).round();
@@ -98,9 +99,10 @@ class _AddBudgetScreenState extends ConsumerState<AddBudgetScreen> {
       child: ListView(
         children: [
           FormInput(
-              controller: _categoryCtrl,
-              label: 'دسته‌بندی (اختیاری)',
-              icon: Icons.category),
+            controller: _categoryCtrl,
+            label: 'دسته‌بندی (اختیاری)',
+            icon: Icons.category,
+          ),
           const SizedBox(height: AppConstants.spaceMedium),
           FormInput(
             controller: _amountCtrl,
@@ -127,20 +129,26 @@ class _AddBudgetScreenState extends ConsumerState<AddBudgetScreen> {
           ),
           const SizedBox(height: AppConstants.spaceMedium),
           SwitchListTile(
-              value: _rollover,
-              onChanged: (v) => setState(() => _rollover = v),
-              title: const Text('انتقال به دوره بعدی')),
+            value: _rollover,
+            onChanged: (v) => setState(() => _rollover = v),
+            title: const Text('انتقال به دوره بعدی'),
+          ),
           const SizedBox(height: AppConstants.spaceXLarge),
           Row(
             children: [
               Expanded(
-                  child: FilledButton(
-                      onPressed: _save, child: const Text('ذخیره'))),
+                child: FilledButton(
+                  onPressed: _save,
+                  child: const Text('ذخیره'),
+                ),
+              ),
               const SizedBox(width: AppConstants.spaceMedium),
               Expanded(
-                  child: OutlinedButton(
-                      onPressed: () => Navigator.of(context).pop(),
-                      child: const Text('لغو'))),
+                child: OutlinedButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  child: const Text('لغو'),
+                ),
+              ),
             ],
           ),
         ],
@@ -150,7 +158,8 @@ class _AddBudgetScreenState extends ConsumerState<AddBudgetScreen> {
     return Scaffold(
       appBar: AppBar(title: Text(isEditing ? 'ویرایش بودجه' : 'افزودن بودجه')),
       body: SafeArea(
-          child: Padding(padding: AppConstants.pagePadding, child: form)),
+        child: Padding(padding: AppConstants.pagePadding, child: form),
+      ),
     );
   }
 }

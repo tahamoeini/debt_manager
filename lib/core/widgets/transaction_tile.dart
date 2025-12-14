@@ -10,10 +10,7 @@ import 'package:debt_manager/components/design_system.dart';
 import 'package:debt_manager/core/utils/format_utils.dart';
 
 // Type of transaction
-enum TransactionType {
-  income,
-  expense,
-}
+enum TransactionType { income, expense }
 
 // A list tile widget for displaying transaction information
 class TransactionTile extends StatelessWidget {
@@ -90,17 +87,12 @@ class TransactionTile extends StatelessWidget {
       decoration: BoxDecoration(
         color: colorScheme.surface,
         borderRadius: AppRadius.card,
-        border: Border.all(
-          color: colorScheme.outline.withValues(alpha: 0.2),
-        ),
+        border: Border.all(color: colorScheme.outline.withValues(alpha: 0.2)),
       ),
       child: ListTile(
         contentPadding: AppSpacing.listItemPadding,
         leading: showCategoryIcon && category != null
-            ? CategoryIcon(
-                category: category,
-                size: AppIconSize.lg,
-              )
+            ? CategoryIcon(category: category, size: AppIconSize.lg)
             : Icon(
                 type == TransactionType.income
                     ? Icons.arrow_downward
@@ -166,7 +158,8 @@ class TransactionTile extends StatelessWidget {
               builder: (context) => AlertDialog(
                 title: const Text('تأیید حذف'),
                 content: const Text(
-                    'آیا مطمئن هستید که می‌خواهید این مورد را حذف کنید؟'),
+                  'آیا مطمئن هستید که می‌خواهید این مورد را حذف کنید؟',
+                ),
                 actions: [
                   TextButton(
                     onPressed: () => Navigator.of(context).pop(false),
@@ -174,8 +167,10 @@ class TransactionTile extends StatelessWidget {
                   ),
                   TextButton(
                     onPressed: () => Navigator.of(context).pop(true),
-                    child: Text('حذف',
-                        style: TextStyle(color: colorScheme.danger)),
+                    child: Text(
+                      'حذف',
+                      style: TextStyle(color: colorScheme.danger),
+                    ),
                   ),
                 ],
               ),

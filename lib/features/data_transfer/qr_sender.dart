@@ -23,8 +23,9 @@ class _QrSenderScreenState extends State<QrSenderScreen> {
     final ok = await la.authenticate(reason: 'Authenticate to export via QR');
     if (!ok) {
       setState(() => _loading = false);
-      ScaffoldMessenger.of(context)
-          .showSnackBar(const SnackBar(content: Text('Authentication failed')));
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Authentication failed')));
       return;
     }
 
@@ -53,43 +54,57 @@ class _QrSenderScreenState extends State<QrSenderScreen> {
           child: _loading
               ? const CircularProgressIndicator()
               : _chunks.isEmpty
-                  ? Column(mainAxisSize: MainAxisSize.min, children: [
-                      const Padding(
-                          padding: EdgeInsets.all(8),
-                          child: Text(
-                              'Enter password to encrypt export and generate QR sequence')),
-                      ElevatedButton(
-                          onPressed: () async {
-                            final pw = await _askPassword();
-                            if (pw != null) await _prepare(pw);
-                          },
-                          child: const Text('Generate QR Sequence')),
-                    ])
-                  : Column(mainAxisSize: MainAxisSize.min, children: [
-                      Text('Page ${_index + 1} / ${_chunks.length}'),
-                      const SizedBox(height: 12),
-                      // Render QR using qr_flutter (data is positional in current package)
-                      Container(
-                        width: 320,
-                        height: 320,
-                        color: Colors.white,
-                        child: QrImageView(data: _chunks[_index], size: 320),
+              ? Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Padding(
+                      padding: EdgeInsets.all(8),
+                      child: Text(
+                        'Enter password to encrypt export and generate QR sequence',
                       ),
-                      const SizedBox(height: 12),
-                      Row(mainAxisSize: MainAxisSize.min, children: [
+                    ),
+                    ElevatedButton(
+                      onPressed: () async {
+                        final pw = await _askPassword();
+                        if (pw != null) await _prepare(pw);
+                      },
+                      child: const Text('Generate QR Sequence'),
+                    ),
+                  ],
+                )
+              : Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text('Page ${_index + 1} / ${_chunks.length}'),
+                    const SizedBox(height: 12),
+                    // Render QR using qr_flutter (data is positional in current package)
+                    Container(
+                      width: 320,
+                      height: 320,
+                      color: Colors.white,
+                      child: QrImageView(data: _chunks[_index], size: 320),
+                    ),
+                    const SizedBox(height: 12),
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
                         ElevatedButton(
-                            onPressed: _index > 0
-                                ? () => setState(() => _index--)
-                                : null,
-                            child: const Text('Prev')),
+                          onPressed: _index > 0
+                              ? () => setState(() => _index--)
+                              : null,
+                          child: const Text('Prev'),
+                        ),
                         const SizedBox(width: 12),
                         ElevatedButton(
-                            onPressed: _index < _chunks.length - 1
-                                ? () => setState(() => _index++)
-                                : null,
-                            child: const Text('Next')),
-                      ])
-                    ]),
+                          onPressed: _index < _chunks.length - 1
+                              ? () => setState(() => _index++)
+                              : null,
+                          child: const Text('Next'),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
         ),
       ),
     );
@@ -98,21 +113,24 @@ class _QrSenderScreenState extends State<QrSenderScreen> {
   Future<String?> _askPassword() async {
     final controller = TextEditingController();
     final ok = await showDialog<bool>(
-        context: context,
-        builder: (ctx) {
-          return AlertDialog(
-            title: const Text('Password'),
-            content: TextField(controller: controller, obscureText: true),
-            actions: [
-              TextButton(
-                  onPressed: () => Navigator.of(ctx).pop(false),
-                  child: const Text('Cancel')),
-              TextButton(
-                  onPressed: () => Navigator.of(ctx).pop(true),
-                  child: const Text('OK')),
-            ],
-          );
-        });
+      context: context,
+      builder: (ctx) {
+        return AlertDialog(
+          title: const Text('Password'),
+          content: TextField(controller: controller, obscureText: true),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(ctx).pop(false),
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.of(ctx).pop(true),
+              child: const Text('OK'),
+            ),
+          ],
+        );
+      },
+    );
     if (ok == true) return controller.text;
     return null;
   }

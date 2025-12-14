@@ -1,7 +1,9 @@
 abstract class CloudBackupProvider {
   // Upload encrypted blob and return a version id / remote path.
-  Future<String> uploadEncryptedBlob(List<int> bytes,
-      {required String filename});
+  Future<String> uploadEncryptedBlob(
+    List<int> bytes, {
+    required String filename,
+  });
 
   // Download encrypted blob by version id / path. Returns bytes.
   Future<List<int>> downloadEncryptedBlob(String id);
@@ -20,7 +22,8 @@ class NoopCloudBackupProvider implements CloudBackupProvider {
   Future<List<String>> listBackups() async => [];
 
   @override
-  Future<String> uploadEncryptedBlob(List<int> bytes,
-          {required String filename}) async =>
-      throw UnimplementedError();
+  Future<String> uploadEncryptedBlob(
+    List<int> bytes, {
+    required String filename,
+  }) async => throw UnimplementedError();
 }

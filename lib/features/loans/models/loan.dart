@@ -18,7 +18,7 @@ class Loan {
   final double? interestRate; // annual percentage (e.g., 5.5)
   // How often interest compounds per year. If null, monthly is assumed.
   final String?
-      compoundingFrequency; // 'daily', 'monthly', 'quarterly', 'yearly'
+  compoundingFrequency; // 'daily', 'monthly', 'quarterly', 'yearly'
   // Optional grace period in days where interest may not accrue or payments can be deferred
   final int? gracePeriodDays;
   final int? monthlyPayment;
@@ -127,24 +127,24 @@ class Loan {
       interestRate: map['interest_rate'] is num
           ? (map['interest_rate'] as num).toDouble()
           : (map['interest_rate'] is String
-              ? double.tryParse(map['interest_rate'])
-              : null),
+                ? double.tryParse(map['interest_rate'])
+                : null),
       compoundingFrequency: map['compounding_frequency'] as String?,
       gracePeriodDays: map['grace_period_days'] is int
           ? map['grace_period_days'] as int
           : (map['grace_period_days'] != null
-              ? int.tryParse(map['grace_period_days'].toString())
-              : null),
+                ? int.tryParse(map['grace_period_days'].toString())
+                : null),
       monthlyPayment: map['monthly_payment'] is int
           ? map['monthly_payment'] as int
           : (map['monthly_payment'] != null
-              ? int.tryParse(map['monthly_payment'].toString())
-              : null),
+                ? int.tryParse(map['monthly_payment'].toString())
+                : null),
       termMonths: map['term_months'] is int
           ? map['term_months'] as int
           : (map['term_months'] != null
-              ? int.tryParse(map['term_months'].toString())
-              : null),
+                ? int.tryParse(map['term_months'].toString())
+                : null),
       createdAt: map['created_at'] as String? ?? '',
     );
   }

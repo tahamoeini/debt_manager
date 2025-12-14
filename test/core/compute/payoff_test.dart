@@ -5,7 +5,7 @@ void main() {
     // Helper: Snowball strategy (lowest balance first)
     List<Map<String, dynamic>> simulateSnowball({
       required List<Map<String, dynamic>>
-          debts, // [{balance, rate, minPayment}]
+      debts, // [{balance, rate, minPayment}]
       required int extraPayment,
       required int maxMonths,
     }) {
@@ -60,7 +60,7 @@ void main() {
     // Helper: Avalanche strategy (highest rate first)
     List<Map<String, dynamic>> simulateAvalanche({
       required List<Map<String, dynamic>>
-          debts, // [{balance, rate, minPayment}]
+      debts, // [{balance, rate, minPayment}]
       required int extraPayment,
       required int maxMonths,
     }) {
@@ -114,11 +114,7 @@ void main() {
 
     test('Snowball strategy - single debt payoff', () {
       final debts = [
-        {
-          'balance': 5000000,
-          'rate': 12.0,
-          'minPayment': 100000,
-        }
+        {'balance': 5000000, 'rate': 12.0, 'minPayment': 100000},
       ];
 
       final projections = simulateSnowball(
@@ -134,11 +130,7 @@ void main() {
 
     test('Avalanche strategy - single debt payoff', () {
       final debts = [
-        {
-          'balance': 5000000,
-          'rate': 15.0,
-          'minPayment': 100000,
-        }
+        {'balance': 5000000, 'rate': 15.0, 'minPayment': 100000},
       ];
 
       final projections = simulateAvalanche(
@@ -179,16 +171,8 @@ void main() {
 
     test('Snowball strategy - multiple debts payoff order', () {
       final debts = [
-        {
-          'balance': 1000000,
-          'rate': 12.0,
-          'minPayment': 50000,
-        },
-        {
-          'balance': 5000000,
-          'rate': 12.0,
-          'minPayment': 100000,
-        },
+        {'balance': 1000000, 'rate': 12.0, 'minPayment': 50000},
+        {'balance': 5000000, 'rate': 12.0, 'minPayment': 100000},
       ];
 
       final projections = simulateSnowball(
@@ -200,22 +184,15 @@ void main() {
       expect(projections.isNotEmpty, isTrue);
       // Smallest debt should be eliminated first
       expect(
-          projections.first['balances'][0] < projections.first['balances'][1],
-          isTrue);
+        projections.first['balances'][0] < projections.first['balances'][1],
+        isTrue,
+      );
     });
 
     test('Avalanche strategy - highest rate payoff priority', () {
       final debts = [
-        {
-          'balance': 3000000,
-          'rate': 8.0,
-          'minPayment': 60000,
-        },
-        {
-          'balance': 3000000,
-          'rate': 20.0,
-          'minPayment': 60000,
-        },
+        {'balance': 3000000, 'rate': 8.0, 'minPayment': 60000},
+        {'balance': 3000000, 'rate': 20.0, 'minPayment': 60000},
       ];
 
       final projections = simulateAvalanche(
@@ -240,11 +217,7 @@ void main() {
 
     test('No extra payment - minimum payments only', () {
       final debts = [
-        {
-          'balance': 2000000,
-          'rate': 12.0,
-          'minPayment': 100000,
-        }
+        {'balance': 2000000, 'rate': 12.0, 'minPayment': 100000},
       ];
 
       final projections = simulateSnowball(
@@ -260,11 +233,7 @@ void main() {
 
     test('High extra payment - rapid payoff', () {
       final debts = [
-        {
-          'balance': 2000000,
-          'rate': 12.0,
-          'minPayment': 50000,
-        }
+        {'balance': 2000000, 'rate': 12.0, 'minPayment': 50000},
       ];
 
       final slowPayoff = simulateSnowball(
@@ -292,16 +261,8 @@ void main() {
 
     test('Balance never increases after payment', () {
       final debts = [
-        {
-          'balance': 3000000,
-          'rate': 15.0,
-          'minPayment': 100000,
-        },
-        {
-          'balance': 2000000,
-          'rate': 12.0,
-          'minPayment': 80000,
-        },
+        {'balance': 3000000, 'rate': 15.0, 'minPayment': 100000},
+        {'balance': 2000000, 'rate': 12.0, 'minPayment': 80000},
       ];
 
       final projections = simulateSnowball(
@@ -326,7 +287,7 @@ void main() {
           'balance': 1000000,
           'rate': 50.0, // Very high interest
           'minPayment': 200000,
-        }
+        },
       ];
 
       final projections = simulateSnowball(
@@ -360,11 +321,7 @@ void main() {
 
     test('Payoff date calculation - months until zero balance', () {
       final debts = [
-        {
-          'balance': 5000000,
-          'rate': 12.0,
-          'minPayment': 100000,
-        }
+        {'balance': 5000000, 'rate': 12.0, 'minPayment': 100000},
       ];
 
       final projections = simulateSnowball(
@@ -373,19 +330,16 @@ void main() {
         maxMonths: 200,
       );
 
-      final paidOffMonth =
-          projections.indexWhere((p) => p['totalBalance'] == 0);
+      final paidOffMonth = projections.indexWhere(
+        (p) => p['totalBalance'] == 0,
+      );
       expect(paidOffMonth, greaterThan(0));
       expect(paidOffMonth, lessThan(20)); // Should pay off within ~1.5 years
     });
 
     test('Consistent interest calculation across months', () {
       final debts = [
-        {
-          'balance': 1000000,
-          'rate': 12.0,
-          'minPayment': 50000,
-        }
+        {'balance': 1000000, 'rate': 12.0, 'minPayment': 50000},
       ];
 
       final projections = simulateSnowball(

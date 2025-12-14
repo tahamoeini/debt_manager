@@ -5,7 +5,9 @@ import 'package:shamsi_date/shamsi_date.dart';
 // they can be reconstructed on the main isolate.
 
 List<Map<String, dynamic>> computeDetectSubscriptions(
-    List<Map<String, dynamic>> loans, List<Map<String, dynamic>> installments) {
+  List<Map<String, dynamic>> loans,
+  List<Map<String, dynamic>> installments,
+) {
   final results = <Map<String, dynamic>>[];
 
   // Build payments by payee/title using loans and installments
@@ -27,12 +29,13 @@ List<Map<String, dynamic>> computeDetectSubscriptions(
       final amt = p['actual_paid_amount'] is int
           ? p['actual_paid_amount'] as int
           : (p['amount'] is int
-              ? p['amount'] as int
-              : int.tryParse(p['amount'].toString()) ?? 0);
+                ? p['amount'] as int
+                : int.tryParse(p['amount'].toString()) ?? 0);
       final paidAt = p['paid_at'] as String? ?? '';
-      paymentsByPayee
-          .putIfAbsent(title, () => [])
-          .add({'amount': amt, 'paid_at': paidAt});
+      paymentsByPayee.putIfAbsent(title, () => []).add({
+        'amount': amt,
+        'paid_at': paidAt,
+      });
     }
   }
 
@@ -59,7 +62,7 @@ List<Map<String, dynamic>> computeDetectSubscriptions(
         'amount': g.key,
         'occurrences': g.value,
         'description':
-            'پرداخت تکراری ${formatCurrency(g.key)} برای ${g.value} دوره (تشخیص اشتراک احتمالی)'
+            'پرداخت تکراری ${formatCurrency(g.key)} برای ${g.value} دوره (تشخیص اشتراک احتمالی)',
       });
     }
   }
@@ -80,11 +83,13 @@ List<Map<String, dynamic>> computeDetectBillChanges(
         ? loan['id'] as int
         : int.tryParse(loan['id'].toString()) ?? -1;
     final insts = installments
-        .where((i) =>
-            (i['loan_id'] is int
-                ? i['loan_id'] as int
-                : int.tryParse(i['loan_id'].toString()) ?? -1) ==
-            lid)
+        .where(
+          (i) =>
+              (i['loan_id'] is int
+                  ? i['loan_id'] as int
+                  : int.tryParse(i['loan_id'].toString()) ?? -1) ==
+              lid,
+        )
         .toList();
 
     final current = insts
@@ -98,13 +103,13 @@ List<Map<String, dynamic>> computeDetectBillChanges(
       final currentAmount = current.first['actual_paid_amount'] is int
           ? current.first['actual_paid_amount'] as int
           : (current.first['amount'] as int? ??
-              int.tryParse(current.first['amount'].toString()) ??
-              0);
+                int.tryParse(current.first['amount'].toString()) ??
+                0);
       final prevAmount = prev.first['actual_paid_amount'] is int
           ? prev.first['actual_paid_amount'] as int
           : (prev.first['amount'] as int? ??
-              int.tryParse(prev.first['amount'].toString()) ??
-              0);
+                int.tryParse(prev.first['amount'].toString()) ??
+                0);
       if (prevAmount > 0) {
         final change = ((currentAmount - prevAmount) / prevAmount) * 100;
         if (change > 20) {
@@ -174,8 +179,8 @@ List<Map<String, dynamic>> computeDetectAnomalies(
           sum += inst['actual_paid_amount'] is int
               ? inst['actual_paid_amount'] as int
               : (inst['amount'] as int? ??
-                  int.tryParse(inst['amount'].toString()) ??
-                  0);
+                    int.tryParse(inst['amount'].toString()) ??
+                    0);
         }
       }
       monthlySums.add(sum);

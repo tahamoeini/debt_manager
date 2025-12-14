@@ -110,16 +110,18 @@ class HomeStatisticsNotifier extends StateNotifier<AsyncValue<HomeStats>> {
       final cps = await db.getAllCounterparties();
       final cpById = {for (var c in cps) c.id ?? -1: c};
 
-      state = AsyncValue.data(HomeStats(
-        borrowed: borrowed,
-        lent: lent,
-        net: net,
-        monthlySpending: monthlySpending,
-        spendingTrend: spendingTrend,
-        upcoming: upcoming,
-        loansById: loansById,
-        counterpartiesById: cpById,
-      ));
+      state = AsyncValue.data(
+        HomeStats(
+          borrowed: borrowed,
+          lent: lent,
+          net: net,
+          monthlySpending: monthlySpending,
+          spendingTrend: spendingTrend,
+          upcoming: upcoming,
+          loansById: loansById,
+          counterpartiesById: cpById,
+        ),
+      );
     } catch (e, st) {
       state = AsyncValue.error(e, st);
     }
@@ -131,7 +133,10 @@ class HomeStatisticsNotifier extends StateNotifier<AsyncValue<HomeStats>> {
   }
 }
 
-final homeStatisticsProvider = StateNotifierProvider.autoDispose<
-    HomeStatisticsNotifier, AsyncValue<HomeStats>>((ref) {
-  return HomeStatisticsNotifier(ref);
-});
+final homeStatisticsProvider =
+    StateNotifierProvider.autoDispose<
+      HomeStatisticsNotifier,
+      AsyncValue<HomeStats>
+    >((ref) {
+      return HomeStatisticsNotifier(ref);
+    });

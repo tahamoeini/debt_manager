@@ -33,8 +33,11 @@ class AutomationRulesRepository {
     if (kIsWeb) return 0;
 
     final db = await _db.database;
-    return await db
-        .delete('automation_rules', where: 'id = ?', whereArgs: [id]);
+    return await db.delete(
+      'automation_rules',
+      where: 'id = ?',
+      whereArgs: [id],
+    );
   }
 
   Future<List<AutomationRule>> getAllRules() async {
@@ -65,14 +68,13 @@ class AutomationRulesRepository {
     String? description,
     int? amount,
   ) async {
-    final result = <String, String?>{
-      'category': null,
-      'tag': null,
-    };
+    final result = <String, String?>{'category': null, 'tag': null};
 
     // First check built-in patterns
-    final builtInCategory =
-        BuiltInCategories.suggestCategory(payee, description);
+    final builtInCategory = BuiltInCategories.suggestCategory(
+      payee,
+      description,
+    );
     if (builtInCategory != null) {
       result['category'] = builtInCategory;
     }

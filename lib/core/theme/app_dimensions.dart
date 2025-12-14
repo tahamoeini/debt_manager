@@ -7,14 +7,18 @@ class AppDimensions {
   AppDimensions._();
 
   // Border Radius
-  static const BorderRadius cardBorderRadius =
-      BorderRadius.all(Radius.circular(12));
-  static const BorderRadius dialogBorderRadius =
-      BorderRadius.all(Radius.circular(16));
-  static const BorderRadius buttonBorderRadius =
-      BorderRadius.all(Radius.circular(10));
-  static const BorderRadius inputBorderRadius =
-      BorderRadius.all(Radius.circular(10));
+  static const BorderRadius cardBorderRadius = BorderRadius.all(
+    Radius.circular(12),
+  );
+  static const BorderRadius dialogBorderRadius = BorderRadius.all(
+    Radius.circular(16),
+  );
+  static const BorderRadius buttonBorderRadius = BorderRadius.all(
+    Radius.circular(10),
+  );
+  static const BorderRadius inputBorderRadius = BorderRadius.all(
+    Radius.circular(10),
+  );
 
   static const double cardRadius = 12.0;
   static const double dialogRadius = 16.0;
@@ -31,13 +35,17 @@ class AppDimensions {
 
   // Padding
   static const EdgeInsets pagePadding = EdgeInsets.all(16);
-  static const EdgeInsets pageHorizontalPadding =
-      EdgeInsets.symmetric(horizontal: 16);
-  static const EdgeInsets pageVerticalPadding =
-      EdgeInsets.symmetric(vertical: 16);
+  static const EdgeInsets pageHorizontalPadding = EdgeInsets.symmetric(
+    horizontal: 16,
+  );
+  static const EdgeInsets pageVerticalPadding = EdgeInsets.symmetric(
+    vertical: 16,
+  );
   static const EdgeInsets cardPadding = EdgeInsets.all(12);
-  static const EdgeInsets listItemPadding =
-      EdgeInsets.symmetric(horizontal: 16, vertical: 8);
+  static const EdgeInsets listItemPadding = EdgeInsets.symmetric(
+    horizontal: 16,
+    vertical: 8,
+  );
   static const EdgeInsets dialogPadding = EdgeInsets.all(20);
 
   // Icon sizes

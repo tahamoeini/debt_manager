@@ -35,12 +35,10 @@ class _CelebrationDialogState extends State<_CelebrationDialog>
       duration: const Duration(milliseconds: 1500),
     );
 
-    _scaleAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(
-        parent: _controller,
-        curve: Curves.elasticOut,
-      ),
-    );
+    _scaleAnimation = Tween<double>(
+      begin: 0.0,
+      end: 1.0,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.elasticOut));
 
     _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(
@@ -94,17 +92,17 @@ class _CelebrationDialogState extends State<_CelebrationDialog>
                 Text(
                   '🎉 تبریک! 🎉',
                   style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
-                        color: Theme.of(context).colorScheme.onPrimaryContainer,
-                      ),
+                    fontWeight: FontWeight.bold,
+                    color: Theme.of(context).colorScheme.onPrimaryContainer,
+                  ),
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 8),
                 Text(
                   'بدهی شما کامل شد!',
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        color: Theme.of(context).colorScheme.onPrimaryContainer,
-                      ),
+                    color: Theme.of(context).colorScheme.onPrimaryContainer,
+                  ),
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 24),
@@ -174,10 +172,7 @@ class _ConfettiPainter extends CustomPainter {
       canvas.save();
       canvas.translate(x, y);
       canvas.rotate(rotation);
-      canvas.drawRect(
-        const Rect.fromLTWH(-4, -8, 8, 16),
-        paint,
-      );
+      canvas.drawRect(const Rect.fromLTWH(-4, -8, 8, 16), paint);
       canvas.restore();
     }
   }
@@ -198,8 +193,11 @@ Future<void> showSuccessAnimation(
     context: context,
     barrierDismissible: true,
     builder: (ctx) => AlertDialog(
-      icon:
-          const Icon(Icons.check_circle_outline, size: 64, color: Colors.green),
+      icon: const Icon(
+        Icons.check_circle_outline,
+        size: 64,
+        color: Colors.green,
+      ),
       title: Text(title, textAlign: TextAlign.center),
       content: Text(message, textAlign: TextAlign.center),
       actions: [
@@ -213,8 +211,12 @@ Future<void> showSuccessAnimation(
 }
 
 // Show an achievement dialog with badge-like appearance.
-Future<void> showAchievementDialog(BuildContext context,
-    {required String title, required String message, IconData? icon}) async {
+Future<void> showAchievementDialog(
+  BuildContext context, {
+  required String title,
+  required String message,
+  IconData? icon,
+}) async {
   await showDialog(
     context: context,
     barrierDismissible: true,
@@ -224,12 +226,17 @@ Future<void> showAchievementDialog(BuildContext context,
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(icon ?? Icons.emoji_events_outlined,
-                size: 64, color: Theme.of(ctx).colorScheme.primary),
+            Icon(
+              icon ?? Icons.emoji_events_outlined,
+              size: 64,
+              color: Theme.of(ctx).colorScheme.primary,
+            ),
             const SizedBox(height: 12),
-            Text(title,
-                style: Theme.of(ctx).textTheme.titleLarge,
-                textAlign: TextAlign.center),
+            Text(
+              title,
+              style: Theme.of(ctx).textTheme.titleLarge,
+              textAlign: TextAlign.center,
+            ),
             const SizedBox(height: 8),
             Text(message, textAlign: TextAlign.center),
             const SizedBox(height: 12),

@@ -68,7 +68,8 @@ class BudgetEntry {
           : int.parse(map['amount'].toString()),
       period: map['period'] as String?,
       dateJalali: map['date_jalali'] as String?,
-      isOneOff: (map['is_one_off'] is int
+      isOneOff:
+          (map['is_one_off'] is int
               ? (map['is_one_off'] as int)
               : int.tryParse(map['is_one_off'].toString())) ==
           1,

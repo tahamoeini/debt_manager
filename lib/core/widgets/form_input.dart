@@ -72,22 +72,15 @@ class FormInput extends StatelessWidget {
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: AppDimensions.inputBorderRadius,
-          borderSide: BorderSide(
-            color: theme.colorScheme.outline,
-          ),
+          borderSide: BorderSide(color: theme.colorScheme.outline),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: AppDimensions.inputBorderRadius,
-          borderSide: BorderSide(
-            color: theme.colorScheme.primary,
-            width: 2,
-          ),
+          borderSide: BorderSide(color: theme.colorScheme.primary, width: 2),
         ),
         errorBorder: OutlineInputBorder(
           borderRadius: AppDimensions.inputBorderRadius,
-          borderSide: BorderSide(
-            color: theme.colorScheme.error,
-          ),
+          borderSide: BorderSide(color: theme.colorScheme.error),
         ),
         floatingLabelStyle: TextStyle(
           fontWeight: FontWeight.w600,
@@ -130,9 +123,7 @@ class NumericFormInput extends StatelessWidget {
       hint: hint,
       enabled: enabled,
       onChanged: onChanged,
-      inputFormatters: [
-        FilteringTextInputFormatter.digitsOnly,
-      ],
+      inputFormatters: [FilteringTextInputFormatter.digitsOnly],
     );
   }
 }

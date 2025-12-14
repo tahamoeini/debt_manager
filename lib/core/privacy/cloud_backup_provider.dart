@@ -21,20 +21,24 @@ class CloudBackupEntry {
   // Size in bytes
   final int size;
 
-  CloudBackupEntry(
-      {required this.id,
-      required this.label,
-      required this.createdAt,
-      required this.size,
-      this.metadata});
+  CloudBackupEntry({
+    required this.id,
+    required this.label,
+    required this.createdAt,
+    required this.size,
+    this.metadata,
+  });
 }
 
 abstract class CloudBackupProvider {
   // Upload an encrypted blob. The provider returns an entry representing
   // the saved version. Implementations should be able to store bytes
   // and index metadata for listing.
-  Future<CloudBackupEntry> uploadEncryptedBackup(Uint8List encryptedBytes,
-      {String? label, Map<String, String>? metadata});
+  Future<CloudBackupEntry> uploadEncryptedBackup(
+    Uint8List encryptedBytes, {
+    String? label,
+    Map<String, String>? metadata,
+  });
 
   // Download a specific backup by id. Returns the previously-uploaded
   // encrypted bytes.

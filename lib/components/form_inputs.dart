@@ -119,9 +119,7 @@ class FormInput extends StatelessWidget {
         fillColor: enabled
             ? colorScheme.surfaceContainerHighest
             : colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
-        border: const OutlineInputBorder(
-          borderRadius: AppRadius.input,
-        ),
+        border: const OutlineInputBorder(borderRadius: AppRadius.input),
         enabledBorder: OutlineInputBorder(
           borderRadius: AppRadius.input,
           borderSide: BorderSide(
@@ -130,23 +128,15 @@ class FormInput extends StatelessWidget {
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: AppRadius.input,
-          borderSide: BorderSide(
-            color: colorScheme.primary,
-            width: 2,
-          ),
+          borderSide: BorderSide(color: colorScheme.primary, width: 2),
         ),
         errorBorder: OutlineInputBorder(
           borderRadius: AppRadius.input,
-          borderSide: BorderSide(
-            color: colorScheme.danger,
-          ),
+          borderSide: BorderSide(color: colorScheme.danger),
         ),
         focusedErrorBorder: OutlineInputBorder(
           borderRadius: AppRadius.input,
-          borderSide: BorderSide(
-            color: colorScheme.danger,
-            width: 2,
-          ),
+          borderSide: BorderSide(color: colorScheme.danger, width: 2),
         ),
         contentPadding: const EdgeInsets.symmetric(
           horizontal: AppSpacing.lg,
@@ -213,9 +203,7 @@ class DropdownField<T> extends StatelessWidget {
         fillColor: enabled
             ? colorScheme.surfaceContainerHighest
             : colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
-        border: const OutlineInputBorder(
-          borderRadius: AppRadius.input,
-        ),
+        border: const OutlineInputBorder(borderRadius: AppRadius.input),
         enabledBorder: OutlineInputBorder(
           borderRadius: AppRadius.input,
           borderSide: BorderSide(
@@ -224,23 +212,15 @@ class DropdownField<T> extends StatelessWidget {
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: AppRadius.input,
-          borderSide: BorderSide(
-            color: colorScheme.primary,
-            width: 2,
-          ),
+          borderSide: BorderSide(color: colorScheme.primary, width: 2),
         ),
         errorBorder: OutlineInputBorder(
           borderRadius: AppRadius.input,
-          borderSide: BorderSide(
-            color: colorScheme.danger,
-          ),
+          borderSide: BorderSide(color: colorScheme.danger),
         ),
         focusedErrorBorder: OutlineInputBorder(
           borderRadius: AppRadius.input,
-          borderSide: BorderSide(
-            color: colorScheme.danger,
-            width: 2,
-          ),
+          borderSide: BorderSide(color: colorScheme.danger, width: 2),
         ),
         contentPadding: const EdgeInsets.symmetric(
           horizontal: AppSpacing.lg,

@@ -60,20 +60,18 @@ class _AutomationRulesScreenState extends State<AutomationRulesScreen> {
                         children: [
                           Icon(
                             Icons.info_outline,
-                            color: Theme.of(context)
-                                .colorScheme
-                                .onTertiaryContainer,
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.onTertiaryContainer,
                           ),
                           const SizedBox(width: 8),
                           Text(
                             'درباره قوانین خودکار',
-                            style: Theme.of(context)
-                                .textTheme
-                                .titleMedium
+                            style: Theme.of(context).textTheme.titleMedium
                                 ?.copyWith(
-                                  color: Theme.of(context)
-                                      .colorScheme
-                                      .onTertiaryContainer,
+                                  color: Theme.of(
+                                    context,
+                                  ).colorScheme.onTertiaryContainer,
                                 ),
                           ),
                         ],
@@ -82,10 +80,10 @@ class _AutomationRulesScreenState extends State<AutomationRulesScreen> {
                       Text(
                         'برنامه به طور خودکار از یک فرهنگ لغت داخلی برای شناسایی دسته‌های رایج استفاده می‌کند. قوانین سفارشی را می‌توانید در نسخه‌های بعدی اضافه کنید.',
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                              color: Theme.of(context)
-                                  .colorScheme
-                                  .onTertiaryContainer,
-                            ),
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.onTertiaryContainer,
+                        ),
                       ),
                     ],
                   ),
@@ -123,7 +121,8 @@ class _AutomationRulesScreenState extends State<AutomationRulesScreen> {
                       ),
                       title: Text(rule.name),
                       subtitle: Text(
-                          '${_getRuleTypeLabel(rule.ruleType)}: ${rule.pattern} → ${rule.actionValue}'),
+                        '${_getRuleTypeLabel(rule.ruleType)}: ${rule.pattern} → ${rule.actionValue}',
+                      ),
                       trailing: Switch(
                         value: rule.enabled,
                         onChanged: (v) async {
@@ -165,127 +164,149 @@ class _AutomationRulesScreenState extends State<AutomationRulesScreen> {
 
     showDialog(
       context: context,
-      builder: (ctx) => StatefulBuilder(builder: (c, setState) {
-        return AlertDialog(
-          title: const Text('افزودن قانون جدید'),
-          content: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                TextField(
+      builder: (ctx) => StatefulBuilder(
+        builder: (c, setState) {
+          return AlertDialog(
+            title: const Text('افزودن قانون جدید'),
+            content: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  TextField(
                     controller: nameCtrl,
-                    decoration: const InputDecoration(labelText: 'نام')),
-                const SizedBox(height: 8),
-                DropdownButton<String>(
-                  value: ruleType,
-                  isExpanded: true,
-                  items: const [
-                    DropdownMenuItem(
+                    decoration: const InputDecoration(labelText: 'نام'),
+                  ),
+                  const SizedBox(height: 8),
+                  DropdownButton<String>(
+                    value: ruleType,
+                    isExpanded: true,
+                    items: const [
+                      DropdownMenuItem(
                         value: 'payee_contains',
-                        child: Text('پرداخت‌گیرنده شامل')),
-                    DropdownMenuItem(
+                        child: Text('پرداخت‌گیرنده شامل'),
+                      ),
+                      DropdownMenuItem(
                         value: 'description_contains',
-                        child: Text('توضیحات شامل')),
-                    DropdownMenuItem(
-                        value: 'amount_equals', child: Text('مبلغ برابر')),
-                  ],
-                  onChanged: (v) => setState(() => ruleType = v ?? ruleType),
-                ),
-                const SizedBox(height: 8),
-                TextField(
+                        child: Text('توضیحات شامل'),
+                      ),
+                      DropdownMenuItem(
+                        value: 'amount_equals',
+                        child: Text('مبلغ برابر'),
+                      ),
+                    ],
+                    onChanged: (v) => setState(() => ruleType = v ?? ruleType),
+                  ),
+                  const SizedBox(height: 8),
+                  TextField(
                     controller: patternCtrl,
                     decoration: const InputDecoration(
-                        labelText: 'الگو (مثلا Uber یا 199000)')),
-                const SizedBox(height: 8),
-                DropdownButton<String>(
-                  value: action,
-                  isExpanded: true,
-                  items: const [
-                    DropdownMenuItem(
-                        value: 'set_category', child: Text('تنظیم دسته')),
-                    DropdownMenuItem(
-                        value: 'set_tag', child: Text('تنظیم برچسب')),
-                  ],
-                  onChanged: (v) => setState(() => action = v ?? action),
-                ),
-                const SizedBox(height: 8),
-                TextField(
+                      labelText: 'الگو (مثلا Uber یا 199000)',
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  DropdownButton<String>(
+                    value: action,
+                    isExpanded: true,
+                    items: const [
+                      DropdownMenuItem(
+                        value: 'set_category',
+                        child: Text('تنظیم دسته'),
+                      ),
+                      DropdownMenuItem(
+                        value: 'set_tag',
+                        child: Text('تنظیم برچسب'),
+                      ),
+                    ],
+                    onChanged: (v) => setState(() => action = v ?? action),
+                  ),
+                  const SizedBox(height: 8),
+                  TextField(
                     controller: actionValueCtrl,
                     decoration: const InputDecoration(
-                        labelText:
-                            'مقدار اقدام (مثلا Transport یا Subscription)')),
-                const SizedBox(height: 12),
-                const Divider(),
-                const SizedBox(height: 8),
-                const Text('پیش‌نمایش (Dry-run)'),
-                const SizedBox(height: 8),
-                TextField(
-                  decoration:
-                      const InputDecoration(labelText: 'نمونه پرداخت‌گیرنده'),
-                  onChanged: (v) async {
-                    samplePayee = v;
-                    await recomputePreview();
-                  },
-                ),
-                TextField(
-                  decoration: const InputDecoration(labelText: 'نمونه توضیحات'),
-                  onChanged: (v) async {
-                    sampleDesc = v;
-                    await recomputePreview();
-                  },
-                ),
-                TextField(
-                  keyboardType: TextInputType.number,
-                  decoration: const InputDecoration(labelText: 'نمونه مبلغ'),
-                  onChanged: (v) async {
-                    sampleAmount = int.tryParse(v);
-                    await recomputePreview();
-                  },
-                ),
-                const SizedBox(height: 8),
-                Row(children: [
-                  const Text('پیشنهاد دسته:'),
-                  const SizedBox(width: 8),
-                  Text(preview['category'] ?? '-'),
-                ]),
-                const SizedBox(height: 4),
-                Row(children: [
-                  const Text('پیشنهاد برچسب:'),
-                  const SizedBox(width: 8),
-                  Text(preview['tag'] ?? '-'),
-                ]),
-              ],
+                      labelText: 'مقدار اقدام (مثلا Transport یا Subscription)',
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  const Divider(),
+                  const SizedBox(height: 8),
+                  const Text('پیش‌نمایش (Dry-run)'),
+                  const SizedBox(height: 8),
+                  TextField(
+                    decoration: const InputDecoration(
+                      labelText: 'نمونه پرداخت‌گیرنده',
+                    ),
+                    onChanged: (v) async {
+                      samplePayee = v;
+                      await recomputePreview();
+                    },
+                  ),
+                  TextField(
+                    decoration: const InputDecoration(
+                      labelText: 'نمونه توضیحات',
+                    ),
+                    onChanged: (v) async {
+                      sampleDesc = v;
+                      await recomputePreview();
+                    },
+                  ),
+                  TextField(
+                    keyboardType: TextInputType.number,
+                    decoration: const InputDecoration(labelText: 'نمونه مبلغ'),
+                    onChanged: (v) async {
+                      sampleAmount = int.tryParse(v);
+                      await recomputePreview();
+                    },
+                  ),
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      const Text('پیشنهاد دسته:'),
+                      const SizedBox(width: 8),
+                      Text(preview['category'] ?? '-'),
+                    ],
+                  ),
+                  const SizedBox(height: 4),
+                  Row(
+                    children: [
+                      const Text('پیشنهاد برچسب:'),
+                      const SizedBox(width: 8),
+                      Text(preview['tag'] ?? '-'),
+                    ],
+                  ),
+                ],
+              ),
             ),
-          ),
-          actions: [
-            TextButton(
+            actions: [
+              TextButton(
                 onPressed: () => Navigator.of(ctx).pop(),
-                child: const Text('لغو')),
-            ElevatedButton(
-              onPressed: () async {
-                final now = DateTime.now().toIso8601String();
-                final rule = AutomationRule(
-                  id: null,
-                  name: nameCtrl.text.trim().isEmpty
-                      ? 'قانون جدید'
-                      : nameCtrl.text.trim(),
-                  ruleType: ruleType,
-                  pattern: patternCtrl.text.trim(),
-                  action: action,
-                  actionValue: actionValueCtrl.text.trim(),
-                  enabled: enabled,
-                  createdAt: now,
-                );
-                await _repo.insertRule(rule);
-                if (!mounted) return;
-                Navigator.of(this.context).pop();
-                _refresh();
-              },
-              child: const Text('ذخیره'),
-            ),
-          ],
-        );
-      }),
+                child: const Text('لغو'),
+              ),
+              ElevatedButton(
+                onPressed: () async {
+                  final now = DateTime.now().toIso8601String();
+                  final rule = AutomationRule(
+                    id: null,
+                    name: nameCtrl.text.trim().isEmpty
+                        ? 'قانون جدید'
+                        : nameCtrl.text.trim(),
+                    ruleType: ruleType,
+                    pattern: patternCtrl.text.trim(),
+                    action: action,
+                    actionValue: actionValueCtrl.text.trim(),
+                    enabled: enabled,
+                    createdAt: now,
+                  );
+                  await _repo.insertRule(rule);
+                  if (!mounted) return;
+                  Navigator.of(this.context).pop();
+                  _refresh();
+                },
+                child: const Text('ذخیره'),
+              ),
+            ],
+          );
+        },
+      ),
     );
   }
 

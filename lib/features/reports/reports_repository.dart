@@ -68,13 +68,15 @@ class ReportsRepository {
 
     try {
       final res = await compute<Map<String, dynamic>, Map<String, int>>(
-          spendingByCategoryEntry, {
-        'loans': loansMaps,
-        'cps': cpMaps,
-        'insts': instMaps,
-        'year': year,
-        'month': month,
-      });
+        spendingByCategoryEntry,
+        {
+          'loans': loansMaps,
+          'cps': cpMaps,
+          'insts': instMaps,
+          'year': year,
+          'month': month,
+        },
+      );
 
       // Store in cache
       if (_ref != null) {
@@ -82,8 +84,13 @@ class ReportsRepository {
       }
       return res;
     } catch (e) {
-      final fallback =
-          computeSpendingByCategory(loansMaps, cpMaps, instMaps, year, month);
+      final fallback = computeSpendingByCategory(
+        loansMaps,
+        cpMaps,
+        instMaps,
+        year,
+        month,
+      );
       if (_ref != null) {
         _ref!.read(reportsCacheProvider.notifier).put(cacheKey, fallback);
       }
@@ -121,22 +128,27 @@ class ReportsRepository {
     try {
       final res =
           await compute<Map<String, dynamic>, List<Map<String, dynamic>>>(
-        spendingOverTimeEntry,
-        {
-          'loans': loanMaps,
-          'insts': instMaps,
-          'monthsBack': monthsBack,
-          'nowYear': nowJ.year,
-          'nowMonth': nowJ.month,
-        },
-      );
+            spendingOverTimeEntry,
+            {
+              'loans': loanMaps,
+              'insts': instMaps,
+              'monthsBack': monthsBack,
+              'nowYear': nowJ.year,
+              'nowMonth': nowJ.month,
+            },
+          );
       if (_ref != null) {
         _ref!.read(reportsCacheProvider.notifier).put(cacheKey, res);
       }
       return res;
     } catch (e) {
       final fallback = computeSpendingOverTime(
-          loanMaps, instMaps, monthsBack, nowJ.year, nowJ.month);
+        loanMaps,
+        instMaps,
+        monthsBack,
+        nowJ.year,
+        nowJ.month,
+      );
       if (_ref != null) {
         _ref!.read(reportsCacheProvider.notifier).put(cacheKey, fallback);
       }
@@ -174,22 +186,27 @@ class ReportsRepository {
     try {
       final res =
           await compute<Map<String, dynamic>, List<Map<String, dynamic>>>(
-        netWorthOverTimeEntry,
-        {
-          'loans': loanMaps,
-          'insts': instMaps,
-          'monthsBack': monthsBack,
-          'nowYear': nowJ.year,
-          'nowMonth': nowJ.month,
-        },
-      );
+            netWorthOverTimeEntry,
+            {
+              'loans': loanMaps,
+              'insts': instMaps,
+              'monthsBack': monthsBack,
+              'nowYear': nowJ.year,
+              'nowMonth': nowJ.month,
+            },
+          );
       if (_ref != null) {
         _ref!.read(reportsCacheProvider.notifier).put(cacheKey, res);
       }
       return res;
     } catch (e) {
       final fallback = computeNetWorthOverTime(
-          loanMaps, instMaps, monthsBack, nowJ.year, nowJ.month);
+        loanMaps,
+        instMaps,
+        monthsBack,
+        nowJ.year,
+        nowJ.month,
+      );
       if (_ref != null) {
         _ref!.read(reportsCacheProvider.notifier).put(cacheKey, fallback);
       }
@@ -199,8 +216,10 @@ class ReportsRepository {
 
   // Project debt payoff for a specific loan
   // Returns monthly balance projections
-  Future<List<Map<String, dynamic>>> projectDebtPayoff(int loanId,
-      {int? extraPayment}) async {
+  Future<List<Map<String, dynamic>>> projectDebtPayoff(
+    int loanId, {
+    int? extraPayment,
+  }) async {
     final loan = await _db.getLoanById(loanId);
     if (loan == null) return [];
     final installments = await _db.getInstallmentsByLoanId(loanId);
@@ -213,20 +232,19 @@ class ReportsRepository {
     try {
       final res =
           await compute<Map<String, dynamic>, List<Map<String, dynamic>>>(
-        projectDebtPayoffEntry,
-        {
-          'loan': loanMap,
-          'insts': instMaps,
-          'extraPayment': extraPayment,
-        },
-      );
+            projectDebtPayoffEntry,
+            {'loan': loanMap, 'insts': instMaps, 'extraPayment': extraPayment},
+          );
       if (_ref != null) {
         _ref!.read(reportsCacheProvider.notifier).put(cacheKey, res);
       }
       return res;
     } catch (e) {
-      final fallback =
-          computeProjectDebtPayoff(loanMap, instMaps, extraPayment);
+      final fallback = computeProjectDebtPayoff(
+        loanMap,
+        instMaps,
+        extraPayment,
+      );
       if (_ref != null) {
         _ref!.read(reportsCacheProvider.notifier).put(cacheKey, fallback);
       }
@@ -256,21 +274,25 @@ class ReportsRepository {
     try {
       final res =
           await compute<Map<String, dynamic>, List<Map<String, dynamic>>>(
-        projectAllDebtsPayoffEntry,
-        {
-          'loans': loanMaps,
-          'insts': instMaps,
-          'extraPayment': extraPayment,
-          'strategy': strategy,
-        },
-      );
+            projectAllDebtsPayoffEntry,
+            {
+              'loans': loanMaps,
+              'insts': instMaps,
+              'extraPayment': extraPayment,
+              'strategy': strategy,
+            },
+          );
       if (_ref != null) {
         _ref!.read(reportsCacheProvider.notifier).put(cacheKey, res);
       }
       return res;
     } catch (e) {
       final fallback = computeProjectAllDebtsPayoff(
-          loanMaps, instMaps, extraPayment, strategy);
+        loanMaps,
+        instMaps,
+        extraPayment,
+        strategy,
+      );
       if (_ref != null) {
         _ref!.read(reportsCacheProvider.notifier).put(cacheKey, fallback);
       }
@@ -306,10 +328,12 @@ class ReportsRepository {
       final diff = thisTotal - lastTotal;
       if (diff > 0) {
         insights.add(
-            'این ماه ${(diff / 10000).toStringAsFixed(0)} هزار تومان بیشتر از ماه گذشته هزینه کرده‌اید.');
+          'این ماه ${(diff / 10000).toStringAsFixed(0)} هزار تومان بیشتر از ماه گذشته هزینه کرده‌اید.',
+        );
       } else if (diff < 0) {
         insights.add(
-            'این ماه ${((-diff) / 10000).toStringAsFixed(0)} هزار تومان کمتر از ماه گذشته هزینه کرده‌اید. پیشرفت خوبی است!');
+          'این ماه ${((-diff) / 10000).toStringAsFixed(0)} هزار تومان کمتر از ماه گذشته هزینه کرده‌اید. پیشرفت خوبی است!',
+        );
       }
     }
 
@@ -322,7 +346,8 @@ class ReportsRepository {
         final topCategory = entries.first;
         final percentage = ((topCategory.value / thisTotal) * 100).round();
         insights.add(
-            '$percentage% از هزینه‌های شما در دسته ${topCategory.key} بوده است.');
+          '$percentage% از هزینه‌های شما در دسته ${topCategory.key} بوده است.',
+        );
       }
     }
 
@@ -332,7 +357,8 @@ class ReportsRepository {
 
     if (borrowed > lent) {
       insights.add(
-          'بدهی شما بیشتر از طلب است. سعی کنید بدهی‌های خود را کاهش دهید.');
+        'بدهی شما بیشتر از طلب است. سعی کنید بدهی‌های خود را کاهش دهید.',
+      );
     } else if (lent > borrowed) {
       insights.add('طلب شما بیشتر از بدهی است. وضعیت مالی خوبی دارید!');
     }

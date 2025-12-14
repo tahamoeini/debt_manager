@@ -18,7 +18,10 @@ class LoansListScreen extends ConsumerWidget {
   }
 
   Widget _buildTabView(
-      BuildContext context, WidgetRef ref, LoanDirection? filter) {
+    BuildContext context,
+    WidgetRef ref,
+    LoanDirection? filter,
+  ) {
     final items = ref.watch(loanListProvider(filter));
 
     if (items.isEmpty) {

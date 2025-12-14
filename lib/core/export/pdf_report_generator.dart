@@ -49,11 +49,15 @@ class PdfReportGenerator {
                 pw.Column(
                   crossAxisAlignment: pw.CrossAxisAlignment.start,
                   children: [
-                    pw.Text(appName,
-                        style: pw.TextStyle(font: font, fontSize: 18)),
+                    pw.Text(
+                      appName,
+                      style: pw.TextStyle(font: font, fontSize: 18),
+                    ),
                     pw.SizedBox(height: 4),
-                    pw.Text('تاریخ: $dateStr',
-                        style: pw.TextStyle(font: font, fontSize: 10)),
+                    pw.Text(
+                      'تاریخ: $dateStr',
+                      style: pw.TextStyle(font: font, fontSize: 10),
+                    ),
                   ],
                 ),
               ],
@@ -70,11 +74,15 @@ class PdfReportGenerator {
                   ['دارایی کل', formatCurrency(totalAssets)],
                 ],
                 headerStyle: pw.TextStyle(
-                    font: font, fontSize: 12, fontWeight: pw.FontWeight.bold),
+                  font: font,
+                  fontSize: 12,
+                  fontWeight: pw.FontWeight.bold,
+                ),
                 cellStyle: pw.TextStyle(font: font, fontSize: 12),
                 cellAlignment: pw.Alignment.centerRight,
-                headerDecoration:
-                    const pw.BoxDecoration(color: pdf.PdfColors.grey300),
+                headerDecoration: const pw.BoxDecoration(
+                  color: pdf.PdfColors.grey300,
+                ),
                 border: null,
               ),
             ),
@@ -85,43 +93,53 @@ class PdfReportGenerator {
             pw.Container(
               padding: const pw.EdgeInsets.all(8),
               decoration: pw.BoxDecoration(
-                  border: pw.Border.all(color: pdf.PdfColors.red, width: 1)),
+                border: pw.Border.all(color: pdf.PdfColors.red, width: 1),
+              ),
               child: pw.Column(
                 crossAxisAlignment: pw.CrossAxisAlignment.start,
                 children: [
-                  pw.Text('اقساط معوق',
-                      style: pw.TextStyle(
-                          font: font,
-                          fontSize: 14,
-                          color: pdf.PdfColors.red,
-                          fontWeight: pw.FontWeight.bold)),
+                  pw.Text(
+                    'اقساط معوق',
+                    style: pw.TextStyle(
+                      font: font,
+                      fontSize: 14,
+                      color: pdf.PdfColors.red,
+                      fontWeight: pw.FontWeight.bold,
+                    ),
+                  ),
                   pw.SizedBox(height: 8),
                   if (overdueInstallments.isEmpty)
-                    pw.Text('هیچ قسط معوقی وجود ندارد.',
-                        style: pw.TextStyle(font: font, fontSize: 12))
+                    pw.Text(
+                      'هیچ قسط معوقی وجود ندارد.',
+                      style: pw.TextStyle(font: font, fontSize: 12),
+                    )
                   else
                     pw.TableHelper.fromTextArray(
                       headers: ['شناسه وام', 'تاریخ سررسید', 'مبلغ', 'وضعیت'],
                       data: overdueInstallments
-                          .map((i) => [
-                                i.loanId.toString(),
-                                i.dueDateJalali,
-                                formatCurrency(i.amount),
-                                i.status == InstallmentStatus.overdue
-                                    ? 'معوق'
-                                    : (i.status == InstallmentStatus.paid
+                          .map(
+                            (i) => [
+                              i.loanId.toString(),
+                              i.dueDateJalali,
+                              formatCurrency(i.amount),
+                              i.status == InstallmentStatus.overdue
+                                  ? 'معوق'
+                                  : (i.status == InstallmentStatus.paid
                                         ? 'پرداخت‌شده'
                                         : 'مشخص'),
-                              ])
+                            ],
+                          )
                           .toList(),
                       headerStyle: pw.TextStyle(
-                          font: font,
-                          fontSize: 11,
-                          fontWeight: pw.FontWeight.bold),
+                        font: font,
+                        fontSize: 11,
+                        fontWeight: pw.FontWeight.bold,
+                      ),
                       cellStyle: pw.TextStyle(font: font, fontSize: 11),
                       cellAlignment: pw.Alignment.centerRight,
-                      headerDecoration:
-                          const pw.BoxDecoration(color: pdf.PdfColors.grey300),
+                      headerDecoration: const pw.BoxDecoration(
+                        color: pdf.PdfColors.grey300,
+                      ),
                     ),
                 ],
               ),

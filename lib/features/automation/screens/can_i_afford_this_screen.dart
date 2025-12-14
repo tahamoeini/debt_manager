@@ -94,8 +94,8 @@ class _CanIAffordThisScreenState extends ConsumerState<CanIAffordThisScreen> {
       final simulationDays = _frequency == 'daily'
           ? _durationMonths * 30
           : _frequency == 'weekly'
-              ? _durationMonths * 4
-              : _durationMonths * 30;
+          ? _durationMonths * 4
+          : _durationMonths * 30;
 
       final input = CashFlowInput(
         startingBalance: currentBalance,
@@ -229,9 +229,7 @@ class _CanIAffordThisScreenState extends ConsumerState<CanIAffordThisScreen> {
                           ? SizedBox(
                               height: 20,
                               width: 20,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                              ),
+                              child: CircularProgressIndicator(strokeWidth: 2),
                             )
                           : const Text('اجرای شبیه‌سازی'),
                     ),
@@ -261,8 +259,10 @@ class _CanIAffordThisScreenState extends ConsumerState<CanIAffordThisScreen> {
                           style: Theme.of(context).textTheme.bodyMedium,
                         ),
                         Container(
-                          padding:
-                              EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 6,
+                          ),
                           decoration: BoxDecoration(
                             color: _getSafetyColor(_result!.safetyLevel),
                             borderRadius: BorderRadius.circular(20),

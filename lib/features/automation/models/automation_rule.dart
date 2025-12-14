@@ -6,11 +6,11 @@ class AutomationRule {
   final int? id;
   final String name;
   final String
-      ruleType; // 'payee_contains', 'amount_equals', 'description_contains'
+  ruleType; // 'payee_contains', 'amount_equals', 'description_contains'
   final String pattern; // The pattern to match
   final String action; // 'set_category', 'set_tag'
   final String
-      actionValue; // The value to apply (e.g., category name, tag name)
+  actionValue; // The value to apply (e.g., category name, tag name)
   final bool enabled;
   final String createdAt;
 
@@ -70,7 +70,8 @@ class AutomationRule {
       pattern: map['pattern'] as String? ?? '',
       action: map['action'] as String? ?? '',
       actionValue: map['action_value'] as String? ?? '',
-      enabled: (map['enabled'] is int
+      enabled:
+          (map['enabled'] is int
               ? (map['enabled'] as int)
               : int.tryParse(map['enabled'].toString())) ==
           1,
@@ -103,10 +104,7 @@ class AutomationRule {
 
   // Apply this rule's action
   Map<String, dynamic> applyAction() {
-    return {
-      'action': action,
-      'value': actionValue,
-    };
+    return {'action': action, 'value': actionValue};
   }
 }
 

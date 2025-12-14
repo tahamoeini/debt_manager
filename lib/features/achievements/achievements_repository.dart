@@ -31,12 +31,12 @@ class UserProgress {
   });
 
   factory UserProgress.empty() => UserProgress(
-        totalXp: 0,
-        level: 0,
-        streaks: {},
-        freedomDate: null,
-        daysFreedomCountdown: 0,
-      );
+    totalXp: 0,
+    level: 0,
+    streaks: {},
+    freedomDate: null,
+    daysFreedomCountdown: 0,
+  );
 }
 
 class Achievement {
@@ -72,22 +72,31 @@ class AchievementsRepository {
     final earned = await _getEarnedSet();
     final list = <Achievement>[];
     if (earned.contains('first_debt_paid')) {
-      list.add(Achievement(
+      list.add(
+        Achievement(
           id: 'first_debt_paid',
           title: 'اولین بدهی پرداخت شد',
-          message: 'تبریک! اولین بدهی خود را پرداخت کردید.'));
+          message: 'تبریک! اولین بدهی خود را پرداخت کردید.',
+        ),
+      );
     }
     if (earned.contains('three_months_streak')) {
-      list.add(Achievement(
+      list.add(
+        Achievement(
           id: 'three_months_streak',
           title: '۳ ماه متوالی پرداخت',
-          message: 'شما سه ماه پیاپی پرداخت داشته‌اید. ادامه بده!'));
+          message: 'شما سه ماه پیاپی پرداخت داشته‌اید. ادامه بده!',
+        ),
+      );
     }
     if (earned.contains('debt_free')) {
-      list.add(Achievement(
+      list.add(
+        Achievement(
           id: 'debt_free',
           title: 'بدهی‌ها صفر شد',
-          message: 'تبریک! شما الان بدون بدهی هستید.'));
+          message: 'تبریک! شما الان بدون بدهی هستید.',
+        ),
+      );
     }
     return list;
   }
@@ -117,8 +126,10 @@ class AchievementsRepository {
   }
 
   // Called after a payment is recorded. Returns list of newly awarded achievements.
-  Future<List<Achievement>> handlePayment(
-      {int? loanId, required DateTime paidAt}) async {
+  Future<List<Achievement>> handlePayment({
+    int? loanId,
+    required DateTime paidAt,
+  }) async {
     final newly = <Achievement>[];
 
     // Track month of payment
@@ -133,16 +144,20 @@ class AchievementsRepository {
 
     // 1) First Debt Paid: if loanId provided and this loan now fully paid
     if (loanId != null && !earned.contains('first_debt_paid')) {
-      final installments =
-          await DatabaseHelper.instance.getInstallmentsByLoanId(loanId);
-      final allPaid = installments.isNotEmpty &&
+      final installments = await DatabaseHelper.instance
+          .getInstallmentsByLoanId(loanId);
+      final allPaid =
+          installments.isNotEmpty &&
           installments.every((i) => i.status == InstallmentStatus.paid);
       if (allPaid) {
         await _addEarned('first_debt_paid');
-        newly.add(Achievement(
+        newly.add(
+          Achievement(
             id: 'first_debt_paid',
             title: 'اولین بدهی پرداخت شد',
-            message: 'تبریک! اولین بدهی خود را پرداخت کردید.'));
+            message: 'تبریک! اولین بدهی خود را پرداخت کردید.',
+          ),
+        );
       }
     }
 
@@ -161,10 +176,13 @@ class AchievementsRepository {
       final hasStreak = keys.every((k) => monthsSet.contains(k));
       if (hasStreak) {
         await _addEarned('three_months_streak');
-        newly.add(Achievement(
+        newly.add(
+          Achievement(
             id: 'three_months_streak',
             title: '۳ ماه متوالی پرداخت',
-            message: 'شما سه ماه پیاپی پرداخت داشته‌اید. ادامه بده!'));
+            message: 'شما سه ماه پیاپی پرداخت داشته‌اید. ادامه بده!',
+          ),
+        );
       }
     }
 
@@ -173,10 +191,13 @@ class AchievementsRepository {
       final total = await DatabaseHelper.instance.getTotalOutstandingBorrowed();
       if (total == 0) {
         await _addEarned('debt_free');
-        newly.add(Achievement(
+        newly.add(
+          Achievement(
             id: 'debt_free',
             title: 'بدهی‌ها صفر شد',
-            message: 'تبریک! شما الان بدون بدهی هستید.'));
+            message: 'تبریک! شما الان بدون بدهی هستید.',
+          ),
+        );
       }
     }
 
@@ -196,8 +217,9 @@ class AchievementsRepository {
     DateTime? freedomDate;
     try {
       final reportsRepo = ReportsRepository();
-      final loans = await DatabaseHelper.instance
-          .getAllLoans(direction: LoanDirection.borrowed);
+      final loans = await DatabaseHelper.instance.getAllLoans(
+        direction: LoanDirection.borrowed,
+      );
       if (loans.isNotEmpty) {
         DateTime? maxDate;
         for (final loan in loans) {
@@ -205,8 +227,9 @@ class AchievementsRepository {
           final projection = await reportsRepo.projectDebtPayoff(loan.id!);
           if (projection.isNotEmpty) {
             // Estimate payoff from projection length
-            final estimatedDate =
-                DateTime.now().add(Duration(days: projection.length));
+            final estimatedDate = DateTime.now().add(
+              Duration(days: projection.length),
+            );
             maxDate = maxDate == null || estimatedDate.isAfter(maxDate)
                 ? estimatedDate
                 : maxDate;

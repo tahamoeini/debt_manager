@@ -33,11 +33,12 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     final themeMode = _theme == 'light'
         ? ThemeMode.light
         : _theme == 'dark'
-            ? ThemeMode.dark
-            : ThemeMode.system;
+        ? ThemeMode.dark
+        : ThemeMode.system;
     await settings.setThemeMode(themeMode);
     await settings.setCalendarType(
-        _calendar == 'jalali' ? CalendarType.jalali : CalendarType.gregorian);
+      _calendar == 'jalali' ? CalendarType.jalali : CalendarType.gregorian,
+    );
     await settings.setRemindersEnabled(_reminders);
     await settings.setBudgetAlertsEnabled(_budgetAlerts);
     await settings.setMonthlySummaryEnabled(_monthlySummary);
@@ -74,7 +75,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                         ? null
                         : () => _controller.previousPage(
                             duration: const Duration(milliseconds: 300),
-                            curve: Curves.ease),
+                            curve: Curves.ease,
+                          ),
                     child: const Text('Back'),
                   ),
                   const Spacer(),
@@ -83,7 +85,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                         ? _complete
                         : () => _controller.nextPage(
                             duration: const Duration(milliseconds: 300),
-                            curve: Curves.ease),
+                            curve: Curves.ease,
+                          ),
                     child: Text(_page == 2 ? 'Done' : 'Next'),
                   ),
                 ],
@@ -102,11 +105,14 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           SizedBox(height: 24),
-          Text('Debt Manager',
-              style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold)),
+          Text(
+            'Debt Manager',
+            style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
+          ),
           SizedBox(height: 12),
           Text(
-              'Track loans, installments and budgets. Privacy-first, offline-friendly.'),
+            'Track loans, installments and budgets. Privacy-first, offline-friendly.',
+          ),
         ],
       ),
     );
@@ -119,15 +125,17 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const SizedBox(height: 24),
-          const Text('Preferences',
-              style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+          const Text(
+            'Preferences',
+            style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+          ),
           const SizedBox(height: 12),
           DropdownButtonFormField<String>(
             initialValue: _language,
             decoration: const InputDecoration(labelText: 'Language'),
             items: const [
               DropdownMenuItem(value: 'en', child: Text('English')),
-              DropdownMenuItem(value: 'fa', child: Text('فارسی'))
+              DropdownMenuItem(value: 'fa', child: Text('فارسی')),
             ],
             onChanged: (v) => setState(() => _language = v ?? 'en'),
           ),
@@ -138,7 +146,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             items: const [
               DropdownMenuItem(value: 'system', child: Text('System')),
               DropdownMenuItem(value: 'light', child: Text('Light')),
-              DropdownMenuItem(value: 'dark', child: Text('Dark'))
+              DropdownMenuItem(value: 'dark', child: Text('Dark')),
             ],
             onChanged: (v) => setState(() => _theme = v ?? 'system'),
           ),
@@ -148,7 +156,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             decoration: const InputDecoration(labelText: 'Calendar'),
             items: const [
               DropdownMenuItem(value: 'gregorian', child: Text('Gregorian')),
-              DropdownMenuItem(value: 'jalali', child: Text('Jalali'))
+              DropdownMenuItem(value: 'jalali', child: Text('Jalali')),
             ],
             onChanged: (v) => setState(() => _calendar = v ?? 'gregorian'),
           ),
@@ -164,8 +172,10 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const SizedBox(height: 24),
-          const Text('Notifications',
-              style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+          const Text(
+            'Notifications',
+            style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+          ),
           const SizedBox(height: 12),
           SwitchListTile(
             title: const Text('Reminders'),

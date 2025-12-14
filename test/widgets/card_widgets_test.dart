@@ -5,8 +5,9 @@ import 'package:debt_manager/core/widgets/stat_card.dart';
 
 void main() {
   group('DashboardCard', () {
-    testWidgets('displays title, value, and subtitle',
-        (WidgetTester tester) async {
+    testWidgets('displays title, value, and subtitle', (
+      WidgetTester tester,
+    ) async {
       await tester.pumpWidget(
         const MaterialApp(
           home: Scaffold(
@@ -67,10 +68,7 @@ void main() {
       await tester.pumpWidget(
         const MaterialApp(
           home: Scaffold(
-            body: StatCard(
-              title: 'Budget Left',
-              value: '۵۰٬۰۰۰ ریال',
-            ),
+            body: StatCard(title: 'Budget Left', value: '۵۰٬۰۰۰ ریال'),
           ),
         ),
       );
@@ -79,16 +77,13 @@ void main() {
       expect(find.text('۵۰٬۰۰۰ ریال'), findsOneWidget);
     });
 
-    testWidgets('applies custom color when provided',
-        (WidgetTester tester) async {
+    testWidgets('applies custom color when provided', (
+      WidgetTester tester,
+    ) async {
       await tester.pumpWidget(
         const MaterialApp(
           home: Scaffold(
-            body: StatCard(
-              title: 'Budget',
-              value: '۱۰۰',
-              color: Colors.green,
-            ),
+            body: StatCard(title: 'Budget', value: '۱۰۰', color: Colors.green),
           ),
         ),
       );

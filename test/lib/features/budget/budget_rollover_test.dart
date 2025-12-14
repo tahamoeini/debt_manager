@@ -118,8 +118,10 @@ void main() {
 
       expect(result['currentMonthRemaining'], equals(-2000000));
       expect(result['currentMonthOverspent'], isTrue);
-      expect(result['rolledOverAmount'],
-          equals(0)); // No rollover when over budget
+      expect(
+        result['rolledOverAmount'],
+        equals(0),
+      ); // No rollover when over budget
       expect(result['nextMonthBudget'], equals(10000000)); // Reset to base
     });
 

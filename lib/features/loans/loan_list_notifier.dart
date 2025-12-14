@@ -23,13 +23,18 @@ class LoanSummary {
   });
 }
 
-final loanRepositoryProvider =
-    Provider<LoanRepository>((ref) => LoanRepository());
+final loanRepositoryProvider = Provider<LoanRepository>(
+  (ref) => LoanRepository(),
+);
 
-final loanListProvider = StateNotifierProvider.family<LoanListNotifier,
-    List<LoanSummary>, LoanDirection?>((ref, direction) {
-  return LoanListNotifier(ref, direction);
-});
+final loanListProvider =
+    StateNotifierProvider.family<
+      LoanListNotifier,
+      List<LoanSummary>,
+      LoanDirection?
+    >((ref, direction) {
+      return LoanListNotifier(ref, direction);
+    });
 
 class LoanListNotifier extends StateNotifier<List<LoanSummary>> {
   final Ref ref;
@@ -67,14 +72,16 @@ class LoanListNotifier extends StateNotifier<List<LoanSummary>> {
       final cpType = cp?.type;
       final cpTag = cp?.tag;
 
-      result.add(LoanSummary(
-        loan: loan,
-        counterpartyName: cpName,
-        counterpartyType: cpType,
-        counterpartyTag: cpTag,
-        remainingCount: remainingCount,
-        remainingAmount: remainingAmount,
-      ));
+      result.add(
+        LoanSummary(
+          loan: loan,
+          counterpartyName: cpName,
+          counterpartyType: cpType,
+          counterpartyTag: cpTag,
+          remainingCount: remainingCount,
+          remainingAmount: remainingAmount,
+        ),
+      );
     }
 
     state = result;

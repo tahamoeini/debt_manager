@@ -20,8 +20,12 @@ class BudgetsRepository {
   Future<int> updateBudgetEntry(BudgetEntry entry) async {
     if (entry.id == null) throw ArgumentError('BudgetEntry.id is null');
     final db = await _db.database;
-    return await db.update('budget_entries', entry.toMap(),
-        where: 'id = ?', whereArgs: [entry.id]);
+    return await db.update(
+      'budget_entries',
+      entry.toMap(),
+      where: 'id = ?',
+      whereArgs: [entry.id],
+    );
   }
 
   Future<int> deleteBudgetEntry(int id) async {
@@ -31,18 +35,26 @@ class BudgetsRepository {
 
   Future<List<BudgetEntry>> getBudgetEntriesByPeriod(String period) async {
     final db = await _db.database;
-    final rows = await db.query('budget_entries',
-        where: 'period = ?', whereArgs: [period], orderBy: 'category ASC');
+    final rows = await db.query(
+      'budget_entries',
+      where: 'period = ?',
+      whereArgs: [period],
+      orderBy: 'category ASC',
+    );
     return rows.map((r) => BudgetEntry.fromMap(r)).toList();
   }
 
   Future<BudgetEntry?> getOverrideForCategoryPeriod(
-      String? category, String period) async {
+    String? category,
+    String period,
+  ) async {
     final db = await _db.database;
-    final rows = await db.query('budget_entries',
-        where: 'period = ? AND is_one_off = 0 AND category IS ?',
-        whereArgs: [period, category],
-        limit: 1);
+    final rows = await db.query(
+      'budget_entries',
+      where: 'period = ? AND is_one_off = 0 AND category IS ?',
+      whereArgs: [period, category],
+      limit: 1,
+    );
     if (rows.isEmpty) return null;
     return BudgetEntry.fromMap(rows.first);
   }
@@ -50,8 +62,12 @@ class BudgetsRepository {
   Future<int> updateBudget(Budget budget) async {
     if (budget.id == null) throw ArgumentError('Budget.id is null');
     final db = await _db.database;
-    return await db.update('budgets', budget.toMap(),
-        where: 'id = ?', whereArgs: [budget.id]);
+    return await db.update(
+      'budgets',
+      budget.toMap(),
+      where: 'id = ?',
+      whereArgs: [budget.id],
+    );
   }
 
   Future<int> deleteBudget(int id) async {
@@ -61,23 +77,33 @@ class BudgetsRepository {
 
   Future<List<Budget>> getBudgetsByPeriod(String period) async {
     final db = await _db.database;
-    final rows = await db.query('budgets',
-        where: 'period = ?', whereArgs: [period], orderBy: 'category ASC');
+    final rows = await db.query(
+      'budgets',
+      where: 'period = ?',
+      whereArgs: [period],
+      orderBy: 'category ASC',
+    );
     return rows.map((r) => Budget.fromMap(r)).toList();
   }
 
   Future<Budget?> getBudgetById(int id) async {
     final db = await _db.database;
-    final rows =
-        await db.query('budgets', where: 'id = ?', whereArgs: [id], limit: 1);
+    final rows = await db.query(
+      'budgets',
+      where: 'id = ?',
+      whereArgs: [id],
+      limit: 1,
+    );
     if (rows.isEmpty) return null;
     return Budget.fromMap(rows.first);
   }
 
   Future<List<Budget>> getAllBudgets() async {
     final db = await _db.database;
-    final rows =
-        await db.query('budgets', orderBy: 'period DESC, category ASC');
+    final rows = await db.query(
+      'budgets',
+      orderBy: 'period DESC, category ASC',
+    );
     return rows.map((r) => Budget.fromMap(r)).toList();
   }
 
@@ -102,11 +128,14 @@ class BudgetsRepository {
       // No-op: per-month overrides not used in current utilization calculation
 
       if (budget.category == null) {
-        final rows = await db.rawQuery('''
+        final rows = await db.rawQuery(
+          '''
           SELECT COALESCE(SUM(CASE WHEN actual_paid_amount IS NOT NULL THEN actual_paid_amount ELSE amount END), 0) as total
           FROM installments
           WHERE paid_at BETWEEN ? AND ?
-        ''', [start, end]);
+        ''',
+          [start, end],
+        );
 
         final value = rows.first['total'];
         if (value is int) return value;
@@ -120,14 +149,17 @@ class BudgetsRepository {
       }
 
       final like = '%$cat%';
-      final rows = await db.rawQuery('''
+      final rows = await db.rawQuery(
+        '''
         SELECT COALESCE(SUM(CASE WHEN i.actual_paid_amount IS NOT NULL THEN i.actual_paid_amount ELSE i.amount END), 0) as total
         FROM installments i
         JOIN loans l ON i.loan_id = l.id
         LEFT JOIN counterparties c ON l.counterparty_id = c.id
         WHERE i.paid_at BETWEEN ? AND ?
           AND (c.tag = ? OR l.title = ? OR (l.notes IS NOT NULL AND l.notes LIKE ?))
-      ''', [start, end, cat, cat, like]);
+      ''',
+        [start, end, cat, cat, like],
+      );
 
       final value = rows.first['total'];
       final actual = (value is int)

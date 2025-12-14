@@ -63,11 +63,7 @@ class CategoryIcon extends StatelessWidget {
 
     switch (style) {
       case CategoryIconStyle.icon:
-        return Icon(
-          iconData,
-          size: effectiveSize,
-          color: color,
-        );
+        return Icon(iconData, size: effectiveSize, color: color);
 
       case CategoryIconStyle.circle:
         return Container(
@@ -77,11 +73,7 @@ class CategoryIcon extends StatelessWidget {
             color: color.withValues(alpha: 0.15),
             shape: BoxShape.circle,
           ),
-          child: Icon(
-            iconData,
-            size: iconSize,
-            color: color,
-          ),
+          child: Icon(iconData, size: iconSize, color: color),
         );
 
       case CategoryIconStyle.square:
@@ -92,21 +84,14 @@ class CategoryIcon extends StatelessWidget {
             color: color.withValues(alpha: 0.15),
             borderRadius: BorderRadius.circular(AppRadius.sm),
           ),
-          child: Icon(
-            iconData,
-            size: iconSize,
-            color: color,
-          ),
+          child: Icon(iconData, size: iconSize, color: color),
         );
 
       case CategoryIconStyle.dot:
         return Container(
           width: effectiveSize,
           height: effectiveSize,
-          decoration: BoxDecoration(
-            color: color,
-            shape: BoxShape.circle,
-          ),
+          decoration: BoxDecoration(color: color, shape: BoxShape.circle),
         );
     }
   }
@@ -146,10 +131,12 @@ class CategoryChip extends StatelessWidget {
 
     final color =
         customColor ?? CategoryIcons.getColor(category, brightness: brightness);
-    final backgroundColor =
-        isSelected ? color.withValues(alpha: 0.2) : colorScheme.surface;
-    final borderColor =
-        isSelected ? color : colorScheme.outline.withValues(alpha: 0.3);
+    final backgroundColor = isSelected
+        ? color.withValues(alpha: 0.2)
+        : colorScheme.surface;
+    final borderColor = isSelected
+        ? color
+        : colorScheme.outline.withValues(alpha: 0.3);
 
     final content = Container(
       padding: const EdgeInsets.symmetric(

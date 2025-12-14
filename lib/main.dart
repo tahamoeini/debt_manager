@@ -22,26 +22,30 @@ Future<void> main() async {
   };
 
   // Capture any uncaught errors in zones.
-  runZonedGuarded(() async {
-    await DatabaseHelper.instance.refreshOverdueInstallments(DateTime.now());
+  runZonedGuarded(
+    () async {
+      await DatabaseHelper.instance.refreshOverdueInstallments(DateTime.now());
 
-    final settings = SettingsRepository();
-    // Warm up settings getters for downstream callers.
-    try {
-      await settings.getBiometricEnabled();
-    } catch (_) {}
+      final settings = SettingsRepository();
+      // Warm up settings getters for downstream callers.
+      try {
+        await settings.getBiometricEnabled();
+      } catch (_) {}
 
-    await NotificationService().init();
-    await SmartNotificationService().init();
-    await NotificationService().rebuildScheduledNotifications();
+      await NotificationService().init();
+      await SmartNotificationService().init();
+      await NotificationService().rebuildScheduledNotifications();
 
-    try {
-      final smartEnabled = await settings.getSmartSuggestionsEnabled();
-      if (smartEnabled) await SmartInsightsService().runInsights(notify: false);
-    } catch (_) {}
+      try {
+        final smartEnabled = await settings.getSmartSuggestionsEnabled();
+        if (smartEnabled)
+          await SmartInsightsService().runInsights(notify: false);
+      } catch (_) {}
 
-    runApp(const ProviderScope(child: DebtManagerApp()));
-  }, (error, stack) {
-    logger.error(error, stack);
-  });
+      runApp(const ProviderScope(child: DebtManagerApp()));
+    },
+    (error, stack) {
+      logger.error(error, stack);
+    },
+  );
 }

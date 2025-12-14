@@ -8,7 +8,8 @@ import 'package:flutter/foundation.dart';
 void _logComputeEntry(String functionName) {
   if (kDebugMode) {
     print(
-        '[Compute] ▶ $functionName started at ${DateTime.now().millisecondsSinceEpoch}');
+      '[Compute] ▶ $functionName started at ${DateTime.now().millisecondsSinceEpoch}',
+    );
   }
 }
 
@@ -65,8 +66,8 @@ Map<String, int> computeSpendingByCategory(
     final actual = inst['actual_paid_amount'] is int
         ? inst['actual_paid_amount'] as int
         : (inst['amount'] is int
-            ? inst['amount'] as int
-            : int.tryParse(inst['amount'].toString()) ?? 0);
+              ? inst['amount'] as int
+              : int.tryParse(inst['amount'].toString()) ?? 0);
 
     categoryTotals[category] = (categoryTotals[category] ?? 0) + actual;
   }
@@ -118,7 +119,8 @@ List<Map<String, dynamic>> projectDebtPayoffEntry(Map<String, dynamic> input) {
 }
 
 List<Map<String, dynamic>> projectAllDebtsPayoffEntry(
-    Map<String, dynamic> input) {
+  Map<String, dynamic> input,
+) {
   return computeProjectAllDebtsPayoff(
     List<Map<String, dynamic>>.from(input['loans'] as List),
     List<Map<String, dynamic>>.from(input['insts'] as List),
@@ -176,8 +178,8 @@ List<Map<String, dynamic>> computeSpendingOverTime(
       final amount = inst['actual_paid_amount'] is int
           ? inst['actual_paid_amount'] as int
           : (inst['amount'] is int
-              ? inst['amount'] as int
-              : int.tryParse(inst['amount'].toString()) ?? 0);
+                ? inst['amount'] as int
+                : int.tryParse(inst['amount'].toString()) ?? 0);
       if (dir == 'borrowed') {
         borrowed += amount;
       } else {
@@ -247,11 +249,13 @@ List<Map<String, dynamic>> computeNetWorthOverTime(
 
         if (status != 'paid' || paidAfter) {
           if (dir == 'lent') {
-            assets += (inst['amount'] as int? ??
+            assets +=
+                (inst['amount'] as int? ??
                 int.tryParse(inst['amount'].toString()) ??
                 0);
           } else {
-            debts += (inst['amount'] as int? ??
+            debts +=
+                (inst['amount'] as int? ??
                 int.tryParse(inst['amount'].toString()) ??
                 0);
           }
@@ -282,20 +286,26 @@ List<Map<String, dynamic>> computeProjectDebtPayoff(
       : int.tryParse(loan['id'].toString()) ?? -1;
 
   final insts = installments
-      .where((i) =>
-          (i['loan_id'] is int
-              ? i['loan_id'] as int
-              : int.tryParse(i['loan_id'].toString()) ?? -1) ==
-          loanId)
+      .where(
+        (i) =>
+            (i['loan_id'] is int
+                ? i['loan_id'] as int
+                : int.tryParse(i['loan_id'].toString()) ?? -1) ==
+            loanId,
+      )
       .toList();
-  insts.sort((a, b) => (a['due_date_jalali'] as String)
-      .compareTo(b['due_date_jalali'] as String));
+  insts.sort(
+    (a, b) => (a['due_date_jalali'] as String).compareTo(
+      b['due_date_jalali'] as String,
+    ),
+  );
 
   var balance = 0;
   for (final inst in insts) {
     final status = inst['status'] as String? ?? '';
     if (status != 'paid') {
-      balance += (inst['amount'] as int? ??
+      balance +=
+          (inst['amount'] as int? ??
           int.tryParse(inst['amount'].toString()) ??
           0);
     }
@@ -323,7 +333,8 @@ List<Map<String, dynamic>> computeProjectDebtPayoff(
       'month': month,
       'label': '$year/${month.toString().padLeft(2, '0')}',
       'balance': balance,
-      'payment': inst['amount'] as int? ??
+      'payment':
+          inst['amount'] as int? ??
           int.tryParse(inst['amount'].toString()) ??
           0,
       'extraPayment': extraPayment ?? 0,
@@ -381,15 +392,15 @@ List<Map<String, dynamic>> computeProjectAllDebtsPayoff(
     final apr = loan['interest_rate'] is num
         ? (loan['interest_rate'] as num).toDouble()
         : (loan['interest_rate'] is String
-            ? double.tryParse(loan['interest_rate']) ?? 0.0
-            : 0.0);
+              ? double.tryParse(loan['interest_rate']) ?? 0.0
+              : 0.0);
     aprs[lid] = apr;
 
     final mp = loan['monthly_payment'] is int
         ? (loan['monthly_payment'] as int).toDouble()
         : (insts.isNotEmpty
-            ? (insts.first['amount'] as int? ?? 0).toDouble()
-            : 0.0);
+              ? (insts.first['amount'] as int? ?? 0).toDouble()
+              : 0.0);
     minPayments[lid] = mp > 0 ? mp : 0.0;
 
     final cf = (loan['compounding_frequency'] as String?) ?? 'monthly';
@@ -401,8 +412,8 @@ List<Map<String, dynamic>> computeProjectAllDebtsPayoff(
     final gp = loan['grace_period_days'] is int
         ? loan['grace_period_days'] as int
         : (loan['grace_period_days'] != null
-            ? int.tryParse(loan['grace_period_days'].toString()) ?? 0
-            : 0);
+              ? int.tryParse(loan['grace_period_days'].toString()) ?? 0
+              : 0);
     grace[lid] = gp;
   }
 
@@ -476,8 +487,9 @@ List<Map<String, dynamic>> computeProjectAllDebtsPayoff(
           ..sort((a, b) => a.value.compareTo(b.value));
         if (target.isNotEmpty) {
           final lid = target.first.key;
-          final pay =
-              paymentPool <= balances[lid]! ? paymentPool : balances[lid]!;
+          final pay = paymentPool <= balances[lid]!
+              ? paymentPool
+              : balances[lid]!;
           balances[lid] = (balances[lid]! - pay).clamp(0.0, double.infinity);
           paymentThisMonth += pay;
           paymentPool -= pay;
@@ -488,8 +500,9 @@ List<Map<String, dynamic>> computeProjectAllDebtsPayoff(
           ..sort((a, b) => aprs[b.key]!.compareTo(aprs[a.key]!));
         if (target.isNotEmpty) {
           final lid = target.first.key;
-          final pay =
-              paymentPool <= balances[lid]! ? paymentPool : balances[lid]!;
+          final pay = paymentPool <= balances[lid]!
+              ? paymentPool
+              : balances[lid]!;
           balances[lid] = (balances[lid]! - pay).clamp(0.0, double.infinity);
           paymentThisMonth += pay;
           paymentPool -= pay;
@@ -583,8 +596,8 @@ Map<String, List<int>> computeSpendingHeatmap(
       final actual = inst['actual_paid_amount'] is int
           ? inst['actual_paid_amount'] as int
           : (inst['amount'] is int
-              ? inst['amount'] as int
-              : int.tryParse(inst['amount'].toString()) ?? 0);
+                ? inst['amount'] as int
+                : int.tryParse(inst['amount'].toString()) ?? 0);
 
       monthCategoryTotals[category] =
           (monthCategoryTotals[category] ?? 0) + actual;
@@ -593,7 +606,7 @@ Map<String, List<int>> computeSpendingHeatmap(
     // Add monthly totals to heatmap
     final allCategories = <String>{
       ...monthCategoryTotals.keys,
-      ...heatmapData.keys
+      ...heatmapData.keys,
     };
     for (final category in allCategories) {
       heatmapData.putIfAbsent(category, () => []);
