@@ -64,9 +64,9 @@ dependencies:
   qr_flutter: any
   archive: any
   # Encrypted sqlite support (SQLCipher)
-  sqflite_sqlcipher: ^2.0.0
-  sqlcipher_flutter_libs: ^0.5.0
-  pointycastle: ^3.8.0
+  sqflite_sqlcipher: ^3.4.0
+  sqlcipher_flutter_libs: ^0.6.8
+  pointycastle: ^3.9.1
 
 dev_dependencies:
   flutter_test:
