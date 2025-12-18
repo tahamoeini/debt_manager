@@ -33,22 +33,23 @@ class _PayoffSimulatorScreenState extends ConsumerState<PayoffSimulatorScreen> {
     final repo = ref.read(loanRepositoryProvider);
     final loans = await repo.getAllLoans(direction: LoanDirection.borrowed);
     final debts = <_DebtItem>[];
+    final ids = loans.map((l) => l.id).whereType<int>().toList();
+    final grouped = ids.isNotEmpty
+        ? await repo.getInstallmentsGroupedByLoanId(ids)
+        : <int, List<Installment>>{};
     for (final loan in loans) {
-      if (loan.id == null) continue;
-      final insts = await repo.getInstallmentsByLoanId(loan.id!);
-      final unpaid = insts
-          .where((i) => i.status != InstallmentStatus.paid)
-          .toList();
+      final lid = loan.id;
+      if (lid == null) continue;
+      final insts = grouped[lid] ?? const <Installment>[];
+      final unpaid = insts.where((i) => i.status != InstallmentStatus.paid);
       final balance = unpaid.fold<int>(0, (s, i) => s + i.amount);
       if (balance > 0) {
-        debts.add(
-          _DebtItem(
-            id: loan.id!,
-            title: loan.title.isNotEmpty ? loan.title : 'بدون عنوان',
-            balance: balance.toDouble(),
-            monthlyPayment: loan.installmentAmount,
-          ),
-        );
+        debts.add(_DebtItem(
+          id: lid,
+          title: loan.title.isNotEmpty ? loan.title : 'بدون عنوان',
+          balance: balance.toDouble(),
+          monthlyPayment: loan.installmentAmount,
+        ));
       }
     }
 

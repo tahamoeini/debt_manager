@@ -7,6 +7,9 @@ import 'package:debt_manager/core/db/database_helper.dart';
 import 'package:debt_manager/core/models/backup_payload.dart';
 import 'package:debt_manager/features/loans/models/installment.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:debt_manager/core/privacy/backup_crypto.dart';
+import 'package:debt_manager/features/loans/models/counterparty.dart';
+import 'package:debt_manager/features/loans/models/loan.dart';
 
 /// Service for backing up and restoring database data
 class BackupRestoreService {
@@ -26,6 +29,7 @@ class BackupRestoreService {
   Future<String> exportData({
     String? backupName,
     String? backupDirectory,
+    String? password,
   }) async {
     try {
       // Get all data from database
@@ -84,12 +88,25 @@ class BackupRestoreService {
 
       // Serialize payload
       final payloadJson = jsonEncode(payload.toJson());
-      final payloadBytes = utf8.encode(payloadJson);
 
-      // Create zip archive
+      // Create zip archive with encrypted payload and separate metadata
       final archive = Archive();
+      final metadataJson = jsonEncode(metadata.toJson());
+      final metadataBytes = utf8.encode(metadataJson);
+
+      if (password == null || password.isEmpty) {
+        throw Exception('Password required for encrypted backup');
+      }
+
+      // Encrypt payload JSON using AES-GCM envelope
+      final envelope = await BackupCrypto.encryptJsonAsync(payloadJson, password);
+      final envelopeBytes = utf8.encode(jsonEncode(envelope));
+
       archive.addFile(
-        ArchiveFile('backup.json', payloadBytes.length, payloadBytes),
+        ArchiveFile('backup.enc', envelopeBytes.length, envelopeBytes),
+      );
+      archive.addFile(
+        ArchiveFile('metadata.json', metadataBytes.length, metadataBytes),
       );
 
       // Get directory to save backup
@@ -122,6 +139,7 @@ class BackupRestoreService {
     String filePath, {
     BackupMergeMode mode = BackupMergeMode.dryRun,
     Function(List<BackupConflict> conflicts)? conflictCallback,
+    String? password,
   }) async {
     try {
       final file = File(filePath);
@@ -133,21 +151,30 @@ class BackupRestoreService {
       final zipBytes = await file.readAsBytes();
       final archive = ZipDecoder().decodeBytes(zipBytes);
 
-      // Find and read backup.json
-      ArchiveFile? backupFile;
+      // Find and read encrypted payload or fallback to legacy backup.json
+      ArchiveFile? encFile;
+      ArchiveFile? legacyJsonFile;
       for (final file in archive) {
-        if (file.name == 'backup.json') {
-          backupFile = file;
-          break;
-        }
+        if (file.name == 'backup.enc') encFile = file;
+        if (file.name == 'backup.json') legacyJsonFile = file;
       }
-
-      if (backupFile == null) {
-        throw Exception('Invalid backup file: backup.json not found');
+      if (encFile == null && legacyJsonFile == null) {
+        throw Exception('Invalid backup file: no payload');
       }
 
       // Parse backup payload
-      final payloadJson = utf8.decode(backupFile.content as List<int>);
+      String payloadJson;
+      if (encFile != null) {
+        if (password == null || password.isEmpty) {
+          throw Exception('Password required to import encrypted backup');
+        }
+        final envelopeMap = jsonDecode(
+          utf8.decode(encFile.content as List<int>),
+        ) as Map<String, dynamic>;
+        payloadJson = await BackupCrypto.decryptJsonAsync(envelopeMap, password);
+      } else {
+        payloadJson = utf8.decode(legacyJsonFile!.content as List<int>);
+      }
       final payloadMap = jsonDecode(payloadJson) as Map<String, dynamic>;
       final payload = BackupPayload.fromJson(payloadMap);
 
@@ -227,42 +254,52 @@ class BackupRestoreService {
   /// Replace all database data with backup data
   Future<void> _replaceAllData(BackupPayload payload) async {
     try {
-      // Get existing data to delete
-      final existingLoans = await _db.getAllLoans();
+      // Wipe tables
+      final db = await _db.database;
+      await db.delete('installments');
+      await db.delete('loans');
+      await db.delete('counterparties');
 
-      // Delete all loans (which cascades to installments)
-      for (final loan in existingLoans) {
-        if (loan.id != null) {
-          await _db.deleteLoanWithInstallments(loan.id!);
-        }
+      // Insert counterparties and keep id mapping
+      final cps = (payload.data['counterparties'] as List? ?? [])
+          .cast<Map<String, dynamic>>();
+      final cpIdMap = <int, int>{};
+      for (final cp in cps) {
+        final oldId = cp['id'] is int
+            ? cp['id'] as int
+            : int.tryParse('${cp['id']}') ?? 0;
+        final counterparty = Counterparty.fromMap(cp);
+        final newId = await _db.insertCounterparty(counterparty);
+        cpIdMap[oldId] = newId;
       }
 
-      // Delete counterparties
-      final existingCounterparties = await _db.getAllCounterparties();
-      for (final cp in existingCounterparties) {
-        if (cp.id != null) {
-          // Note: deleteLoan cascade should handle this, but if counterparties
-          // are orphaned, we need a delete method for them
-          // TODO: Add deleteCounterparty method to DatabaseHelper
-        }
+      // Insert loans and keep loan id mapping
+      final loans = (payload.data['loans'] as List? ?? [])
+          .cast<Map<String, dynamic>>();
+      final loanIdMap = <int, int>{};
+      for (final l in loans) {
+        final oldId = l['id'] is int
+            ? l['id'] as int
+            : int.tryParse('${l['id']}') ?? 0;
+        final loan = Loan.fromMap(l);
+        final remappedCp = cpIdMap[loan.counterpartyId] ?? loan.counterpartyId;
+        final loanToInsert = loan.copyWith(counterpartyId: remappedCp);
+        final newId = await _db.insertLoan(loanToInsert);
+        loanIdMap[oldId] = newId;
       }
 
-      // Import counterparties first (foreign key dependency)
-      final counterparties = payload.data['counterparties'] as List? ?? [];
-      for (final _ in counterparties) {
-        // TODO: Create Counterparty from map and insert
-      }
-
-      // Import loans (depends on counterparties)
-      final loans = payload.data['loans'] as List? ?? [];
-      for (final _ in loans) {
-        // TODO: Create Loan from map and insert
-      }
-
-      // Import installments (depends on loans)
-      final installments = payload.data['installments'] as List? ?? [];
-      for (final _ in installments) {
-        // TODO: Create Installment from map and insert
+      // Insert installments mapping loan ids
+      final installments = (payload.data['installments'] as List? ?? [])
+          .cast<Map<String, dynamic>>();
+      for (final it in installments) {
+        final instMap = Map<String, dynamic>.from(it);
+        final oldLoanId = instMap['loan_id'] is int
+            ? instMap['loan_id'] as int
+            : int.tryParse('${instMap['loan_id']}') ?? 0;
+        final newLoanId = loanIdMap[oldLoanId] ?? oldLoanId;
+        instMap['loan_id'] = newLoanId;
+        final inst = Installment.fromMap(instMap);
+        await _db.insertInstallment(inst);
       }
     } catch (e) {
       throw Exception('Failed to replace database data: $e');
@@ -286,18 +323,21 @@ class BackupRestoreService {
       for (final cpData in backupCounterparties) {
         final cpId = cpData['id'];
         if (cpId != null && !existingCpIds.contains(cpId)) {
-          // Insert new counterparty only if it doesn't exist
-          // TODO: Create Counterparty from map and insert
+          await _db.insertCounterparty(Counterparty.fromMap(
+            Map<String, dynamic>.from(cpData),
+          ));
         }
       }
 
       // Merge loans
       final existingLoanIds = existingLoans.map((l) => l.id).toSet();
+      // Merge loans
       for (final loanData in backupLoans) {
         final loanId = loanData['id'];
         if (loanId != null && !existingLoanIds.contains(loanId)) {
-          // Insert new loan only if it doesn't exist
-          // TODO: Create Loan from map and insert
+          await _db.insertLoan(Loan.fromMap(
+            Map<String, dynamic>.from(loanData),
+          ));
         }
       }
 
@@ -313,8 +353,9 @@ class BackupRestoreService {
           final existingIds = existingInstallments.map((i) => i.id).toSet();
 
           if (instId != null && !existingIds.contains(instId)) {
-            // Insert new installment
-            // TODO: Create Installment from map and insert
+            await _db.insertInstallment(Installment.fromMap(
+              Map<String, dynamic>.from(instData),
+            ));
           }
         }
       }
@@ -364,12 +405,10 @@ class BackupRestoreService {
       final archive = ZipDecoder().decodeBytes(zipBytes);
 
       for (final file in archive) {
-        if (file.name == 'backup.json') {
-          final payloadJson = utf8.decode(file.content as List<int>);
-          final payloadMap = jsonDecode(payloadJson) as Map<String, dynamic>;
-          return BackupMetadata.fromJson(
-            payloadMap['metadata'] as Map<String, dynamic>,
-          );
+        if (file.name == 'metadata.json') {
+          final metaJson = utf8.decode(file.content as List<int>);
+          final metaMap = jsonDecode(metaJson) as Map<String, dynamic>;
+          return BackupMetadata.fromJson(metaMap);
         }
       }
 

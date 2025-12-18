@@ -35,14 +35,88 @@ class _BackupRestoreScreenState extends State<BackupRestoreScreen> {
     }
   }
 
+  Future<void> _promptRestore(String filePath) async {
+    final mode = ValueNotifier<BackupMergeMode>(BackupMergeMode.replace);
+    final passwordController = TextEditingController();
+
+    final confirmed = await showDialog<bool>(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text('بازیابی نسخه‌ی پشتیبان'),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                DropdownButton<BackupMergeMode>(
+                  value: mode.value,
+                  items: const [
+                    DropdownMenuItem(
+                      value: BackupMergeMode.replace,
+                      child: Text('جایگزینی کامل'),
+                    ),
+                    DropdownMenuItem(
+                      value: BackupMergeMode.merge,
+                      child: Text('ادغام'),
+                    ),
+                  ],
+                  onChanged: (v) => mode.value = v ?? BackupMergeMode.replace,
+                ),
+                const SizedBox(height: 12),
+                TextField(
+                  controller: passwordController,
+                  obscureText: true,
+                  decoration: const InputDecoration(
+                    hintText: 'گذرواژه پشتیبان',
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+              ],
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context, false),
+                child: const Text('لغو'),
+              ),
+              FilledButton(
+                onPressed: () => Navigator.pop(context, true),
+                child: const Text('بازیابی'),
+              ),
+            ],
+          ),
+        ) ??
+        false;
+
+    if (!confirmed) return;
+
+    setState(() => _isLoading = true);
+    try {
+      final conflicts = await _service.importData(
+        filePath,
+        mode: mode.value,
+        password: passwordController.text,
+      );
+      if (conflicts.isNotEmpty) {
+        _showErrorSnackBar('هشدار: ${conflicts.length} مورد نیاز به بررسی دارد');
+      } else {
+        _showSuccessSnackBar('بازیابی با موفقیت انجام شد');
+      }
+      await _loadAvailableBackups();
+    } catch (e) {
+      _showErrorSnackBar('خطا در بازیابی: $e');
+    } finally {
+      setState(() => _isLoading = false);
+    }
+  }
+
   Future<void> _createBackup() async {
     final nameController = TextEditingController();
+    final passwordController = TextEditingController();
+    final confirmController = TextEditingController();
 
     final confirmed =
         await showDialog<bool>(
           context: context,
           builder: (context) => AlertDialog(
-            title: const Text('ایجاد نسخه‌ی پشتیبان'),
+            title: const Text('ایجاد نسخه‌ی پشتیبان (رمزگذاری شده)'),
             content: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -50,6 +124,24 @@ class _BackupRestoreScreenState extends State<BackupRestoreScreen> {
                   controller: nameController,
                   decoration: InputDecoration(
                     hintText: 'نام نسخه‌ی پشتیبان (اختیاری)',
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                TextField(
+                  controller: passwordController,
+                  obscureText: true,
+                  decoration: const InputDecoration(
+                    hintText: 'گذرواژه پشتیبان',
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+                const SizedBox(height: 8),
+                TextField(
+                  controller: confirmController,
+                  obscureText: true,
+                  decoration: const InputDecoration(
+                    hintText: 'تأیید گذرواژه',
                     border: OutlineInputBorder(),
                   ),
                 ),
@@ -73,8 +165,15 @@ class _BackupRestoreScreenState extends State<BackupRestoreScreen> {
 
     setState(() => _isLoading = true);
     try {
+      if (passwordController.text.isEmpty ||
+          passwordController.text != confirmController.text) {
+        _showErrorSnackBar('گذرواژه نامعتبر یا هم‌خوان نیست');
+        setState(() => _isLoading = false);
+        return;
+      }
       final backupPath = await _service.exportData(
         backupName: nameController.text.isNotEmpty ? nameController.text : null,
+        password: passwordController.text,
       );
 
       if (!mounted) return;
@@ -317,7 +416,7 @@ class _BackupRestoreScreenState extends State<BackupRestoreScreen> {
                               PopupMenuItem(
                                 child: const Text('بازیابی'),
                                 onTap: () {
-                                  // TODO: Implement restore with this specific backup
+                                      _promptRestore(backup.path);
                                 },
                               ),
                               PopupMenuItem(

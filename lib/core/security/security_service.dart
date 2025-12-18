@@ -14,6 +14,8 @@ class SecurityService {
   final LocalAuthentication _auth = LocalAuthentication();
   static const _pinKey = 'app_pin_hash';
   static const _pinSaltKey = 'app_pin_salt';
+  static const _pinFailCountKey = 'app_pin_fail_count';
+  static const _pinLockoutUntilKey = 'app_pin_lockout_until_ms';
 
   // Whether biometrics are available on this device and enrolled.
   Future<bool> isBiometricAvailable() async {
@@ -61,9 +63,19 @@ class SecurityService {
     final hash = _bytesToHex(hashBytes);
     await SecureStorageService.instance.write(_pinSaltKey, salt);
     await SecureStorageService.instance.write(_pinKey, hash);
+    await SecureStorageService.instance.delete(_pinFailCountKey);
+    await SecureStorageService.instance.delete(_pinLockoutUntilKey);
   }
 
   Future<bool> verifyPin(String pin) async {
+    // Check lockout
+    final lockoutStr = await SecureStorageService.instance.read(_pinLockoutUntilKey);
+    final nowMs = DateTime.now().millisecondsSinceEpoch;
+    if (lockoutStr != null) {
+      final until = int.tryParse(lockoutStr) ?? 0;
+      if (until > nowMs) return false;
+    }
+
     final stored = await SecureStorageService.instance.read(_pinKey);
     final salt = await SecureStorageService.instance.read(_pinSaltKey);
     if (stored == null || salt == null) return false;
@@ -74,8 +86,32 @@ class SecurityService {
       10000,
       32,
     );
-    final hash = _bytesToHex(hashBytes);
-    return stored == hash;
+    final storedBytes = _hexToBytes(stored);
+    final ok = _constantTimeEquals(storedBytes, hashBytes);
+
+    if (ok) {
+      // Reset counters
+      await SecureStorageService.instance.delete(_pinFailCountKey);
+      await SecureStorageService.instance.delete(_pinLockoutUntilKey);
+      return true;
+    }
+
+    // Wrong PIN: increment fail count and set lockout if threshold exceeded
+    final failsStr = await SecureStorageService.instance.read(_pinFailCountKey);
+    final fails = (int.tryParse(failsStr ?? '0') ?? 0) + 1;
+    await SecureStorageService.instance.write(_pinFailCountKey, fails.toString());
+
+    if (fails >= 5) {
+      // Exponential backoff starting at 30s, doubling up to 15min
+      final base = 30000; // 30s
+      final maxMs = 900000; // 15min
+      final lockMs = (base * (1 << (fails - 5))).clamp(base, maxMs);
+      await SecureStorageService.instance.write(
+        _pinLockoutUntilKey,
+        (nowMs + lockMs).toString(),
+      );
+    }
+    return false;
   }
 
   Future<bool> hasPin() async {
@@ -119,4 +155,21 @@ class SecurityService {
 
   String _bytesToHex(Uint8List bytes) =>
       bytes.map((b) => b.toRadixString(16).padLeft(2, '0')).join();
+
+  Uint8List _hexToBytes(String hex) {
+    final out = Uint8List(hex.length ~/ 2);
+    for (var i = 0; i < hex.length; i += 2) {
+      out[i ~/ 2] = int.parse(hex.substring(i, i + 2), radix: 16);
+    }
+    return out;
+  }
+
+  bool _constantTimeEquals(Uint8List a, Uint8List b) {
+    if (a.length != b.length) return false;
+    var diff = 0;
+    for (var i = 0; i < a.length; i++) {
+      diff |= a[i] ^ b[i];
+    }
+    return diff == 0;
+  }
 }

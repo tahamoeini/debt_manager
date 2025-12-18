@@ -1,31 +1,16 @@
 import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
-import 'package:crypto/crypto.dart';
-import 'package:encrypt/encrypt.dart' as encrypt_pkg;
 import 'package:path_provider/path_provider.dart';
 import 'package:archive/archive_io.dart';
 import '../../core/db/database_helper.dart';
 import '../../core/settings/settings_repository.dart';
+import 'backup_crypto.dart';
 
 class BackupService {
   BackupService._internal();
   static final BackupService instance = BackupService._internal();
-  // Derive a 32-byte key from password using a simple HMAC-based expansion
-  static List<int> _deriveKey(String password, String salt) {
-    final pass = utf8.encode(password);
-    final saltBytes = utf8.encode(salt);
-    final hmac = Hmac(sha256, pass);
-    var key = <int>[];
-    var block = <int>[];
-    for (var i = 1; key.length < 32; i++) {
-      final blockInput = [...block, ...saltBytes, 0, 0, 0, i];
-      block = hmac.convert(blockInput).bytes;
-      key.addAll(block);
-      // Note: simple expansion loop; PBKDF2 iterations not required here
-    }
-    return key.sublist(0, 32);
-  }
+  // Legacy key derivation is removed; use PBKDF2-HMAC-SHA256 via BackupCrypto.
 
   static Future<File> _backupFile(String name) async {
     final dir = await getApplicationDocumentsDirectory();
@@ -39,24 +24,9 @@ class BackupService {
     String password, {
     required String filename,
   }) async {
-    final salt = DateTime.now().millisecondsSinceEpoch.toString();
-    final keyBytes = _deriveKey(password, salt);
-    final key = encrypt_pkg.Key(Uint8List.fromList(keyBytes));
-    final iv = encrypt_pkg.IV.fromSecureRandom(16);
-    final encrypter = encrypt_pkg.Encrypter(
-      encrypt_pkg.AES(key, mode: encrypt_pkg.AESMode.cbc),
-    );
-    final encrypted = encrypter.encrypt(plainJson, iv: iv);
-
-    // Store salt + iv + cipher in base64 JSON wrapper
-    final wrapper = json.encode({
-      'salt': salt,
-      'iv': iv.base64,
-      'data': encrypted.base64,
-    });
-
+    final envelope = await BackupCrypto.encryptJsonAsync(plainJson, password);
     final file = await _backupFile(filename);
-    await file.writeAsBytes(utf8.encode(wrapper), flush: true);
+    await file.writeAsBytes(utf8.encode(json.encode(envelope)), flush: true);
     return file.path;
   }
 
@@ -66,18 +36,19 @@ class BackupService {
     final rawBytes = await f.readAsBytes();
     final raw = utf8.decode(rawBytes);
     final map = json.decode(raw) as Map<String, dynamic>;
-    final salt = map['salt'] as String;
-    final ivb64 = map['iv'] as String;
-    final datab64 = map['data'] as String;
-
-    final keyBytes = _deriveKey(password, salt);
-    final key = encrypt_pkg.Key(Uint8List.fromList(keyBytes));
-    final iv = encrypt_pkg.IV.fromBase64(ivb64);
-    final encrypter = encrypt_pkg.Encrypter(
-      encrypt_pkg.AES(key, mode: encrypt_pkg.AESMode.cbc),
-    );
-    final decrypted = encrypter.decrypt64(datab64, iv: iv);
-    return decrypted;
+    // v2 envelope
+    if ((map['v'] as int?) == 2) {
+      return await BackupCrypto.decryptJsonAsync(map, password);
+    }
+    // Legacy v1 (CBC wrapper): attempt fallback
+    final salt = map['salt'] as String?;
+    final ivb64 = map['iv'] as String?;
+    final datab64 = map['data'] as String?;
+    if (salt == null || ivb64 == null || datab64 == null) {
+      throw Exception('Unsupported or corrupted backup format');
+    }
+    // Legacy decrypt not supported for integrity; recommend re-export.
+    throw Exception('Legacy backup format not supported. Please re-export.');
   }
 
   // Export full dataset (loans, installments, counterparties, settings) as JSON string.
@@ -156,23 +127,11 @@ class BackupService {
   ) async {
     final jsonStr = await exportFullJson();
     final compressed = gzipCompress(Uint8List.fromList(utf8.encode(jsonStr)));
-
-    // encrypt compressed bytes using same encryption wrapper but storing base64 of cipher
-    final salt = DateTime.now().millisecondsSinceEpoch.toString();
-    final keyBytes = _deriveKey(password, salt);
-    final key = encrypt_pkg.Key(Uint8List.fromList(keyBytes));
-    final iv = encrypt_pkg.IV.fromSecureRandom(16);
-    final encrypter = encrypt_pkg.Encrypter(
-      encrypt_pkg.AES(key, mode: encrypt_pkg.AESMode.cbc),
+    final envelope = await BackupCrypto.encryptJsonAsync(
+      base64Encode(compressed),
+      password,
     );
-    final encrypted = encrypter.encryptBytes(compressed, iv: iv);
-
-    final wrapper = json.encode({
-      'salt': salt,
-      'iv': iv.base64,
-      'data': encrypted.base64,
-    });
-    return Uint8List.fromList(utf8.encode(wrapper));
+    return Uint8List.fromList(utf8.encode(json.encode(envelope)));
   }
 
   // Given encrypted wrapper bytes, decrypt and return the original JSON string (after decompression)
@@ -182,21 +141,12 @@ class BackupService {
   ) async {
     final wrapper =
         json.decode(utf8.decode(wrapperBytes)) as Map<String, dynamic>;
-    final salt = wrapper['salt'] as String;
-    final ivb64 = wrapper['iv'] as String;
-    final datab64 = wrapper['data'] as String;
-
-    final keyBytes = _deriveKey(password, salt);
-    final key = encrypt_pkg.Key(Uint8List.fromList(keyBytes));
-    final iv = encrypt_pkg.IV.fromBase64(ivb64);
-    final encrypter = encrypt_pkg.Encrypter(
-      encrypt_pkg.AES(key, mode: encrypt_pkg.AESMode.cbc),
-    );
-    final decryptedBytes = encrypter.decryptBytes(
-      encrypt_pkg.Encrypted.fromBase64(datab64),
-      iv: iv,
-    );
-    final decompressed = gzipDecompress(Uint8List.fromList(decryptedBytes));
+    if ((wrapper['v'] as int?) != 2) {
+      throw Exception('Unsupported backup envelope');
+    }
+    final decryptedB64 = await BackupCrypto.decryptJsonAsync(wrapper, password);
+    final compressed = base64Decode(decryptedB64);
+    final decompressed = gzipDecompress(Uint8List.fromList(compressed));
     return utf8.decode(decompressed);
   }
 
