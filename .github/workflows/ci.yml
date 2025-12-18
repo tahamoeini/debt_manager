@@ -22,24 +22,63 @@ permissions:
   contents: read
 
 jobs:
-  ci-check:
+  ci-pr:
+    name: ci-check
+    if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     timeout-minutes: 30
     permissions:
-      contents: ${{ github.event_name == 'push' && 'write' || 'read' }}
+      contents: read
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          persist-credentials: ${{ github.event_name == 'push' }}
+          persist-credentials: false
 
       - name: Setup Flutter and Build Tools
         uses: ./.github/actions/setup-flutter
 
-      - name: Auto-format and push (push events only)
-        if: github.event_name == 'push'
+      - name: Check code formatting
+        run: dart format --output=none --set-exit-if-changed .
+
+      - name: Analyze code
+        run: flutter analyze --no-fatal-infos
+
+      - name: Run unit tests
+        run: flutter test --concurrency=8 --test-randomize-ordering-seed=random
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: |
+            test/
+            coverage/
+          retention-days: 7
+          if-no-files-found: ignore
+
+  ci-push:
+    name: ci-check-push
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: true
+
+      - name: Setup Flutter and Build Tools
+        uses: ./.github/actions/setup-flutter
+
+      - name: Auto-format and push
         shell: bash
         run: |
           dart format .
@@ -49,6 +88,8 @@ jobs:
             git add -A
             git commit -m "chore: format Dart code (ci)"
             git push
+          else
+            echo "No formatting changes"
           fi
 
       - name: Check code formatting
