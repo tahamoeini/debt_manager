@@ -1,5 +1,4 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:riverpod/riverpod.dart';
 import 'package:debt_manager/core/db/database_helper.dart';
 import 'package:debt_manager/core/notifications/smart_notification_service.dart';
 import 'package:debt_manager/core/settings/settings_repository.dart';
@@ -73,17 +72,19 @@ final refreshTriggerProvider = StateProvider<int>((ref) => 0);
 // Simple in-memory cache for report computations. Keys are arbitrary strings
 // (e.g. 'spendingByCategory:2025-12'). Consumers should invalidate when
 // underlying data changes (e.g. when loans/installments are modified).
-class ReportsCacheNotifier extends StateNotifier<Map<String, dynamic>> {
-  ReportsCacheNotifier() : super({});
+final reportsCacheProvider =
+    StateProvider<Map<String, dynamic>>((ref) => {});
 
-  void put(String key, dynamic value) {
-    state = {...state, key: value};
-  }
-
+/// Cache helper extension for type-safe access to reportsCacheProvider.
+extension ReportsCacheHelper on StateController<Map<String, dynamic>> {
   T? get<T>(String key) {
     final v = state[key];
     if (v is T) return v;
     return null;
+  }
+
+  void put(String key, dynamic value) {
+    state = {...state, key: value};
   }
 
   void invalidate(String key) {
@@ -92,10 +93,7 @@ class ReportsCacheNotifier extends StateNotifier<Map<String, dynamic>> {
     state = copy;
   }
 
-  void clear() => state = {};
+  void clear() {
+    state = {};
+  }
 }
-
-final reportsCacheProvider =
-    StateNotifierProvider<ReportsCacheNotifier, Map<String, dynamic>>((ref) {
-      return ReportsCacheNotifier();
-    });
