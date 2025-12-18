@@ -49,8 +49,8 @@ class PrivacyGateway {
 
     final cps = (map['counterparties'] as List<dynamic>? ?? [])
         .cast<Map<String, dynamic>>();
-    final loans = (map['loans'] as List<dynamic>? ?? [])
-        .cast<Map<String, dynamic>>();
+    final loans =
+        (map['loans'] as List<dynamic>? ?? []).cast<Map<String, dynamic>>();
     final installments = (map['installments'] as List<dynamic>? ?? [])
         .cast<Map<String, dynamic>>();
 

@@ -164,7 +164,8 @@ class BackupService {
     String plainJson,
     String password, {
     required String filename,
-  }) => BackupService.encryptAndSave(plainJson, password, filename: filename);
+  }) =>
+      BackupService.encryptAndSave(plainJson, password, filename: filename);
   Future<String> decryptFromFileInstance(String path, String password) =>
       BackupService.decryptFromFile(path, password);
   Future<Uint8List> exportEncryptedCompressedBytesInstance(String password) =>
@@ -172,6 +173,7 @@ class BackupService {
   Future<String> decryptCompressedBytesInstance(
     Uint8List wrapperBytes,
     String password,
-  ) => BackupService.decryptCompressedBytes(wrapperBytes, password);
+  ) =>
+      BackupService.decryptCompressedBytes(wrapperBytes, password);
   Future<void> deleteAllBackupsInstance() => BackupService.deleteAllBackups();
 }

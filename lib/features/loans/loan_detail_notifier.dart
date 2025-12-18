@@ -30,7 +30,7 @@ class LoanDetailNotifier extends StateNotifier<AsyncValue<LoanDetailState>> {
   final int loanId;
 
   LoanDetailNotifier(this.ref, this.loanId)
-    : super(const AsyncValue.loading()) {
+      : super(const AsyncValue.loading()) {
     _load();
   }
 
@@ -86,11 +86,7 @@ class LoanDetailNotifier extends StateNotifier<AsyncValue<LoanDetailState>> {
   }
 }
 
-final loanDetailProvider =
-    StateNotifierProvider.family<
-      LoanDetailNotifier,
-      AsyncValue<LoanDetailState>,
-      int
-    >((ref, loanId) {
-      return LoanDetailNotifier(ref, loanId);
-    });
+final loanDetailProvider = StateNotifierProvider.family<LoanDetailNotifier,
+    AsyncValue<LoanDetailState>, int>((ref, loanId) {
+  return LoanDetailNotifier(ref, loanId);
+});

@@ -65,14 +65,12 @@ class _AddBudgetEntryScreenState extends ConsumerState<AddBudgetEntryScreen> {
   }
 
   Future<void> _save() async {
-    final category = _categoryCtrl.text.trim().isEmpty
-        ? null
-        : _categoryCtrl.text.trim();
+    final category =
+        _categoryCtrl.text.trim().isEmpty ? null : _categoryCtrl.text.trim();
     final amt = double.tryParse(_amountCtrl.text.replaceAll(',', '')) ?? 0.0;
     final amount = (amt * 100).round();
-    final period = _periodCtrl.text.trim().isEmpty
-        ? null
-        : _periodCtrl.text.trim();
+    final period =
+        _periodCtrl.text.trim().isEmpty ? null : _periodCtrl.text.trim();
     final date = _dateCtrl.text.trim().isEmpty ? null : _dateCtrl.text.trim();
     final note = _noteCtrl.text.trim().isEmpty ? null : _noteCtrl.text.trim();
     final createdAt = DateTime.now().toIso8601String();

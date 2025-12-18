@@ -677,8 +677,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                                                     TextInputType.number,
                                                 decoration:
                                                     const InputDecoration(
-                                                      labelText: 'PIN',
-                                                    ),
+                                                  labelText: 'PIN',
+                                                ),
                                               ),
                                               TextField(
                                                 controller: second,
@@ -687,8 +687,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                                                     TextInputType.number,
                                                 decoration:
                                                     const InputDecoration(
-                                                      labelText: 'تأیید PIN',
-                                                    ),
+                                                  labelText: 'تأیید PIN',
+                                                ),
                                               ),
                                             ],
                                           ),
@@ -724,8 +724,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                                               .enableEncryptionWithPin(pin);
                                           await SettingsRepository()
                                               .setDatabaseEncryptionEnabled(
-                                                true,
-                                              );
+                                            true,
+                                          );
                                           if (mounted) {
                                             ScaffoldMessenger.of(
                                               context,
@@ -1027,8 +1027,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                                                     onPressed: () async {
                                                       final messenger =
                                                           ScaffoldMessenger.of(
-                                                            context,
-                                                          );
+                                                        context,
+                                                      );
                                                       await Clipboard.setData(
                                                         ClipboardData(
                                                           text: jsonStr,
@@ -1048,8 +1048,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                                               ),
                                             ),
                                             SizedBox(
-                                              height:
-                                                  MediaQuery.of(
+                                              height: MediaQuery.of(
                                                     context,
                                                   ).size.height *
                                                   0.6,
@@ -1104,7 +1103,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                                               child: TextField(
                                                 controller: controller,
                                                 maxLines: null,
-                                                decoration: const InputDecoration(
+                                                decoration:
+                                                    const InputDecoration(
                                                   hintText:
                                                       '{ "counterparties": [...], "loans": [...], "installments": [...] }',
                                                 ),
@@ -1117,8 +1117,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                                                   onPressed: () async {
                                                     final data =
                                                         await Clipboard.getData(
-                                                          'text/plain',
-                                                        );
+                                                      'text/plain',
+                                                    );
                                                     if (data != null &&
                                                         data.text != null) {
                                                       controller.text =
@@ -1154,14 +1154,13 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                                             final txt = controller.text.trim();
                                             if (txt.isEmpty) return;
                                             try {
-                                              final parsed =
-                                                  json.decode(txt)
-                                                      as Map<String, dynamic>;
+                                              final parsed = json.decode(txt)
+                                                  as Map<String, dynamic>;
                                               await BackupService.instance
                                                   .importFromMap(
-                                                    parsed,
-                                                    clearBefore: true,
-                                                  );
+                                                parsed,
+                                                clearBefore: true,
+                                              );
                                               if (!mounted) return;
                                               messenger.showSnackBar(
                                                 const SnackBar(
@@ -1198,7 +1197,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                           const SizedBox(height: 16),
                           Text(
                             'مدیریت داده‌ها',
-                            style: Theme.of(context).textTheme.titleMedium
+                            style: Theme.of(context)
+                                .textTheme
+                                .titleMedium
                                 ?.copyWith(
                                   color: Theme.of(context).colorScheme.error,
                                 ),
@@ -1206,7 +1207,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                           const SizedBox(height: 8),
                           Text(
                             'با احتیاط استفاده کنید! این عملیات غیرقابل بازگشت است.',
-                            style: Theme.of(context).textTheme.bodySmall
+                            style: Theme.of(context)
+                                .textTheme
+                                .bodySmall
                                 ?.copyWith(
                                   color: Theme.of(context).colorScheme.error,
                                 ),
@@ -1304,7 +1307,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                         children: [
                           Text(
                             'پشتیبانی و بازخورد',
-                            style: Theme.of(context).textTheme.titleMedium
+                            style: Theme.of(context)
+                                .textTheme
+                                .titleMedium
                                 ?.copyWith(
                                   color: Theme.of(
                                     context,
@@ -1314,12 +1319,12 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                           const SizedBox(height: 8),
                           Text(
                             'در صورت مواجهه با مشکل یا برای ارسال پیشنهاد',
-                            style: Theme.of(context).textTheme.bodySmall
-                                ?.copyWith(
-                                  color: Theme.of(
-                                    context,
-                                  ).colorScheme.onTertiaryContainer,
-                                ),
+                            style:
+                                Theme.of(context).textTheme.bodySmall?.copyWith(
+                                      color: Theme.of(
+                                        context,
+                                      ).colorScheme.onTertiaryContainer,
+                                    ),
                           ),
                           const SizedBox(height: 12),
                           FilledButton.icon(

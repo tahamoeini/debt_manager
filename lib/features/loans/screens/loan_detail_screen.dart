@@ -145,9 +145,8 @@ class _LoanDetailScreenState extends ConsumerState<LoanDetailScreen> {
 
                             // Build updated installment
                             final entered = amountController.text.trim();
-                            final actualAmt = entered.isEmpty
-                                ? null
-                                : int.tryParse(entered);
+                            final actualAmt =
+                                entered.isEmpty ? null : int.tryParse(entered);
 
                             final dueStr = formatJalali(selectedJalali);
 
@@ -158,8 +157,8 @@ class _LoanDetailScreenState extends ConsumerState<LoanDetailScreen> {
                             final newStatus = isPaid
                                 ? InstallmentStatus.paid
                                 : (dueStr.compareTo(todayStr) < 0
-                                      ? InstallmentStatus.overdue
-                                      : InstallmentStatus.pending);
+                                    ? InstallmentStatus.overdue
+                                    : InstallmentStatus.pending);
 
                             final updated = inst.copyWith(
                               dueDateJalali: dueStr,
@@ -187,8 +186,7 @@ class _LoanDetailScreenState extends ConsumerState<LoanDetailScreen> {
                                   period,
                                 );
 
-                                final amountPaid =
-                                    actualAmt ??
+                                final amountPaid = actualAmt ??
                                     inst.actualPaidAmount ??
                                     inst.amount;
 
@@ -255,22 +253,23 @@ class _LoanDetailScreenState extends ConsumerState<LoanDetailScreen> {
                               if (inst.id != null) {
                                 ids.add(inst.id!);
                                 ids.add(inst.id! + 1000);
-                                ids.add(NotificationIds.forInstallment(inst.id!));
+                                ids.add(
+                                    NotificationIds.forInstallment(inst.id!));
                               }
                               if (inst.notificationId != null) {
                                 ids.add(inst.notificationId!);
                               }
                               for (final id in ids) {
                                 try {
-                                  await NotificationService().cancelNotification(id);
+                                  await NotificationService()
+                                      .cancelNotification(id);
                                 } catch (_) {}
                               }
                             }
 
                             // Check if all installments are now paid and celebrate!
                             if (isPaid) {
-                              final allInst =
-                                  ref
+                              final allInst = ref
                                       .read(loanDetailProvider(widget.loanId))
                                       .value
                                       ?.installments ??
@@ -290,9 +289,9 @@ class _LoanDetailScreenState extends ConsumerState<LoanDetailScreen> {
                                     final newly = await AchievementsRepository
                                         .instance
                                         .handlePayment(
-                                          loanId: widget.loanId,
-                                          paidAt: DateTime.now(),
-                                        );
+                                      loanId: widget.loanId,
+                                      paidAt: DateTime.now(),
+                                    );
                                     if (!mounted) return;
                                     if (newly.isNotEmpty) {
                                       for (final a in newly) {
@@ -477,8 +476,8 @@ class _LoanDetailScreenState extends ConsumerState<LoanDetailScreen> {
                 Text(
                   'اقساط',
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.w700,
-                  ),
+                        fontWeight: FontWeight.w700,
+                      ),
                 ),
                 const SizedBox(height: 8),
                 ...installments.map(

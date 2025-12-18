@@ -31,12 +31,12 @@ class UserProgress {
   });
 
   factory UserProgress.empty() => UserProgress(
-    totalXp: 0,
-    level: 0,
-    streaks: {},
-    freedomDate: null,
-    daysFreedomCountdown: 0,
-  );
+        totalXp: 0,
+        level: 0,
+        streaks: {},
+        freedomDate: null,
+        daysFreedomCountdown: 0,
+      );
 }
 
 class Achievement {
@@ -144,10 +144,9 @@ class AchievementsRepository {
 
     // 1) First Debt Paid: if loanId provided and this loan now fully paid
     if (loanId != null && !earned.contains('first_debt_paid')) {
-      final installments = await DatabaseHelper.instance
-          .getInstallmentsByLoanId(loanId);
-      final allPaid =
-          installments.isNotEmpty &&
+      final installments =
+          await DatabaseHelper.instance.getInstallmentsByLoanId(loanId);
+      final allPaid = installments.isNotEmpty &&
           installments.every((i) => i.status == InstallmentStatus.paid);
       if (allPaid) {
         await _addEarned('first_debt_paid');

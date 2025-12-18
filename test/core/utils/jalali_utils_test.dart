@@ -52,7 +52,8 @@ void main() {
       final start = Jalali(1402, 11, 15); // Bahman 15
       final s = generateMonthlySchedule(start, 3);
       expect(s[0], Jalali(1402, 11, 15)); // Bahman: 30 days
-      expect(s[1], Jalali(1402, 12, 15)); // Esfand (non-leap): 29 days, day kept
+      expect(
+          s[1], Jalali(1402, 12, 15)); // Esfand (non-leap): 29 days, day kept
       expect(s[2], Jalali(1403, 1, 15)); // Farvardin 1403: 31 days
     });
 
@@ -71,17 +72,21 @@ void main() {
     test('Jalali month lengths vary by month', () {
       // Months 1-6: 31 days each
       for (var m = 1; m <= 6; m++) {
-        expect(Jalali(1403, m, 1).monthLength, 31, reason: 'Months 1-6 should have 31 days');
+        expect(Jalali(1403, m, 1).monthLength, 31,
+            reason: 'Months 1-6 should have 31 days');
       }
       // Months 7-11: 30 days each
       for (var m = 7; m <= 11; m++) {
-        expect(Jalali(1403, m, 1).monthLength, 30, reason: 'Months 7-11 should have 30 days');
+        expect(Jalali(1403, m, 1).monthLength, 30,
+            reason: 'Months 7-11 should have 30 days');
       }
       // Month 12 (Esfand): 29 or 30 days depending on leap year
       // 1403 is a leap year so Esfand has 30 days
-      expect(Jalali(1403, 12, 1).monthLength, 30, reason: 'Esfand in leap year 1403 should have 30 days');
+      expect(Jalali(1403, 12, 1).monthLength, 30,
+          reason: 'Esfand in leap year 1403 should have 30 days');
       // 1399 is also a leap year
-      expect(Jalali(1399, 12, 1).monthLength, 30, reason: 'Esfand in leap year 1399 should have 30 days');
+      expect(Jalali(1399, 12, 1).monthLength, 30,
+          reason: 'Esfand in leap year 1399 should have 30 days');
     });
 
     test('schedules with zero count return empty list', () {
@@ -104,4 +109,3 @@ void main() {
     });
   });
 }
-

@@ -69,7 +69,8 @@ class SecurityService {
 
   Future<bool> verifyPin(String pin) async {
     // Check lockout
-    final lockoutStr = await SecureStorageService.instance.read(_pinLockoutUntilKey);
+    final lockoutStr =
+        await SecureStorageService.instance.read(_pinLockoutUntilKey);
     final nowMs = DateTime.now().millisecondsSinceEpoch;
     if (lockoutStr != null) {
       final until = int.tryParse(lockoutStr) ?? 0;
@@ -99,7 +100,8 @@ class SecurityService {
     // Wrong PIN: increment fail count and set lockout if threshold exceeded
     final failsStr = await SecureStorageService.instance.read(_pinFailCountKey);
     final fails = (int.tryParse(failsStr ?? '0') ?? 0) + 1;
-    await SecureStorageService.instance.write(_pinFailCountKey, fails.toString());
+    await SecureStorageService.instance
+        .write(_pinFailCountKey, fails.toString());
 
     if (fails >= 5) {
       // Exponential backoff starting at 30s, doubling up to 15min

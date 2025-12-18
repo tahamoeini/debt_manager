@@ -67,7 +67,9 @@ class _AutomationRulesScreenState extends State<AutomationRulesScreen> {
                           const SizedBox(width: 8),
                           Text(
                             'درباره قوانین خودکار',
-                            style: Theme.of(context).textTheme.titleMedium
+                            style: Theme.of(context)
+                                .textTheme
+                                .titleMedium
                                 ?.copyWith(
                                   color: Theme.of(
                                     context,
@@ -80,10 +82,10 @@ class _AutomationRulesScreenState extends State<AutomationRulesScreen> {
                       Text(
                         'برنامه به طور خودکار از یک فرهنگ لغت داخلی برای شناسایی دسته‌های رایج استفاده می‌کند. قوانین سفارشی را می‌توانید در نسخه‌های بعدی اضافه کنید.',
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: Theme.of(
-                            context,
-                          ).colorScheme.onTertiaryContainer,
-                        ),
+                              color: Theme.of(
+                                context,
+                              ).colorScheme.onTertiaryContainer,
+                            ),
                       ),
                     ],
                   ),

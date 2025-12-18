@@ -72,8 +72,7 @@ final refreshTriggerProvider = StateProvider<int>((ref) => 0);
 // Simple in-memory cache for report computations. Keys are arbitrary strings
 // (e.g. 'spendingByCategory:2025-12'). Consumers should invalidate when
 // underlying data changes (e.g. when loans/installments are modified).
-final reportsCacheProvider =
-    StateProvider<Map<String, dynamic>>((ref) => {});
+final reportsCacheProvider = StateProvider<Map<String, dynamic>>((ref) => {});
 
 /// Cache helper extension for type-safe access to reportsCacheProvider.
 extension ReportsCacheHelper on StateController<Map<String, dynamic>> {

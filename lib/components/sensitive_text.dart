@@ -27,8 +27,7 @@ class SensitiveText extends ConsumerWidget {
               children: [
                 Text(
                   text,
-                  style:
-                      style?.copyWith(color: Colors.transparent) ??
+                  style: style?.copyWith(color: Colors.transparent) ??
                       const TextStyle(color: Colors.transparent),
                 ),
                 BackdropFilter(

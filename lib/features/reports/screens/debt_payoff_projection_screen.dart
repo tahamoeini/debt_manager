@@ -144,23 +144,19 @@ class _DebtPayoffProjectionScreenState
                   const SizedBox(height: 16),
                   // Decide which projection to compute based on strategy
                   FutureBuilder<List<Map<String, dynamic>>>(
-                    future:
-                        _strategy == 'single' &&
+                    future: _strategy == 'single' &&
                             _selectedLoan != null &&
                             _selectedLoan!.id != null
                         ? _repo.projectDebtPayoff(
                             _selectedLoan!.id!,
-                            extraPayment: _extraPayment > 0
-                                ? _extraPayment
-                                : null,
+                            extraPayment:
+                                _extraPayment > 0 ? _extraPayment : null,
                           )
                         : _repo.projectAllDebtsPayoff(
-                            extraPayment: _extraPayment > 0
-                                ? _extraPayment
-                                : null,
-                            strategy: _strategy == 'single'
-                                ? 'snowball'
-                                : _strategy,
+                            extraPayment:
+                                _extraPayment > 0 ? _extraPayment : null,
+                            strategy:
+                                _strategy == 'single' ? 'snowball' : _strategy,
                           ),
                     builder: (context, snap) {
                       if (snap.connectionState == ConnectionState.waiting) {
@@ -295,12 +291,9 @@ class _DebtPayoffProjectionScreenState
 
   Widget _buildProjectionSummary(List<Map<String, dynamic>> projections) {
     final monthsToPayoff = projections.length;
-    final firstBalance =
-        (projections.isNotEmpty
-                ? (projections.first['totalBalance'] ??
-                      projections.first['balance'])
-                : 0)
-            as int;
+    final firstBalance = (projections.isNotEmpty
+        ? (projections.first['totalBalance'] ?? projections.first['balance'])
+        : 0) as int;
     final totalPayments = projections.fold<int>(0, (sum, item) {
       return sum +
           (item['payment'] as int? ?? 0) +

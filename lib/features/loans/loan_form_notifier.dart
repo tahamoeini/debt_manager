@@ -31,7 +31,7 @@ class LoanFormState {
 
 class LoanFormNotifier extends StateNotifier<AsyncValue<LoanFormState>> {
   LoanFormNotifier(this.ref, [this.loanId])
-    : super(const AsyncValue.loading()) {
+      : super(const AsyncValue.loading()) {
     _init();
   }
 
@@ -102,8 +102,8 @@ class LoanFormNotifier extends StateNotifier<AsyncValue<LoanFormState>> {
 
 final loanFormProvider = StateNotifierProvider.family
     .autoDispose<LoanFormNotifier, AsyncValue<LoanFormState>, int?>((
-      ref,
-      loanId,
-    ) {
-      return LoanFormNotifier(ref, loanId);
-    });
+  ref,
+  loanId,
+) {
+  return LoanFormNotifier(ref, loanId);
+});

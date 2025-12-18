@@ -30,11 +30,10 @@ class ReportsState {
     List<Map<String, dynamic>>? rows,
     this.loadingSummary = false,
     this.loadingRows = false,
-  }) : statusFilter =
-           statusFilter ??
-           {InstallmentStatus.pending, InstallmentStatus.overdue},
-       counterparties = counterparties ?? [],
-       rows = rows ?? [];
+  })  : statusFilter = statusFilter ??
+            {InstallmentStatus.pending, InstallmentStatus.overdue},
+        counterparties = counterparties ?? [],
+        rows = rows ?? [];
 
   ReportsState copyWith({
     LoanDirection? direction,
@@ -71,8 +70,8 @@ class ReportsNotifier extends StateNotifier<ReportsState> {
   final Ref ref;
 
   ReportsNotifier(this.ref)
-    : _repo = ReportsRepository(ref.read),
-      super(ReportsState()) {
+      : _repo = ReportsRepository(ref.read),
+        super(ReportsState()) {
     _init();
   }
 

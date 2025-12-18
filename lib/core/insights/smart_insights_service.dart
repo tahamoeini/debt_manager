@@ -64,12 +64,12 @@ class SmartInsightsService {
       try {
         final rows =
             await compute<Map<String, dynamic>, List<Map<String, dynamic>>>(
-              (msg) => computeDetectSubscriptions(
-                List<Map<String, dynamic>>.from(msg['loans'] as List),
-                List<Map<String, dynamic>>.from(msg['insts'] as List),
-              ),
-              {'loans': loanMaps, 'insts': instMaps},
-            );
+          (msg) => computeDetectSubscriptions(
+            List<Map<String, dynamic>>.from(msg['loans'] as List),
+            List<Map<String, dynamic>>.from(msg['insts'] as List),
+          ),
+          {'loans': loanMaps, 'insts': instMaps},
+        );
 
         return rows
             .map(
@@ -130,14 +130,14 @@ class SmartInsightsService {
       try {
         final rows =
             await compute<Map<String, dynamic>, List<Map<String, dynamic>>>(
-              billChangeEntry,
-              {
-                'loans': loanMaps,
-                'insts': instMaps,
-                'current': currentPeriod,
-                'prev': prevPeriod,
-              },
-            );
+          billChangeEntry,
+          {
+            'loans': loanMaps,
+            'insts': instMaps,
+            'current': currentPeriod,
+            'prev': prevPeriod,
+          },
+        );
 
         return rows
             .map(
@@ -198,19 +198,19 @@ class SmartInsightsService {
       try {
         final rows =
             await compute<Map<String, dynamic>, List<Map<String, dynamic>>>(
-              (msg) => computeDetectAnomalies(
-                List<Map<String, dynamic>>.from(msg['loans'] as List),
-                List<Map<String, dynamic>>.from(msg['insts'] as List),
-                msg['current'] as String,
-                msg['monthsBack'] as int,
-              ),
-              {
-                'loans': loanMaps,
-                'insts': instMaps,
-                'current': currentPeriod,
-                'monthsBack': monthsBack,
-              },
-            );
+          (msg) => computeDetectAnomalies(
+            List<Map<String, dynamic>>.from(msg['loans'] as List),
+            List<Map<String, dynamic>>.from(msg['insts'] as List),
+            msg['current'] as String,
+            msg['monthsBack'] as int,
+          ),
+          {
+            'loans': loanMaps,
+            'insts': instMaps,
+            'current': currentPeriod,
+            'monthsBack': monthsBack,
+          },
+        );
         return rows;
       } catch (e) {
         final rows = computeDetectAnomalies(
