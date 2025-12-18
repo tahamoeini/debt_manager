@@ -1,0 +1,34 @@
+name: Setup Flutter and Android Build Tools
+description: Configure Flutter, Java, and Gradle with caching for CI/CD workflows
+
+runs:
+  using: composite
+
+  steps:
+    - name: Setup Flutter
+      uses: subosito/flutter-action@v2
+      with:
+        channel: stable
+        cache: true
+        cache-key: flutter-${{ runner.os }}-${{ hashFiles('**/pubspec.lock') }}
+
+    - name: Setup Java 17 (Android)
+      uses: actions/setup-java@v4
+      with:
+        distribution: temurin
+        java-version: '17'
+        cache: gradle
+
+    - name: Cache Pub packages
+      uses: actions/cache@v4
+      with:
+        path: |
+          ~/.pub-cache/hosted/**/*.tar.gz
+          ~/.pub-cache/git/**
+        key: pub-${{ runner.os }}-${{ hashFiles('**/pubspec.lock') }}
+        restore-keys: |
+          pub-${{ runner.os }}-
+
+    - name: Get dependencies
+      shell: bash
+      run: flutter pub get

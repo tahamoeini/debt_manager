@@ -1,4 +1,4 @@
-name: Flutter CI
+name: Flutter CI/CD
 
 concurrency:
   group: flutter-ci-${{ github.ref }}
@@ -7,34 +7,40 @@ concurrency:
 on:
   push:
     branches: [master]
+    paths-ignore:
+      - 'docs/**'
+      - '**.md'
+      - '.github/workflows/**'
   pull_request:
     branches: [master]
+    paths-ignore:
+      - 'docs/**'
+      - '**.md'
+      - '.github/workflows/**'
+
+permissions:
+  contents: read
 
 jobs:
-  analyze-and-test:
+  ci-check:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     permissions:
-      contents: write
+      contents: ${{ github.event_name == 'push' && 'write' || 'read' }}
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          persist-credentials: true
+          persist-credentials: ${{ github.event_name == 'push' }}
 
-      - name: Setup Flutter
-        uses: subosito/flutter-action@v2
-        with:
-          channel: stable
-          cache: true
+      - name: Setup Flutter and Build Tools
+        uses: ./.github/actions/setup-flutter
 
-      - name: Get dependencies
-        run: flutter pub get
-
-      - name: Auto-format and push (only on push events)
+      - name: Auto-format and push (push events only)
         if: github.event_name == 'push'
+        shell: bash
         run: |
           dart format .
           if [ -n "$(git status --porcelain)" ]; then
@@ -43,8 +49,6 @@ jobs:
             git add -A
             git commit -m "chore: format Dart code (ci)"
             git push
-          else
-            echo "No formatting changes"
           fi
 
       - name: Check code formatting
@@ -53,5 +57,16 @@ jobs:
       - name: Analyze code
         run: flutter analyze --no-fatal-infos
 
-      - name: Run tests
+      - name: Run unit tests
         run: flutter test --concurrency=8 --test-randomize-ordering-seed=random
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: |
+            test/
+            coverage/
+          retention-days: 7
+          if-no-files-found: ignore

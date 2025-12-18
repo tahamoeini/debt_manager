@@ -1,4 +1,4 @@
-name: Version Release
+name: Release
 
 concurrency:
   group: release-${{ github.ref }}
@@ -8,6 +8,12 @@ on:
   push:
     tags:
       - 'v*'
+  workflow_dispatch:
+    inputs:
+      create_release:
+        description: 'Create a GitHub release'
+        required: false
+        default: 'true'
 
 permissions:
   contents: write
@@ -25,21 +31,8 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Setup Flutter
-        uses: subosito/flutter-action@v2
-        with:
-          channel: stable
-          cache: true
-
-      - name: Setup Java
-        uses: actions/setup-java@v4
-        with:
-          distribution: temurin
-          java-version: '17'
-          cache: gradle
-
-      - name: Get dependencies
-        run: flutter pub get
+      - name: Setup Flutter and Build Tools
+        uses: ./.github/actions/setup-flutter
 
       - name: Analyze code
         run: flutter analyze --no-fatal-infos
@@ -47,40 +40,62 @@ jobs:
       - name: Run tests
         run: flutter test --concurrency=8 --test-randomize-ordering-seed=random
 
-      - name: Build APK
+      - name: Build APK (release)
         run: flutter build apk --release -v
 
-      - name: Build App Bundle
+      - name: Build App Bundle (release)
         run: flutter build appbundle --release -v
 
-      - name: Extract version from tag
+      - name: Extract version info
         id: version
+        shell: bash
         run: |
-          TAG=${{ github.ref_name }}
-          VERSION=${TAG#v}
+          if [[ "${{ github.ref }}" == refs/tags/* ]]; then
+            TAG="${{ github.ref_name }}"
+            VERSION="${TAG#v}"
+            IS_TAG="true"
+          else
+            SHORT_SHA=$(git rev-parse --short HEAD)
+            TIMESTAMP=$(date +%Y%m%d_%H%M%S)
+            VERSION="manual-${TIMESTAMP}-${SHORT_SHA}"
+            TAG="release-${TIMESTAMP}-${SHORT_SHA}"
+            IS_TAG="false"
+          fi
           echo "version=$VERSION" >> $GITHUB_OUTPUT
           echo "tag=$TAG" >> $GITHUB_OUTPUT
+          echo "is_tag=$IS_TAG" >> $GITHUB_OUTPUT
 
-      - name: Get APK info
-        id: apk_info
+      - name: Get build artifacts info
+        id: artifacts
+        shell: bash
         run: |
           APK_PATH="build/app/outputs/flutter-apk/app-release.apk"
+          AAB_PATH="build/app/outputs/bundle/release/app-release.aab"
           APK_SIZE=$(du -h "$APK_PATH" | cut -f1)
+          AAB_SIZE=$(du -h "$AAB_PATH" | cut -f1)
+          echo "apk_path=$APK_PATH" >> $GITHUB_OUTPUT
           echo "apk_size=$APK_SIZE" >> $GITHUB_OUTPUT
+          echo "aab_path=$AAB_PATH" >> $GITHUB_OUTPUT
+          echo "aab_size=$AAB_SIZE" >> $GITHUB_OUTPUT
 
       - name: Create Release Notes
         id: notes
+        shell: bash
         run: |
-          echo "## Debt Manager v${{ steps.version.outputs.version }}" > release_notes.md
-          echo "" >> release_notes.md
-          echo "### Artifacts" >> release_notes.md
-          echo "- **APK Size**: ${{ steps.apk_info.outputs.apk_size }}" >> release_notes.md
-          echo "" >> release_notes.md
-          echo "### Installation" >> release_notes.md
-          echo "Download the APK file and install it on your Android device." >> release_notes.md
+          cat > release_notes.md << EOF
+          ## Debt Manager v${{ steps.version.outputs.version }}
+          
+          ### Build Artifacts
+          - **APK**: ${{ steps.artifacts.outputs.apk_size }}
+          - **AAB**: ${{ steps.artifacts.outputs.aab_size }}
+          
+          ### Installation
+          Download the APK or AAB file and install it on your Android device.
+          EOF
 
-      - name: Create Release
-        uses: softprops/action-gh-release@v1
+      - name: Create GitHub Release
+        if: steps.version.outputs.is_tag == 'true' || github.event.inputs.create_release == 'true'
+        uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ steps.version.outputs.tag }}
           name: "Debt Manager v${{ steps.version.outputs.version }}"
@@ -88,7 +103,17 @@ jobs:
           draft: false
           prerelease: false
           files: |
-            build/app/outputs/flutter-apk/app-release.apk
-            build/app/outputs/bundle/release/app-release.aab
+            ${{ steps.artifacts.outputs.apk_path }}
+            ${{ steps.artifacts.outputs.aab_path }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload build artifacts (retention)
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-${{ steps.version.outputs.version }}
+          path: |
+            build/app/outputs/flutter-apk/app-release.apk
+            build/app/outputs/bundle/release/app-release.aab
+          retention-days: 30
+          if-no-files-found: error
