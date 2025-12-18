@@ -7,6 +7,7 @@ import 'package:timezone/timezone.dart' as tz;
 import '../db/database_helper.dart';
 import '../settings/settings_repository.dart';
 import '../utils/jalali_utils.dart';
+import 'notification_ids.dart';
 
 class NotificationService {
   static final NotificationService instance = NotificationService._internal();
@@ -218,7 +219,7 @@ class NotificationService {
       final body =
           'An installment of ${inst.amount} is due on ${inst.dueDateJalali}.';
 
-      final nid = inst.id! + 1000;
+      final nid = NotificationIds.forInstallment(inst.id!);
       await scheduleInstallmentReminder(
         notificationId: nid,
         scheduledTime: scheduled,

@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shamsi_date/shamsi_date.dart';
 
 import 'package:debt_manager/core/notifications/notification_service.dart';
+import 'package:debt_manager/core/notifications/notification_ids.dart';
 import 'package:debt_manager/core/utils/format_utils.dart';
 import 'package:debt_manager/core/utils/jalali_utils.dart';
 import 'package:debt_manager/core/utils/ui_utils.dart';
@@ -248,13 +249,22 @@ class _LoanDetailScreenState extends ConsumerState<LoanDetailScreen> {
                                 )
                                 .updateInstallment(updated);
 
-                            // Cancel notification if marking paid
-                            if (isPaid && inst.notificationId != null) {
-                              try {
-                                await NotificationService().cancelNotification(
-                                  inst.notificationId!,
-                                );
-                              } catch (_) {}
+                            // Cancel notifications if marking paid (mapped + legacy IDs)
+                            if (isPaid) {
+                              final ids = <int>{};
+                              if (inst.id != null) {
+                                ids.add(inst.id!);
+                                ids.add(inst.id! + 1000);
+                                ids.add(NotificationIds.forInstallment(inst.id!));
+                              }
+                              if (inst.notificationId != null) {
+                                ids.add(inst.notificationId!);
+                              }
+                              for (final id in ids) {
+                                try {
+                                  await NotificationService().cancelNotification(id);
+                                } catch (_) {}
+                              }
                             }
 
                             // Check if all installments are now paid and celebrate!

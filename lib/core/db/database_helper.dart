@@ -1,15 +1,17 @@
 // Database helper: CRUD and reporting utilities for counterparties, loans and installments.
 import 'dart:async';
 
-import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:flutter/foundation.dart' show kIsWeb, defaultTargetPlatform, TargetPlatform;
 import 'package:path/path.dart';
-import 'package:sqflite/sqflite.dart';
+import 'package:sqflite/sqflite.dart' as plain;
+import 'package:sqflite_sqlcipher/sqflite.dart' as cipher;
 
 import 'package:debt_manager/features/loans/models/counterparty.dart';
 import 'package:debt_manager/features/loans/models/loan.dart';
 import 'package:debt_manager/features/loans/models/installment.dart';
 import 'package:debt_manager/core/utils/jalali_utils.dart';
 import 'package:debt_manager/core/notifications/notification_service.dart';
+import 'package:debt_manager/core/notifications/notification_ids.dart';
 import 'package:debt_manager/core/db/installment_dao.dart';
 import 'package:debt_manager/core/smart_insights/smart_insights_service.dart';
 import 'package:debt_manager/core/settings/settings_repository.dart';
@@ -26,7 +28,7 @@ class DatabaseHelper {
   static const _dbName = 'debt_manager.db';
   static const _dbVersion = 5;
 
-  Database? _db;
+  plain.Database? _db;
   // In-memory fallback stores for web builds (sqflite is not available on web).
   final bool _isWeb = kIsWeb;
   final List<Map<String, dynamic>> _cpStore = [];
@@ -36,13 +38,13 @@ class DatabaseHelper {
   int _loanId = 0;
   int _installmentId = 0;
 
-  Future<Database> get database async {
+  Future<plain.Database> get database async {
     if (_db != null) return _db!;
     _db = await _initDatabase();
     return _db!;
   }
 
-  Future<Database> _initDatabase() async {
+  Future<plain.Database> _initDatabase() async {
     if (_isWeb) {
       // Web: we don't have sqflite available. The in-memory stores will be used
       // by the CRUD methods directly, so just throw to avoid accidental calls
@@ -52,7 +54,7 @@ class DatabaseHelper {
       );
     }
 
-    final databasesPath = await getDatabasesPath();
+    final databasesPath = await plain.getDatabasesPath();
     final path = join(databasesPath, _dbName);
 
     // If DB marked as encrypted, require opening with a derived key via
@@ -67,7 +69,7 @@ class DatabaseHelper {
       );
     }
 
-    return openDatabase(
+    return plain.openDatabase(
       path,
       version: _dbVersion,
       onCreate: _onCreate,
@@ -78,7 +80,7 @@ class DatabaseHelper {
   /// Close any existing DB and open it using a provided encryption key.
   Future<void> openWithKey(String key) async {
     if (_isWeb) return;
-    final databasesPath = await getDatabasesPath();
+    final databasesPath = await plain.getDatabasesPath();
     final path = join(databasesPath, _dbName);
 
     if (_db != null) {
@@ -88,16 +90,25 @@ class DatabaseHelper {
       _db = null;
     }
 
-    // Use dynamic invocation for `openDatabase` to allow passing the
-    // SQLCipher `password` named argument without causing analyzer failures
-    // when using the sqflite_sqlcipher package at runtime.
-    _db = await (openDatabase as dynamic)(
-      path,
-      password: key,
-      version: _dbVersion,
-      onCreate: _onCreate,
-      onUpgrade: _onUpgrade,
-    );
+    final t = defaultTargetPlatform;
+    final supportsCipher = !kIsWeb && (t == TargetPlatform.android || t == TargetPlatform.iOS || t == TargetPlatform.macOS);
+    if (supportsCipher) {
+      _db = await cipher.openDatabase(
+        path,
+        version: _dbVersion,
+        onCreate: _onCreate,
+        onUpgrade: _onUpgrade,
+        password: key,
+      );
+    } else {
+      // Fallback: open without encryption (e.g., web/desktop unsupported)
+      _db = await plain.openDatabase(
+        path,
+        version: _dbVersion,
+        onCreate: _onCreate,
+        onUpgrade: _onUpgrade,
+      );
+    }
   }
 
   /// Enable encryption on the existing database using the provided user PIN.
@@ -144,7 +155,7 @@ class DatabaseHelper {
     }
   }
 
-  FutureOr<void> _onCreate(Database db, int version) async {
+  FutureOr<void> _onCreate(plain.Database db, int version) async {
     await db.execute('''
       CREATE TABLE counterparties (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -252,7 +263,7 @@ class DatabaseHelper {
     ''');
   }
 
-  FutureOr<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {
+  FutureOr<void> _onUpgrade(plain.Database db, int oldVersion, int newVersion) async {
     if (oldVersion < 2) {
       // Add the actual_paid_amount column to installments. Use a try/catch
       // to tolerate existing databases where the column may already exist.
@@ -666,12 +677,17 @@ class DatabaseHelper {
     final installments = await getInstallmentsByLoanId(loanId);
 
     for (final inst in installments) {
-      if (inst.notificationId != null) {
+      final ids = <int>{};
+      if (inst.id != null) {
+        ids.add(inst.id!);
+        ids.add(inst.id! + 1000);
+        ids.add(NotificationIds.forInstallment(inst.id!));
+      }
+      if (inst.notificationId != null) ids.add(inst.notificationId!);
+      for (final id in ids) {
         try {
-          await NotificationService().cancelNotification(inst.notificationId!);
-        } catch (_) {
-          // ignore cancellation errors
-        }
+          await NotificationService().cancelNotification(id);
+        } catch (_) {}
       }
     }
 

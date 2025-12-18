@@ -33,23 +33,23 @@ String formatJalaliForDisplay(Jalali date) {
 }
 
 // Generate a monthly schedule of [count] Jalali dates starting from [startDate].
+// Rule: keep the same day-of-month when possible; otherwise clamp to monthLength.
 // The returned list includes [startDate] as the first element.
 List<Jalali> generateMonthlySchedule(Jalali startDate, int count) {
-  if (count <= 0) {
-    return <Jalali>[];
-  }
-  final result = <Jalali>[];
+  if (count <= 0) return const <Jalali>[];
 
-  // Convert start to Gregorian DateTime, then add months using DateTime's normalization.
-  final greg = startDate.toGregorian().toDateTime();
+  final out = <Jalali>[];
+  final startDay = startDate.day;
 
   for (var i = 0; i < count; i++) {
-    final dt = DateTime(greg.year, greg.month + i, greg.day);
-    final jal = Jalali.fromDateTime(dt);
-    result.add(jal);
+    final monthIndex = (startDate.month - 1) + i;
+    final y = startDate.year + (monthIndex ~/ 12);
+    final m = (monthIndex % 12) + 1;
+    final monthLen = Jalali(y, m, 1).monthLength;
+    final d = startDay <= monthLen ? startDay : monthLen;
+    out.add(Jalali(y, m, d));
   }
-
-  return result;
+  return out;
 }
 
 // Convert a [Jalali] to a [DateTime] using the Gregorian equivalent.
