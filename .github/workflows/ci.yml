@@ -76,19 +76,35 @@ jobs:
       - name: Setup Flutter and Build Tools
         uses: ./.github/actions/setup-flutter
 
-      - name: Auto-format and push
+      - name: Run formatter
+        id: run_format
         shell: bash
         run: |
           dart format .
+
+      - name: Detect formatting changes
+        id: fmt_changed
+        shell: bash
+        run: |
           if [ -n "$(git status --porcelain)" ]; then
-            git config user.name "github-actions[bot]"
-            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-            git add -A
-            git commit -m "chore: format Dart code (ci)"
-            git push
+            echo "changed=true" >> $GITHUB_OUTPUT
           else
-            echo "No formatting changes"
+            echo "changed=false" >> $GITHUB_OUTPUT
           fi
+
+      - name: Create PR for formatting changes
+        if: steps.fmt_changed.outputs.changed == 'true'
+        uses: peter-evans/create-pull-request@v6
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: "chore: format Dart code (ci)"
+          title: "ci: auto-format Dart sources"
+          body: |
+            This automated PR applies `dart format` to the repository.
+            Repository rules prevent direct pushes to protected branches; this PR preserves those protections.
+          branch: "ci/format-${{ github.run_id }}"
+          base: master
+          labels: ci, formatting
 
       - name: Check code formatting
         run: dart format --output=none --set-exit-if-changed .
