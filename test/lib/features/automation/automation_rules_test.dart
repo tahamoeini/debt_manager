@@ -11,8 +11,8 @@ void main() {
       final conditions = conditionsRaw is Map<String, dynamic>
           ? conditionsRaw
           : (conditionsRaw is Map
-                ? Map<String, dynamic>.from(conditionsRaw)
-                : <String, dynamic>{});
+              ? Map<String, dynamic>.from(conditionsRaw)
+              : <String, dynamic>{});
 
       // Check amount range
       if (conditions.containsKey('minAmount')) {
@@ -61,8 +61,8 @@ void main() {
       final action = actionRaw is Map<String, dynamic>
           ? actionRaw
           : (actionRaw is Map
-                ? Map<String, dynamic>.from(actionRaw)
-                : <String, dynamic>{});
+              ? Map<String, dynamic>.from(actionRaw)
+              : <String, dynamic>{});
       final result = Map<String, dynamic>.from(transaction);
 
       if (action.containsKey('categorize')) {
@@ -138,9 +138,8 @@ void main() {
         metrics[ruleId] = {
           'matchCount': matchCount,
           'totalMatches': successCount,
-          'successRate': successCount > 0
-              ? (matchCount / successCount * 100).toInt()
-              : 0,
+          'successRate':
+              successCount > 0 ? (matchCount / successCount * 100).toInt() : 0,
         };
       }
 

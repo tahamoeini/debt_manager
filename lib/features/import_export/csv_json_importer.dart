@@ -268,8 +268,7 @@ class CsvJsonImporter {
         if (cp != null) {
           final loan = Loan(
             counterpartyId: cp.id ?? 0, // Temporary ID
-            title:
-                _extractValue(row, mapping, ImportFieldType.loanTitle) ??
+            title: _extractValue(row, mapping, ImportFieldType.loanTitle) ??
                 'بدون عنوان',
             direction: _parseDirection(
               _extractValue(row, mapping, ImportFieldType.loanDirection),
@@ -300,7 +299,7 @@ class CsvJsonImporter {
             ),
             startDateJalali:
                 _extractValue(row, mapping, ImportFieldType.startDateJalali) ??
-                formatJalaliNow(),
+                    formatJalaliNow(),
             notes: _extractValue(row, mapping, ImportFieldType.loanNotes),
             createdAt: DateTime.now().toIso8601String(),
           );

@@ -61,20 +61,17 @@ class CategoryIcon extends StatelessWidget {
     final brightness = theme.brightness;
 
     // Get icon from category map or use provided icon, default to general icon
-    final effectiveIcon =
-        icon ??
+    final effectiveIcon = icon ??
         (category != null ? _categoryIcons[category] : null) ??
         Icons.category;
 
     // Use category color if available, otherwise use theme color
-    final bgColor =
-        backgroundColor ??
+    final bgColor = backgroundColor ??
         (category != null
             ? colorForCategory(category, brightness: brightness)
             : theme.colorScheme.primaryContainer);
 
-    final fgColor =
-        iconColor ??
+    final fgColor = iconColor ??
         (backgroundColor != null
             ? _getContrastColor(backgroundColor!)
             : theme.colorScheme.onPrimaryContainer);
@@ -166,8 +163,7 @@ class CategoryBadge extends StatelessWidget {
     final theme = Theme.of(context);
     final brightness = theme.brightness;
 
-    final badgeColor =
-        color ??
+    final badgeColor = color ??
         (category != null
             ? colorForCategory(category, brightness: brightness)
             : theme.colorScheme.primary);

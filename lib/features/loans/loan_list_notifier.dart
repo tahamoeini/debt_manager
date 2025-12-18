@@ -27,14 +27,10 @@ final loanRepositoryProvider = Provider<LoanRepository>(
   (ref) => LoanRepository(),
 );
 
-final loanListProvider =
-    StateNotifierProvider.family<
-      LoanListNotifier,
-      List<LoanSummary>,
-      LoanDirection?
-    >((ref, direction) {
-      return LoanListNotifier(ref, direction);
-    });
+final loanListProvider = StateNotifierProvider.family<LoanListNotifier,
+    List<LoanSummary>, LoanDirection?>((ref, direction) {
+  return LoanListNotifier(ref, direction);
+});
 
 class LoanListNotifier extends StateNotifier<List<LoanSummary>> {
   final Ref ref;

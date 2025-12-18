@@ -186,7 +186,9 @@ class _AdvancedReportsScreenState extends ConsumerState<AdvancedReportsScreen> {
                             const SizedBox(width: 8),
                             Text(
                               'تحلیل‌ها',
-                              style: Theme.of(context).textTheme.titleMedium
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .titleMedium
                                   ?.copyWith(color: cs.onPrimaryContainer),
                             ),
                           ],
@@ -604,8 +606,8 @@ class _AdvancedReportsScreenState extends ConsumerState<AdvancedReportsScreen> {
                       spots: data.asMap().entries.map((e) {
                         final index = e.key;
                         final item = e.value;
-                        final netWorth = (item['netWorth'] as int? ?? 0)
-                            .toDouble();
+                        final netWorth =
+                            (item['netWorth'] as int? ?? 0).toDouble();
                         return FlSpot(index.toDouble(), netWorth);
                       }).toList(),
                       isCurved: true,

@@ -25,5 +25,6 @@ class NoopCloudBackupProvider implements CloudBackupProvider {
   Future<String> uploadEncryptedBlob(
     List<int> bytes, {
     required String filename,
-  }) async => throw UnimplementedError();
+  }) async =>
+      throw UnimplementedError();
 }

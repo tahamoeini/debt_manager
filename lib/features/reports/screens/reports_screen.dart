@@ -256,8 +256,7 @@ class ReportsScreen extends ConsumerWidget {
                 children: [
                   FilterChip(
                     label: const Text('همه'),
-                    selected:
-                        state.statusFilter.length ==
+                    selected: state.statusFilter.length ==
                         InstallmentStatus.values.length,
                     onSelected: (v) => notifier.setAllStatuses(v),
                   ),
@@ -325,153 +324,151 @@ class ReportsScreen extends ConsumerWidget {
         state.loadingRows
             ? UIUtils.centeredLoading()
             : (state.rows.isEmpty
-                  ? const Center(child: Text('هیچ موردی یافت نشد'))
-                  : Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        Card(
-                          child: Padding(
-                            padding: const EdgeInsets.all(12.0),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    const Text('مجموع برنامه‌ریزی‌شده'),
-                                    const SizedBox(height: 6),
-                                    SensitiveText(
-                                      formatCurrency(
-                                        state.rows.fold<int>(0, (sum, r) {
-                                          final inst =
-                                              r['installment'] as Installment;
-                                          return sum + inst.amount;
-                                        }),
-                                      ),
-                                      style: Theme.of(
-                                        context,
-                                      ).textTheme.titleMedium,
-                                    ),
-                                  ],
-                                ),
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    const Text('مجموع پرداخت‌شده'),
-                                    const SizedBox(height: 6),
-                                    SensitiveText(
-                                      formatCurrency(
-                                        state.rows.fold<int>(0, (sum, r) {
-                                          final inst =
-                                              r['installment'] as Installment;
-                                          if (inst.status ==
-                                              InstallmentStatus.paid) {
-                                            return sum +
-                                                (inst.actualPaidAmount ??
-                                                    inst.amount);
-                                          }
-                                          return sum;
-                                        }),
-                                      ),
-                                      style: Theme.of(
-                                        context,
-                                      ).textTheme.titleMedium,
-                                    ),
-                                  ],
-                                ),
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    const Text('باقی‌مانده'),
-                                    const SizedBox(height: 6),
-                                    SensitiveText(
-                                      formatCurrency(
-                                        state.rows.fold<int>(0, (sum, r) {
-                                              final inst =
-                                                  r['installment']
-                                                      as Installment;
-                                              return sum + inst.amount;
-                                            }) -
-                                            state.rows.fold<int>(0, (sum, r) {
-                                              final inst =
-                                                  r['installment']
-                                                      as Installment;
-                                              if (inst.status ==
-                                                  InstallmentStatus.paid) {
-                                                return sum +
-                                                    (inst.actualPaidAmount ??
-                                                        inst.amount);
-                                              }
-                                              return sum;
-                                            }),
-                                      ),
-                                      style: Theme.of(
-                                        context,
-                                      ).textTheme.titleMedium,
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 12),
-                        ...state.rows.map((r) {
-                          final Installment inst =
-                              r['installment'] as Installment;
-                          final Loan loan = r['loan'] as Loan;
-                          final cp = state.counterparties.firstWhere(
-                            (c) => c.id == loan.counterpartyId,
-                            orElse: () =>
-                                const Counterparty(id: null, name: 'نامشخص'),
-                          );
-
-                          final cs = Theme.of(context).colorScheme;
-                          Color statusColor;
-                          switch (inst.status) {
-                            case InstallmentStatus.paid:
-                              statusColor = cs.primary;
-                              break;
-                            case InstallmentStatus.overdue:
-                              statusColor = cs.error;
-                              break;
-                            case InstallmentStatus.pending:
-                              statusColor = cs.secondary;
-                              break;
-                          }
-
-                          return Card(
-                            child: ListTile(
-                              title: Text(
-                                formatJalaliForDisplay(
-                                  parseJalali(inst.dueDateJalali),
-                                ),
-                              ),
-                              subtitle: Column(
+                ? const Center(child: Text('هیچ موردی یافت نشد'))
+                : Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Card(
+                        child: Padding(
+                          padding: const EdgeInsets.all(12.0),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text(
-                                    '${loan.direction == LoanDirection.borrowed ? 'گرفته‌ام' : 'داده‌ام'} · ${cp.name}${cp.type != null ? ' · ${cp.type}' : ''}${cp.tag != null ? ' · ${cp.tag}' : ''}',
-                                  ),
-                                  const SizedBox(height: 4),
-                                  Text(
-                                    statusLabel(inst.status),
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .bodyMedium
-                                        ?.copyWith(color: statusColor),
+                                  const Text('مجموع برنامه‌ریزی‌شده'),
+                                  const SizedBox(height: 6),
+                                  SensitiveText(
+                                    formatCurrency(
+                                      state.rows.fold<int>(0, (sum, r) {
+                                        final inst =
+                                            r['installment'] as Installment;
+                                        return sum + inst.amount;
+                                      }),
+                                    ),
+                                    style: Theme.of(
+                                      context,
+                                    ).textTheme.titleMedium,
                                   ),
                                 ],
                               ),
-                              trailing: SensitiveText(
-                                formatCurrency(inst.amount),
-                                style: Theme.of(context).textTheme.titleMedium,
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const Text('مجموع پرداخت‌شده'),
+                                  const SizedBox(height: 6),
+                                  SensitiveText(
+                                    formatCurrency(
+                                      state.rows.fold<int>(0, (sum, r) {
+                                        final inst =
+                                            r['installment'] as Installment;
+                                        if (inst.status ==
+                                            InstallmentStatus.paid) {
+                                          return sum +
+                                              (inst.actualPaidAmount ??
+                                                  inst.amount);
+                                        }
+                                        return sum;
+                                      }),
+                                    ),
+                                    style: Theme.of(
+                                      context,
+                                    ).textTheme.titleMedium,
+                                  ),
+                                ],
+                              ),
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const Text('باقی‌مانده'),
+                                  const SizedBox(height: 6),
+                                  SensitiveText(
+                                    formatCurrency(
+                                      state.rows.fold<int>(0, (sum, r) {
+                                            final inst =
+                                                r['installment'] as Installment;
+                                            return sum + inst.amount;
+                                          }) -
+                                          state.rows.fold<int>(0, (sum, r) {
+                                            final inst =
+                                                r['installment'] as Installment;
+                                            if (inst.status ==
+                                                InstallmentStatus.paid) {
+                                              return sum +
+                                                  (inst.actualPaidAmount ??
+                                                      inst.amount);
+                                            }
+                                            return sum;
+                                          }),
+                                    ),
+                                    style: Theme.of(
+                                      context,
+                                    ).textTheme.titleMedium,
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      ...state.rows.map((r) {
+                        final Installment inst =
+                            r['installment'] as Installment;
+                        final Loan loan = r['loan'] as Loan;
+                        final cp = state.counterparties.firstWhere(
+                          (c) => c.id == loan.counterpartyId,
+                          orElse: () =>
+                              const Counterparty(id: null, name: 'نامشخص'),
+                        );
+
+                        final cs = Theme.of(context).colorScheme;
+                        Color statusColor;
+                        switch (inst.status) {
+                          case InstallmentStatus.paid:
+                            statusColor = cs.primary;
+                            break;
+                          case InstallmentStatus.overdue:
+                            statusColor = cs.error;
+                            break;
+                          case InstallmentStatus.pending:
+                            statusColor = cs.secondary;
+                            break;
+                        }
+
+                        return Card(
+                          child: ListTile(
+                            title: Text(
+                              formatJalaliForDisplay(
+                                parseJalali(inst.dueDateJalali),
                               ),
                             ),
-                          );
-                        }),
-                      ],
-                    )),
+                            subtitle: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  '${loan.direction == LoanDirection.borrowed ? 'گرفته‌ام' : 'داده‌ام'} · ${cp.name}${cp.type != null ? ' · ${cp.type}' : ''}${cp.tag != null ? ' · ${cp.tag}' : ''}',
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  statusLabel(inst.status),
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .bodyMedium
+                                      ?.copyWith(color: statusColor),
+                                ),
+                              ],
+                            ),
+                            trailing: SensitiveText(
+                              formatCurrency(inst.amount),
+                              style: Theme.of(context).textTheme.titleMedium,
+                            ),
+                          ),
+                        );
+                      }),
+                    ],
+                  )),
       ],
     );
   }

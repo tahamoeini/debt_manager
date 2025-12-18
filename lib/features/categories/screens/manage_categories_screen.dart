@@ -226,9 +226,8 @@ class _ManageCategoriesScreenState extends State<ManageCategoriesScreen> {
                 category,
                 style: Theme.of(context).textTheme.titleMedium,
               ),
-              subtitle: isDefault
-                  ? const Text('پیش‌فرض')
-                  : const Text('سفارشی'),
+              subtitle:
+                  isDefault ? const Text('پیش‌فرض') : const Text('سفارشی'),
               trailing: isDefault
                   ? null
                   : Row(

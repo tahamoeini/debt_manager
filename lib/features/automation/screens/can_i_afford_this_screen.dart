@@ -94,8 +94,8 @@ class _CanIAffordThisScreenState extends ConsumerState<CanIAffordThisScreen> {
       final simulationDays = _frequency == 'daily'
           ? _durationMonths * 30
           : _frequency == 'weekly'
-          ? _durationMonths * 4
-          : _durationMonths * 30;
+              ? _durationMonths * 4
+              : _durationMonths * 30;
 
       final input = CashFlowInput(
         startingBalance: currentBalance,

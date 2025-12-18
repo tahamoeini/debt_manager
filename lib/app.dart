@@ -30,17 +30,17 @@ class _DebtManagerAppState extends ConsumerState<DebtManagerApp>
     WidgetsBinding.instance.addObserver(this);
     // Initialize notifier values from persisted preferences
     _settings.getThemeMode().then(
-      (m) => SettingsRepository.themeModeNotifier.value = m,
-    );
+          (m) => SettingsRepository.themeModeNotifier.value = m,
+        );
     _settings.getFontSize().then(
-      (f) => SettingsRepository.fontSizeNotifier.value = f,
-    );
+          (f) => SettingsRepository.fontSizeNotifier.value = f,
+        );
     _settings.getCalendarType().then(
-      (c) => SettingsRepository.calendarTypeNotifier.value = c,
-    );
+          (c) => SettingsRepository.calendarTypeNotifier.value = c,
+        );
     _settings.getLanguage().then(
-      (l) => SettingsRepository.languageNotifier.value = l,
-    );
+          (l) => SettingsRepository.languageNotifier.value = l,
+        );
     _settings.getBiometricEnabled().then((b) {
       SettingsRepository.biometricEnabledNotifier.value = b;
       final auth = ref.read(authNotifierProvider);
@@ -150,10 +150,10 @@ class _DebtManagerAppState extends ConsumerState<DebtManagerApp>
             );
 
             final baseTextTheme = Typography.material2021().black.apply(
-              bodyColor: Colors.black87,
-              displayColor: Colors.black87,
-              fontSizeFactor: fontScale,
-            );
+                  bodyColor: Colors.black87,
+                  displayColor: Colors.black87,
+                  fontSizeFactor: fontScale,
+                );
 
             final lightTextTheme = baseTextTheme.copyWith(
               titleLarge: baseTextTheme.titleLarge?.copyWith(
@@ -173,10 +173,10 @@ class _DebtManagerAppState extends ConsumerState<DebtManagerApp>
             );
 
             final darkBase = Typography.material2021().white.apply(
-              bodyColor: Colors.white70,
-              displayColor: Colors.white70,
-              fontSizeFactor: fontScale,
-            );
+                  bodyColor: Colors.white70,
+                  displayColor: Colors.white70,
+                  fontSizeFactor: fontScale,
+                );
 
             final darkTextTheme = darkBase.copyWith(
               titleLarge: darkBase.titleLarge?.copyWith(

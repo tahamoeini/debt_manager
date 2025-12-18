@@ -65,10 +65,8 @@ class SmartNotificationService {
       importance: Importance.defaultImportance,
     );
 
-    final android = _plugin
-        .resolvePlatformSpecificImplementation<
-          AndroidFlutterLocalNotificationsPlugin
-        >();
+    final android = _plugin.resolvePlatformSpecificImplementation<
+        AndroidFlutterLocalNotificationsPlugin>();
     await android?.createNotificationChannel(budgetChannel);
     await android?.createNotificationChannel(suggestionsChannel);
     await android?.createNotificationChannel(summaryChannel);
@@ -115,14 +113,12 @@ class SmartNotificationService {
           budget.category,
           period,
         );
-        final effectiveAmount = override != null
-            ? override.amount
-            : budget.amount;
+        final effectiveAmount =
+            override != null ? override.amount : budget.amount;
 
         final utilization = await _budgetRepo.computeUtilization(budget);
-        final percentage = effectiveAmount > 0
-            ? (utilization / effectiveAmount)
-            : 0.0;
+        final percentage =
+            effectiveAmount > 0 ? (utilization / effectiveAmount) : 0.0;
 
         // Always notify on 100%+ breach
         if (threshold100 && percentage >= 1.0) {
