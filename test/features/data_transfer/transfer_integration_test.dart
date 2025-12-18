@@ -8,7 +8,7 @@ import 'package:flutter_test/flutter_test.dart';
 void main() {
   group('TransferService + QR integration', () {
     test('frame → qr → parse → reassemble → decrypt roundtrip', () async {
-      const password = 'test-password-qr';
+      // test password not needed for this framing test
 
       // 1) Prepare a small JSON backup payload
       final sample = jsonEncode({
