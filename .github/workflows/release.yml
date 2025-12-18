@@ -1,5 +1,9 @@
 name: Version Release
 
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: true
+
 on:
   push:
     tags:
@@ -12,6 +16,8 @@ jobs:
   build-release:
     runs-on: ubuntu-latest
     timeout-minutes: 60
+    permissions:
+      contents: write
 
     steps:
       - name: Checkout
