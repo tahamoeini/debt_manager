@@ -168,6 +168,13 @@ See [APK_OPTIMIZATION.md](APK_OPTIMIZATION.md) for details.
 - **No Cloud**: All data remains on device
 - **Database Encryption**: SQLCipher integration for encrypted database
 
+### Backup Format (v2)
+
+- Exports now use a v2 encrypted envelope: AES-256-GCM for authenticated encryption with a key derived by PBKDF2-HMAC-SHA256 (150k iterations).
+- Backups are written as a ZIP containing `backup.enc` (the encrypted DB payload) and `metadata.json` (counts and version info).
+- A password is required to export or import v2 backups. Legacy v1 backups (unencrypted or AES-CBC) are no longer automatically accepted — re-export from older installs if you need the new format.
+- The import API supports `replace` mode (wipe & restore) and `merge` mode (merge data). The integration test `test/integration/backup_replace_restore_test.dart` verifies replace-mode semantics.
+
 ## 🤝 Contributing
 
 1. Ensure all tests pass: `flutter test`

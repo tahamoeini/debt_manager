@@ -74,6 +74,7 @@ dev_dependencies:
     sdk: flutter
   build_runner: ^2.4.13
   riverpod_annotation: ^2.0.0
+  sqflite_common_ffi: ^2.2.0
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is

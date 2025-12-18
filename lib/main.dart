@@ -38,8 +38,9 @@ Future<void> main() async {
 
       try {
         final smartEnabled = await settings.getSmartSuggestionsEnabled();
-        if (smartEnabled)
+        if (smartEnabled) {
           await SmartInsightsService().runInsights(notify: false);
+        }
       } catch (_) {}
 
       runApp(const ProviderScope(child: DebtManagerApp()));
