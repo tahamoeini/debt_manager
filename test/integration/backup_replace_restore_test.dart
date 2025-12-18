@@ -7,9 +7,52 @@ import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:debt_manager/features/settings/backup_restore_service.dart';
 import 'package:debt_manager/core/db/database_helper.dart';
 import 'package:debt_manager/features/loans/models/counterparty.dart';
-import 'package:debt_manager/features/loans/models/loan.dart';
 import 'package:debt_manager/features/loans/models/installment.dart';
 import 'package:debt_manager/core/models/backup_payload.dart';
+
+/// Ensure the test database contains the columns we expect for key tables.
+Future<void> _assertDbSchema(dynamic db) async {
+  Future<Set<String>> cols(String table) async {
+    final rows = await db.rawQuery("PRAGMA table_info('$table')");
+    final s = <String>{};
+    for (final r in rows) {
+      final n = r['name'] as String?;
+      if (n != null) s.add(n);
+    }
+    return s;
+  }
+
+  final loanCols = await cols('loans');
+  final requiredLoan = {
+    'id',
+    'counterparty_id',
+    'title',
+    'direction',
+    'principal_amount',
+    'installment_count',
+    'installment_amount',
+    'start_date_jalali',
+    'created_at',
+  };
+  final missingLoan = requiredLoan.difference(loanCols);
+  if (missingLoan.isNotEmpty) {
+    throw Exception('Test DB missing loan columns: ${missingLoan.join(', ')}');
+  }
+
+  final instCols = await cols('installments');
+  final requiredInst = {'id', 'loan_id', 'due_date_jalali', 'amount', 'status'};
+  final missingInst = requiredInst.difference(instCols);
+  if (missingInst.isNotEmpty) {
+    throw Exception('Test DB missing installment columns: ${missingInst.join(', ')}');
+  }
+
+  final cpCols = await cols('counterparties');
+  final requiredCp = {'id', 'name'};
+  final missingCp = requiredCp.difference(cpCols);
+  if (missingCp.isNotEmpty) {
+    throw Exception('Test DB missing counterparty columns: ${missingCp.join(', ')}');
+  }
+}
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -21,38 +64,43 @@ void main() {
 
     setUpAll(() async {
       // Mock Flutter Secure Storage platform channel to avoid plugin errors in tests
-      const storageChannel = MethodChannel('plugins.it_nomads.com/flutter_secure_storage');
-      storageChannel.setMockMethodCallHandler((MethodCall call) async {
-        // Simple no-op mock: treat reads as null and writes as success
-        switch (call.method) {
-          case 'read':
-            return null;
-          case 'write':
-          case 'delete':
-          case 'deleteAll':
-            return null;
-          default:
-            return null;
-        }
-      });
+      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+          .setMockMethodCallHandler(
+        const MethodChannel('plugins.it_nomads.com/flutter_secure_storage'),
+        (MethodCall call) async {
+          switch (call.method) {
+            case 'read':
+              return null;
+            case 'write':
+            case 'delete':
+            case 'deleteAll':
+              return null;
+            default:
+              return null;
+          }
+        },
+      );
 
       // Mock SharedPreferences platform channel for settings access in services
-      const spChannel = MethodChannel('plugins.flutter.io/shared_preferences');
-      spChannel.setMockMethodCallHandler((MethodCall call) async {
-        switch (call.method) {
-          case 'getAll':
-            return <String, dynamic>{};
-          case 'setString':
-          case 'setBool':
-          case 'setInt':
-          case 'setDouble':
-          case 'remove':
-          case 'clear':
-            return true;
-          default:
-            return null;
-        }
-      });
+      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+          .setMockMethodCallHandler(
+        const MethodChannel('plugins.flutter.io/shared_preferences'),
+        (MethodCall call) async {
+          switch (call.method) {
+            case 'getAll':
+              return <String, dynamic>{};
+            case 'setString':
+            case 'setBool':
+            case 'setInt':
+            case 'setDouble':
+            case 'remove':
+            case 'clear':
+              return true;
+            default:
+              return null;
+          }
+        },
+      );
 
       // Initialize ffi database factory for tests (desktop)
       sqfliteFfiInit();
@@ -67,6 +115,10 @@ void main() {
       } catch (_) {}
       dbHelper = DatabaseHelper.instance;
       backupService = BackupRestoreService();
+
+      // Open DB and assert schema matches expectations for integration tests
+      final db = await dbHelper.database;
+      await _assertDbSchema(db);
     });
 
     tearDownAll(() async {
@@ -123,7 +175,7 @@ void main() {
       final beforeCps = cps.length;
       final beforeInst = installmentCount;
 
-      final exportPath = p.join(tempDirPath, 'backup_export.zip');
+      // final exportPath = p.join(tempDirPath, 'backup_export.zip');
       final password = 'test-password-123';
 
       // Export backup (encrypted)
@@ -137,22 +189,7 @@ void main() {
       final loansEmpty = await dbHelper.getAllLoans();
       expect(loansEmpty.length, equals(0));
 
-      // Ensure optional columns exist in test DB schema (add if missing)
-      try {
-        await db.execute("ALTER TABLE loans ADD COLUMN compounding_frequency TEXT");
-      } catch (_) {}
-      try {
-        await db.execute("ALTER TABLE loans ADD COLUMN interest_rate REAL");
-      } catch (_) {}
-      try {
-        await db.execute("ALTER TABLE loans ADD COLUMN grace_period_days INTEGER");
-      } catch (_) {}
-      try {
-        await db.execute("ALTER TABLE loans ADD COLUMN monthly_payment INTEGER");
-      } catch (_) {}
-      try {
-        await db.execute("ALTER TABLE loans ADD COLUMN term_months INTEGER");
-      } catch (_) {}
+      // No test-only schema tweaks: rely on fresh test DB schema created on setup.
 
       // Import with replace mode
       await backupService.importData(backupFilePath, mode: BackupMergeMode.replace, password: password);
@@ -171,4 +208,5 @@ void main() {
       expect(afterInst, equals(beforeInst));
     });
   });
+
 }

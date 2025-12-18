@@ -273,7 +273,8 @@ class BackupRestoreService {
         cpIdMap[oldId] = newId;
       }
 
-      // Insert loans and keep loan id mapping
+      // Insert loans and keep loan id mapping. Use direct DB inserts to avoid
+      // triggering side-effects (notifications, insights) during restore.
       final loans = (payload.data['loans'] as List? ?? [])
           .cast<Map<String, dynamic>>();
       final loanIdMap = <int, int>{};
@@ -284,7 +285,10 @@ class BackupRestoreService {
         final loan = Loan.fromMap(l);
         final remappedCp = cpIdMap[loan.counterpartyId] ?? loan.counterpartyId;
         final loanToInsert = loan.copyWith(counterpartyId: remappedCp);
-        final newId = await _db.insertLoan(loanToInsert);
+        final loanMap = Map<String, dynamic>.from(loanToInsert.toMap());
+        loanMap.remove('id');
+        final filteredLoanMap = await _filterToExistingColumns(db, 'loans', loanMap);
+        final newId = await db.insert('loans', filteredLoanMap);
         loanIdMap[oldId] = newId;
       }
 
@@ -298,17 +302,62 @@ class BackupRestoreService {
             : int.tryParse('${instMap['loan_id']}') ?? 0;
         final newLoanId = loanIdMap[oldLoanId] ?? oldLoanId;
         instMap['loan_id'] = newLoanId;
-        final inst = Installment.fromMap(instMap);
-        await _db.insertInstallment(inst);
+        // Remove id to allow autoincrement on insert
+        instMap.remove('id');
+        final filteredInstMap = await _filterToExistingColumns(db, 'installments', instMap);
+        await db.insert('installments', filteredInstMap);
       }
     } catch (e) {
       throw Exception('Failed to replace database data: $e');
     }
   }
 
+  /// Return a new map containing only keys that exist as columns on [table].
+  Future<Map<String, dynamic>> _filterToExistingColumns(
+    dynamic db,
+    String table,
+    Map<String, dynamic> data,
+  ) async {
+    try {
+      final pragma = await db.rawQuery("PRAGMA table_info('$table')");
+      final cols = <String>{};
+      for (final row in pragma) {
+        final name = row['name'] as String?;
+        if (name != null) cols.add(name);
+      }
+      final filtered = <String, dynamic>{};
+      data.forEach((k, v) {
+        // Map keys in our model to DB column names where needed
+        final colName = _toColumnName(k);
+        if (cols.contains(colName)) filtered[colName] = v;
+      });
+      return filtered;
+    } catch (_) {
+      return data;
+    }
+  }
+
+  String _toColumnName(String key) {
+    // Convert camelCase keys from model.toMap() to snake_case DB columns
+    // Many maps already use snake_case; handle simple conversions.
+    if (key.contains('_')) return key;
+    final buffer = StringBuffer();
+    for (final ch in key.runes) {
+      final s = String.fromCharCode(ch);
+      if (s.toUpperCase() == s && buffer.isNotEmpty && RegExp(r'[A-Za-z]').hasMatch(s)) {
+        buffer.write('_');
+        buffer.write(s.toLowerCase());
+      } else {
+        buffer.write(s.toLowerCase());
+      }
+    }
+    return buffer.toString();
+  }
+
   /// Merge backup data with existing database
   Future<void> _mergeData(BackupPayload payload, BackupMergeMode mode) async {
     try {
+      final db = await _db.database;
       // Get existing data
       final existingLoans = await _db.getAllLoans();
       final existingCounterparties = await _db.getAllCounterparties();
@@ -323,9 +372,10 @@ class BackupRestoreService {
       for (final cpData in backupCounterparties) {
         final cpId = cpData['id'];
         if (cpId != null && !existingCpIds.contains(cpId)) {
-          await _db.insertCounterparty(Counterparty.fromMap(
-            Map<String, dynamic>.from(cpData),
-          ));
+          // Insert directly to avoid any side-effects
+          final m = Map<String, dynamic>.from(cpData);
+          m.remove('id');
+          await db.insert('counterparties', m);
         }
       }
 
@@ -335,9 +385,9 @@ class BackupRestoreService {
       for (final loanData in backupLoans) {
         final loanId = loanData['id'];
         if (loanId != null && !existingLoanIds.contains(loanId)) {
-          await _db.insertLoan(Loan.fromMap(
-            Map<String, dynamic>.from(loanData),
-          ));
+          final m = Map<String, dynamic>.from(loanData);
+          m.remove('id');
+          await db.insert('loans', m);
         }
       }
 
@@ -353,9 +403,9 @@ class BackupRestoreService {
           final existingIds = existingInstallments.map((i) => i.id).toSet();
 
           if (instId != null && !existingIds.contains(instId)) {
-            await _db.insertInstallment(Installment.fromMap(
-              Map<String, dynamic>.from(instData),
-            ));
+            final m = Map<String, dynamic>.from(instData);
+            m.remove('id');
+            await db.insert('installments', m);
           }
         }
       }
