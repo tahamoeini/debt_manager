@@ -10,13 +10,11 @@ on:
     paths-ignore:
       - 'docs/**'
       - '**.md'
-      - '.github/workflows/**'
   pull_request:
     branches: [master]
     paths-ignore:
       - 'docs/**'
       - '**.md'
-      - '.github/workflows/**'
 
 permissions:
   contents: read
