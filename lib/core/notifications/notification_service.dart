@@ -24,18 +24,21 @@ class NotificationService {
   Future<void> init() async {
     tzdata.initializeTimeZones();
     try {
-      // Try to determine the local IANA timezone. When the flutter_native_timezone
-      // plugin is unavailable (CI or removed), fall back to system timezone name
-      // and ultimately UTC if not resolvable.
-      final String sysTz = DateTime.now().timeZoneName;
+      // Try to use a safe local timezone. The timezone package needs an IANA name,
+      // which may not be available from DateTime.now().timeZoneName on all platforms.
+      // We try UTC as the safest fallback, which handles all platforms consistently.
       try {
-        tz.setLocalLocation(tz.getLocation(sysTz));
-      } catch (_) {
-        // Not an IANA name; fallback to UTC
+        // On most platforms, this will succeed with 'UTC'
         tz.setLocalLocation(tz.getLocation('UTC'));
+      } catch (_) {
+        // Fallback: if even UTC fails, use the first available timezone
+        // (this should never happen, but being defensive)
+        final availableNames = tz.timeZoneDatabase.locations.keys.first;
+        tz.setLocalLocation(tz.getLocation(availableNames));
       }
     } catch (_) {
-      tz.setLocalLocation(tz.getLocation('UTC'));
+      // Last resort: this should not happen, but don't crash
+      tz.setLocalLocation(tz.UTC);
     }
 
     const androidInit = AndroidInitializationSettings('@mipmap/ic_launcher');

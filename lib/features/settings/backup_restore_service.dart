@@ -222,30 +222,40 @@ class BackupRestoreService {
   Future<List<BackupConflict>> _checkForConflicts(BackupPayload payload) async {
     final conflicts = <BackupConflict>[];
 
-    // Check version compatibility
-    if (payload.version > 1) {
+    // Validate payload structure: ensure required data sections exist
+    final hasRequiredData =
+        payload.data['loans'] is List &&
+        payload.data['installments'] is List &&
+        payload.data['counterparties'] is List;
+
+    if (!hasRequiredData) {
       conflicts.add(
         BackupConflict(
           type: ConflictType.versionMismatch,
-          message: 'Backup was created with a newer app version',
-          resolution: 'Update the app or use the original version',
+          message: 'Backup payload structure invalid or corrupted',
+          resolution: 'Use a different backup file',
         ),
       );
+      return conflicts;
     }
 
     // Compare timestamps
-    final backupTime = DateTime.parse(payload.timestamp);
-    final currentLoans = await _db.getAllLoans();
+    try {
+      final backupTime = DateTime.parse(payload.timestamp);
+      final currentLoans = await _db.getAllLoans();
 
-    if (currentLoans.isNotEmpty && backupTime.isBefore(DateTime.now())) {
-      // Backup is older
-      conflicts.add(
-        BackupConflict(
-          type: ConflictType.newerDatabase,
-          message: 'Current database has newer data than backup',
-          resolution: 'Review carefully before importing',
-        ),
-      );
+      if (currentLoans.isNotEmpty && backupTime.isBefore(DateTime.now())) {
+        // Backup is older
+        conflicts.add(
+          BackupConflict(
+            type: ConflictType.newerDatabase,
+            message: 'Current database has newer data than backup',
+            resolution: 'Review carefully before importing',
+          ),
+        );
+      }
+    } catch (e) {
+      // If timestamp parsing fails, just continue without time-based conflict
     }
 
     return conflicts;
@@ -355,12 +365,22 @@ class BackupRestoreService {
   }
 
   /// Merge backup data with existing database
+  /// Merge backup data with existing database
   Future<void> _mergeData(BackupPayload payload, BackupMergeMode mode) async {
     try {
       final db = await _db.database;
-      // Get existing data
+      // Get existing data once (prefetch optimization)
       final existingLoans = await _db.getAllLoans();
       final existingCounterparties = await _db.getAllCounterparties();
+      final existingLoanIds = existingLoans.map((l) => l.id).toSet();
+
+    // Prefetch all installments grouped by loan_id to avoid N+1 queries
+    final loanIds = existingLoanIds.isNotEmpty
+      ? existingLoanIds.whereType<int>().toList()
+      : <int>[];
+      final existingInstallmentsByLoanId = loanIds.isNotEmpty
+          ? await _db.getInstallmentsGroupedByLoanId(loanIds)
+          : <int, List<Installment>>{};
 
       final backupCounterparties =
           payload.data['counterparties'] as List? ?? [];
@@ -375,37 +395,37 @@ class BackupRestoreService {
           // Insert directly to avoid any side-effects
           final m = Map<String, dynamic>.from(cpData);
           m.remove('id');
-          await db.insert('counterparties', m);
+          final filtered = await _filterToExistingColumns(db, 'counterparties', m);
+          await db.insert('counterparties', filtered);
         }
       }
 
-      // Merge loans
-      final existingLoanIds = existingLoans.map((l) => l.id).toSet();
       // Merge loans
       for (final loanData in backupLoans) {
         final loanId = loanData['id'];
         if (loanId != null && !existingLoanIds.contains(loanId)) {
           final m = Map<String, dynamic>.from(loanData);
           m.remove('id');
-          await db.insert('loans', m);
+          final filtered = await _filterToExistingColumns(db, 'loans', m);
+          await db.insert('loans', filtered);
         }
       }
 
-      // Merge installments
+      // Merge installments using prefetched data
       for (final instData in backupInstallments) {
         final instId = instData['id'];
-        // Check if installment already exists
         final loanId = instData['loan_id'];
-        if (loanId != null) {
-          final existingInstallments = await _db.getInstallmentsByLoanId(
-            loanId as int,
-          );
-          final existingIds = existingInstallments.map((i) => i.id).toSet();
+        if (loanId != null && instId != null) {
+          // Use prefetched installments map
+          final existingIds = (existingInstallmentsByLoanId[loanId as int] ?? [])
+              .map((i) => i.id)
+              .toSet();
 
-          if (instId != null && !existingIds.contains(instId)) {
+          if (!existingIds.contains(instId)) {
             final m = Map<String, dynamic>.from(instData);
             m.remove('id');
-            await db.insert('installments', m);
+            final filtered = await _filterToExistingColumns(db, 'installments', m);
+            await db.insert('installments', filtered);
           }
         }
       }

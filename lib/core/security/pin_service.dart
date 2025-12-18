@@ -4,6 +4,13 @@ import 'dart:math';
 import 'package:crypto/crypto.dart';
 import 'secure_storage_service.dart';
 
+/// @deprecated Use [SecurityService] instead. PinService is superseded by
+/// SecurityService which provides superior PBKDF2-based hashing with
+/// exponential backoff lockout and constant-time comparison.
+@Deprecated(
+  'Use SecurityService instead. This service will be removed in v2.0.0. '
+  'SecurityService provides PBKDF2-based PIN hashing with lockout protection.'
+)
 class PinService {
   static final PinService instance = PinService._internal();
   PinService._internal();
