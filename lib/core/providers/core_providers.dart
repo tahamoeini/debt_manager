@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:riverpod/riverpod.dart';
 import 'package:debt_manager/core/db/database_helper.dart';
 import 'package:debt_manager/core/notifications/smart_notification_service.dart';
 import 'package:debt_manager/core/settings/settings_repository.dart';
