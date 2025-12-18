@@ -1,9 +1,9 @@
 // ignore_for_file: use_build_context_synchronously
 import 'package:flutter/material.dart';
 import '../../core/privacy/backup_service.dart';
+import '../settings/transfer_service.dart';
 import '../../core/security/local_auth_service.dart';
 import 'package:qr_flutter/qr_flutter.dart';
-import 'dart:convert';
 
 class QrSenderScreen extends StatefulWidget {
   const QrSenderScreen({super.key});
@@ -30,14 +30,11 @@ class _QrSenderScreenState extends State<QrSenderScreen> {
     }
 
     final bytes = await BackupService.exportEncryptedCompressedBytes(password);
-    final chunksRaw = BackupService.chunkForQr(bytes, chunkSize: 800);
-    // wrap each chunk in JSON with idx and total
-    final total = chunksRaw.length;
-    final wrapped = <String>[];
-    for (var i = 0; i < total; i++) {
-      final obj = json.encode({'idx': i, 'total': total, 'data': chunksRaw[i]});
-      wrapped.add(obj);
-    }
+
+    // Use TransferService to chunk into robust frames with checksum + metadata
+    final transferId = DateTime.now().millisecondsSinceEpoch.toString();
+    final frames = TransferService().chunkDataForTransfer(bytes, transferId);
+    final wrapped = frames.map((f) => f.toQrString()).toList();
     setState(() {
       _chunks = wrapped;
       _index = 0;
@@ -77,7 +74,7 @@ class _QrSenderScreenState extends State<QrSenderScreen> {
                   children: [
                     Text('Page ${_index + 1} / ${_chunks.length}'),
                     const SizedBox(height: 12),
-                    // Render QR using qr_flutter (data is positional in current package)
+                    // Render QR using qr_flutter (data contains framed JSON)
                     Container(
                       width: 320,
                       height: 320,

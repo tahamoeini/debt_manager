@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import '../../core/privacy/backup_service.dart';
 import '../../core/privacy/privacy_gateway.dart';
-import 'dart:convert';
+import '../settings/transfer_service.dart';
 
 class QrReceiverScreen extends StatefulWidget {
   const QrReceiverScreen({super.key});
@@ -12,8 +12,8 @@ class QrReceiverScreen extends StatefulWidget {
 }
 
 class _QrReceiverScreenState extends State<QrReceiverScreen> {
-  final Map<int, String> _chunks = {};
-  int? _total;
+  final TransferSessionManager _sessionManager = TransferSessionManager();
+  TransferSession? _session;
   bool _scanning = true;
 
   void _onDetect(BarcodeCapture capture) async {
@@ -21,26 +21,21 @@ class _QrReceiverScreenState extends State<QrReceiverScreen> {
     for (final b in capture.barcodes) {
       final data = b.rawValue;
       if (data == null) continue;
-      // Expect chunk payload in form {"idx":n,"total":t,"data":"..."}
+      // Expect framed payload created by TransferService
       try {
-        final map = json.decode(data) as Map<String, dynamic>;
-        final idx = map['idx'] as int;
-        final total = map['total'] as int;
-        final chunkData = map['data'] as String;
-        _chunks[idx] = chunkData;
-        _total = total;
+        final frame = TransferFrame.fromQrString(data);
+        _session ??= _sessionManager.createSession(frame.frameId, frame.totalFrames);
+        _sessionManager.addFrame(frame.frameId, frame);
         setState(() {});
-        if (_total != null && _chunks.length == _total) {
-          // assembled
+
+        final session = _sessionManager.getSession(frame.frameId);
+        if (session != null && session.isComplete) {
+          // All frames received, reassemble and import
           setState(() => _scanning = false);
-          final list = List<String>.filled(_total!, '');
-          for (var i = 0; i < _total!; i++) {
-            list[i] = _chunks[i]!;
-          }
-          final bytes = BackupService.assembleFromChunks(list);
+          final ordered = session.getOrderedFrames();
+          final bytes = TransferService().reassembleFrames(ordered);
           final pw = await _askPassword();
           if (pw == null) return;
-          // decrypt and import
           try {
             final jsonStr = await BackupService.decryptCompressedBytes(
               bytes,
@@ -50,14 +45,15 @@ class _QrReceiverScreenState extends State<QrReceiverScreen> {
             await pg.audit('import_qr', details: 'Imported data via QR');
             await pg.importJsonString(jsonStr);
             if (!mounted) return;
-            ScaffoldMessenger.of(
-              context,
-            ).showSnackBar(const SnackBar(content: Text('Import completed')));
+            ScaffoldMessenger.of(context)
+                .showSnackBar(const SnackBar(content: Text('Import completed')));
           } catch (e) {
             if (!mounted) return;
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(content: Text('Failed to decrypt/import data')),
             );
+          } finally {
+            _sessionManager.completeSession(frame.frameId);
           }
         }
       } catch (_) {}
@@ -102,7 +98,9 @@ class _QrReceiverScreenState extends State<QrReceiverScreen> {
             Padding(
               padding: const EdgeInsets.all(8),
               child: Text(
-                'Chunks received: ${_chunks.length}${_total != null ? ' / $_total' : ''}',
+                _session == null
+                    ? 'Waiting for first frame...'
+                    : 'Frames: ${_session!.receivedFrames.length} / ${_session!.totalFrames}',
               ),
             ),
             if (!_scanning)
