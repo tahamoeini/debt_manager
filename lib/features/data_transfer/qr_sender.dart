@@ -1,7 +1,7 @@
 // ignore_for_file: use_build_context_synchronously
 import 'package:flutter/material.dart';
-import '../../core/privacy/backup_service.dart';
 import '../settings/transfer_service.dart';
+import 'package:debt_manager/core/backup/backup_facade.dart';
 import '../../core/security/local_auth_service.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
@@ -29,7 +29,7 @@ class _QrSenderScreenState extends State<QrSenderScreen> {
       return;
     }
 
-    final bytes = await BackupService.exportEncryptedCompressedBytes(password);
+    final bytes = await BackupFacade.instance.exportQrBytes(password);
 
     // Use TransferService to chunk into robust frames with checksum + metadata
     final transferId = DateTime.now().millisecondsSinceEpoch.toString();

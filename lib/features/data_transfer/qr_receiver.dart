@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
-import '../../core/privacy/backup_service.dart';
+import 'package:debt_manager/core/backup/backup_facade.dart';
 import '../../core/privacy/privacy_gateway.dart';
 import '../settings/transfer_service.dart';
 
@@ -37,10 +37,7 @@ class _QrReceiverScreenState extends State<QrReceiverScreen> {
           final pw = await _askPassword();
           if (pw == null) return;
           try {
-            final jsonStr = await BackupService.decryptCompressedBytes(
-              bytes,
-              pw,
-            );
+            final jsonStr = await BackupFacade.instance.decryptQrBytesToJson(bytes, pw);
             final pg = PrivacyGateway();
             await pg.audit('import_qr', details: 'Imported data via QR');
             await pg.importJsonString(jsonStr);

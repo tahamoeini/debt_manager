@@ -31,4 +31,4 @@ jobs:
         run: flutter analyze --no-fatal-infos
 
       - name: Run tests
-        run: flutter test
+        run: flutter test --concurrency=8 --test-randomize-ordering-seed=random

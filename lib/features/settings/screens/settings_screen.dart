@@ -985,12 +985,12 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                         children: [
                           const SizedBox(height: 12),
                           Text(
-                            'پشتیبان‌گیری و بازیابی',
+                            'Developer Tools: Plain JSON (Advanced)',
                             style: Theme.of(context).textTheme.titleMedium,
                           ),
                           const SizedBox(height: 8),
                           Text(
-                            'می‌توانید داده‌ها را به صورت JSON صادر یا وارد کنید. این عملیات محلی است.',
+                            'Plain JSON export/import intended for troubleshooting and development. For end‑users, prefer encrypted backups.',
                             style: Theme.of(context).textTheme.bodySmall,
                           ),
                           const SizedBox(height: 12),
