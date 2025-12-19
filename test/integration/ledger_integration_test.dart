@@ -13,6 +13,10 @@ import 'package:debt_manager/features/loans/models/installment.dart';
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
+  // Constants for retry configuration
+  const int maxRetries = 5;
+  const int baseDelayMs = 100;
+
   group('Ledger integration', () {
     late DatabaseHelper dbHelper;
     late LoanRepository repo;
@@ -42,16 +46,20 @@ void main() {
 
       // Retry logic for database access to handle concurrent test runs
       int retryCount = 0;
-      while (retryCount < 5) {
+      while (retryCount < maxRetries) {
         try {
           // Open DB to create schema
           await dbHelper.database;
           break;
         } catch (e) {
-          if (e.toString().contains('database is locked') && retryCount < 4) {
+          // Check if this is a database lock error and we haven't exceeded retries
+          final isDatabaseLocked = e.toString().contains('database is locked') ||
+              e.toString().contains('SQLITE_BUSY');
+          
+          if (isDatabaseLocked && retryCount < maxRetries - 1) {
             retryCount++;
             // Wait with exponential backoff
-            await Future.delayed(Duration(milliseconds: 100 * retryCount));
+            await Future.delayed(Duration(milliseconds: baseDelayMs * retryCount));
           } else {
             rethrow;
           }
