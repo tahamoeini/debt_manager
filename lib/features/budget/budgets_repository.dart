@@ -183,7 +183,8 @@ class BudgetsRepository {
       final start = '${parts[0]}-$mm-01';
       final end = '${parts[0]}-$mm-${lastDay.toString().padLeft(2, '0')}';
       if (_isWeb) {
-        // Gather loans and counterparties from the DB helper and iterate installments
+        // Web: fall back to in-memory transaction scanning where possible.
+        // Iterate loans/installments and prefer transaction amounts when present.
         final loans = await DatabaseHelper.instance.getAllLoans();
         final cps = await DatabaseHelper.instance.getAllCounterparties();
         int total = 0;
@@ -193,6 +194,18 @@ class BudgetsRepository {
             final paidAt = i.paidAt;
             if (paidAt == null) continue;
             if (paidAt.compareTo(start) < 0 || paidAt.compareTo(end) > 0) continue;
+            // Prefer transaction record if one exists for this installment
+            final txns = await DatabaseHelper.instance.getTransactionsByRelated('installment', i.id ?? -1);
+            final debitTxn = txns.firstWhere(
+              (t) => (t['direction'] as String?) == 'debit',
+              orElse: () => {},
+            );
+            if (debitTxn is Map && debitTxn.isNotEmpty) {
+              final amt = debitTxn['amount'];
+              total += (amt is int) ? amt : int.tryParse('$amt') ?? 0;
+              continue;
+            }
+
             if (budget.category == null) {
               total += i.actualPaidAmount ?? i.amount;
             } else {
@@ -215,12 +228,14 @@ class BudgetsRepository {
 
       // No-op: per-month overrides not used in current utilization calculation
 
+      // Use transactions table to compute utilization for native DB for accuracy.
       if (budget.category == null) {
         final rows = await db.rawQuery(
           '''
-          SELECT COALESCE(SUM(CASE WHEN actual_paid_amount IS NOT NULL THEN actual_paid_amount ELSE amount END), 0) as total
-          FROM installments
-          WHERE paid_at BETWEEN ? AND ?
+          SELECT COALESCE(SUM(CASE WHEN direction = 'debit' THEN amount ELSE 0 END), 0) as total
+          FROM transactions
+          WHERE SUBSTR(timestamp, 1, 10) BETWEEN ? AND ?
+            AND related_type = 'installment'
         ''',
           [start, end],
         );
@@ -239,11 +254,12 @@ class BudgetsRepository {
       final like = '%$cat%';
       final rows = await db.rawQuery(
         '''
-        SELECT COALESCE(SUM(CASE WHEN i.actual_paid_amount IS NOT NULL THEN i.actual_paid_amount ELSE i.amount END), 0) as total
-        FROM installments i
-        JOIN loans l ON i.loan_id = l.id
+        SELECT COALESCE(SUM(CASE WHEN t.direction = 'debit' THEN t.amount ELSE 0 END), 0) as total
+        FROM transactions t
+        LEFT JOIN installments i ON t.related_type = 'installment' AND t.related_id = i.id
+        LEFT JOIN loans l ON i.loan_id = l.id
         LEFT JOIN counterparties c ON l.counterparty_id = c.id
-        WHERE i.paid_at BETWEEN ? AND ?
+        WHERE SUBSTR(t.timestamp,1,10) BETWEEN ? AND ?
           AND (c.tag = ? OR l.title = ? OR (l.notes IS NOT NULL AND l.notes LIKE ?))
       ''',
         [start, end, cat, cat, like],
@@ -253,7 +269,6 @@ class BudgetsRepository {
       final actual = (value is int)
           ? value
           : (value is String ? int.tryParse(value) ?? 0 : 0);
-
       // If rollover is enabled and there's a rollover entry from previous month, reduce the effective budget
       if (budget.rollover) {
         // Find previous period entries marked as one-off negative (unused rollovers are stored as budget_entries with negative amount)

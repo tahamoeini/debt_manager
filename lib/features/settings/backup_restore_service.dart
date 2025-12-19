@@ -47,13 +47,16 @@ class BackupRestoreService {
       final totalBorrowed = await _db.getTotalOutstandingBorrowed();
       final totalLent = await _db.getTotalOutstandingLent();
 
+      // Gather transactions for export
+      final transactions = await _db.getAllTransactions();
+
       // Create backup data structure
       final backupData = {
         'loans': loans.map((l) => l.toMap()).toList(),
         'installments': allInstallments.map((i) => i.toMap()).toList(),
         'counterparties': counterparties.map((c) => c.toMap()).toList(),
         'budgets': [], // Future: implement budgets export
-        'transactions': [], // Future: implement transactions export
+        'transactions': transactions,
       };
 
       // Calculate checksum
@@ -67,7 +70,7 @@ class BackupRestoreService {
         installmentsCount: allInstallments.length,
         counterpartiesCount: counterparties.length,
         budgetsCount: 0,
-        transactionsCount: 0,
+        transactionsCount: transactions.length,
         sizeBytes: utf8.encode(dataJson).length,
         netWorth: totalLent - totalBorrowed,
         totalBorrowed: totalBorrowed,
@@ -301,11 +304,15 @@ class BackupRestoreService {
         loanIdMap[oldId] = newId;
       }
 
-      // Insert installments mapping loan ids
+      // Insert installments mapping loan ids and track id remapping
       final installments = (payload.data['installments'] as List? ?? [])
           .cast<Map<String, dynamic>>();
+      final instIdMap = <int, int>{};
       for (final it in installments) {
         final instMap = Map<String, dynamic>.from(it);
+        final oldInstId = instMap['id'] is int
+            ? instMap['id'] as int
+            : int.tryParse('${instMap['id']}') ?? 0;
         final oldLoanId = instMap['loan_id'] is int
             ? instMap['loan_id'] as int
             : int.tryParse('${instMap['loan_id']}') ?? 0;
@@ -315,7 +322,32 @@ class BackupRestoreService {
         instMap.remove('id');
         final filteredInstMap =
             await _filterToExistingColumns(db, 'installments', instMap);
-        await db.insert('installments', filteredInstMap);
+        final newId = await db.insert('installments', filteredInstMap);
+        instIdMap[oldInstId] = newId;
+      }
+
+      // Insert transactions remapping related ids where necessary
+      final txns = (payload.data['transactions'] as List? ?? [])
+          .cast<Map<String, dynamic>>();
+      for (final t in txns) {
+        try {
+          final m = Map<String, dynamic>.from(t);
+          final oldRelatedId = m['related_id'] is int
+              ? m['related_id'] as int
+              : int.tryParse('${m['related_id']}') ?? 0;
+          final relatedType = (m['related_type'] as String?) ?? '';
+          if (relatedType == 'loan' && loanIdMap.containsKey(oldRelatedId)) {
+            m['related_id'] = loanIdMap[oldRelatedId];
+          } else if (relatedType == 'installment' && instIdMap.containsKey(oldRelatedId)) {
+            m['related_id'] = instIdMap[oldRelatedId];
+          }
+          // Remove id to let DB assign new primary key
+          m.remove('id');
+          final filteredTxn = await _filterToExistingColumns(db, 'transactions', m);
+          await db.insert('transactions', filteredTxn);
+        } catch (_) {
+          // Ignore failures inserting individual transactions
+        }
       }
     } catch (e) {
       throw Exception('Failed to replace database data: $e');
@@ -431,6 +463,29 @@ class BackupRestoreService {
             final filtered =
                 await _filterToExistingColumns(db, 'installments', m);
             await db.insert('installments', filtered);
+          }
+        }
+      }
+
+      // Merge transactions: insert any transactions not already present.
+      final backupTxns = payload.data['transactions'] as List? ?? [];
+      if (backupTxns.isNotEmpty) {
+        // Simple heuristic: compare by related_type/related_id/timestamp/amount
+        final existingTxns = await db.query('transactions');
+        for (final t in backupTxns.cast<Map<String, dynamic>>()) {
+          final ts = t['timestamp'];
+          final relatedType = t['related_type'];
+          final relatedId = t['related_id'];
+          final amount = t['amount'];
+          final match = existingTxns.any((e) =>
+              e['timestamp'] == ts && e['related_type'] == relatedType && e['related_id'] == relatedId && e['amount'] == amount);
+          if (!match) {
+            final m = Map<String, dynamic>.from(t);
+            m.remove('id');
+            final filtered = await _filterToExistingColumns(db, 'transactions', m);
+            try {
+              await db.insert('transactions', filtered);
+            } catch (_) {}
           }
         }
       }

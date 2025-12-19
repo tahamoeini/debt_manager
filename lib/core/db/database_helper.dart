@@ -28,6 +28,8 @@ class DatabaseHelper {
 
   static const _dbName = 'debt_manager.db';
   static const _dbVersion = 5;
+  // bump DB version to add transactions table
+  static const _newDbVersion = 6;
 
   plain.Database? _db;
   // In-memory fallback stores for web builds (sqflite is not available on web).
@@ -35,9 +37,11 @@ class DatabaseHelper {
   final List<Map<String, dynamic>> _cpStore = [];
   final List<Map<String, dynamic>> _loanStore = [];
   final List<Map<String, dynamic>> _installmentStore = [];
+  final List<Map<String, dynamic>> _transactionStore = [];
   int _cpId = 0;
   int _loanId = 0;
   int _installmentId = 0;
+  int _transactionId = 0;
 
   Future<plain.Database> get database async {
     if (_db != null) return _db!;
@@ -72,7 +76,7 @@ class DatabaseHelper {
 
     return plain.openDatabase(
       path,
-      version: _dbVersion,
+      version: _newDbVersion,
       onCreate: _onCreate,
       onUpgrade: _onUpgrade,
     );
@@ -180,6 +184,8 @@ class DatabaseHelper {
         installment_amount INTEGER NOT NULL,
         start_date_jalali TEXT NOT NULL,
         interest_rate REAL,
+        compounding_frequency TEXT,
+        grace_period_days INTEGER,
         monthly_payment INTEGER,
         term_months INTEGER,
         notes TEXT,
@@ -263,6 +269,21 @@ class DatabaseHelper {
         mode TEXT NOT NULL, -- 'fixed' or 'variable'
         created_at TEXT NOT NULL,
         FOREIGN KEY(counterparty_id) REFERENCES counterparties(id)
+      )
+    ''');
+
+    // Transactions ledger table
+    await db.execute('''
+      CREATE TABLE IF NOT EXISTS transactions (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        timestamp TEXT NOT NULL,
+        amount INTEGER NOT NULL,
+        direction TEXT NOT NULL,
+        account_id INTEGER,
+        related_type TEXT,
+        related_id INTEGER,
+        description TEXT,
+        source TEXT
       )
     ''');
   }
@@ -369,6 +390,23 @@ class DatabaseHelper {
         ''');
       } catch (_) {}
     }
+    if (oldVersion < 6) {
+      try {
+        await db.execute('''
+          CREATE TABLE IF NOT EXISTS transactions (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            timestamp TEXT NOT NULL,
+            amount INTEGER NOT NULL,
+            direction TEXT NOT NULL,
+            account_id INTEGER,
+            related_type TEXT,
+            related_id INTEGER,
+            description TEXT,
+            source TEXT
+          )
+        ''');
+      } catch (_) {}
+    }
   }
 
   // -----------------
@@ -386,6 +424,79 @@ class DatabaseHelper {
 
     final db = await database;
     return await db.insert('counterparties', counterparty.toMap());
+  }
+
+  // -----------------
+  // Transactions / Ledger
+  // -----------------
+
+  Future<int> insertTransaction(Map<String, dynamic> txn) async {
+    if (_isWeb) {
+      _transactionId++;
+      final map = Map<String, dynamic>.from(txn);
+      map['id'] = _transactionId;
+      _transactionStore.add(map);
+      return _transactionId;
+    }
+
+    final db = await database;
+    return await db.insert('transactions', txn);
+  }
+
+  Future<List<Map<String, dynamic>>> getTransactionsByAccount(int accountId) async {
+    if (_isWeb) {
+      final rows = _transactionStore.where((r) => r['account_id'] == accountId).toList()
+        ..sort((a, b) => (b['timestamp'] as String).compareTo(a['timestamp'] as String));
+      return rows;
+    }
+    final db = await database;
+    return await db.query('transactions', where: 'account_id = ?', whereArgs: [accountId], orderBy: 'timestamp DESC');
+  }
+
+  Future<List<Map<String, dynamic>>> getAllTransactions() async {
+    if (_isWeb) {
+      final rows = List<Map<String, dynamic>>.from(_transactionStore)
+        ..sort((a, b) => (b['timestamp'] as String).compareTo(a['timestamp'] as String));
+      return rows;
+    }
+    final db = await database;
+    return await db.query('transactions', orderBy: 'timestamp DESC');
+  }
+
+  Future<List<Map<String, dynamic>>> getTransactionsByRelated(String relatedType, int relatedId) async {
+    if (_isWeb) {
+      final rows = _transactionStore.where((r) => r['related_type'] == relatedType && r['related_id'] == relatedId).toList()
+        ..sort((a, b) => (b['timestamp'] as String).compareTo(a['timestamp'] as String));
+      return rows;
+    }
+    final db = await database;
+    return await db.query('transactions', where: 'related_type = ? AND related_id = ?', whereArgs: [relatedType, relatedId], orderBy: 'timestamp DESC');
+  }
+
+  Future<int> getAccountBalance(int accountId) async {
+    if (_isWeb) {
+      int balance = 0;
+      for (final t in _transactionStore.where((r) => r['account_id'] == accountId)) {
+        final dir = (t['direction'] as String?) ?? 'debit';
+        final amt = t['amount'] is int ? t['amount'] as int : int.parse(t['amount'].toString());
+        if (dir == 'credit') {
+          balance += amt;
+        } else {
+          balance -= amt;
+        }
+      }
+      return balance;
+    }
+    final db = await database;
+    final rows = await db.rawQuery('''
+      SELECT COALESCE(SUM(CASE WHEN direction = 'credit' THEN amount ELSE -amount END), 0) as balance
+      FROM transactions
+      WHERE account_id = ?
+    ''', [accountId]);
+    final value = rows.first['balance'];
+    if (value is int) return value;
+    if (value is String) return int.tryParse(value) ?? 0;
+    return 0;
   }
 
   Future<List<Counterparty>> getAllCounterparties() async {
@@ -428,7 +539,12 @@ class DatabaseHelper {
     if (settings.smartInsightsEnabled) {
       await SmartInsightsService().runInsights(notify: false);
     }
-    await NotificationService().rebuildScheduledNotifications();
+    try {
+      await NotificationService().rebuildScheduledNotifications();
+    } catch (_) {
+      // In some test environments the notifications plugin/platform
+      // may not be initialized; swallow errors to keep DB operations safe.
+    }
     return id;
   }
 
@@ -537,7 +653,9 @@ class DatabaseHelper {
         }
       } catch (_) {}
     } catch (_) {}
-    await NotificationService().rebuildScheduledNotifications();
+    try {
+      await NotificationService().rebuildScheduledNotifications();
+    } catch (_) {}
     return id;
   }
 
@@ -559,7 +677,9 @@ class DatabaseHelper {
           await SettingsRepository().getSmartSuggestionsEnabled();
       if (smartEnabled) await SmartInsightsService().runInsights(notify: true);
     } catch (_) {}
-    await NotificationService().rebuildScheduledNotifications();
+    try {
+      await NotificationService().rebuildScheduledNotifications();
+    } catch (_) {}
     return res;
   }
 
@@ -638,7 +758,9 @@ class DatabaseHelper {
         }
       } catch (_) {}
     } catch (_) {}
-    await NotificationService().rebuildScheduledNotifications();
+    try {
+      await NotificationService().rebuildScheduledNotifications();
+    } catch (_) {}
     return res;
   }
 
