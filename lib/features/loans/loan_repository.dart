@@ -2,6 +2,7 @@ import 'package:debt_manager/core/db/database_helper.dart';
 import 'package:debt_manager/features/loans/models/counterparty.dart';
 import 'package:debt_manager/features/loans/models/installment.dart';
 import 'package:debt_manager/features/loans/models/loan.dart';
+import 'package:debt_manager/core/utils/jalali_utils.dart';
 
 // A small repository wrapper around [DatabaseHelper] to make it easier to
 // inject via Riverpod and keep higher-level logic in the notifier.
@@ -69,6 +70,7 @@ class LoanRepository {
     }) async {
         if (inst.id == null) throw ArgumentError('Installment.id is null');
         final ts = (paidAt ?? DateTime.now()).toIso8601String();
+        final paidJ = formatJalali(dateTimeToJalali(paidAt ?? DateTime.now()));
         final txn = {
             'timestamp': ts,
             'amount': paidAmount,
@@ -84,6 +86,7 @@ class LoanRepository {
         final updated = inst.copyWith(
             status: InstallmentStatus.paid,
             paidAt: ts,
+            paidAtJalali: paidJ,
             actualPaidAmount: paidAmount,
         );
         await _db.updateInstallment(updated.copyWith(id: inst.id));

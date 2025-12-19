@@ -14,11 +14,11 @@ import 'package:debt_manager/core/utils/celebration_utils.dart';
 import 'package:debt_manager/features/achievements/achievements_repository.dart';
 import 'package:debt_manager/features/loans/models/installment.dart';
 import 'package:debt_manager/features/loans/models/loan.dart';
-import 'add_loan_screen.dart';
 import 'package:debt_manager/features/budget/budgets_repository.dart';
 import 'package:debt_manager/features/budget/models/budget.dart';
 import 'package:debt_manager/features/loans/loan_detail_notifier.dart';
 import 'package:debt_manager/features/loans/loan_list_notifier.dart';
+import 'package:go_router/go_router.dart';
 
 // Delay before showing celebration to allow UI to update
 const Duration _celebrationDelay = Duration(milliseconds: 300);
@@ -166,6 +166,11 @@ class _LoanDetailScreenState extends ConsumerState<LoanDetailScreen> {
                               status: newStatus,
                               paidAt: isPaid
                                   ? DateTime.now().toIso8601String()
+                                  : null,
+                              paidAtJalali: isPaid
+                                  ? formatJalali(
+                                      dateTimeToJalali(DateTime.now()),
+                                    )
                                   : null,
                               actualPaidAmount:
                                   actualAmt ?? inst.actualPaidAmount,
@@ -358,13 +363,15 @@ class _LoanDetailScreenState extends ConsumerState<LoanDetailScreen> {
 
                   if (v == 'edit') {
                     // Navigate to AddLoanScreen in edit mode.
-                    final res = await navigator.push<bool?>(
-                      MaterialPageRoute(
-                        builder: (_) => AddLoanScreen(
-                          existingLoan: loan,
-                          existingCounterparty: cp,
-                        ),
-                      ),
+                    final res = await context.pushNamed<bool?>(
+                      'loanEdit',
+                      pathParameters: {
+                        'loanId': (loan.id ?? widget.loanId).toString(),
+                      },
+                      extra: {
+                        'loan': loan,
+                        'counterparty': cp,
+                      },
                     );
 
                     if (!mounted) return;

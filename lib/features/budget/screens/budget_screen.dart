@@ -11,6 +11,7 @@ import 'package:debt_manager/core/providers/core_providers.dart';
 import 'add_budget_screen.dart';
 import 'add_budget_entry_screen.dart';
 import 'package:debt_manager/features/budget/irregular_income_service.dart';
+import 'package:go_router/go_router.dart';
 
 class BudgetScreen extends ConsumerStatefulWidget {
   const BudgetScreen({super.key});
@@ -120,10 +121,9 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
                       child: InkWell(
                         onTap: () async {
                           // Edit
-                          await Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (_) => AddBudgetScreen(budget: b),
-                            ),
+                          await context.pushNamed(
+                            'budgetAdd',
+                            extra: b,
                           );
                           _refresh();
                         },
@@ -183,13 +183,12 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
                         children: [
                           TextButton.icon(
                             onPressed: () async {
-                              final res = await Navigator.of(context).push(
-                                MaterialPageRoute(
-                                  builder: (_) => AddBudgetEntryScreen(
-                                    presetCategory: b.category,
-                                    presetPeriod: b.period,
-                                  ),
-                                ),
+                              final res = await context.pushNamed<bool>(
+                                'budgetEntryAdd',
+                                extra: {
+                                  'presetCategory': b.category,
+                                  'presetPeriod': b.period,
+                                },
                               );
                               if (res == true) _refresh();
                             },
@@ -199,12 +198,9 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
                           const SizedBox(width: 8),
                           TextButton.icon(
                             onPressed: () async {
-                              final res = await Navigator.of(context).push(
-                                MaterialPageRoute(
-                                  builder: (_) => AddBudgetEntryScreen(
-                                    presetCategory: b.category,
-                                  ),
-                                ),
+                              final res = await context.pushNamed<bool>(
+                                'budgetEntryAdd',
+                                extra: {'presetCategory': b.category},
                               );
                               if (res == true) _refresh();
                             },
@@ -242,9 +238,7 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
           FloatingActionButton.large(
             heroTag: 'budget-add',
             onPressed: () async {
-              await Navigator.of(context).push(
-                MaterialPageRoute(builder: (_) => const AddBudgetScreen()),
-              );
+              await context.pushNamed('budgetAdd');
               _refresh();
             },
             child: const Icon(Icons.add_outlined),

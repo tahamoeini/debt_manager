@@ -6,8 +6,14 @@ import 'package:debt_manager/app_shell.dart';
 import 'package:debt_manager/features/loans/screens/home_screen.dart';
 import 'package:debt_manager/features/loans/screens/loans_list_screen.dart';
 import 'package:debt_manager/features/loans/screens/loan_detail_screen.dart';
+import 'package:debt_manager/features/loans/screens/add_loan_screen.dart';
+import 'package:debt_manager/features/loans/models/loan.dart';
+import 'package:debt_manager/features/loans/models/counterparty.dart';
 import 'package:debt_manager/features/reports/screens/reports_screen.dart';
 import 'package:debt_manager/features/budget/screens/budget_screen.dart';
+import 'package:debt_manager/features/budget/screens/add_budget_screen.dart';
+import 'package:debt_manager/features/budget/screens/add_budget_entry_screen.dart';
+import 'package:debt_manager/features/budget/models/budget.dart';
 import 'package:debt_manager/features/insights/smart_insights_widget.dart';
 import 'package:debt_manager/features/settings/screens/settings_screen.dart';
 import 'package:debt_manager/core/security/lock_screen.dart';
@@ -24,7 +30,7 @@ final goRouterProvider = Provider<GoRouter>((ref) {
     initialLocation: '/',
     routes: [
       ShellRoute(
-        builder: (context, state, child) => const AppShell(),
+        builder: (context, state, child) => AppShell(child: child),
         routes: [
           GoRoute(
             name: 'home',
@@ -39,12 +45,37 @@ final goRouterProvider = Provider<GoRouter>((ref) {
                 const MaterialPage(child: LoansListScreen()),
             routes: [
               GoRoute(
+                name: 'loanAdd',
+                path: 'add',
+                pageBuilder: (context, state) =>
+                    const MaterialPage(child: AddLoanScreen()),
+              ),
+              GoRoute(
                 name: 'loanDetail',
                 path: 'loan/:loanId',
                 pageBuilder: (context, state) {
                   final idStr = state.pathParameters['loanId'] ?? '';
                   final id = int.tryParse(idStr);
                   return MaterialPage(child: LoanDetailScreen(loanId: id ?? 0));
+                },
+              ),
+              GoRoute(
+                name: 'loanEdit',
+                path: 'loan/:loanId/edit',
+                pageBuilder: (context, state) {
+                  Loan? loan;
+                  Counterparty? counterparty;
+                  final extra = state.extra;
+                  if (extra is Map<String, dynamic>) {
+                    loan = extra['loan'] as Loan?;
+                    counterparty = extra['counterparty'] as Counterparty?;
+                  }
+                  return MaterialPage(
+                    child: AddLoanScreen(
+                      existingLoan: loan,
+                      existingCounterparty: counterparty,
+                    ),
+                  );
                 },
               ),
             ],
@@ -58,8 +89,30 @@ final goRouterProvider = Provider<GoRouter>((ref) {
               GoRoute(
                 name: 'budgetAdd',
                 path: 'add',
-                pageBuilder: (context, state) =>
-                    const MaterialPage(child: SizedBox()),
+                pageBuilder: (context, state) {
+                  final extra = state.extra;
+                  final budget = extra is Budget ? extra : null;
+                  return MaterialPage(child: AddBudgetScreen(budget: budget));
+                },
+              ),
+              GoRoute(
+                name: 'budgetEntryAdd',
+                path: 'entry/add',
+                pageBuilder: (context, state) {
+                  final extra = state.extra;
+                  String? presetCategory;
+                  String? presetPeriod;
+                  if (extra is Map<String, dynamic>) {
+                    presetCategory = extra['presetCategory'] as String?;
+                    presetPeriod = extra['presetPeriod'] as String?;
+                  }
+                  return MaterialPage(
+                    child: AddBudgetEntryScreen(
+                      presetCategory: presetCategory,
+                      presetPeriod: presetPeriod,
+                    ),
+                  );
+                },
               ),
             ],
           ),
