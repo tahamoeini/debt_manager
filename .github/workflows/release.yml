@@ -51,6 +51,7 @@ jobs:
           check-name: 'CI Check'
           repo-token: ${{ secrets.GITHUB_TOKEN }}
           wait-interval: 10
+          allowed-conclusions: success,skipped,neutral,cancelled
 
   # Calculate semantic version from commits
   version:
