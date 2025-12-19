@@ -3,7 +3,8 @@ import 'dart:math';
 import 'package:local_auth/local_auth.dart';
 import 'package:debt_manager/core/security/secure_storage_service.dart';
 import 'package:pointycastle/pointycastle.dart';
-import 'dart:typed_data';
+import 'package:flutter/foundation.dart';
+import 'package:cryptography/cryptography.dart' as crypto;
 
 // SecurityService wraps the `local_auth` APIs and exposes a small,
 // testable surface for the app to perform biometric authentication.
@@ -54,7 +55,7 @@ class SecurityService {
     );
     final salt = base64.encode(saltBytes);
     // Store a salted PBKDF2-derived hash for verification
-    final hashBytes = _deriveKeyPBKDF2(
+    final hashBytes = await _deriveKeyPBKDF2(
       Uint8List.fromList(utf8.encode(pin)),
       Uint8List.fromList(saltBytes),
       10000,
@@ -81,7 +82,7 @@ class SecurityService {
     final salt = await SecureStorageService.instance.read(_pinSaltKey);
     if (stored == null || salt == null) return false;
     final saltBytes = Uint8List.fromList(base64.decode(salt));
-    final hashBytes = _deriveKeyPBKDF2(
+    final hashBytes = await _deriveKeyPBKDF2(
       Uint8List.fromList(utf8.encode(pin)),
       saltBytes,
       10000,
@@ -134,7 +135,7 @@ class SecurityService {
     final salt = await SecureStorageService.instance.read(_pinSaltKey);
     if (salt == null) return null;
     final saltBytes = Uint8List.fromList(base64.decode(salt));
-    final derived = _deriveKeyPBKDF2(
+    final derived = await _deriveKeyPBKDF2(
       Uint8List.fromList(utf8.encode(pin)),
       saltBytes,
       10000,
@@ -144,15 +145,35 @@ class SecurityService {
   }
 
   // Derive a key using PBKDF2 (HMAC-SHA256) via pointycastle
-  Uint8List _deriveKeyPBKDF2(
+  Future<Uint8List> _deriveKeyPBKDF2(
     Uint8List password,
     Uint8List salt,
     int iterations,
     int dkLen,
-  ) {
-    final pbkdf2 = KeyDerivator('PBKDF2/HMAC/SHA-256')
-      ..init(Pbkdf2Parameters(salt, iterations, dkLen));
-    return pbkdf2.process(password);
+  ) async {
+    // Use `cryptography` on web (Web Crypto under the hood) and
+    // fall back to pointycastle on native platforms.
+    if (kIsWeb) {
+      final pbkdf2 = crypto.Pbkdf2(
+        macAlgorithm: crypto.Hmac.sha256(),
+        iterations: iterations,
+        bits: dkLen * 8,
+      );
+      final secretKey = await pbkdf2.deriveKey(
+        secretKey: crypto.SecretKey(password),
+        nonce: salt,
+      );
+      final bytes = await secretKey.extractBytes();
+      return Uint8List.fromList(bytes);
+    }
+
+    try {
+      final kd = KeyDerivator('PBKDF2/HMAC/SHA-256')
+        ..init(Pbkdf2Parameters(salt, iterations, dkLen));
+      return kd.process(password);
+    } catch (e) {
+      throw Exception('PBKDF2 derivation failed: $e');
+    }
   }
 
   String _bytesToHex(Uint8List bytes) =>

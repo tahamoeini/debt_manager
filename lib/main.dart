@@ -11,7 +11,9 @@ import 'core/smart_insights/smart_insights_service.dart';
 import 'core/debug/debug_logger.dart';
 
 Future<void> main() async {
-  WidgetsFlutterBinding.ensureInitialized();
+  // NOTE: the bindings must be initialized in the same zone that calls
+  // `runApp`. Initialization is performed inside the `runZonedGuarded`
+  // block below to avoid zone-mismatch warnings on web.
 
   // Setup global error handlers for easier debugging in debug builds.
   final logger = DebugLogger();
@@ -24,13 +26,18 @@ Future<void> main() async {
   // Capture any uncaught errors in zones.
   runZonedGuarded(
     () async {
+      // Ensure bindings are initialized in the same zone as `runApp`.
+      WidgetsFlutterBinding.ensureInitialized();
+
       await DatabaseHelper.instance.refreshOverdueInstallments(DateTime.now());
 
       final settings = SettingsRepository();
       // Warm up settings getters for downstream callers.
       try {
         await settings.getBiometricEnabled();
-      } catch (_) {}
+      } catch (e) {
+        debugPrint('Failed to warm up biometric settings: $e');
+      }
 
       await NotificationService().init();
       await SmartNotificationService().init();
@@ -41,7 +48,9 @@ Future<void> main() async {
         if (smartEnabled) {
           await SmartInsightsService().runInsights(notify: false);
         }
-      } catch (_) {}
+      } catch (e) {
+        debugPrint('Failed to run initial smart insights: $e');
+      }
 
       runApp(const ProviderScope(child: DebtManagerApp()));
     },

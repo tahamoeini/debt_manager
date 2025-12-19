@@ -1,5 +1,7 @@
 import 'package:debt_manager/core/db/database_helper.dart';
 import 'package:shamsi_date/shamsi_date.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:debt_manager/features/loans/models/loan.dart';
 
 class IrregularIncomeService {
   final _db = DatabaseHelper.instance;
@@ -25,9 +27,28 @@ class IrregularIncomeService {
       final start = '$targetYear-$mm-01';
       final end = '$targetYear-$mm-${lastDay.toString().padLeft(2, '0')}';
 
-      final db = await _db.database;
-      final rows = await db.rawQuery(
-        '''
+      if (kIsWeb) {
+        // Web: use the in-memory stores via DatabaseHelper public APIs.
+        final loans = await _db.getAllLoans();
+        final lentLoans = loans.where((l) => l.direction == LoanDirection.lent).toList();
+        int monthTotal = 0;
+        for (final loan in lentLoans) {
+          if (loan.id == null) continue;
+          final insts = await _db.getInstallmentsByLoanId(loan.id!);
+          for (final inst in insts) {
+            final paidAt = inst.paidAt; // should be stored as ISO string in model
+            if (paidAt == null) continue;
+            if (paidAt.compareTo(start) >= 0 && paidAt.compareTo(end) <= 0) {
+              monthTotal += inst.actualPaidAmount ?? inst.amount;
+            }
+          }
+        }
+        total += monthTotal;
+        countedMonths += 1;
+      } else {
+        final db = await _db.database;
+        final rows = await db.rawQuery(
+          '''
         SELECT COALESCE(SUM(CASE WHEN i.actual_paid_amount IS NOT NULL THEN i.actual_paid_amount ELSE i.amount END), 0) as total
         FROM installments i
         JOIN loans l ON i.loan_id = l.id
@@ -36,15 +57,16 @@ class IrregularIncomeService {
           AND l.direction = 'lent'
           AND (p.mode IS NULL OR p.mode != 'fixed')
       ''',
-        [start, end],
-      );
+          [start, end],
+        );
 
-      final value = rows.first['total'];
-      final monthTotal = value is int
-          ? value
-          : (value is String ? int.tryParse(value) ?? 0 : 0);
-      total += monthTotal;
-      countedMonths += 1;
+        final value = rows.first['total'];
+        final monthTotal = value is int
+            ? value
+            : (value is String ? int.tryParse(value) ?? 0 : 0);
+        total += monthTotal;
+        countedMonths += 1;
+      }
     }
 
     if (countedMonths == 0) return 0;

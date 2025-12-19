@@ -51,10 +51,14 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
         essentialBudget: totalBudgets,
         safetyFactor: 1.2,
       );
-      setState(() {
-        _incomeSuggestion = safe;
-      });
-    } catch (_) {}
+      if (mounted) {
+        setState(() {
+          _incomeSuggestion = safe;
+        });
+      }
+    } catch (e) {
+      debugPrint('Failed to load income suggestion: $e');
+    }
   }
 
   void _refresh() {
@@ -71,6 +75,7 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
       await svc.checkBudgetThresholds(_currentPeriod());
     } catch (e) {
       // Silently fail - don't disrupt the UI if notifications fail
+      debugPrint('Budget threshold check failed: $e');
     }
   }
 
@@ -223,6 +228,7 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
             Padding(
               padding: const EdgeInsets.only(bottom: 8.0),
               child: FloatingActionButton.extended(
+                heroTag: 'budget-income-suggestion',
                 onPressed: () {
                   UIUtils.showAppSnackBar(
                     context,
@@ -234,6 +240,7 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
               ),
             ),
           FloatingActionButton.large(
+            heroTag: 'budget-add',
             onPressed: () async {
               await Navigator.of(context).push(
                 MaterialPageRoute(builder: (_) => const AddBudgetScreen()),

@@ -72,6 +72,7 @@ class _DebtManagerAppState extends ConsumerState<DebtManagerApp>
 
   @override
   void dispose() {
+    _cancelLockTimer();
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
@@ -149,11 +150,21 @@ class _DebtManagerAppState extends ConsumerState<DebtManagerApp>
               brightness: Brightness.dark,
             );
 
-            final baseTextTheme = Typography.material2021().black.apply(
-                  bodyColor: Colors.black87,
-                  displayColor: Colors.black87,
-                  fontSizeFactor: fontScale,
-                );
+            TextTheme baseTextTheme;
+            try {
+              baseTextTheme = Typography.material2021().black.apply(
+                bodyColor: Colors.black87,
+                displayColor: Colors.black87,
+                fontSizeFactor: fontScale,
+              );
+            } catch (e) {
+              // Some platforms may have null font sizes in the base
+              // typography which causes TextStyle.apply to assert when a
+              // non-1.0 fontSizeFactor is provided. Fall back to unscaled
+              // typography in that case and apply manual sizing below.
+              debugPrint('TextTheme.apply failed, falling back: $e');
+              baseTextTheme = Typography.material2021().black;
+            }
 
             final lightTextTheme = baseTextTheme.copyWith(
               titleLarge: baseTextTheme.titleLarge?.copyWith(
@@ -172,11 +183,17 @@ class _DebtManagerAppState extends ConsumerState<DebtManagerApp>
               ),
             );
 
-            final darkBase = Typography.material2021().white.apply(
-                  bodyColor: Colors.white70,
-                  displayColor: Colors.white70,
-                  fontSizeFactor: fontScale,
-                );
+            TextTheme darkBase;
+            try {
+              darkBase = Typography.material2021().white.apply(
+                bodyColor: Colors.white70,
+                displayColor: Colors.white70,
+                fontSizeFactor: fontScale,
+              );
+            } catch (e) {
+              debugPrint('Dark TextTheme.apply failed, falling back: $e');
+              darkBase = Typography.material2021().white;
+            }
 
             final darkTextTheme = darkBase.copyWith(
               titleLarge: darkBase.titleLarge?.copyWith(

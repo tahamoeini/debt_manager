@@ -77,7 +77,7 @@ class BackupRestoreService {
       // Create backup payload
       final payload = BackupPayload(
         timestamp: now.toIso8601String(),
-        appVersion: '1.0.0', // TODO: Get from pubspec or constants
+        appVersion: const String.fromEnvironment('APP_VERSION', defaultValue: '1.0.0'),
         checksum: checksum,
         name: backupName ??
             'Backup-${DateFormat('yyyy-MM-dd-HHmmss').format(now)}',

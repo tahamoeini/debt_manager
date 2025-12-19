@@ -231,7 +231,8 @@ class _AddLoanScreenState extends ConsumerState<AddLoanScreen> {
         final settingsRepo = SettingsRepository();
         try {
           offsetDays = await settingsRepo.getReminderOffsetDays();
-        } catch (_) {
+        } catch (e) {
+          debugPrint('Failed to get reminder offset, using default: $e');
           offsetDays = 3;
         }
 
@@ -292,7 +293,9 @@ class _AddLoanScreenState extends ConsumerState<AddLoanScreen> {
       // Ensure scheduled notifications are consistent after changes
       try {
         await NotificationService().rebuildScheduledNotifications();
-      } catch (_) {}
+      } catch (e) {
+        debugPrint('Failed to rebuild scheduled notifications: $e');
+      }
     }
   }
 
