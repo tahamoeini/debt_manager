@@ -24,7 +24,8 @@ class _QrReceiverScreenState extends State<QrReceiverScreen> {
       // Expect framed payload created by TransferService
       try {
         final frame = TransferFrame.fromQrString(data);
-        _session ??= _sessionManager.createSession(frame.frameId, frame.totalFrames);
+        _session ??=
+            _sessionManager.createSession(frame.frameId, frame.totalFrames);
         _sessionManager.addFrame(frame.frameId, frame);
         setState(() {});
 
@@ -37,13 +38,14 @@ class _QrReceiverScreenState extends State<QrReceiverScreen> {
           final pw = await _askPassword();
           if (pw == null) return;
           try {
-            final jsonStr = await BackupFacade.instance.decryptQrBytesToJson(bytes, pw);
+            final jsonStr =
+                await BackupFacade.instance.decryptQrBytesToJson(bytes, pw);
             final pg = PrivacyGateway();
             await pg.audit('import_qr', details: 'Imported data via QR');
             await pg.importJsonString(jsonStr);
             if (!mounted) return;
-            ScaffoldMessenger.of(context)
-                .showSnackBar(const SnackBar(content: Text('Import completed')));
+            ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Import completed')));
           } catch (e) {
             if (!mounted) return;
             ScaffoldMessenger.of(context).showSnackBar(

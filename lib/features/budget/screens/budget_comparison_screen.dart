@@ -271,9 +271,8 @@ class _BudgetComparisonScreenState
     final data = <Map<String, dynamic>>[];
 
     for (final budget in budgets) {
-      final actual = await ref
-          .read(budgetsRepositoryProvider)
-          .computeUtilization(budget);
+      final actual =
+          await ref.read(budgetsRepositoryProvider).computeUtilization(budget);
       data.add({
         'category': budget.category ?? 'عمومی',
         'budget': budget.amount,
@@ -344,7 +343,9 @@ class _BudgetComparisonScreenState
                         ),
                         Text(
                           formatCurrency(actual),
-                          style: Theme.of(context).textTheme.bodyMedium
+                          style: Theme.of(context)
+                              .textTheme
+                              .bodyMedium
                               ?.copyWith(color: progressColor),
                         ),
                       ],

@@ -52,9 +52,8 @@ class _AddBudgetScreenState extends ConsumerState<AddBudgetScreen> {
 
   Future<void> _save() async {
     if (!_formKey.currentState!.validate()) return;
-    final category = _categoryCtrl.text.trim().isEmpty
-        ? null
-        : _categoryCtrl.text.trim();
+    final category =
+        _categoryCtrl.text.trim().isEmpty ? null : _categoryCtrl.text.trim();
     final amountDouble =
         double.tryParse(_amountCtrl.text.replaceAll(',', '')) ?? 0.0;
     final amount = (amountDouble * 100).round();

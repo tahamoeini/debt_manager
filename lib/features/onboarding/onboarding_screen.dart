@@ -33,8 +33,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     final themeMode = _theme == 'light'
         ? ThemeMode.light
         : _theme == 'dark'
-        ? ThemeMode.dark
-        : ThemeMode.system;
+            ? ThemeMode.dark
+            : ThemeMode.system;
     await settings.setThemeMode(themeMode);
     await settings.setCalendarType(
       _calendar == 'jalali' ? CalendarType.jalali : CalendarType.gregorian,
@@ -74,9 +74,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                     onPressed: _page == 0
                         ? null
                         : () => _controller.previousPage(
-                            duration: const Duration(milliseconds: 300),
-                            curve: Curves.ease,
-                          ),
+                              duration: const Duration(milliseconds: 300),
+                              curve: Curves.ease,
+                            ),
                     child: const Text('Back'),
                   ),
                   const Spacer(),
@@ -84,9 +84,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                     onPressed: _page == 2
                         ? _complete
                         : () => _controller.nextPage(
-                            duration: const Duration(milliseconds: 300),
-                            curve: Curves.ease,
-                          ),
+                              duration: const Duration(milliseconds: 300),
+                              curve: Curves.ease,
+                            ),
                     child: Text(_page == 2 ? 'Done' : 'Next'),
                   ),
                 ],

@@ -1,7 +1,8 @@
 // Database helper: CRUD and reporting utilities for counterparties, loans and installments.
 import 'dart:async';
 
-import 'package:flutter/foundation.dart' show kIsWeb, defaultTargetPlatform, TargetPlatform;
+import 'package:flutter/foundation.dart'
+    show kIsWeb, defaultTargetPlatform, TargetPlatform;
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart' as plain;
 import 'package:sqflite_sqlcipher/sqflite.dart' as cipher;
@@ -91,7 +92,10 @@ class DatabaseHelper {
     }
 
     final t = defaultTargetPlatform;
-    final supportsCipher = !kIsWeb && (t == TargetPlatform.android || t == TargetPlatform.iOS || t == TargetPlatform.macOS);
+    final supportsCipher = !kIsWeb &&
+        (t == TargetPlatform.android ||
+            t == TargetPlatform.iOS ||
+            t == TargetPlatform.macOS);
     if (supportsCipher) {
       _db = await cipher.openDatabase(
         path,
@@ -263,7 +267,8 @@ class DatabaseHelper {
     ''');
   }
 
-  FutureOr<void> _onUpgrade(plain.Database db, int oldVersion, int newVersion) async {
+  FutureOr<void> _onUpgrade(
+      plain.Database db, int oldVersion, int newVersion) async {
     if (oldVersion < 2) {
       // Add the actual_paid_amount column to installments. Use a try/catch
       // to tolerate existing databases where the column may already exist.
@@ -388,8 +393,8 @@ class DatabaseHelper {
       final rows = List<Map<String, dynamic>>.from(_cpStore);
       rows.sort(
         (a, b) => (a['name'] as String).toLowerCase().compareTo(
-          (b['name'] as String).toLowerCase(),
-        ),
+              (b['name'] as String).toLowerCase(),
+            ),
       );
       return rows.map((r) => Counterparty.fromMap(r)).toList();
     }
@@ -431,9 +436,8 @@ class DatabaseHelper {
     if (_isWeb) {
       var rows = List<Map<String, dynamic>>.from(_loanStore);
       if (direction != null) {
-        final dirStr = direction == LoanDirection.borrowed
-            ? 'borrowed'
-            : 'lent';
+        final dirStr =
+            direction == LoanDirection.borrowed ? 'borrowed' : 'lent';
         rows = rows.where((r) => r['direction'] == dirStr).toList();
       }
       rows.sort(
@@ -492,8 +496,8 @@ class DatabaseHelper {
     final db = await database;
     final id = await db.insert('installments', installment.toMap());
     try {
-      final smartEnabled = await SettingsRepository()
-          .getSmartSuggestionsEnabled();
+      final smartEnabled =
+          await SettingsRepository().getSmartSuggestionsEnabled();
       if (smartEnabled) {
         await SmartInsightsService().runInsights(notify: true);
       }
@@ -513,8 +517,7 @@ class DatabaseHelper {
             whereArgs: [loan.counterpartyId],
             limit: 1,
           );
-          final payee =
-              (cpRows.isNotEmpty
+          final payee = (cpRows.isNotEmpty
                   ? cpRows.first['name'] as String?
                   : loan.title) ??
               '';
@@ -552,8 +555,8 @@ class DatabaseHelper {
       whereArgs: [loanId],
     );
     try {
-      final smartEnabled = await SettingsRepository()
-          .getSmartSuggestionsEnabled();
+      final smartEnabled =
+          await SettingsRepository().getSmartSuggestionsEnabled();
       if (smartEnabled) await SmartInsightsService().runInsights(notify: true);
     } catch (_) {}
     await NotificationService().rebuildScheduledNotifications();
@@ -563,11 +566,12 @@ class DatabaseHelper {
   Future<List<Installment>> getInstallmentsByLoanId(int loanId) async {
     if (_isWeb) {
       final rows =
-          _installmentStore.where((r) => r['loan_id'] == loanId).toList()..sort(
-            (a, b) => (a['due_date_jalali'] as String).compareTo(
-              b['due_date_jalali'] as String,
-            ),
-          );
+          _installmentStore.where((r) => r['loan_id'] == loanId).toList()
+            ..sort(
+              (a, b) => (a['due_date_jalali'] as String).compareTo(
+                b['due_date_jalali'] as String,
+              ),
+            );
       return rows.map((r) => Installment.fromMap(r)).toList();
     }
 
@@ -594,8 +598,8 @@ class DatabaseHelper {
       whereArgs: [installment.id],
     );
     try {
-      final smartEnabled = await SettingsRepository()
-          .getSmartSuggestionsEnabled();
+      final smartEnabled =
+          await SettingsRepository().getSmartSuggestionsEnabled();
       if (smartEnabled) {
         await SmartInsightsService().runInsights(notify: true);
       }
@@ -614,8 +618,7 @@ class DatabaseHelper {
             whereArgs: [loan.counterpartyId],
             limit: 1,
           );
-          final payee =
-              (cpRows.isNotEmpty
+          final payee = (cpRows.isNotEmpty
                   ? cpRows.first['name'] as String?
                   : loan.title) ??
               '';
@@ -702,15 +705,14 @@ class DatabaseHelper {
     if (loanIds.isEmpty) return {};
 
     if (_isWeb) {
-      final filtered =
-          _installmentStore
-              .where((r) => loanIds.contains(r['loan_id'] as int))
-              .toList()
-            ..sort(
-              (a, b) => (a['due_date_jalali'] as String).compareTo(
-                b['due_date_jalali'] as String,
-              ),
-            );
+      final filtered = _installmentStore
+          .where((r) => loanIds.contains(r['loan_id'] as int))
+          .toList()
+        ..sort(
+          (a, b) => (a['due_date_jalali'] as String).compareTo(
+            b['due_date_jalali'] as String,
+          ),
+        );
 
       final Map<int, List<Installment>> map = {};
       for (final row in filtered) {
@@ -800,17 +802,17 @@ class DatabaseHelper {
       final toStr = formatJalali(toJ);
 
       // Do not touch sqflite on web; use in-memory store and compare Jalali strings
-      final rows =
-          _installmentStore.where((r) {
-            final statusOk = (r['status'] as String?) == 'pending';
-            final due = r['due_date_jalali'] as String?;
-            if (!statusOk || due == null) return false;
-            return due.compareTo(fromStr) >= 0 && due.compareTo(toStr) <= 0;
-          }).toList()..sort(
-            (a, b) => (a['due_date_jalali'] as String).compareTo(
-              b['due_date_jalali'] as String,
-            ),
-          );
+      final rows = _installmentStore.where((r) {
+        final statusOk = (r['status'] as String?) == 'pending';
+        final due = r['due_date_jalali'] as String?;
+        if (!statusOk || due == null) return false;
+        return due.compareTo(fromStr) >= 0 && due.compareTo(toStr) <= 0;
+      }).toList()
+        ..sort(
+          (a, b) => (a['due_date_jalali'] as String).compareTo(
+            b['due_date_jalali'] as String,
+          ),
+        );
 
       return rows.map((r) => Installment.fromMap(r)).toList();
     }

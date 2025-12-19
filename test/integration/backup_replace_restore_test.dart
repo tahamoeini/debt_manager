@@ -43,14 +43,16 @@ Future<void> _assertDbSchema(dynamic db) async {
   final requiredInst = {'id', 'loan_id', 'due_date_jalali', 'amount', 'status'};
   final missingInst = requiredInst.difference(instCols);
   if (missingInst.isNotEmpty) {
-    throw Exception('Test DB missing installment columns: ${missingInst.join(', ')}');
+    throw Exception(
+        'Test DB missing installment columns: ${missingInst.join(', ')}');
   }
 
   final cpCols = await cols('counterparties');
   final requiredCp = {'id', 'name'};
   final missingCp = requiredCp.difference(cpCols);
   if (missingCp.isNotEmpty) {
-    throw Exception('Test DB missing counterparty columns: ${missingCp.join(', ')}');
+    throw Exception(
+        'Test DB missing counterparty columns: ${missingCp.join(', ')}');
   }
 }
 
@@ -110,7 +112,8 @@ void main() {
 
       // Ensure any existing ffi test DB is removed so onCreate runs with latest schema
       try {
-        final dbFile = File(p.join('.dart_tool', 'sqflite_common_ffi', 'databases', 'debt_manager.db'));
+        final dbFile = File(p.join('.dart_tool', 'sqflite_common_ffi',
+            'databases', 'debt_manager.db'));
         if (await dbFile.exists()) await dbFile.delete(recursive: true);
       } catch (_) {}
       dbHelper = DatabaseHelper.instance;
@@ -169,7 +172,8 @@ void main() {
       final installmentsMap = loanIds.isNotEmpty
           ? await dbHelper.getInstallmentsGroupedByLoanId(loanIds)
           : <int, List<Installment>>{};
-      final installmentCount = installmentsMap.values.fold<int>(0, (s, v) => s + v.length);
+      final installmentCount =
+          installmentsMap.values.fold<int>(0, (s, v) => s + v.length);
 
       final beforeLoans = loans.length;
       final beforeCps = cps.length;
@@ -179,7 +183,8 @@ void main() {
       final password = 'test-password-123';
 
       // Export backup (encrypted)
-      final backupFilePath = await backupService.exportData(backupDirectory: tempDirPath, password: password);
+      final backupFilePath = await backupService.exportData(
+          backupDirectory: tempDirPath, password: password);
 
       // Mutate DB (delete everything)
       await db.delete('installments');
@@ -192,21 +197,23 @@ void main() {
       // No test-only schema tweaks: rely on fresh test DB schema created on setup.
 
       // Import with replace mode
-      await backupService.importData(backupFilePath, mode: BackupMergeMode.replace, password: password);
+      await backupService.importData(backupFilePath,
+          mode: BackupMergeMode.replace, password: password);
 
       // Verify counts equal original
       final loansAfter = await dbHelper.getAllLoans();
       final cpsAfter = await dbHelper.getAllCounterparties();
-      final loanIdsAfter = loansAfter.map((l) => l.id).whereType<int>().toList();
+      final loanIdsAfter =
+          loansAfter.map((l) => l.id).whereType<int>().toList();
       final installmentsMapAfter = loanIdsAfter.isNotEmpty
           ? await dbHelper.getInstallmentsGroupedByLoanId(loanIdsAfter)
           : <int, List<Installment>>{};
-      final afterInst = installmentsMapAfter.values.fold<int>(0, (s, v) => s + v.length);
+      final afterInst =
+          installmentsMapAfter.values.fold<int>(0, (s, v) => s + v.length);
 
       expect(loansAfter.length, equals(beforeLoans));
       expect(cpsAfter.length, equals(beforeCps));
       expect(afterInst, equals(beforeInst));
     });
   });
-
 }

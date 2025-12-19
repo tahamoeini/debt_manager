@@ -45,7 +45,8 @@ void main() {
       final transferId = 'test-${DateTime.now().millisecondsSinceEpoch}';
 
       // 3) Frame into QR frames
-      final frames = TransferService().chunkDataForTransfer(payloadBytes, transferId);
+      final frames =
+          TransferService().chunkDataForTransfer(payloadBytes, transferId);
 
       // 4) Convert to QR strings (as would sender do)
       final qrStrings = frames.map((f) => f.toQrString()).toList();

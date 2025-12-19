@@ -38,8 +38,8 @@ class _ImportWizardState {
 
 final _importWizardProvider =
     StateNotifierProvider<_ImportWizardNotifier, _ImportWizardState>((ref) {
-      return _ImportWizardNotifier();
-    });
+  return _ImportWizardNotifier();
+});
 
 class _ImportWizardNotifier extends StateNotifier<_ImportWizardState> {
   _ImportWizardNotifier() : super(_ImportWizardState());
@@ -173,7 +173,9 @@ class _StepSelectFile extends ConsumerWidget {
                         const SizedBox(height: 4),
                         Text(
                           state.selectedFilePath!.split('/').last,
-                          style: Theme.of(context).textTheme.bodyLarge
+                          style: Theme.of(context)
+                              .textTheme
+                              .bodyLarge
                               ?.copyWith(fontWeight: FontWeight.bold),
                         ),
                       ],
@@ -338,7 +340,9 @@ class _StepMapFields extends ConsumerWidget {
                       children: [
                         Text(
                           field.columnName,
-                          style: Theme.of(context).textTheme.bodyMedium
+                          style: Theme.of(context)
+                              .textTheme
+                              .bodyMedium
                               ?.copyWith(fontWeight: FontWeight.bold),
                         ),
                         const SizedBox(height: 8),
@@ -453,7 +457,9 @@ class _StepPreview extends ConsumerWidget {
                             children: [
                               Text(
                                 'تعارض‌های شناسایی‌شده',
-                                style: Theme.of(context).textTheme.bodyMedium
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .bodyMedium
                                     ?.copyWith(
                                       color: Colors.orange.shade900,
                                       fontWeight: FontWeight.bold,
@@ -482,9 +488,8 @@ class _StepPreview extends ConsumerWidget {
                 child: const Text('بازگشت'),
               ),
               ElevatedButton(
-                onPressed: state.preview != null
-                    ? () => notifier.setStep(4)
-                    : null,
+                onPressed:
+                    state.preview != null ? () => notifier.setStep(4) : null,
                 child: const Text('ادامه'),
               ),
             ],
@@ -653,9 +658,9 @@ class _ConfirmRow extends StatelessWidget {
         Text(
           value,
           style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-            fontWeight: FontWeight.bold,
-            color: Colors.blue,
-          ),
+                fontWeight: FontWeight.bold,
+                color: Colors.blue,
+              ),
         ),
       ],
     );
@@ -685,8 +690,8 @@ class _StepComplete extends ConsumerWidget {
           Text(
             result?.success == true ? 'درون‌ریز موفق‌آمیز' : 'درون‌ریز ناموفق',
             style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-              color: result?.success == true ? Colors.green : Colors.red,
-            ),
+                  color: result?.success == true ? Colors.green : Colors.red,
+                ),
           ),
           const SizedBox(height: 8),
           Text(

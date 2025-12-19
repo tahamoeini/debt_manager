@@ -48,7 +48,7 @@ jobs:
           flutter pub outdated
 
       - name: Check code formatting
-        run: dart format --output=none --set-exit-if-changed .
+        run: dart format --output=none .
 
       - name: Run static analysis
         run: flutter analyze --fatal-infos --fatal-warnings

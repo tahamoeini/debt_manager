@@ -95,7 +95,8 @@ class _BackupRestoreScreenState extends State<BackupRestoreScreen> {
         password: passwordController.text,
       );
       if (conflicts.isNotEmpty) {
-        _showErrorSnackBar('هشدار: ${conflicts.length} مورد نیاز به بررسی دارد');
+        _showErrorSnackBar(
+            'هشدار: ${conflicts.length} مورد نیاز به بررسی دارد');
       } else {
         _showSuccessSnackBar('بازیابی با موفقیت انجام شد');
       }
@@ -112,8 +113,7 @@ class _BackupRestoreScreenState extends State<BackupRestoreScreen> {
     final passwordController = TextEditingController();
     final confirmController = TextEditingController();
 
-    final confirmed =
-        await showDialog<bool>(
+    final confirmed = await showDialog<bool>(
           context: context,
           builder: (context) => AlertDialog(
             title: const Text('ایجاد نسخه‌ی پشتیبان (رمزگذاری شده)'),
@@ -184,8 +184,7 @@ class _BackupRestoreScreenState extends State<BackupRestoreScreen> {
 
       // Ask to share
       if (!mounted) return;
-      final shareConfirmed =
-          await showDialog<bool>(
+      final shareConfirmed = await showDialog<bool>(
             context: context,
             builder: (context) => AlertDialog(
               title: const Text('اشتراک‌گذاری نسخه‌ی پشتیبان'),
@@ -224,8 +223,7 @@ class _BackupRestoreScreenState extends State<BackupRestoreScreen> {
   }
 
   Future<void> _deleteBackup(String filePath) async {
-    final confirmed =
-        await showDialog<bool>(
+    final confirmed = await showDialog<bool>(
           context: context,
           builder: (context) => AlertDialog(
             title: const Text('حذف نسخه‌ی پشتیبان'),
@@ -311,7 +309,9 @@ class _BackupRestoreScreenState extends State<BackupRestoreScreen> {
                         const SizedBox(width: 8),
                         Text(
                           'اطلاعات',
-                          style: Theme.of(context).textTheme.titleMedium
+                          style: Theme.of(context)
+                              .textTheme
+                              .titleMedium
                               ?.copyWith(color: Colors.blue.shade700),
                         ),
                       ],
@@ -405,7 +405,9 @@ class _BackupRestoreScreenState extends State<BackupRestoreScreen> {
                                 const SizedBox(height: 4),
                                 Text(
                                   '${metadata.loansCount} وام، ${metadata.installmentsCount} قسط',
-                                  style: Theme.of(context).textTheme.labelSmall
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .labelSmall
                                       ?.copyWith(color: Colors.grey.shade600),
                                 ),
                               ],
@@ -416,7 +418,7 @@ class _BackupRestoreScreenState extends State<BackupRestoreScreen> {
                               PopupMenuItem(
                                 child: const Text('بازیابی'),
                                 onTap: () {
-                                      _promptRestore(backup.path);
+                                  _promptRestore(backup.path);
                                 },
                               ),
                               PopupMenuItem(

@@ -60,12 +60,12 @@ class HelpScreen extends StatelessWidget {
                         const SizedBox(width: 8),
                         Text(
                           'یادداشت مهم',
-                          style: Theme.of(context).textTheme.titleMedium
-                              ?.copyWith(
-                                color: Theme.of(
-                                  context,
-                                ).colorScheme.onPrimaryContainer,
-                              ),
+                          style:
+                              Theme.of(context).textTheme.titleMedium?.copyWith(
+                                    color: Theme.of(
+                                      context,
+                                    ).colorScheme.onPrimaryContainer,
+                                  ),
                         ),
                       ],
                     ),
@@ -73,8 +73,10 @@ class HelpScreen extends StatelessWidget {
                     Text(
                       'تمام این ویژگی‌ها به صورت محلی و آفلاین کار می‌کنند. هیچ داده‌ای به سرور ارسال نمی‌شود و حریم خصوصی شما محفوظ است. همچنین این ویژگی‌ها برای کاهش مصرف باتری بهینه‌سازی شده‌اند.',
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: Theme.of(context).colorScheme.onPrimaryContainer,
-                      ),
+                            color: Theme.of(context)
+                                .colorScheme
+                                .onPrimaryContainer,
+                          ),
                     ),
                   ],
                 ),

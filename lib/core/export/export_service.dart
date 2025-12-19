@@ -52,12 +52,10 @@ class ExportService {
     ]);
 
     // Convert date filters to Jalali strings
-    final fromStr = fromDate != null
-        ? formatJalali(dateTimeToJalali(fromDate))
-        : null;
-    final toStr = toDate != null
-        ? formatJalali(dateTimeToJalali(toDate))
-        : null;
+    final fromStr =
+        fromDate != null ? formatJalali(dateTimeToJalali(fromDate)) : null;
+    final toStr =
+        toDate != null ? formatJalali(dateTimeToJalali(toDate)) : null;
 
     for (final loan in loans) {
       if (loan.id == null) continue;
@@ -74,9 +72,8 @@ class ExportService {
         if (fromStr != null && dueDate.compareTo(fromStr) < 0) continue;
         if (toStr != null && dueDate.compareTo(toStr) > 0) continue;
 
-        final direction = loan.direction == LoanDirection.borrowed
-            ? 'گرفته‌ام'
-            : 'داده‌ام';
+        final direction =
+            loan.direction == LoanDirection.borrowed ? 'گرفته‌ام' : 'داده‌ام';
 
         final status = _statusToString(inst.status);
 

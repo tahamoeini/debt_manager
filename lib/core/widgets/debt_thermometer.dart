@@ -78,7 +78,9 @@ class DebtThermometer extends StatelessWidget {
                       children: [
                         Text(
                           title,
-                          style: Theme.of(context).textTheme.titleMedium
+                          style: Theme.of(context)
+                              .textTheme
+                              .titleMedium
                               ?.copyWith(fontWeight: FontWeight.bold),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
@@ -87,7 +89,9 @@ class DebtThermometer extends StatelessWidget {
                           const SizedBox(height: 4),
                           Text(
                             counterpartyName!,
-                            style: Theme.of(context).textTheme.bodySmall
+                            style: Theme.of(context)
+                                .textTheme
+                                .bodySmall
                                 ?.copyWith(color: Colors.grey.shade600),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
@@ -111,9 +115,9 @@ class DebtThermometer extends StatelessWidget {
                     child: Text(
                       '${(_fillPercentage * 100).toStringAsFixed(0)}%',
                       style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                        color: fillColor,
-                        fontWeight: FontWeight.bold,
-                      ),
+                            color: fillColor,
+                            fontWeight: FontWeight.bold,
+                          ),
                     ),
                   ),
                 ],
@@ -220,12 +224,16 @@ class DebtThermometer extends StatelessWidget {
                             children: [
                               Text(
                                 'پرداخت شده',
-                                style: Theme.of(context).textTheme.labelSmall
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .labelSmall
                                     ?.copyWith(color: Colors.grey.shade600),
                               ),
                               Text(
                                 formatCurrency(amountPaid),
-                                style: Theme.of(context).textTheme.labelSmall
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .labelSmall
                                     ?.copyWith(
                                       fontWeight: FontWeight.bold,
                                       color: fillColor,
@@ -239,12 +247,16 @@ class DebtThermometer extends StatelessWidget {
                             children: [
                               Text(
                                 'باقی مانده',
-                                style: Theme.of(context).textTheme.labelSmall
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .labelSmall
                                     ?.copyWith(color: Colors.grey.shade600),
                               ),
                               Text(
                                 formatCurrency(_remainingAmount),
-                                style: Theme.of(context).textTheme.labelSmall
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .labelSmall
                                     ?.copyWith(
                                       fontWeight: FontWeight.bold,
                                       color: Colors.orange.shade600,
@@ -258,7 +270,9 @@ class DebtThermometer extends StatelessWidget {
                             children: [
                               Text(
                                 'کل',
-                                style: Theme.of(context).textTheme.labelSmall
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .labelSmall
                                     ?.copyWith(
                                       color: Colors.grey.shade600,
                                       fontWeight: FontWeight.bold,
@@ -266,7 +280,9 @@ class DebtThermometer extends StatelessWidget {
                               ),
                               Text(
                                 formatCurrency(totalAmount),
-                                style: Theme.of(context).textTheme.labelSmall
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .labelSmall
                                     ?.copyWith(fontWeight: FontWeight.bold),
                               ),
                             ],

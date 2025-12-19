@@ -5,7 +5,7 @@ class Budget {
   final int? id;
   final String? category; // null means general (all categories)
   final int
-  amount; // stored in cents or lowest currency unit (app uses integers)
+      amount; // stored in cents or lowest currency unit (app uses integers)
   final String period; // yyyy-MM
   final bool rollover;
   final String createdAt;
@@ -58,8 +58,7 @@ class Budget {
           ? map['amount'] as int
           : int.parse(map['amount'].toString()),
       period: map['period'] as String? ?? '',
-      rollover:
-          (map['rollover'] is int
+      rollover: (map['rollover'] is int
               ? (map['rollover'] as int)
               : int.tryParse(map['rollover'].toString())) ==
           1,

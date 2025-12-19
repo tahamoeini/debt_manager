@@ -112,8 +112,7 @@ class ConfirmDialog extends StatelessWidget {
 
     return AppDialog(
       title: title,
-      icon:
-          icon ??
+      icon: icon ??
           (isDestructive ? Icons.warning_outlined : Icons.info_outlined),
       iconColor: isDestructive ? colorScheme.danger : colorScheme.primary,
       content: Text(message, textAlign: TextAlign.center),
@@ -126,9 +125,8 @@ class ConfirmDialog extends StatelessWidget {
         TextButton(
           onPressed: () => Navigator.of(context).pop(true),
           style: TextButton.styleFrom(
-            foregroundColor: isDestructive
-                ? colorScheme.danger
-                : colorScheme.primary,
+            foregroundColor:
+                isDestructive ? colorScheme.danger : colorScheme.primary,
           ),
           child: Text(confirmText ?? 'تأیید'),
         ),
