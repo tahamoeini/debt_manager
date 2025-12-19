@@ -1,7 +1,7 @@
-name: Flutter CI/CD
+name: CI Pipeline
 
 concurrency:
-  group: flutter-ci-${{ github.ref }}
+  group: ci-${{ github.ref }}
   cancel-in-progress: true
 
 on:
@@ -10,119 +10,77 @@ on:
     paths-ignore:
       - 'docs/**'
       - '**.md'
+      - 'LICENSE'
+      - '.gitignore'
   pull_request:
     branches: [master]
     paths-ignore:
       - 'docs/**'
       - '**.md'
+      - 'LICENSE'
+      - '.gitignore'
 
 permissions:
   contents: read
 
 jobs:
-  ci-pr:
-    name: ci-check
-    if: github.event_name == 'pull_request'
+  ci:
+    name: CI Check
     runs-on: ubuntu-latest
     timeout-minutes: 30
     permissions:
       contents: read
+      checks: write
 
     steps:
-      - name: Checkout
+      - name: Checkout code
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          persist-credentials: false
 
       - name: Setup Flutter and Build Tools
         uses: ./.github/actions/setup-flutter
 
+      - name: Verify dependencies
+        run: |
+          flutter doctor -v
+          flutter pub get
+          flutter pub outdated
+
       - name: Check code formatting
         run: dart format --output=none --set-exit-if-changed .
 
-      - name: Analyze code
-        run: flutter analyze --no-fatal-infos
+      - name: Run static analysis
+        run: flutter analyze --fatal-infos --fatal-warnings
 
-      - name: Run unit tests
-        run: flutter test --concurrency=8 --test-randomize-ordering-seed=random
+      - name: Run unit and widget tests
+        run: |
+          flutter test \
+            --concurrency=8 \
+            --test-randomize-ordering-seed=random \
+            --coverage \
+            --reporter=expanded
 
-      - name: Upload test results
+      - name: Build verification (debug APK)
+        run: |
+          flutter build apk --debug --target-platform android-arm64
+          APK_SIZE=$(du -h build/app/outputs/flutter-apk/app-debug.apk | cut -f1)
+          echo "Debug APK size: $APK_SIZE"
+
+      - name: Upload test coverage
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: test-results
-          path: |
-            test/
-            coverage/
-          retention-days: 7
+          name: coverage-report
+          path: coverage/lcov.info
+          retention-days: 14
           if-no-files-found: ignore
 
-  ci-push:
-    name: ci-check-push
-    if: github.event_name == 'push'
-    runs-on: ubuntu-latest
-    timeout-minutes: 30
-    permissions:
-      contents: write
-      pull-requests: write
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-          persist-credentials: true
-
-      - name: Setup Flutter and Build Tools
-        uses: ./.github/actions/setup-flutter
-
-      - name: Run formatter
-        id: run_format
-        shell: bash
-        run: |
-          dart format .
-
-      - name: Detect formatting changes
-        id: fmt_changed
-        shell: bash
-        run: |
-          if [ -n "$(git status --porcelain)" ]; then
-            echo "changed=true" >> $GITHUB_OUTPUT
-          else
-            echo "changed=false" >> $GITHUB_OUTPUT
-          fi
-
-      - name: Create PR for formatting changes
-        if: steps.fmt_changed.outputs.changed == 'true'
-        uses: peter-evans/create-pull-request@v6
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          commit-message: "chore: format Dart code (ci)"
-          title: "ci: auto-format Dart sources"
-          body: |
-            This automated PR applies `dart format` to the repository.
-            Repository rules prevent direct pushes to protected branches; this PR preserves those protections.
-          branch: "ci/format-${{ github.run_id }}"
-          base: master
-          labels: ci, formatting
-
-      - name: Check code formatting
-        run: dart format --output=none --set-exit-if-changed .
-
-      - name: Analyze code
-        run: flutter analyze --no-fatal-infos
-
-      - name: Run unit tests
-        run: flutter test --concurrency=8 --test-randomize-ordering-seed=random
-
       - name: Upload test results
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: test-results
-          path: |
-            test/
-            coverage/
+          path: test/
           retention-days: 7
           if-no-files-found: ignore
