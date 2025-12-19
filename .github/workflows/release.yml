@@ -154,6 +154,8 @@ jobs:
     outputs:
       apk_path: ${{ steps.build.outputs.apk_path }}
       apk_size: ${{ steps.build.outputs.apk_size }}
+      universal_apk_path: ${{ steps.build.outputs.universal_apk_path }}
+      universal_apk_size: ${{ steps.build.outputs.universal_apk_size }}
       aab_path: ${{ steps.build.outputs.aab_path }}
       aab_size: ${{ steps.build.outputs.aab_size }}
 
@@ -204,12 +206,24 @@ jobs:
           # Get artifact info
           APK_PATH="build/app/outputs/flutter-apk/app-arm64-v8a-release.apk"
           AAB_PATH="build/app/outputs/bundle/release/app-release.aab"
-          
+
+          # Build a universal (fat) APK so users can download a single APK to install
+          flutter build apk \
+            --release \
+            --shrink \
+            --obfuscate \
+            --split-debug-info=build/app/outputs/symbols
+
+          UNIVERSAL_PATH="build/app/outputs/flutter-apk/app-release.apk"
+
           APK_SIZE=$(du -h "$APK_PATH" | cut -f1)
+          UNIVERSAL_SIZE=$(du -h "$UNIVERSAL_PATH" | cut -f1)
           AAB_SIZE=$(du -h "$AAB_PATH" | cut -f1)
-          
+
           echo "apk_path=$APK_PATH" >> $GITHUB_OUTPUT
           echo "apk_size=$APK_SIZE" >> $GITHUB_OUTPUT
+          echo "universal_apk_path=$UNIVERSAL_PATH" >> $GITHUB_OUTPUT
+          echo "universal_apk_size=$UNIVERSAL_SIZE" >> $GITHUB_OUTPUT
           echo "aab_path=$AAB_PATH" >> $GITHUB_OUTPUT
           echo "aab_size=$AAB_SIZE" >> $GITHUB_OUTPUT
           
@@ -230,6 +244,7 @@ jobs:
           name: release-builds-${{ needs.version.outputs.new_version }}
           path: |
             ${{ steps.build.outputs.apk_path }}
+            ${{ steps.build.outputs.universal_apk_path }}
             ${{ steps.build.outputs.aab_path }}
           retention-days: 90
           if-no-files-found: error
