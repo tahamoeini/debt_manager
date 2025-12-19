@@ -268,6 +268,12 @@ jobs:
           name: release-builds-${{ needs.version.outputs.new_version }}
           path: artifacts/
 
+      - name: Download debug symbols
+        uses: actions/download-artifact@v4
+        with:
+          name: debug-symbols-${{ needs.version.outputs.new_version }}
+          path: artifacts/debug-symbols/
+
       - name: Create release notes
         shell: bash
         run: |
@@ -306,7 +312,6 @@ jobs:
           draft: false
           prerelease: ${{ github.event.inputs.prerelease || false }}
           files: |
-            artifacts/app-arm64-v8a-release.apk
-            artifacts/app-release.aab
+            artifacts/**
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
