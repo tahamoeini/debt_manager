@@ -13,7 +13,8 @@ import 'package:debt_manager/features/loans/models/installment.dart';
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  // Constants for retry configuration
+  // Constants for retry configuration in setUpAll
+  // Note: @Retry(3) annotation provides additional test-level retry
   const int maxRetries = 5;
   const int baseDelayMs = 100;
 
@@ -52,13 +53,15 @@ void main() {
           await dbHelper.database;
           break;
         } catch (e) {
-          // Check if this is a database lock error and we haven't exceeded retries
-          final isDatabaseLocked = e.toString().contains('database is locked') ||
-              e.toString().contains('SQLITE_BUSY');
+          // Check if this is a database lock error
+          final errorMessage = e.toString();
+          final isDatabaseLocked = errorMessage.contains('database is locked') ||
+              errorMessage.contains('SQLITE_BUSY');
           
           if (isDatabaseLocked && retryCount < maxRetries - 1) {
             retryCount++;
-            // Wait with exponential backoff
+            // Wait with linear backoff (sufficient for database lock resolution)
+            // Linear is preferred here as database locks typically release quickly
             await Future.delayed(Duration(milliseconds: baseDelayMs * retryCount));
           } else {
             rethrow;
