@@ -7,17 +7,18 @@ import 'package:shamsi_date/shamsi_date.dart';
 import 'package:debt_manager/core/notifications/notification_service.dart';
 import 'package:debt_manager/core/notifications/notification_ids.dart';
 import 'package:debt_manager/core/utils/format_utils.dart';
+import 'package:debt_manager/core/db/database_helper.dart';
 import 'package:debt_manager/core/utils/jalali_utils.dart';
 import 'package:debt_manager/core/utils/ui_utils.dart';
 import 'package:debt_manager/core/utils/celebration_utils.dart';
 import 'package:debt_manager/features/achievements/achievements_repository.dart';
 import 'package:debt_manager/features/loans/models/installment.dart';
 import 'package:debt_manager/features/loans/models/loan.dart';
-import 'add_loan_screen.dart';
 import 'package:debt_manager/features/budget/budgets_repository.dart';
 import 'package:debt_manager/features/budget/models/budget.dart';
 import 'package:debt_manager/features/loans/loan_detail_notifier.dart';
 import 'package:debt_manager/features/loans/loan_list_notifier.dart';
+import 'package:go_router/go_router.dart';
 
 // Delay before showing celebration to allow UI to update
 const Duration _celebrationDelay = Duration(milliseconds: 300);
@@ -165,6 +166,11 @@ class _LoanDetailScreenState extends ConsumerState<LoanDetailScreen> {
                               status: newStatus,
                               paidAt: isPaid
                                   ? DateTime.now().toIso8601String()
+                                  : null,
+                              paidAtJalali: isPaid
+                                  ? formatJalali(
+                                      dateTimeToJalali(DateTime.now()),
+                                    )
                                   : null,
                               actualPaidAmount:
                                   actualAmt ?? inst.actualPaidAmount,
@@ -357,13 +363,15 @@ class _LoanDetailScreenState extends ConsumerState<LoanDetailScreen> {
 
                   if (v == 'edit') {
                     // Navigate to AddLoanScreen in edit mode.
-                    final res = await navigator.push<bool?>(
-                      MaterialPageRoute(
-                        builder: (_) => AddLoanScreen(
-                          existingLoan: loan,
-                          existingCounterparty: cp,
-                        ),
-                      ),
+                    final res = await context.pushNamed<bool?>(
+                      'loanEdit',
+                      pathParameters: {
+                        'loanId': (loan.id ?? widget.loanId).toString(),
+                      },
+                      extra: {
+                        'loan': loan,
+                        'counterparty': cp,
+                      },
                     );
 
                     if (!mounted) return;
@@ -442,6 +450,48 @@ class _LoanDetailScreenState extends ConsumerState<LoanDetailScreen> {
                           style: Theme.of(context).textTheme.headlineSmall,
                         ),
                         const SizedBox(height: 8),
+                        const SizedBox(height: 12),
+                        // Transactions linked to this loan (disbursement, fees, etc.)
+                        FutureBuilder<List<Map<String, dynamic>>>(
+                          future: DatabaseHelper.instance.getTransactionsByRelated('loan', loan.id ?? -1),
+                          builder: (ctx, snap) {
+                            if (snap.connectionState != ConnectionState.done) {
+                              return const SizedBox.shrink();
+                            }
+                            final txns = snap.data ?? [];
+                            if (txns.isEmpty) return const SizedBox.shrink();
+                            return Card(
+                              child: Padding(
+                                padding: const EdgeInsets.all(12),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      'تراکنش‌ها',
+                                      style: Theme.of(context).textTheme.titleMedium,
+                                    ),
+                                    const SizedBox(height: 8),
+                                    ...txns.map((t) {
+                                      final ts = t['timestamp'] as String? ?? '';
+                                      final dir = t['direction'] as String? ?? '';
+                                      final amt = t['amount'];
+                                      final desc = t['description'] as String? ?? '';
+                                      return ListTile(
+                                        dense: true,
+                                        title: Text(desc.isNotEmpty ? desc : ts),
+                                        subtitle: Text(ts),
+                                        trailing: Text(
+                                          "${dir == 'credit' ? '+' : '-'} ${formatCurrency(amt is int ? amt : int.tryParse('$amt') ?? 0)}",
+                                        ),
+                                      );
+                                    }).toList(),
+                                  ],
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                        const SizedBox(height: 16),
                         Text(
                           cp?.name ?? 'نامشخص',
                           style: Theme.of(context).textTheme.bodyMedium,
@@ -482,17 +532,51 @@ class _LoanDetailScreenState extends ConsumerState<LoanDetailScreen> {
                 const SizedBox(height: 8),
                 ...installments.map(
                   (inst) => Card(
-                    child: ListTile(
+                    child: ExpansionTile(
                       title: Text(
                         formatJalaliForDisplay(
                           _parseJalaliSafe(inst.dueDateJalali),
                         ),
                       ),
                       subtitle: Text(_statusText(inst.status)),
-                      trailing: IconButton(
-                        icon: const Icon(Icons.edit),
-                        onPressed: () => _showEditInstallmentSheet(inst),
-                      ),
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              IconButton(
+                                icon: const Icon(Icons.edit),
+                                onPressed: () => _showEditInstallmentSheet(inst),
+                              ),
+                            ],
+                          ),
+                        ),
+                        FutureBuilder<List<Map<String, dynamic>>>(
+                          future: DatabaseHelper.instance.getTransactionsByRelated('installment', inst.id ?? -1),
+                          builder: (c, s) {
+                            if (s.connectionState != ConnectionState.done) return const SizedBox.shrink();
+                            final list = s.data ?? [];
+                            if (list.isEmpty) return const SizedBox.shrink();
+                            return Column(
+                              children: list.map((t) {
+                                final ts = t['timestamp'] as String? ?? '';
+                                final dir = t['direction'] as String? ?? '';
+                                final amt = t['amount'];
+                                final desc = t['description'] as String? ?? '';
+                                return ListTile(
+                                  dense: true,
+                                  title: Text(desc.isNotEmpty ? desc : ts),
+                                  subtitle: Text(ts),
+                                  trailing: Text(
+                                    "${dir == 'credit' ? '+' : '-'} ${formatCurrency(amt is int ? amt : int.tryParse('$amt') ?? 0)}",
+                                  ),
+                                );
+                              }).toList(),
+                            );
+                          },
+                        ),
+                      ],
                     ),
                   ),
                 ),

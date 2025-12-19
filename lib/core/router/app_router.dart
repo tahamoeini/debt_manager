@@ -6,10 +6,26 @@ import 'package:debt_manager/app_shell.dart';
 import 'package:debt_manager/features/loans/screens/home_screen.dart';
 import 'package:debt_manager/features/loans/screens/loans_list_screen.dart';
 import 'package:debt_manager/features/loans/screens/loan_detail_screen.dart';
+import 'package:debt_manager/features/loans/screens/add_loan_screen.dart';
+import 'package:debt_manager/features/loans/models/loan.dart';
+import 'package:debt_manager/features/loans/models/counterparty.dart';
 import 'package:debt_manager/features/reports/screens/reports_screen.dart';
+import 'package:debt_manager/features/reports/screens/advanced_reports_screen.dart';
+import 'package:debt_manager/features/reports/screens/debt_payoff_projection_screen.dart';
 import 'package:debt_manager/features/budget/screens/budget_screen.dart';
+import 'package:debt_manager/features/budget/screens/add_budget_screen.dart';
+import 'package:debt_manager/features/budget/screens/add_budget_entry_screen.dart';
+import 'package:debt_manager/features/budget/screens/budget_comparison_screen.dart';
+import 'package:debt_manager/features/budget/models/budget.dart';
 import 'package:debt_manager/features/insights/smart_insights_widget.dart';
 import 'package:debt_manager/features/settings/screens/settings_screen.dart';
+import 'package:debt_manager/features/help/help_screen.dart';
+import 'package:debt_manager/features/categories/screens/manage_categories_screen.dart';
+import 'package:debt_manager/features/automation/screens/automation_rules_screen.dart';
+import 'package:debt_manager/features/settings/data_transfer/qr_sender_screen.dart';
+import 'package:debt_manager/features/settings/data_transfer/qr_receiver_screen.dart';
+import 'package:debt_manager/features/automation/screens/can_i_afford_this_screen.dart';
+import 'package:debt_manager/features/achievements/screens/progress_screen.dart';
 import 'package:debt_manager/core/security/lock_screen.dart';
 
 // Provide a GoRouter configured for the app. The router watches the
@@ -24,7 +40,7 @@ final goRouterProvider = Provider<GoRouter>((ref) {
     initialLocation: '/',
     routes: [
       ShellRoute(
-        builder: (context, state, child) => const AppShell(),
+        builder: (context, state, child) => AppShell(child: child),
         routes: [
           GoRoute(
             name: 'home',
@@ -39,12 +55,37 @@ final goRouterProvider = Provider<GoRouter>((ref) {
                 const MaterialPage(child: LoansListScreen()),
             routes: [
               GoRoute(
+                name: 'loanAdd',
+                path: 'add',
+                pageBuilder: (context, state) =>
+                    const MaterialPage(child: AddLoanScreen()),
+              ),
+              GoRoute(
                 name: 'loanDetail',
                 path: 'loan/:loanId',
                 pageBuilder: (context, state) {
                   final idStr = state.pathParameters['loanId'] ?? '';
                   final id = int.tryParse(idStr);
                   return MaterialPage(child: LoanDetailScreen(loanId: id ?? 0));
+                },
+              ),
+              GoRoute(
+                name: 'loanEdit',
+                path: 'loan/:loanId/edit',
+                pageBuilder: (context, state) {
+                  Loan? loan;
+                  Counterparty? counterparty;
+                  final extra = state.extra;
+                  if (extra is Map<String, dynamic>) {
+                    loan = extra['loan'] as Loan?;
+                    counterparty = extra['counterparty'] as Counterparty?;
+                  }
+                  return MaterialPage(
+                    child: AddLoanScreen(
+                      existingLoan: loan,
+                      existingCounterparty: counterparty,
+                    ),
+                  );
                 },
               ),
             ],
@@ -58,8 +99,30 @@ final goRouterProvider = Provider<GoRouter>((ref) {
               GoRoute(
                 name: 'budgetAdd',
                 path: 'add',
-                pageBuilder: (context, state) =>
-                    const MaterialPage(child: SizedBox()),
+                pageBuilder: (context, state) {
+                  final extra = state.extra;
+                  final budget = extra is Budget ? extra : null;
+                  return MaterialPage(child: AddBudgetScreen(budget: budget));
+                },
+              ),
+              GoRoute(
+                name: 'budgetEntryAdd',
+                path: 'entry/add',
+                pageBuilder: (context, state) {
+                  final extra = state.extra;
+                  String? presetCategory;
+                  String? presetPeriod;
+                  if (extra is Map<String, dynamic>) {
+                    presetCategory = extra['presetCategory'] as String?;
+                    presetPeriod = extra['presetPeriod'] as String?;
+                  }
+                  return MaterialPage(
+                    child: AddBudgetEntryScreen(
+                      presetCategory: presetCategory,
+                      presetPeriod: presetPeriod,
+                    ),
+                  );
+                },
               ),
             ],
           ),
@@ -68,6 +131,29 @@ final goRouterProvider = Provider<GoRouter>((ref) {
             path: '/reports',
             pageBuilder: (context, state) =>
                 const MaterialPage(child: ReportsScreen()),
+            routes: [
+              GoRoute(
+                name: 'advancedReports',
+                path: 'advanced',
+                pageBuilder: (context, state) =>
+                    const MaterialPage(child: AdvancedReportsScreen()),
+                routes: [
+                  GoRoute(
+                    name: 'budgetComparison',
+                    path: 'budget-comparison',
+                    pageBuilder: (context, state) =>
+                        const MaterialPage(child: BudgetComparisonScreen()),
+                  ),
+                  GoRoute(
+                    name: 'debtPayoffProjection',
+                    path: 'debt-payoff-projection',
+                    pageBuilder: (context, state) => const MaterialPage(
+                      child: DebtPayoffProjectionScreen(),
+                    ),
+                  ),
+                ],
+              ),
+            ],
           ),
           GoRoute(
             name: 'insights',
@@ -84,6 +170,50 @@ final goRouterProvider = Provider<GoRouter>((ref) {
             path: '/settings',
             pageBuilder: (context, state) =>
                 const MaterialPage(child: SettingsScreen()),
+            routes: [
+              GoRoute(
+                name: 'help',
+                path: 'help',
+                pageBuilder: (context, state) =>
+                    const MaterialPage(child: HelpScreen()),
+              ),
+              GoRoute(
+                name: 'manageCategories',
+                path: 'categories',
+                pageBuilder: (context, state) =>
+                    const MaterialPage(child: ManageCategoriesScreen()),
+              ),
+              GoRoute(
+                name: 'automationRules',
+                path: 'automation-rules',
+                pageBuilder: (context, state) =>
+                    const MaterialPage(child: AutomationRulesScreen()),
+              ),
+              GoRoute(
+                name: 'qrSend',
+                path: 'transfer/send',
+                pageBuilder: (context, state) =>
+                    const MaterialPage(child: QrSenderScreen()),
+              ),
+              GoRoute(
+                name: 'qrReceive',
+                path: 'transfer/receive',
+                pageBuilder: (context, state) =>
+                    const MaterialPage(child: QrReceiverScreen()),
+              ),
+            ],
+          ),
+          GoRoute(
+            name: 'afford',
+            path: '/afford',
+            pageBuilder: (context, state) =>
+                const MaterialPage(child: CanIAffordThisScreen()),
+          ),
+          GoRoute(
+            name: 'progress',
+            path: '/progress',
+            pageBuilder: (context, state) =>
+                const MaterialPage(child: ProgressScreen()),
           ),
           // Lock screen route - shown when auth is required
           GoRoute(

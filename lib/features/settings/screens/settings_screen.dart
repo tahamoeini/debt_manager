@@ -3,17 +3,16 @@
 // Settings screen: adjust local app settings like reminder offsets.
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter/foundation.dart';
+import 'package:go_router/go_router.dart';
 
 import 'package:debt_manager/core/settings/settings_repository.dart';
 import 'package:debt_manager/core/notifications/notification_service.dart';
 import 'package:debt_manager/core/security/security_service.dart';
-import 'package:debt_manager/features/categories/screens/manage_categories_screen.dart';
 import 'package:flutter/services.dart';
 import 'dart:convert';
 
 import 'package:debt_manager/core/backup/backup_service.dart';
-import 'package:debt_manager/features/help/help_screen.dart';
-import 'package:debt_manager/features/automation/screens/automation_rules_screen.dart';
 import 'package:debt_manager/core/providers/core_providers.dart';
 import 'package:debt_manager/core/utils/bug_report_utils.dart';
 import 'package:debt_manager/core/db/database_helper.dart';
@@ -798,11 +797,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                         ).colorScheme.onSecondaryContainer,
                         size: 16,
                       ),
-                      onTap: () {
-                        Navigator.of(context).push(
-                          MaterialPageRoute(builder: (_) => const HelpScreen()),
-                        );
-                      },
+                      onTap: () => context.pushNamed('help'),
                     ),
                   ),
                   const SizedBox(height: 12),
@@ -860,14 +855,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                           ),
                           const SizedBox(height: 12),
                           FilledButton.icon(
-                            onPressed: () {
-                              Navigator.of(context).push(
-                                MaterialPageRoute(
-                                  builder: (_) =>
-                                      const ManageCategoriesScreen(),
-                                ),
-                              );
-                            },
+                            onPressed: () =>
+                                context.pushNamed('manageCategories'),
                             icon: const Icon(Icons.category_outlined),
                             label: const Text('مدیریت دسته‌بندی‌ها'),
                           ),
@@ -964,13 +953,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                               Icons.arrow_forward_ios,
                               size: 16,
                             ),
-                            onTap: () {
-                              Navigator.of(context).push(
-                                MaterialPageRoute(
-                                  builder: (_) => const AutomationRulesScreen(),
-                                ),
-                              );
-                            },
+                            onTap: () => context.pushNamed('automationRules'),
                           ),
                         ],
                       ),
@@ -1001,6 +984,16 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                                   final messenger = ScaffoldMessenger.of(
                                     context,
                                   );
+                                  if (!kDebugMode) {
+                                    messenger.showSnackBar(
+                                      const SnackBar(
+                                        content: Text(
+                                          'Plain JSON export only available in debug builds.',
+                                        ),
+                                      ),
+                                    );
+                                    return;
+                                  }
                                   try {
                                     final jsonStr = await BackupService.instance
                                         .exportAll();
@@ -1088,6 +1081,16 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                               const SizedBox(width: 12),
                               FilledButton.icon(
                                 onPressed: () async {
+                                  if (!kDebugMode) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                        content: Text(
+                                          'Plain JSON import only available in debug builds.',
+                                        ),
+                                      ),
+                                    );
+                                    return;
+                                  }
                                   // Show a dialog with a multiline TextField to paste JSON
                                   final controller = TextEditingController();
                                   await showDialog<void>(

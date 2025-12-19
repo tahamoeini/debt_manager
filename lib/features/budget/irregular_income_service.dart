@@ -36,7 +36,7 @@ class IrregularIncomeService {
           if (loan.id == null) continue;
           final insts = await _db.getInstallmentsByLoanId(loan.id!);
           for (final inst in insts) {
-            final paidAt = inst.paidAt; // should be stored as ISO string in model
+            final paidAt = inst.paidAtJalali;
             if (paidAt == null) continue;
             if (paidAt.compareTo(start) >= 0 && paidAt.compareTo(end) <= 0) {
               monthTotal += inst.actualPaidAmount ?? inst.amount;
@@ -53,7 +53,7 @@ class IrregularIncomeService {
         FROM installments i
         JOIN loans l ON i.loan_id = l.id
         LEFT JOIN income_profiles p ON l.counterparty_id = p.counterparty_id
-        WHERE i.paid_at BETWEEN ? AND ?
+        WHERE i.paid_at_jalali BETWEEN ? AND ?
           AND l.direction = 'lent'
           AND (p.mode IS NULL OR p.mode != 'fixed')
       ''',
