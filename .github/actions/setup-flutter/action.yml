@@ -29,6 +29,11 @@ runs:
         restore-keys: |
           pub-${{ runner.os }}-
 
+    - name: Ensure Android SDK Platform 36
+      shell: bash
+      run: |
+        echo "y" | sdkmanager "platforms;android-36" "build-tools;36.0.0" || true
+
     - name: Get dependencies
       shell: bash
       run: flutter pub get
