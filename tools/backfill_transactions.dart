@@ -1,4 +1,5 @@
 import 'package:debt_manager/core/db/database_helper.dart';
+import 'package:flutter/foundation.dart';
 
 /// Simple backfill utility to create transactions for historical paid
 /// installments. Run with `dart run tools/backfill_transactions.dart` from
@@ -31,8 +32,8 @@ Future<void> main() async {
         created++;
       }
     }
-    print('Backfill complete. Transactions created: $created');
+    debugPrint('Backfill complete. Transactions created: $created');
   } catch (e) {
-    print('Backfill failed: $e');
+    debugPrint('Backfill failed: $e');
   }
 }
