@@ -1,11 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fl_chart/fl_chart.dart';
-import 'package:debt_manager/features/loans/screens/loans_list_screen.dart';
-import 'package:debt_manager/features/loans/screens/loan_detail_screen.dart';
-import 'package:debt_manager/features/reports/screens/reports_screen.dart';
-import 'package:debt_manager/features/automation/screens/can_i_afford_this_screen.dart';
-import 'package:debt_manager/features/achievements/screens/progress_screen.dart';
+import 'package:go_router/go_router.dart';
 import 'package:debt_manager/core/widgets/stat_card.dart';
 import 'package:debt_manager/core/theme/app_dimensions.dart';
 import 'package:debt_manager/features/insights/smart_insights_widget.dart';
@@ -37,11 +33,7 @@ class HomeScreen extends ConsumerWidget {
                   value: 'در حال بارگذاری…',
                   icon: Icons.account_balance_wallet,
                   onTap: () async {
-                    final res = await Navigator.of(context).push<bool>(
-                      MaterialPageRoute(
-                        builder: (_) => const LoansListScreen(),
-                      ),
-                    );
+                    final res = await context.pushNamed<bool>('loans');
                     if (res == true) {
                       ref.read(refreshTriggerProvider.notifier).state++;
                     }
@@ -52,11 +44,7 @@ class HomeScreen extends ConsumerWidget {
                   value: 'خطا',
                   icon: Icons.account_balance_wallet,
                   onTap: () async {
-                    await Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (_) => const LoansListScreen(),
-                      ),
-                    );
+                    await context.pushNamed('loans');
                     ref.read(refreshTriggerProvider.notifier).state++;
                   },
                 ),
@@ -65,11 +53,7 @@ class HomeScreen extends ConsumerWidget {
                   value: formatOrDash(data.net),
                   icon: Icons.account_balance_wallet,
                   onTap: () async {
-                    await Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (_) => const LoansListScreen(),
-                      ),
-                    );
+                    await context.pushNamed('loans');
                     ref.read(refreshTriggerProvider.notifier).state++;
                   },
                 ),
@@ -83,9 +67,7 @@ class HomeScreen extends ConsumerWidget {
                   value: 'در حال بارگذاری…',
                   icon: Icons.receipt_long,
                   onTap: () async {
-                    final res = await Navigator.of(context).push<bool>(
-                      MaterialPageRoute(builder: (_) => const ReportsScreen()),
-                    );
+                    final res = await context.pushNamed<bool>('reports');
                     if (res == true) {
                       ref.read(refreshTriggerProvider.notifier).state++;
                     }
@@ -96,9 +78,7 @@ class HomeScreen extends ConsumerWidget {
                   value: 'خطا',
                   icon: Icons.receipt_long,
                   onTap: () async {
-                    await Navigator.of(context).push(
-                      MaterialPageRoute(builder: (_) => const ReportsScreen()),
-                    );
+                    await context.pushNamed('reports');
                     ref.read(refreshTriggerProvider.notifier).state++;
                   },
                 ),
@@ -107,9 +87,7 @@ class HomeScreen extends ConsumerWidget {
                   value: formatOrDash(data.monthlySpending),
                   icon: Icons.receipt_long,
                   onTap: () async {
-                    await Navigator.of(context).push(
-                      MaterialPageRoute(builder: (_) => const ReportsScreen()),
-                    );
+                    await context.pushNamed('reports');
                     ref.read(refreshTriggerProvider.notifier).state++;
                   },
                 ),
@@ -182,12 +160,10 @@ class HomeScreen extends ConsumerWidget {
                           color: Colors.transparent,
                           child: InkWell(
                             onTap: () async {
-                              final res =
-                                  await Navigator.of(context).push<bool>(
-                                MaterialPageRoute(
-                                  builder: (_) =>
-                                      LoanDetailScreen(loanId: inst.loanId),
-                                ),
+                              final res = await context.pushNamed<bool>(
+                                'loanDetail',
+                                pathParameters:
+                                    {'loanId': inst.loanId.toString()},
                               );
                               if (res == true) {
                                 ref
@@ -376,13 +352,7 @@ class HomeScreen extends ConsumerWidget {
           children: [
             Expanded(
               child: ElevatedButton.icon(
-                onPressed: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (_) => const CanIAffordThisScreen(),
-                    ),
-                  );
-                },
+                onPressed: () => context.pushNamed('afford'),
                 icon: Icon(Icons.trending_up),
                 label: Text('آیا می‌توانم؟'),
               ),
@@ -390,11 +360,7 @@ class HomeScreen extends ConsumerWidget {
             const SizedBox(width: AppDimensions.spacingM),
             Expanded(
               child: ElevatedButton.icon(
-                onPressed: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(builder: (_) => const ProgressScreen()),
-                  );
-                },
+                onPressed: () => context.pushNamed('progress'),
                 icon: Icon(Icons.emoji_events),
                 label: Text('پیشرفت'),
               ),

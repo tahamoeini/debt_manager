@@ -1,48 +1,50 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/foundation.dart';
+import 'package:go_router/go_router.dart';
 import 'core/debug/debug_logger.dart';
 
-import 'features/home/home_screen.dart';
-import 'features/accounts/screens/accounts_screen.dart';
-import 'features/budget/screens/budget_screen.dart';
-import 'features/loans/screens/add_loan_screen.dart';
-import 'features/budget/screens/add_budget_screen.dart';
-import 'features/reports/screens/reports_screen.dart';
-import 'features/settings/screens/settings_screen.dart';
 
 class AppShell extends StatefulWidget {
-  const AppShell({super.key});
+  final Widget child;
+
+  const AppShell({super.key, required this.child});
 
   @override
   State<AppShell> createState() => _AppShellState();
 }
 
 class _AppShellState extends State<AppShell> {
-  int _selectedIndex = 0;
   static const _titles = ['خانه', 'حساب‌ها', 'بودجه', 'گزارش‌ها', 'تنظیمات'];
+  static const _tabs = ['/', '/loans', '/budgets', '/reports', '/settings'];
 
-  static final List<Widget> _pages = [
-    const HomeScreen(),
-    const AccountsScreen(),
-    const BudgetScreen(),
-    const ReportsScreen(),
-    const SettingsScreen(),
-  ];
+  int _indexForLocation(String location) {
+    if (location.startsWith('/loans')) return 1;
+    if (location.startsWith('/budgets')) return 2;
+    if (location.startsWith('/reports') || location.startsWith('/insights')) {
+      return 3;
+    }
+    if (location.startsWith('/settings')) return 4;
+    return 0;
+  }
 
   @override
   Widget build(BuildContext context) {
+    final router = GoRouter.of(context);
+    final location = router.location;
+    final selectedIndex = _indexForLocation(location);
+
     return PopScope(
-      canPop: !Navigator.of(context).canPop(),
+      canPop: !router.canPop(),
       onPopInvokedWithResult: (bool didPop, dynamic result) {
-        if (!didPop && Navigator.of(context).canPop()) {
-          Navigator.of(context).pop();
+        if (!didPop && router.canPop()) {
+          router.pop();
         }
       },
       child: Scaffold(
         extendBodyBehindAppBar: false,
         appBar: AppBar(
-          title: Text(_titles[_selectedIndex]),
+          title: Text(_titles[selectedIndex]),
           systemOverlayStyle: SystemUiOverlayStyle(
             statusBarBrightness: Theme.of(context).brightness == Brightness.dark
                 ? Brightness.dark
@@ -120,13 +122,14 @@ class _AppShellState extends State<AppShell> {
               ),
           ],
         ),
-        body: SafeArea(child: _pages[_selectedIndex]),
+        body: SafeArea(child: widget.child),
         bottomNavigationBar: NavigationBar(
-          selectedIndex: _selectedIndex,
+          selectedIndex: selectedIndex,
           onDestinationSelected: (int index) {
-            setState(() {
-              _selectedIndex = index;
-            });
+            final target = _tabs[index];
+            if (router.location != target) {
+              router.go(target);
+            }
           },
           destinations: const [
             NavigationDestination(
@@ -156,7 +159,7 @@ class _AppShellState extends State<AppShell> {
             ),
           ],
         ),
-        floatingActionButton: _buildFabForIndex(_selectedIndex),
+        floatingActionButton: _buildFabForIndex(selectedIndex),
         floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
       ),
     );
@@ -167,12 +170,7 @@ class _AppShellState extends State<AppShell> {
       case 1:
         return FloatingActionButton.large(
           heroTag: 'app-shell-add-loan',
-          onPressed: () async {
-            final res = await Navigator.of(context).push<bool>(
-              MaterialPageRoute(builder: (_) => const AddLoanScreen()),
-            );
-            if (res == true) setState(() {});
-          },
+          onPressed: () => context.pushNamed('loanAdd'),
           tooltip: 'Add new loan or account',
           child: Semantics(
             label: 'Add new loan button',
@@ -182,12 +180,7 @@ class _AppShellState extends State<AppShell> {
       case 2:
         return FloatingActionButton.large(
           heroTag: 'app-shell-add-budget',
-          onPressed: () async {
-            final res = await Navigator.of(context).push<bool>(
-              MaterialPageRoute(builder: (_) => const AddBudgetScreen()),
-            );
-            if (res == true) setState(() {});
-          },
+          onPressed: () => context.pushNamed('budgetAdd'),
           tooltip: 'Add new budget',
           child: Semantics(
             label: 'Add new budget button',

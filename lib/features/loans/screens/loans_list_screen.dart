@@ -6,9 +6,8 @@ import 'package:debt_manager/core/utils/format_utils.dart';
 import 'package:debt_manager/core/utils/ui_utils.dart';
 import 'package:debt_manager/components/components.dart';
 import 'package:debt_manager/features/loans/models/loan.dart';
-import 'add_loan_screen.dart';
-import 'loan_detail_screen.dart';
 import 'package:debt_manager/components/sensitive_text.dart';
+import 'package:go_router/go_router.dart';
 
 class LoansListScreen extends ConsumerWidget {
   const LoansListScreen({super.key});
@@ -71,10 +70,9 @@ class LoansListScreen extends ConsumerWidget {
             ),
             onTap: () async {
               if (s.loan.id != null) {
-                await Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (_) => LoanDetailScreen(loanId: s.loan.id!),
-                  ),
+                await context.pushNamed(
+                  'loanDetail',
+                  pathParameters: {'loanId': s.loan.id!.toString()},
                 );
                 // Refresh the specific filtered list after returning
                 await ref.read(loanListProvider(filter).notifier).refresh();
@@ -119,9 +117,7 @@ class LoansListScreen extends ConsumerWidget {
         ),
         floatingActionButton: FloatingActionButton(
           onPressed: () async {
-            final result = await Navigator.of(context).push<bool>(
-              MaterialPageRoute(builder: (_) => const AddLoanScreen()),
-            );
+            final result = await context.pushNamed<bool>('loanAdd');
             if (result == true) {
               // Refresh all three lists so UI updates without setState
               await ref.read(loanListProvider(null).notifier).refresh();

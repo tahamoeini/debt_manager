@@ -15,6 +15,8 @@ import 'package:debt_manager/features/loans/models/loan.dart';
 import 'package:debt_manager/features/loans/models/installment.dart';
 import 'package:shamsi_date/shamsi_date.dart';
 import 'package:debt_manager/features/loans/loan_list_notifier.dart';
+import 'package:debt_manager/features/budget/models/budget.dart';
+import 'package:debt_manager/features/budget/budgets_repository.dart';
 
 class AddLoanScreen extends ConsumerStatefulWidget {
   // If [existingLoan] is provided the screen operates in edit mode and will
@@ -48,6 +50,9 @@ class _AddLoanScreenState extends ConsumerState<AddLoanScreen> {
   String? _counterpartyType; // 'person' | 'bank' | 'company'
   late FocusNode _titleFocus;
   bool _isDirty = false;
+  bool _disburseNow = false;
+  int? _disburseAccountId;
+  List<Budget> _accounts = [];
 
   // Use repository via Riverpod when performing DB operations
 
@@ -85,6 +90,15 @@ class _AddLoanScreenState extends ConsumerState<AddLoanScreen> {
     _installmentAmountController.addListener(() => _markDirty());
     _notesController.addListener(() => _markDirty());
     _counterpartyTagController.addListener(() => _markDirty());
+    // Load available budgets/accounts for optional disbursement target
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      try {
+        final repo = ref.read(budgetsRepositoryProvider);
+        final list = await repo.getAllBudgets();
+        if (!mounted) return;
+        setState(() => _accounts = list);
+      } catch (_) {}
+    });
   }
 
   @override
@@ -224,7 +238,9 @@ class _AddLoanScreenState extends ConsumerState<AddLoanScreen> {
           createdAt: createdAt,
         );
 
-        final loanId = await repo.insertLoan(loan);
+        final loanId = _disburseNow && _disburseAccountId != null
+          ? await repo.disburseLoan(loan, accountId: _disburseAccountId)
+          : await repo.insertLoan(loan);
 
         // Load settings (reminder offset) once per submission and generate installments.
         int offsetDays = 3;
@@ -520,6 +536,28 @@ class _AddLoanScreenState extends ConsumerState<AddLoanScreen> {
                       );
                     },
                   ),
+                  const SizedBox(height: 12),
+                  CheckboxListTile(
+                    title: const Text('پرداخت/دریافت وجه (پرداخت الآن)'),
+                    value: _disburseNow,
+                    onChanged: (v) => setState(() => _disburseNow = v ?? false),
+                    controlAffinity: ListTileControlAffinity.leading,
+                  ),
+                  if (_disburseNow)
+                    DropdownButtonFormField<int>(
+                      value: _disburseAccountId,
+                      decoration: const InputDecoration(labelText: 'حساب مقصد'),
+                      items: _accounts
+                          .map(
+                            (b) => DropdownMenuItem<int>(
+                              value: b.id,
+                              child: Text(b.category ?? 'Primary account'),
+                            ),
+                          )
+                          .toList(growable: false),
+                      onChanged: (v) => setState(() => _disburseAccountId = v),
+                      validator: (v) => _disburseNow && v == null ? 'لطفا حساب را انتخاب کنید' : null,
+                    ),
                   const SizedBox(height: 20),
                   FilledButton(
                     onPressed: _isSubmitting ? null : _submit,

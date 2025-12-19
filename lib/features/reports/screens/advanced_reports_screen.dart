@@ -2,13 +2,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:go_router/go_router.dart';
 import 'package:debt_manager/features/reports/reports_repository.dart';
 import 'package:debt_manager/core/utils/format_utils.dart';
 import 'package:debt_manager/core/utils/jalali_utils.dart';
 import 'package:debt_manager/core/utils/category_colors.dart';
 import 'package:debt_manager/core/export/export_service.dart';
-import 'package:debt_manager/features/budget/screens/budget_comparison_screen.dart';
-import 'package:debt_manager/features/reports/screens/debt_payoff_projection_screen.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:debt_manager/components/sensitive_text.dart';
 
@@ -84,13 +83,7 @@ class _AdvancedReportsScreenState extends ConsumerState<AdvancedReportsScreen> {
               children: [
                 Expanded(
                   child: FilledButton.icon(
-                    onPressed: () {
-                      Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (_) => const BudgetComparisonScreen(),
-                        ),
-                      );
-                    },
+                    onPressed: () => context.pushNamed('budgetComparison'),
                     icon: const Icon(Icons.pie_chart_outline),
                     label: const Text('مقایسه بودجه'),
                   ),
@@ -98,13 +91,8 @@ class _AdvancedReportsScreenState extends ConsumerState<AdvancedReportsScreen> {
                 const SizedBox(width: 8),
                 Expanded(
                   child: FilledButton.icon(
-                    onPressed: () {
-                      Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (_) => const DebtPayoffProjectionScreen(),
-                        ),
-                      );
-                    },
+                    onPressed: () =>
+                        context.pushNamed('debtPayoffProjection'),
                     icon: const Icon(Icons.timeline),
                     label: const Text('پیش‌بینی بدهی'),
                   ),

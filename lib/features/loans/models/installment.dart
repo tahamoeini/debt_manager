@@ -10,6 +10,7 @@ class Installment {
   final int amount;
   final InstallmentStatus status;
   final String? paidAt; // ISO date string or null
+  final String? paidAtJalali; // yyyy-MM-dd for local budgeting
   final int? actualPaidAmount;
   final int? notificationId;
 
@@ -20,6 +21,7 @@ class Installment {
     required this.amount,
     required this.status,
     this.paidAt,
+    this.paidAtJalali,
     this.actualPaidAmount,
     this.notificationId,
   });
@@ -31,6 +33,7 @@ class Installment {
     int? amount,
     InstallmentStatus? status,
     String? paidAt,
+    String? paidAtJalali,
     int? actualPaidAmount,
     int? notificationId,
   }) {
@@ -41,6 +44,7 @@ class Installment {
       amount: amount ?? this.amount,
       status: status ?? this.status,
       paidAt: paidAt ?? this.paidAt,
+      paidAtJalali: paidAtJalali ?? this.paidAtJalali,
       actualPaidAmount: actualPaidAmount ?? this.actualPaidAmount,
       notificationId: notificationId ?? this.notificationId,
     );
@@ -58,6 +62,7 @@ class Installment {
               ? 'paid'
               : 'overdue',
       'paid_at': paidAt,
+          'paid_at_jalali': paidAtJalali,
       'actual_paid_amount': actualPaidAmount,
       'notification_id': notificationId,
     };
@@ -84,6 +89,7 @@ class Installment {
           : int.parse(map['amount'].toString()),
       status: status,
       paidAt: map['paid_at'] as String?,
+        paidAtJalali: map['paid_at_jalali'] as String?,
       actualPaidAmount: map['actual_paid_amount'] is int
           ? map['actual_paid_amount'] as int
           : (map['actual_paid_amount'] != null
@@ -99,6 +105,6 @@ class Installment {
 
   @override
   String toString() {
-    return 'Installment(id: $id, loanId: $loanId, dueDateJalali: $dueDateJalali, amount: $amount, status: $status, paidAt: $paidAt, actualPaidAmount: $actualPaidAmount, notificationId: $notificationId)';
+    return 'Installment(id: $id, loanId: $loanId, dueDateJalali: $dueDateJalali, amount: $amount, status: $status, paidAt: $paidAt, paidAtJalali: $paidAtJalali, actualPaidAmount: $actualPaidAmount, notificationId: $notificationId)';
   }
 }

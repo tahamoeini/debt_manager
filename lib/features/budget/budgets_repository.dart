@@ -5,6 +5,7 @@ import 'package:debt_manager/features/budget/models/budget_entry.dart';
 import 'package:shamsi_date/shamsi_date.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:debt_manager/features/loans/models/counterparty.dart';
+import 'package:debt_manager/features/loans/models/installment.dart';
 
 // In-memory fallback stores for web where `sqflite` is unavailable.
 // These are kept per-repository instance and are intentionally simple.
@@ -182,29 +183,57 @@ class BudgetsRepository {
       final mm = month.toString().padLeft(2, '0');
       final start = '${parts[0]}-$mm-01';
       final end = '${parts[0]}-$mm-${lastDay.toString().padLeft(2, '0')}';
+
+      // If no category, just sum all expense (negative) ledger entries in range.
+      if (budget.category == null) {
+        final entries = await _db.getLedgerEntriesBetween(start, end);
+        final total = entries.where((e) => e.amount < 0).fold<int>(
+              0,
+              (sum, e) => sum + (-e.amount),
+            );
+        return total;
+      }
+
+      final cat = budget.category!.trim();
+      if (cat.isEmpty) return 0;
+
       if (_isWeb) {
-        // Gather loans and counterparties from the DB helper and iterate installments
+        final entries = await _db.getLedgerEntriesBetween(start, end);
         final loans = await DatabaseHelper.instance.getAllLoans();
         final cps = await DatabaseHelper.instance.getAllCounterparties();
-        int total = 0;
+        final Map<int, Loan> loanById = {
+          for (final l in loans.where((l) => l.id != null)) l.id!: l,
+        };
+        final Map<int, Counterparty> cpById = {
+          for (final c in cps.where((c) => c.id != null)) c.id!: c,
+        };
+
+        final installmentById = <int, Installment>{};
         for (final loan in loans) {
-          final insts = await DatabaseHelper.instance.getInstallmentsByLoanId(loan.id ?? -1);
-          for (final i in insts) {
-            final paidAt = i.paidAt;
-            if (paidAt == null) continue;
-            if (paidAt.compareTo(start) < 0 || paidAt.compareTo(end) > 0) continue;
-            if (budget.category == null) {
-              total += i.actualPaidAmount ?? i.amount;
-            } else {
-              final cat = budget.category!.trim();
-              if (cat.isEmpty) continue;
-              final cp = cps.firstWhere(
-                (c) => c.id == loan.counterpartyId,
-                orElse: () => const Counterparty(id: null, name: ''),
-              );
-              final tag = cp.tag;
-              final matches = (tag == cat) || loan.title == cat || (loan.notes?.contains(cat) ?? false);
-              if (matches) total += i.actualPaidAmount ?? i.amount;
+          if (loan.id == null) continue;
+          final list =
+              await DatabaseHelper.instance.getInstallmentsByLoanId(loan.id!);
+          for (final inst in list) {
+            if (inst.id != null) installmentById[inst.id!] = inst;
+          }
+        }
+
+        int total = 0;
+        for (final e in entries) {
+          if (e.amount >= 0) continue;
+          if (e.refType == 'installment_payment' && e.refId != null) {
+            final inst = installmentById[e.refId!];
+            if (inst == null) continue;
+            final loan = loanById[inst.loanId];
+            final matches = _matchesCategory(
+              cat,
+              loan,
+              cpById[loan?.counterpartyId ?? -1],
+            );
+            if (matches) total += -e.amount;
+          } else {
+            if ((e.note ?? '').contains(cat)) {
+              total += -e.amount;
             }
           }
         }
@@ -212,58 +241,37 @@ class BudgetsRepository {
       }
 
       final db = await _db.database;
-
-      // No-op: per-month overrides not used in current utilization calculation
-
-      if (budget.category == null) {
-        final rows = await db.rawQuery(
-          '''
-          SELECT COALESCE(SUM(CASE WHEN actual_paid_amount IS NOT NULL THEN actual_paid_amount ELSE amount END), 0) as total
-          FROM installments
-          WHERE paid_at BETWEEN ? AND ?
-        ''',
-          [start, end],
-        );
-
-        final value = rows.first['total'];
-        if (value is int) return value;
-        if (value is String) return int.tryParse(value) ?? 0;
-        return 0;
-      }
-
-      final cat = budget.category!.trim();
-      if (cat.isEmpty) {
-        return 0;
-      }
-
       final like = '%$cat%';
       final rows = await db.rawQuery(
         '''
-        SELECT COALESCE(SUM(CASE WHEN i.actual_paid_amount IS NOT NULL THEN i.actual_paid_amount ELSE i.amount END), 0) as total
-        FROM installments i
-        JOIN loans l ON i.loan_id = l.id
+        SELECT COALESCE(SUM(-le.amount), 0) as total
+        FROM ledger_entries le
+        LEFT JOIN installments i ON le.ref_type = 'installment_payment' AND le.ref_id = i.id
+        LEFT JOIN loans l ON i.loan_id = l.id
         LEFT JOIN counterparties c ON l.counterparty_id = c.id
-        WHERE i.paid_at BETWEEN ? AND ?
-          AND (c.tag = ? OR l.title = ? OR (l.notes IS NOT NULL AND l.notes LIKE ?))
+        WHERE le.amount < 0 AND le.date_jalali BETWEEN ? AND ?
+          AND (
+            (le.ref_type = 'installment_payment' AND (c.tag = ? OR l.title = ? OR (l.notes IS NOT NULL AND l.notes LIKE ?)))
+            OR (le.ref_type != 'installment_payment' AND le.note IS NOT NULL AND le.note LIKE ?)
+          )
       ''',
-        [start, end, cat, cat, like],
+        [start, end, cat, cat, like, like],
       );
 
       final value = rows.first['total'];
       final actual = (value is int)
           ? value
           : (value is String ? int.tryParse(value) ?? 0 : 0);
-
-      // If rollover is enabled and there's a rollover entry from previous month, reduce the effective budget
-      if (budget.rollover) {
-        // Find previous period entries marked as one-off negative (unused rollovers are stored as budget_entries with negative amount)
-        // For now, if an override exists, it's already taken as effectiveAmount. Rollover handling would require tracking unused amount; keep simple: no-op here.
-      }
-
       return actual;
     } catch (_) {
       return 0;
     }
+  }
+
+  bool _matchesCategory(String cat, Loan? loan, Counterparty? cp) {
+    if (loan == null) return false;
+    final tag = cp?.tag;
+    return (tag == cat) || loan.title == cat || (loan.notes?.contains(cat) ?? false);
   }
 }
 
