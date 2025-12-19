@@ -210,14 +210,15 @@ jobs:
           # Build a universal (fat) APK so users can download a single APK to install
           flutter build apk \
             --release \
+            --shrink \
             --obfuscate \
             --split-debug-info=build/app/outputs/symbols
 
           UNIVERSAL_PATH="build/app/outputs/flutter-apk/app-release.apk"
 
-          APK_SIZE=$(du -h "$APK_PATH" | cut -f1 || true)
-          UNIVERSAL_SIZE=$(du -h "$UNIVERSAL_PATH" | cut -f1 || true)
-          AAB_SIZE=$(du -h "$AAB_PATH" | cut -f1 || true)
+          APK_SIZE=$(du -h "$APK_PATH" | cut -f1)
+          UNIVERSAL_SIZE=$(du -h "$UNIVERSAL_PATH" | cut -f1)
+          AAB_SIZE=$(du -h "$AAB_PATH" | cut -f1)
 
           echo "apk_path=$APK_PATH" >> $GITHUB_OUTPUT
           echo "apk_size=$APK_SIZE" >> $GITHUB_OUTPUT
