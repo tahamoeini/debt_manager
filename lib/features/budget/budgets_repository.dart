@@ -3,16 +3,42 @@ import 'package:debt_manager/core/db/database_helper.dart';
 import 'package:debt_manager/features/budget/models/budget.dart';
 import 'package:debt_manager/features/budget/models/budget_entry.dart';
 import 'package:shamsi_date/shamsi_date.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:debt_manager/features/loans/models/counterparty.dart';
+
+// In-memory fallback stores for web where `sqflite` is unavailable.
+// These are kept per-repository instance and are intentionally simple.
 
 class BudgetsRepository {
   final _db = DatabaseHelper.instance;
+  final bool _isWeb = kIsWeb;
+  final List<Map<String, dynamic>> _budgetStore = [];
+  final List<Map<String, dynamic>> _budgetEntryStore = [];
+  int _budgetId = 0;
+  int _budgetEntryId = 0;
 
   Future<int> insertBudget(Budget budget) async {
+    if (_isWeb) {
+      _budgetId++;
+      final map = budget.toMap();
+      map['id'] = _budgetId;
+      _budgetStore.add(map);
+      return _budgetId;
+    }
+
     final db = await _db.database;
     return await db.insert('budgets', budget.toMap());
   }
 
   Future<int> insertBudgetEntry(BudgetEntry entry) async {
+    if (_isWeb) {
+      _budgetEntryId++;
+      final map = entry.toMap();
+      map['id'] = _budgetEntryId;
+      _budgetEntryStore.add(map);
+      return _budgetEntryId;
+    }
+
     final db = await _db.database;
     return await db.insert('budget_entries', entry.toMap());
   }
@@ -34,6 +60,12 @@ class BudgetsRepository {
   }
 
   Future<List<BudgetEntry>> getBudgetEntriesByPeriod(String period) async {
+    if (_isWeb) {
+      final rows = _budgetEntryStore.where((r) => r['period'] == period).toList()
+        ..sort((a, b) => (a['category'] as String?)?.compareTo((b['category'] as String?) ?? '') ?? 0);
+      return rows.map((r) => BudgetEntry.fromMap(r)).toList();
+    }
+
     final db = await _db.database;
     final rows = await db.query(
       'budget_entries',
@@ -61,6 +93,13 @@ class BudgetsRepository {
 
   Future<int> updateBudget(Budget budget) async {
     if (budget.id == null) throw ArgumentError('Budget.id is null');
+    if (_isWeb) {
+      final idx = _budgetStore.indexWhere((r) => r['id'] == budget.id);
+      if (idx == -1) throw ArgumentError('Budget not found');
+      _budgetStore[idx] = budget.toMap();
+      return 1;
+    }
+
     final db = await _db.database;
     return await db.update(
       'budgets',
@@ -71,11 +110,22 @@ class BudgetsRepository {
   }
 
   Future<int> deleteBudget(int id) async {
+    if (_isWeb) {
+      _budgetStore.removeWhere((r) => r['id'] == id);
+      return 1;
+    }
+
     final db = await _db.database;
     return await db.delete('budgets', where: 'id = ?', whereArgs: [id]);
   }
 
   Future<List<Budget>> getBudgetsByPeriod(String period) async {
+    if (_isWeb) {
+      final rows = _budgetStore.where((r) => r['period'] == period).toList()
+        ..sort((a, b) => (a['category'] as String?)?.compareTo((b['category'] as String?) ?? '') ?? 0);
+      return rows.map((r) => Budget.fromMap(r)).toList();
+    }
+
     final db = await _db.database;
     final rows = await db.query(
       'budgets',
@@ -99,6 +149,16 @@ class BudgetsRepository {
   }
 
   Future<List<Budget>> getAllBudgets() async {
+    if (_isWeb) {
+      final rows = List<Map<String, dynamic>>.from(_budgetStore)
+        ..sort((a, b) {
+          final p = (b['period'] as String).compareTo(a['period'] as String);
+          if (p != 0) return p;
+          return (a['category'] as String?)?.compareTo((b['category'] as String?) ?? '') ?? 0;
+        });
+      return rows.map((r) => Budget.fromMap(r)).toList();
+    }
+
     final db = await _db.database;
     final rows = await db.query(
       'budgets',
@@ -122,6 +182,34 @@ class BudgetsRepository {
       final mm = month.toString().padLeft(2, '0');
       final start = '${parts[0]}-$mm-01';
       final end = '${parts[0]}-$mm-${lastDay.toString().padLeft(2, '0')}';
+      if (_isWeb) {
+        // Gather loans and counterparties from the DB helper and iterate installments
+        final loans = await DatabaseHelper.instance.getAllLoans();
+        final cps = await DatabaseHelper.instance.getAllCounterparties();
+        int total = 0;
+        for (final loan in loans) {
+          final insts = await DatabaseHelper.instance.getInstallmentsByLoanId(loan.id ?? -1);
+          for (final i in insts) {
+            final paidAt = i.paidAt;
+            if (paidAt == null) continue;
+            if (paidAt.compareTo(start) < 0 || paidAt.compareTo(end) > 0) continue;
+            if (budget.category == null) {
+              total += i.actualPaidAmount ?? i.amount;
+            } else {
+              final cat = budget.category!.trim();
+              if (cat.isEmpty) continue;
+              final cp = cps.firstWhere(
+                (c) => c.id == loan.counterpartyId,
+                orElse: () => const Counterparty(id: null, name: ''),
+              );
+              final tag = cp.tag;
+              final matches = (tag == cat) || loan.title == cat || (loan.notes?.contains(cat) ?? false);
+              if (matches) total += i.actualPaidAmount ?? i.amount;
+            }
+          }
+        }
+        return total;
+      }
 
       final db = await _db.database;
 
