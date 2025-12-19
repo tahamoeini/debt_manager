@@ -1,6 +1,7 @@
 // Reports screen: shows overall summaries and filtered installment lists.
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:debt_manager/core/utils/format_utils.dart';
 import 'package:debt_manager/core/utils/jalali_utils.dart';
 import 'package:debt_manager/features/shared/summary_cards.dart';
@@ -8,7 +9,6 @@ import 'package:debt_manager/features/loans/models/installment.dart';
 import 'package:debt_manager/features/loans/models/loan.dart';
 import 'package:debt_manager/features/loans/models/counterparty.dart';
 import 'package:debt_manager/core/utils/ui_utils.dart';
-import 'package:debt_manager/features/reports/screens/advanced_reports_screen.dart';
 import 'package:debt_manager/core/export/export_service.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:debt_manager/features/achievements/achievements_repository.dart';
@@ -223,13 +223,7 @@ class ReportsScreen extends ConsumerWidget {
           children: [
             Expanded(
               child: FilledButton.icon(
-                onPressed: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (_) => const AdvancedReportsScreen(),
-                    ),
-                  );
-                },
+                onPressed: () => context.pushNamed('advancedReports'),
                 icon: const Icon(Icons.analytics_outlined),
                 label: const Text('گزارش‌های پیشرفته'),
               ),

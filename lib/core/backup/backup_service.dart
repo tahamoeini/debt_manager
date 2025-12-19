@@ -1,6 +1,7 @@
 // Backup service: export/import app data as JSON (counterparties, loans, installments).
 import 'dart:convert';
 
+import 'package:flutter/foundation.dart';
 import 'package:debt_manager/core/db/database_helper.dart';
 import 'package:debt_manager/features/loans/models/counterparty.dart';
 import 'package:debt_manager/features/loans/models/loan.dart';
@@ -12,8 +13,15 @@ class BackupService {
 
   final _db = DatabaseHelper.instance;
 
+  void _assertDebugAllowed() {
+    if (!kDebugMode) {
+      throw StateError('Plaintext backup is only available in debug builds.');
+    }
+  }
+
   // Export all data as a JSON string with three arrays: counterparties, loans, installments.
   Future<String> exportAll() async {
+    _assertDebugAllowed();
     final cps = await _db.getAllCounterparties();
     final loans = await _db.getAllLoans();
 
@@ -45,6 +53,7 @@ class BackupService {
     Map<String, dynamic> json, {
     bool clearBefore = true,
   }) async {
+    _assertDebugAllowed();
     // Basic validation
     if (!json.containsKey('counterparties') ||
         !json.containsKey('loans') ||
@@ -94,6 +103,7 @@ class BackupService {
     String jsonString, {
     bool clearBefore = true,
   }) async {
+    _assertDebugAllowed();
     final parsed = json.decode(jsonString) as Map<String, dynamic>;
     await importFromMap(parsed, clearBefore: clearBefore);
   }
