@@ -30,14 +30,35 @@ class _AppShellState extends State<AppShell> {
   @override
   Widget build(BuildContext context) {
     final router = GoRouter.of(context);
-    final location = (router as dynamic).location;
+    String location;
+    try {
+      location = (router as dynamic).location as String;
+    } catch (_) {
+      location = '/';
+    }
     final selectedIndex = _indexForLocation(location);
 
+    bool routerCanPop() {
+      try {
+        return (router as dynamic).canPop() as bool;
+      } catch (_) {
+        return Navigator.of(context).canPop();
+      }
+    }
+
+    void routerPop() {
+      try {
+        (router as dynamic).pop();
+      } catch (_) {
+        Navigator.of(context).pop();
+      }
+    }
+
     return PopScope(
-      canPop: !(router as dynamic).canPop(),
+      canPop: !routerCanPop(),
       onPopInvokedWithResult: (bool didPop, dynamic result) {
-        if (!didPop && (router as dynamic).canPop()) {
-          (router as dynamic).pop();
+        if (!didPop && routerCanPop()) {
+          routerPop();
         }
       },
       child: Scaffold(
