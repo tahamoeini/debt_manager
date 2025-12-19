@@ -165,9 +165,16 @@ class ReportsScreen extends ConsumerWidget {
                                 child: Icon(Icons.emoji_events, size: 24),
                               ),
                               const SizedBox(height: 6),
-                              Text(
-                                a.title,
-                                style: Theme.of(context).textTheme.bodySmall,
+                              SizedBox(
+                                width: 64,
+                                child: Text(
+                                  a.title,
+                                  style:
+                                      Theme.of(context).textTheme.bodySmall,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  textAlign: TextAlign.center,
+                                ),
                               ),
                             ],
                           );
