@@ -56,7 +56,6 @@ Future<void> _assertDbSchema(dynamic db) async {
   }
 }
 
-@Tags(['integration', 'db'])
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 

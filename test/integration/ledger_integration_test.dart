@@ -8,13 +8,10 @@ import 'package:debt_manager/features/loans/models/counterparty.dart';
 import 'package:debt_manager/features/loans/models/loan.dart';
 import 'package:debt_manager/features/loans/models/installment.dart';
 
-@Tags(['integration', 'db'])
-@Retry(3)
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   // Constants for retry configuration in setUpAll
-  // Note: @Retry(3) annotation provides additional test-level retry
   const int maxRetries = 5;
   const int baseDelayMs = 100;
 
