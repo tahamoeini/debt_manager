@@ -61,9 +61,14 @@ jobs:
             --test-randomize-ordering-seed=random \
             --coverage \
             --reporter=expanded
-          # Run all unit/widget tests with high concurrency
+          # Run all unit/widget tests with high concurrency (excluding integration/)
           flutter test \
-            --exclude-path=test/integration/ \
+            test/components/ \
+            test/core/ \
+            test/features/ \
+            test/lib/ \
+            test/widgets/ \
+            test/*_test.dart \
             --concurrency=8 \
             --test-randomize-ordering-seed=random \
             --coverage \

@@ -185,8 +185,15 @@ jobs:
           flutter analyze --fatal-infos --fatal-warnings
           # Run integration tests sequentially to avoid database locks
           flutter test test/integration/ --concurrency=1
-          # Run all unit/widget tests with high concurrency
-          flutter test --exclude-path=test/integration/ --concurrency=8
+          # Run all unit/widget tests with high concurrency (excluding integration/)
+          flutter test \
+            test/components/ \
+            test/core/ \
+            test/features/ \
+            test/lib/ \
+            test/widgets/ \
+            test/*_test.dart \
+            --concurrency=8
 
       - name: Build optimized release APK
         id: build
