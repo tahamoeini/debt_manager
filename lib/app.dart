@@ -153,10 +153,10 @@ class _DebtManagerAppState extends ConsumerState<DebtManagerApp>
             TextTheme baseTextTheme;
             try {
               baseTextTheme = Typography.material2021().black.apply(
-                bodyColor: Colors.black87,
-                displayColor: Colors.black87,
-                fontSizeFactor: fontScale,
-              );
+                    bodyColor: Colors.black87,
+                    displayColor: Colors.black87,
+                    fontSizeFactor: fontScale,
+                  );
             } catch (e) {
               // Some platforms may have null font sizes in the base
               // typography which causes TextStyle.apply to assert when a
@@ -186,10 +186,10 @@ class _DebtManagerAppState extends ConsumerState<DebtManagerApp>
             TextTheme darkBase;
             try {
               darkBase = Typography.material2021().white.apply(
-                bodyColor: Colors.white70,
-                displayColor: Colors.white70,
-                fontSizeFactor: fontScale,
-              );
+                    bodyColor: Colors.white70,
+                    displayColor: Colors.white70,
+                    fontSizeFactor: fontScale,
+                  );
             } catch (e) {
               debugPrint('Dark TextTheme.apply failed, falling back: $e');
               darkBase = Typography.material2021().white;

@@ -39,7 +39,8 @@ void main() {
 
       // Ensure fresh test DB
       try {
-        final f = File('.dart_tool/sqflite_common_ffi/databases/debt_manager.db');
+        final f =
+            File('.dart_tool/sqflite_common_ffi/databases/debt_manager.db');
         if (await f.exists()) await f.delete(recursive: true);
       } catch (_) {}
 
@@ -74,7 +75,8 @@ void main() {
     });
 
     test('disburseLoan creates transaction', () async {
-      final cpId = await dbHelper.insertCounterparty(Counterparty(name: 'Lender'));
+      final cpId =
+          await dbHelper.insertCounterparty(Counterparty(name: 'Lender'));
       final loan = Loan(
         counterpartyId: cpId,
         title: 'Loan A',
@@ -94,7 +96,8 @@ void main() {
       expect(await dbHelper.getAccountBalance(2), equals(50000));
     });
 
-    test('recordInstallmentPayment updates installment and creates txn', () async {
+    test('recordInstallmentPayment updates installment and creates txn',
+        () async {
       final cpId = await dbHelper.insertCounterparty(Counterparty(name: 'CP2'));
       final loan = Loan(
         counterpartyId: cpId,
@@ -114,15 +117,19 @@ void main() {
         status: InstallmentStatus.pending,
       );
       final instId = await repo.insertInstallment(inst);
-      final fetched = (await repo.getInstallmentsByLoanId(loanId)).firstWhere((i) => i.id == instId);
+      final fetched = (await repo.getInstallmentsByLoanId(loanId))
+          .firstWhere((i) => i.id == instId);
 
-      final txnId = await repo.recordInstallmentPayment(fetched, accountId: 3, paidAmount: 10000);
+      final txnId = await repo.recordInstallmentPayment(fetched,
+          accountId: 3, paidAmount: 10000);
       expect(txnId, greaterThan(0));
 
-      final txns = await dbHelper.getTransactionsByRelated('installment', fetched.id!);
+      final txns =
+          await dbHelper.getTransactionsByRelated('installment', fetched.id!);
       expect(txns, isNotEmpty);
 
-      final updated = (await repo.getInstallmentsByLoanId(loanId)).firstWhere((i) => i.id == instId);
+      final updated = (await repo.getInstallmentsByLoanId(loanId))
+          .firstWhere((i) => i.id == instId);
       expect(updated.status, equals(InstallmentStatus.paid));
       expect(updated.actualPaidAmount, equals(10000));
     });

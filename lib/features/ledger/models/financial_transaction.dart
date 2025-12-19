@@ -64,18 +64,31 @@ class FinancialTransaction {
 
   factory FinancialTransaction.fromMap(Map<String, dynamic> m) {
     return FinancialTransaction(
-      id: m['id'] is int ? m['id'] as int : (m['id'] != null ? int.tryParse(m['id'].toString()) : null),
+      id: m['id'] is int
+          ? m['id'] as int
+          : (m['id'] != null ? int.tryParse(m['id'].toString()) : null),
       timestamp: m['timestamp'] as String? ?? '',
-      amount: m['amount'] is int ? m['amount'] as int : int.parse(m['amount'].toString()),
+      amount: m['amount'] is int
+          ? m['amount'] as int
+          : int.parse(m['amount'].toString()),
       direction: m['direction'] as String? ?? 'debit',
-      accountId: m['account_id'] is int ? m['account_id'] as int : (m['account_id'] != null ? int.tryParse(m['account_id'].toString()) : null),
+      accountId: m['account_id'] is int
+          ? m['account_id'] as int
+          : (m['account_id'] != null
+              ? int.tryParse(m['account_id'].toString())
+              : null),
       relatedType: m['related_type'] as String?,
-      relatedId: m['related_id'] is int ? m['related_id'] as int : (m['related_id'] != null ? int.tryParse(m['related_id'].toString()) : null),
+      relatedId: m['related_id'] is int
+          ? m['related_id'] as int
+          : (m['related_id'] != null
+              ? int.tryParse(m['related_id'].toString())
+              : null),
       description: m['description'] as String?,
       source: m['source'] as String?,
     );
   }
 
   @override
-  String toString() => 'FT(id: $id, $direction $amount @ $timestamp, account: $accountId, related: $relatedType#$relatedId)';
+  String toString() =>
+      'FT(id: $id, $direction $amount @ $timestamp, account: $accountId, related: $relatedType#$relatedId)';
 }

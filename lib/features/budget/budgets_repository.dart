@@ -6,6 +6,7 @@ import 'package:shamsi_date/shamsi_date.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:debt_manager/features/loans/models/counterparty.dart';
 import 'package:debt_manager/features/loans/models/installment.dart';
+import 'package:debt_manager/features/loans/models/loan.dart';
 
 // In-memory fallback stores for web where `sqflite` is unavailable.
 // These are kept per-repository instance and are intentionally simple.
@@ -62,8 +63,13 @@ class BudgetsRepository {
 
   Future<List<BudgetEntry>> getBudgetEntriesByPeriod(String period) async {
     if (_isWeb) {
-      final rows = _budgetEntryStore.where((r) => r['period'] == period).toList()
-        ..sort((a, b) => (a['category'] as String?)?.compareTo((b['category'] as String?) ?? '') ?? 0);
+      final rows = _budgetEntryStore
+          .where((r) => r['period'] == period)
+          .toList()
+        ..sort((a, b) =>
+            (a['category'] as String?)
+                ?.compareTo((b['category'] as String?) ?? '') ??
+            0);
       return rows.map((r) => BudgetEntry.fromMap(r)).toList();
     }
 
@@ -123,7 +129,10 @@ class BudgetsRepository {
   Future<List<Budget>> getBudgetsByPeriod(String period) async {
     if (_isWeb) {
       final rows = _budgetStore.where((r) => r['period'] == period).toList()
-        ..sort((a, b) => (a['category'] as String?)?.compareTo((b['category'] as String?) ?? '') ?? 0);
+        ..sort((a, b) =>
+            (a['category'] as String?)
+                ?.compareTo((b['category'] as String?) ?? '') ??
+            0);
       return rows.map((r) => Budget.fromMap(r)).toList();
     }
 
@@ -155,7 +164,9 @@ class BudgetsRepository {
         ..sort((a, b) {
           final p = (b['period'] as String).compareTo(a['period'] as String);
           if (p != 0) return p;
-          return (a['category'] as String?)?.compareTo((b['category'] as String?) ?? '') ?? 0;
+          return (a['category'] as String?)
+                  ?.compareTo((b['category'] as String?) ?? '') ??
+              0;
         });
       return rows.map((r) => Budget.fromMap(r)).toList();
     }
@@ -271,7 +282,9 @@ class BudgetsRepository {
   bool _matchesCategory(String cat, Loan? loan, Counterparty? cp) {
     if (loan == null) return false;
     final tag = cp?.tag;
-    return (tag == cat) || loan.title == cat || (loan.notes?.contains(cat) ?? false);
+    return (tag == cat) ||
+        loan.title == cat ||
+        (loan.notes?.contains(cat) ?? false);
   }
 }
 

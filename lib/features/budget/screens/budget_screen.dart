@@ -8,8 +8,7 @@ import 'package:debt_manager/core/widgets/budget_bar.dart';
 import 'package:debt_manager/core/widgets/category_icon.dart';
 import 'package:debt_manager/core/theme/app_constants.dart';
 import 'package:debt_manager/core/providers/core_providers.dart';
-import 'add_budget_screen.dart';
-import 'add_budget_entry_screen.dart';
+// relative add screens are not referenced here; imports removed
 import 'package:debt_manager/features/budget/irregular_income_service.dart';
 import 'package:go_router/go_router.dart';
 

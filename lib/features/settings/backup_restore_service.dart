@@ -80,7 +80,8 @@ class BackupRestoreService {
       // Create backup payload
       final payload = BackupPayload(
         timestamp: now.toIso8601String(),
-        appVersion: const String.fromEnvironment('APP_VERSION', defaultValue: '1.0.0'),
+        appVersion:
+            const String.fromEnvironment('APP_VERSION', defaultValue: '1.0.0'),
         checksum: checksum,
         name: backupName ??
             'Backup-${DateFormat('yyyy-MM-dd-HHmmss').format(now)}',
@@ -338,12 +339,14 @@ class BackupRestoreService {
           final relatedType = (m['related_type'] as String?) ?? '';
           if (relatedType == 'loan' && loanIdMap.containsKey(oldRelatedId)) {
             m['related_id'] = loanIdMap[oldRelatedId];
-          } else if (relatedType == 'installment' && instIdMap.containsKey(oldRelatedId)) {
+          } else if (relatedType == 'installment' &&
+              instIdMap.containsKey(oldRelatedId)) {
             m['related_id'] = instIdMap[oldRelatedId];
           }
           // Remove id to let DB assign new primary key
           m.remove('id');
-          final filteredTxn = await _filterToExistingColumns(db, 'transactions', m);
+          final filteredTxn =
+              await _filterToExistingColumns(db, 'transactions', m);
           await db.insert('transactions', filteredTxn);
         } catch (_) {
           // Ignore failures inserting individual transactions
@@ -478,11 +481,15 @@ class BackupRestoreService {
           final relatedId = t['related_id'];
           final amount = t['amount'];
           final match = existingTxns.any((e) =>
-              e['timestamp'] == ts && e['related_type'] == relatedType && e['related_id'] == relatedId && e['amount'] == amount);
+              e['timestamp'] == ts &&
+              e['related_type'] == relatedType &&
+              e['related_id'] == relatedId &&
+              e['amount'] == amount);
           if (!match) {
             final m = Map<String, dynamic>.from(t);
             m.remove('id');
-            final filtered = await _filterToExistingColumns(db, 'transactions', m);
+            final filtered =
+                await _filterToExistingColumns(db, 'transactions', m);
             try {
               await db.insert('transactions', filtered);
             } catch (_) {}

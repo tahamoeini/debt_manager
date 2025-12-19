@@ -429,6 +429,137 @@ class DatabaseHelper {
         ''');
       } catch (_) {}
     }
+    if (oldVersion < 7) {
+      // Add paid_at_jalali and ledger entries table; backfill existing data.
+      try {
+        try {
+          await db.execute(
+            'ALTER TABLE installments ADD COLUMN paid_at_jalali TEXT',
+          );
+        } catch (_) {}
+
+        try {
+          await db.execute('''
+            CREATE TABLE IF NOT EXISTS ledger_entries (
+              id INTEGER PRIMARY KEY AUTOINCREMENT,
+              amount INTEGER NOT NULL,
+              ref_type TEXT NOT NULL,
+              ref_id INTEGER,
+              date_jalali TEXT NOT NULL,
+              note TEXT,
+              created_at TEXT NOT NULL
+            )
+          ''');
+          await db.execute(
+              'CREATE UNIQUE INDEX IF NOT EXISTS idx_ledger_ref ON ledger_entries(ref_type, ref_id)');
+          await db.execute(
+              'CREATE INDEX IF NOT EXISTS idx_ledger_date ON ledger_entries(date_jalali)');
+        } catch (_) {}
+
+        // Backfill paid_at_jalali from paid_at
+        try {
+          final rows = await db.query(
+            'installments',
+            columns: ['id', 'paid_at'],
+            where: 'paid_at IS NOT NULL',
+          );
+          for (final row in rows) {
+            final iid = row['id'];
+            final paidAt = row['paid_at'] as String?;
+            if (iid == null || paidAt == null) continue;
+            final parsed = DateTime.tryParse(paidAt);
+            if (parsed == null) continue;
+            final j = dateTimeToJalali(parsed);
+            final paidJ = formatJalali(j);
+            try {
+              await db.update(
+                'installments',
+                {'paid_at_jalali': paidJ},
+                where: 'id = ?',
+                whereArgs: [iid],
+              );
+            } catch (_) {}
+          }
+        } catch (_) {}
+
+        // Seed ledger entries for existing loans (disbursements)
+        try {
+          final loans = await db.query('loans');
+          for (final row in loans) {
+            try {
+              final loan = Loan.fromMap(row);
+              if (loan.id == null) continue;
+              final amt = loan.direction == LoanDirection.borrowed
+                  ? loan.principalAmount
+                  : -loan.principalAmount;
+              final date = loan.startDateJalali.isNotEmpty
+                  ? loan.startDateJalali
+                  : _isoToJalaliString(loan.createdAt);
+              final map = {
+                'amount': amt,
+                'ref_type': 'loan_disbursement',
+                'ref_id': loan.id,
+                'date_jalali': date,
+                'note': loan.title,
+                'created_at': DateTime.now().toIso8601String(),
+              };
+              try {
+                await db.insert(
+                  'ledger_entries',
+                  map,
+                  conflictAlgorithm: plain.ConflictAlgorithm.ignore,
+                );
+              } catch (_) {}
+            } catch (_) {}
+          }
+        } catch (_) {}
+
+        // Seed ledger entries for already-paid installments
+        try {
+          final paidRows = await db.rawQuery(
+            '''
+            SELECT i.id, i.actual_paid_amount, i.amount, i.paid_at, i.paid_at_jalali,
+                   l.direction, l.title
+            FROM installments i
+            JOIN loans l ON i.loan_id = l.id
+            WHERE i.status = 'paid'
+          ''',
+          );
+          for (final r in paidRows) {
+            try {
+              final instId = r['id'];
+              if (instId == null) continue;
+              final amtRaw = r['actual_paid_amount'] ?? r['amount'];
+              final amt = amtRaw is int ? amtRaw : int.tryParse('$amtRaw') ?? 0;
+              final dirStr = (r['direction'] as String?) ?? 'borrowed';
+              final dir = dirStr == 'lent'
+                  ? LoanDirection.lent
+                  : LoanDirection.borrowed;
+              final signed = dir == LoanDirection.borrowed ? -amt : amt;
+              final paidIso = r['paid_at'] as String?;
+              final paidJ = (r['paid_at_jalali'] as String?) ??
+                  _isoToJalaliString(paidIso);
+              final title = r['title'] as String?;
+              final map = {
+                'amount': signed,
+                'ref_type': 'installment_payment',
+                'ref_id': instId,
+                'date_jalali': paidJ,
+                'note': title,
+                'created_at': DateTime.now().toIso8601String(),
+              };
+              try {
+                await db.insert(
+                  'ledger_entries',
+                  map,
+                  conflictAlgorithm: plain.ConflictAlgorithm.ignore,
+                );
+              } catch (_) {}
+            } catch (_) {}
+          }
+        } catch (_) {}
+      } catch (_) {}
+    }
   }
 
   // -----------------
@@ -465,42 +596,61 @@ class DatabaseHelper {
     return await db.insert('transactions', txn);
   }
 
-  Future<List<Map<String, dynamic>>> getTransactionsByAccount(int accountId) async {
+  Future<List<Map<String, dynamic>>> getTransactionsByAccount(
+      int accountId) async {
     if (_isWeb) {
-      final rows = _transactionStore.where((r) => r['account_id'] == accountId).toList()
-        ..sort((a, b) => (b['timestamp'] as String).compareTo(a['timestamp'] as String));
+      final rows = _transactionStore
+          .where((r) => r['account_id'] == accountId)
+          .toList()
+        ..sort((a, b) =>
+            (b['timestamp'] as String).compareTo(a['timestamp'] as String));
       return rows;
     }
     final db = await database;
-    return await db.query('transactions', where: 'account_id = ?', whereArgs: [accountId], orderBy: 'timestamp DESC');
+    return await db.query('transactions',
+        where: 'account_id = ?',
+        whereArgs: [accountId],
+        orderBy: 'timestamp DESC');
   }
 
   Future<List<Map<String, dynamic>>> getAllTransactions() async {
     if (_isWeb) {
       final rows = List<Map<String, dynamic>>.from(_transactionStore)
-        ..sort((a, b) => (b['timestamp'] as String).compareTo(a['timestamp'] as String));
+        ..sort((a, b) =>
+            (b['timestamp'] as String).compareTo(a['timestamp'] as String));
       return rows;
     }
     final db = await database;
     return await db.query('transactions', orderBy: 'timestamp DESC');
   }
 
-  Future<List<Map<String, dynamic>>> getTransactionsByRelated(String relatedType, int relatedId) async {
+  Future<List<Map<String, dynamic>>> getTransactionsByRelated(
+      String relatedType, int relatedId) async {
     if (_isWeb) {
-      final rows = _transactionStore.where((r) => r['related_type'] == relatedType && r['related_id'] == relatedId).toList()
-        ..sort((a, b) => (b['timestamp'] as String).compareTo(a['timestamp'] as String));
+      final rows = _transactionStore
+          .where((r) =>
+              r['related_type'] == relatedType && r['related_id'] == relatedId)
+          .toList()
+        ..sort((a, b) =>
+            (b['timestamp'] as String).compareTo(a['timestamp'] as String));
       return rows;
     }
     final db = await database;
-    return await db.query('transactions', where: 'related_type = ? AND related_id = ?', whereArgs: [relatedType, relatedId], orderBy: 'timestamp DESC');
+    return await db.query('transactions',
+        where: 'related_type = ? AND related_id = ?',
+        whereArgs: [relatedType, relatedId],
+        orderBy: 'timestamp DESC');
   }
 
   Future<int> getAccountBalance(int accountId) async {
     if (_isWeb) {
       int balance = 0;
-      for (final t in _transactionStore.where((r) => r['account_id'] == accountId)) {
+      for (final t
+          in _transactionStore.where((r) => r['account_id'] == accountId)) {
         final dir = (t['direction'] as String?) ?? 'debit';
-        final amt = t['amount'] is int ? t['amount'] as int : int.parse(t['amount'].toString());
+        final amt = t['amount'] is int
+            ? t['amount'] as int
+            : int.parse(t['amount'].toString());
         if (dir == 'credit') {
           balance += amt;
         } else {
@@ -524,9 +674,13 @@ class DatabaseHelper {
   // ---- Ledger entries ----
 
   String _isoToJalaliString(String? iso) {
-    if (iso == null || iso.isEmpty) return formatJalali(dateTimeToJalali(DateTime.now()));
+    if (iso == null || iso.isEmpty) {
+      return formatJalali(dateTimeToJalali(DateTime.now()));
+    }
     final parsed = DateTime.tryParse(iso);
-    if (parsed == null) return formatJalali(dateTimeToJalali(DateTime.now()));
+    if (parsed == null) {
+      return formatJalali(dateTimeToJalali(DateTime.now()));
+    }
     return formatJalali(dateTimeToJalali(parsed));
   }
 
@@ -538,7 +692,11 @@ class DatabaseHelper {
       );
       final map = entry.toMap();
       if (idx >= 0) {
-        _ledgerStore[idx] = {..._ledgerStore[idx], ...map, 'id': _ledgerStore[idx]['id']};
+        _ledgerStore[idx] = {
+          ..._ledgerStore[idx],
+          ...map,
+          'id': _ledgerStore[idx]['id']
+        };
         return _ledgerStore[idx]['id'] as int;
       }
       _ledgerId++;
@@ -558,7 +716,8 @@ class DatabaseHelper {
   Future<int> deleteLedgerEntryByRef(String refType, int refId) async {
     if (_isWeb) {
       final before = _ledgerStore.length;
-      _ledgerStore.removeWhere((r) => r['ref_type'] == refType && r['ref_id'] == refId);
+      _ledgerStore
+          .removeWhere((r) => r['ref_type'] == refType && r['ref_id'] == refId);
       return before - _ledgerStore.length;
     }
     final db = await database;
@@ -593,15 +752,14 @@ class DatabaseHelper {
     String end,
   ) async {
     if (_isWeb) {
-      final rows = _ledgerStore
-          .where((r) {
-            final d = r['date_jalali'] as String?;
-            if (d == null) return false;
-            return d.compareTo(start) >= 0 && d.compareTo(end) <= 0;
-          })
-          .toList()
+      final rows = _ledgerStore.where((r) {
+        final d = r['date_jalali'] as String?;
+        if (d == null) return false;
+        return d.compareTo(start) >= 0 && d.compareTo(end) <= 0;
+      }).toList()
         ..sort(
-          (a, b) => (a['date_jalali'] as String?)
+          (a, b) =>
+              (a['date_jalali'] as String?)
                   ?.compareTo(b['date_jalali'] as String? ?? '') ??
               0,
         );
@@ -797,87 +955,6 @@ class DatabaseHelper {
           final amt = installment.actualPaidAmount ?? installment.amount;
           final repo = AutomationRulesRepository();
 
-          if (oldVersion < 7) {
-            try {
-              await db.execute(
-                'ALTER TABLE installments ADD COLUMN paid_at_jalali TEXT',
-              );
-            } catch (_) {}
-            try {
-              await db.execute('''
-                CREATE TABLE IF NOT EXISTS ledger_entries (
-                  id INTEGER PRIMARY KEY AUTOINCREMENT,
-                  amount INTEGER NOT NULL,
-                  ref_type TEXT NOT NULL,
-                  ref_id INTEGER,
-                  date_jalali TEXT NOT NULL,
-                  note TEXT,
-                  created_at TEXT NOT NULL
-                )
-              ''');
-              await db.execute(
-                'CREATE UNIQUE INDEX IF NOT EXISTS idx_ledger_ref ON ledger_entries(ref_type, ref_id)',
-              );
-              await db.execute(
-                'CREATE INDEX IF NOT EXISTS idx_ledger_date ON ledger_entries(date_jalali)',
-              );
-            } catch (_) {}
-            // Backfill Jalali paid dates from existing ISO paid_at values
-            try {
-              final rows = await db.query(
-                'installments',
-                columns: ['id', 'paid_at'],
-                where: 'paid_at IS NOT NULL',
-              );
-              for (final row in rows) {
-                final id = row['id'];
-
-          // Seed ledger entries for existing loans so balances start consistent
-          try {
-            final loans = await db.query('loans');
-            for (final row in loans) {
-              final loan = Loan.fromMap(row);
-              if (loan.id == null) continue;
-              final amt = loan.direction == LoanDirection.borrowed
-                  ? loan.principalAmount
-                  : -loan.principalAmount;
-              final date = loan.startDateJalali.isNotEmpty
-                  ? loan.startDateJalali
-                  : _isoToJalaliString(loan.createdAt);
-              final map = {
-                'amount': amt,
-                'ref_type': 'loan_disbursement',
-                'ref_id': loan.id,
-                'date_jalali': date,
-                'note': loan.title,
-                'created_at': DateTime.now().toIso8601String(),
-              };
-              try {
-                await db.insert(
-                  'ledger_entries',
-                  map,
-                  conflictAlgorithm: plain.ConflictAlgorithm.ignore,
-                );
-              } catch (_) {}
-            }
-          } catch (_) {}
-                final paidAt = row['paid_at'] as String?;
-                if (id == null || paidAt == null) continue;
-                final parsed = DateTime.tryParse(paidAt);
-                if (parsed == null) continue;
-                final j = dateTimeToJalali(parsed);
-                final paidJ = formatJalali(j);
-                try {
-                  await db.update(
-                    'installments',
-                    {'paid_at_jalali': paidJ},
-                    where: 'id = ?',
-                    whereArgs: [id],
-                  );
-                } catch (_) {}
-              }
-            } catch (_) {}
-          }
           final suggestion = await repo.applyRules(payee, desc, amt);
           final cat = suggestion['category'];
           if (cat != null && cpRows.isNotEmpty) {
@@ -899,45 +976,6 @@ class DatabaseHelper {
 
   // Delete all installments for a given loan id.
 
-      // Seed ledger entries for already-paid installments
-      try {
-        final paidRows = await db.rawQuery(
-          '''
-          SELECT i.id, i.actual_paid_amount, i.amount, i.paid_at, i.paid_at_jalali,
-                 l.direction, l.title
-          FROM installments i
-          JOIN loans l ON i.loan_id = l.id
-          WHERE i.status = 'paid'
-        ''',
-        );
-        for (final r in paidRows) {
-          final instId = r['id'];
-          if (instId == null) continue;
-          final amtRaw = r['actual_paid_amount'] ?? r['amount'];
-          final amt = amtRaw is int ? amtRaw : int.tryParse('$amtRaw') ?? 0;
-          final dirStr = (r['direction'] as String?) ?? 'borrowed';
-          final dir = dirStr == 'lent' ? LoanDirection.lent : LoanDirection.borrowed;
-          final signed = dir == LoanDirection.borrowed ? -amt : amt;
-          final paidIso = r['paid_at'] as String?;
-          final paidJ = (r['paid_at_jalali'] as String?) ?? _isoToJalaliString(paidIso);
-          final title = r['title'] as String?;
-          final map = {
-            'amount': signed,
-            'ref_type': 'installment_payment',
-            'ref_id': instId,
-            'date_jalali': paidJ,
-            'note': title,
-            'created_at': DateTime.now().toIso8601String(),
-          };
-          try {
-            await db.insert(
-              'ledger_entries',
-              map,
-              conflictAlgorithm: plain.ConflictAlgorithm.ignore,
-            );
-          } catch (_) {}
-        }
-      } catch (_) {}
   Future<int> deleteInstallmentsByLoanId(int loanId) async {
     if (_isWeb) {
       final ids = _installmentStore
@@ -1020,8 +1058,8 @@ class DatabaseHelper {
         if (installment.status == InstallmentStatus.paid) {
           final amt = (installment.actualPaidAmount ?? installment.amount) *
               (direction == LoanDirection.borrowed ? -1 : 1);
-          final paidJ =
-              installment.paidAtJalali ?? _isoToJalaliString(installment.paidAt);
+          final paidJ = installment.paidAtJalali ??
+              _isoToJalaliString(installment.paidAt);
           await upsertLedgerEntry(
             LedgerEntry(
               id: null,

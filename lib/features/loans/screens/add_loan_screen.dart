@@ -239,8 +239,8 @@ class _AddLoanScreenState extends ConsumerState<AddLoanScreen> {
         );
 
         final loanId = _disburseNow && _disburseAccountId != null
-          ? await repo.disburseLoan(loan, accountId: _disburseAccountId)
-          : await repo.insertLoan(loan);
+            ? await repo.disburseLoan(loan, accountId: _disburseAccountId)
+            : await repo.insertLoan(loan);
 
         // Load settings (reminder offset) once per submission and generate installments.
         int offsetDays = 3;
@@ -556,7 +556,9 @@ class _AddLoanScreenState extends ConsumerState<AddLoanScreen> {
                           )
                           .toList(growable: false),
                       onChanged: (v) => setState(() => _disburseAccountId = v),
-                      validator: (v) => _disburseNow && v == null ? 'لطفا حساب را انتخاب کنید' : null,
+                      validator: (v) => _disburseNow && v == null
+                          ? 'لطفا حساب را انتخاب کنید'
+                          : null,
                     ),
                   const SizedBox(height: 20),
                   FilledButton(

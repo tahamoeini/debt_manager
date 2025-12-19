@@ -12,7 +12,8 @@ Future<void> main() async {
       final insts = await db.getInstallmentsByLoanId(loan.id ?? -1);
       for (final inst in insts) {
         if (inst.paidAt == null) continue;
-        final existing = await db.getTransactionsByRelated('installment', inst.id ?? -1);
+        final existing =
+            await db.getTransactionsByRelated('installment', inst.id ?? -1);
         if (existing.isNotEmpty) continue; // already recorded
 
         final amt = inst.actualPaidAmount ?? inst.amount;

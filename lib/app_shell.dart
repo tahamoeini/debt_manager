@@ -4,7 +4,6 @@ import 'package:flutter/foundation.dart';
 import 'package:go_router/go_router.dart';
 import 'core/debug/debug_logger.dart';
 
-
 class AppShell extends StatefulWidget {
   final Widget child;
 
@@ -31,14 +30,14 @@ class _AppShellState extends State<AppShell> {
   @override
   Widget build(BuildContext context) {
     final router = GoRouter.of(context);
-    final location = router.location;
+    final location = (router as dynamic).location;
     final selectedIndex = _indexForLocation(location);
 
     return PopScope(
-      canPop: !router.canPop(),
+      canPop: !(router as dynamic).canPop(),
       onPopInvokedWithResult: (bool didPop, dynamic result) {
-        if (!didPop && router.canPop()) {
-          router.pop();
+        if (!didPop && (router as dynamic).canPop()) {
+          (router as dynamic).pop();
         }
       },
       child: Scaffold(
@@ -127,8 +126,8 @@ class _AppShellState extends State<AppShell> {
           selectedIndex: selectedIndex,
           onDestinationSelected: (int index) {
             final target = _tabs[index];
-            if (router.location != target) {
-              router.go(target);
+            if ((router as dynamic).location != target) {
+              (router as dynamic).go(target);
             }
           },
           destinations: const [

@@ -30,7 +30,8 @@ class IrregularIncomeService {
       if (kIsWeb) {
         // Web: use the in-memory stores via DatabaseHelper public APIs.
         final loans = await _db.getAllLoans();
-        final lentLoans = loans.where((l) => l.direction == LoanDirection.lent).toList();
+        final lentLoans =
+            loans.where((l) => l.direction == LoanDirection.lent).toList();
         int monthTotal = 0;
         for (final loan in lentLoans) {
           if (loan.id == null) continue;

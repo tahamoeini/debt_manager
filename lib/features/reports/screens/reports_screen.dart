@@ -87,9 +87,14 @@ class ReportsScreen extends ConsumerWidget {
           return 'در انتظار';
       }
     }
+
     Widget rowsSection() {
-      if (state.loadingRows) return UIUtils.centeredLoading();
-      if (state.rows.isEmpty) return const Center(child: Text('هیچ موردی یافت نشد'));
+      if (state.loadingRows) {
+        return UIUtils.centeredLoading();
+      }
+      if (state.rows.isEmpty) {
+        return const Center(child: Text('هیچ موردی یافت نشد'));
+      }
       return Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -125,7 +130,8 @@ class ReportsScreen extends ConsumerWidget {
                           state.rows.fold<int>(0, (sum, r) {
                             final inst = r['installment'] as Installment;
                             if (inst.status == InstallmentStatus.paid) {
-                              return sum + (inst.actualPaidAmount ?? inst.amount);
+                              return sum +
+                                  (inst.actualPaidAmount ?? inst.amount);
                             }
                             return sum;
                           }),
@@ -148,7 +154,8 @@ class ReportsScreen extends ConsumerWidget {
                               state.rows.fold<int>(0, (sum, r) {
                                 final inst = r['installment'] as Installment;
                                 if (inst.status == InstallmentStatus.paid) {
-                                  return sum + (inst.actualPaidAmount ?? inst.amount);
+                                  return sum +
+                                      (inst.actualPaidAmount ?? inst.amount);
                                 }
                                 return sum;
                               }),
@@ -198,7 +205,10 @@ class ReportsScreen extends ConsumerWidget {
                     const SizedBox(height: 4),
                     Text(
                       statusLabel(inst.status),
-                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: statusColor),
+                      style: Theme.of(context)
+                          .textTheme
+                          .bodyMedium
+                          ?.copyWith(color: statusColor),
                     ),
                   ],
                 ),
@@ -218,244 +228,244 @@ class ReportsScreen extends ConsumerWidget {
       child: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-        // Quick actions row
-        Row(
-          children: [
-            Expanded(
-              child: FilledButton.icon(
-                onPressed: () => context.pushNamed('advancedReports'),
-                icon: const Icon(Icons.analytics_outlined),
-                label: const Text('گزارش‌های پیشرفته'),
+          // Quick actions row
+          Row(
+            children: [
+              Expanded(
+                child: FilledButton.icon(
+                  onPressed: () => context.pushNamed('advancedReports'),
+                  icon: const Icon(Icons.analytics_outlined),
+                  label: const Text('گزارش‌های پیشرفته'),
+                ),
               ),
-            ),
-            const SizedBox(width: 8),
-            FilledButton.icon(
-              onPressed: () => exportCsv(),
-              icon: const Icon(Icons.file_download),
-              label: const Text('خروجی CSV'),
-            ),
-            const SizedBox(width: 8),
-            FilledButton.icon(
-              onPressed: () async {
-                await exportPdf();
-              },
-              icon: const Icon(Icons.picture_as_pdf),
-              label: const Text('گزارش PDF'),
-            ),
-          ],
-        ),
-        const SizedBox(height: 16),
-        state.loadingSummary
-            ? UIUtils.centeredLoading()
-            : SummaryCards(
-                borrowed: state.summary?['borrowed'] as int? ?? 0,
-                lent: state.summary?['lent'] as int? ?? 0,
-                net: state.summary?['net'] as int? ?? 0,
+              const SizedBox(width: 8),
+              FilledButton.icon(
+                onPressed: () => exportCsv(),
+                icon: const Icon(Icons.file_download),
+                label: const Text('خروجی CSV'),
               ),
-        const SizedBox(height: 12),
-        FutureBuilder<List<Achievement>>(
-          future: AchievementsRepository.instance.getEarnedAchievements(),
-          builder: (context, snap) {
-            if (snap.connectionState == ConnectionState.waiting) {
-              return const SizedBox.shrink();
-            }
-            final badges = snap.data ?? [];
-            if (badges.isEmpty) return const SizedBox.shrink();
-            return Card(
-              child: Padding(
-                padding: const EdgeInsets.all(12),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'نشان‌ها',
-                      style: Theme.of(context).textTheme.titleMedium,
-                    ),
-                    const SizedBox(height: 8),
-                    SizedBox(
-                      height: 64,
-                      child: ListView.separated(
-                        scrollDirection: Axis.horizontal,
-                        itemBuilder: (ctx, i) {
-                          final a = badges[i];
-                          return Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              const CircleAvatar(
-                                radius: 22,
-                                child: Icon(Icons.emoji_events, size: 24),
-                              ),
-                              const SizedBox(height: 6),
-                              SizedBox(
-                                width: 64,
-                                child: Text(
-                                  a.title,
-                                  style:
-                                      Theme.of(context).textTheme.bodySmall,
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                  textAlign: TextAlign.center,
-                                ),
-                              ),
-                            ],
-                          );
-                        },
-                        separatorBuilder: (context, index) =>
-                            const SizedBox(width: 12),
-                        itemCount: badges.length,
+              const SizedBox(width: 8),
+              FilledButton.icon(
+                onPressed: () async {
+                  await exportPdf();
+                },
+                icon: const Icon(Icons.picture_as_pdf),
+                label: const Text('گزارش PDF'),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          state.loadingSummary
+              ? UIUtils.centeredLoading()
+              : SummaryCards(
+                  borrowed: state.summary?['borrowed'] as int? ?? 0,
+                  lent: state.summary?['lent'] as int? ?? 0,
+                  net: state.summary?['net'] as int? ?? 0,
+                ),
+          const SizedBox(height: 12),
+          FutureBuilder<List<Achievement>>(
+            future: AchievementsRepository.instance.getEarnedAchievements(),
+            builder: (context, snap) {
+              if (snap.connectionState == ConnectionState.waiting) {
+                return const SizedBox.shrink();
+              }
+              final badges = snap.data ?? [];
+              if (badges.isEmpty) return const SizedBox.shrink();
+              return Card(
+                child: Padding(
+                  padding: const EdgeInsets.all(12),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'نشان‌ها',
+                        style: Theme.of(context).textTheme.titleMedium,
                       ),
+                      const SizedBox(height: 8),
+                      SizedBox(
+                        height: 64,
+                        child: ListView.separated(
+                          scrollDirection: Axis.horizontal,
+                          itemBuilder: (ctx, i) {
+                            final a = badges[i];
+                            return Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                const CircleAvatar(
+                                  radius: 22,
+                                  child: Icon(Icons.emoji_events, size: 24),
+                                ),
+                                const SizedBox(height: 6),
+                                SizedBox(
+                                  width: 64,
+                                  child: Text(
+                                    a.title,
+                                    style:
+                                        Theme.of(context).textTheme.bodySmall,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    textAlign: TextAlign.center,
+                                  ),
+                                ),
+                              ],
+                            );
+                          },
+                          separatorBuilder: (context, index) =>
+                              const SizedBox(width: 12),
+                          itemCount: badges.length,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            },
+          ),
+
+          const SizedBox(height: 20),
+          const Text('فیلترها', style: TextStyle(fontWeight: FontWeight.w700)),
+          const SizedBox(height: 8),
+          Row(
+            children: [
+              Expanded(
+                child: Material(
+                  type: MaterialType.transparency,
+                  child: DropdownButton<LoanDirection?>(
+                    value: state.direction,
+                    isExpanded: true,
+                    items: const [
+                      DropdownMenuItem(value: null, child: Text('همه')),
+                      DropdownMenuItem(
+                        value: LoanDirection.borrowed,
+                        child: Text('گرفته‌ام'),
+                      ),
+                      DropdownMenuItem(
+                        value: LoanDirection.lent,
+                        child: Text('داده‌ام'),
+                      ),
+                    ],
+                    onChanged: (v) => notifier.setDirection(v),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 12),
+              FilledButton(
+                onPressed: () async {
+                  final now = DateTime.now();
+                  final picked = await showDatePicker(
+                    context: context,
+                    initialDate: now,
+                    firstDate: DateTime(now.year - 5),
+                    lastDate: DateTime(now.year + 5),
+                  );
+                  if (picked != null) notifier.setFrom(picked);
+                },
+                child: Text(
+                  state.from == null
+                      ? 'از تاریخ'
+                      : formatJalaliForDisplay(dateTimeToJalali(state.from!)),
+                ),
+              ),
+              const SizedBox(width: 8),
+              FilledButton(
+                onPressed: () async {
+                  final now = DateTime.now();
+                  final picked = await showDatePicker(
+                    context: context,
+                    initialDate: now,
+                    firstDate: DateTime(now.year - 5),
+                    lastDate: DateTime(now.year + 5),
+                  );
+                  if (picked != null) notifier.setTo(picked);
+                },
+                child: Text(
+                  state.to == null
+                      ? 'تا تاریخ'
+                      : formatJalaliForDisplay(dateTimeToJalali(state.to!)),
+                ),
+              ),
+            ],
+          ),
+
+          // Status chips and counterparty filter
+          Row(
+            children: [
+              Expanded(
+                child: Wrap(
+                  spacing: 8,
+                  runSpacing: 4,
+                  children: [
+                    FilterChip(
+                      label: const Text('همه'),
+                      selected: state.statusFilter.length ==
+                          InstallmentStatus.values.length,
+                      onSelected: (v) => notifier.setAllStatuses(v),
+                    ),
+                    FilterChip(
+                      label: const Text('در انتظار'),
+                      selected: state.statusFilter.contains(
+                        InstallmentStatus.pending,
+                      ),
+                      onSelected: (v) =>
+                          notifier.toggleStatus(InstallmentStatus.pending, v),
+                    ),
+                    FilterChip(
+                      label: const Text('عقب‌افتاده'),
+                      selected: state.statusFilter.contains(
+                        InstallmentStatus.overdue,
+                      ),
+                      onSelected: (v) =>
+                          notifier.toggleStatus(InstallmentStatus.overdue, v),
+                    ),
+                    FilterChip(
+                      label: const Text('پرداخت شده'),
+                      selected: state.statusFilter.contains(
+                        InstallmentStatus.paid,
+                      ),
+                      onSelected: (v) =>
+                          notifier.toggleStatus(InstallmentStatus.paid, v),
                     ),
                   ],
                 ),
               ),
-            );
-          },
-        ),
-
-        const SizedBox(height: 20),
-        const Text('فیلترها', style: TextStyle(fontWeight: FontWeight.w700)),
-        const SizedBox(height: 8),
-        Row(
-          children: [
-            Expanded(
-              child: Material(
-                type: MaterialType.transparency,
-                child: DropdownButton<LoanDirection?>(
-                  value: state.direction,
+              const SizedBox(width: 12),
+              SizedBox(
+                width: 200,
+                child: DropdownButton<int?>(
+                  value: state.counterpartyFilter,
+                  isExpanded: true,
+                  items: [
+                    const DropdownMenuItem(value: null, child: Text('همه')),
+                    ...state.counterparties.map(
+                      (c) => DropdownMenuItem(value: c.id, child: Text(c.name)),
+                    ),
+                  ],
+                  onChanged: (v) => notifier.setCounterpartyFilter(v),
+                ),
+              ),
+              const SizedBox(width: 12),
+              SizedBox(
+                width: 160,
+                child: DropdownButton<String?>(
+                  value: state.counterpartyTypeFilter,
                   isExpanded: true,
                   items: const [
-                    DropdownMenuItem(value: null, child: Text('همه')),
-                    DropdownMenuItem(
-                      value: LoanDirection.borrowed,
-                      child: Text('گرفته‌ام'),
-                    ),
-                    DropdownMenuItem(
-                      value: LoanDirection.lent,
-                      child: Text('داده‌ام'),
-                    ),
+                    DropdownMenuItem(value: null, child: Text('همه انواع')),
+                    DropdownMenuItem(value: 'person', child: Text('شخص')),
+                    DropdownMenuItem(value: 'bank', child: Text('بانک')),
+                    DropdownMenuItem(value: 'company', child: Text('شرکت')),
                   ],
-                  onChanged: (v) => notifier.setDirection(v),
+                  onChanged: (v) => notifier.setCounterpartyTypeFilter(v),
                 ),
               ),
-            ),
-            const SizedBox(width: 12),
-            FilledButton(
-              onPressed: () async {
-                final now = DateTime.now();
-                final picked = await showDatePicker(
-                  context: context,
-                  initialDate: now,
-                  firstDate: DateTime(now.year - 5),
-                  lastDate: DateTime(now.year + 5),
-                );
-                if (picked != null) notifier.setFrom(picked);
-              },
-              child: Text(
-                state.from == null
-                    ? 'از تاریخ'
-                    : formatJalaliForDisplay(dateTimeToJalali(state.from!)),
-              ),
-            ),
-            const SizedBox(width: 8),
-            FilledButton(
-              onPressed: () async {
-                final now = DateTime.now();
-                final picked = await showDatePicker(
-                  context: context,
-                  initialDate: now,
-                  firstDate: DateTime(now.year - 5),
-                  lastDate: DateTime(now.year + 5),
-                );
-                if (picked != null) notifier.setTo(picked);
-              },
-              child: Text(
-                state.to == null
-                    ? 'تا تاریخ'
-                    : formatJalaliForDisplay(dateTimeToJalali(state.to!)),
-              ),
-            ),
-          ],
-        ),
+            ],
+          ),
 
-        // Status chips and counterparty filter
-        Row(
-          children: [
-            Expanded(
-              child: Wrap(
-                spacing: 8,
-                runSpacing: 4,
-                children: [
-                  FilterChip(
-                    label: const Text('همه'),
-                    selected: state.statusFilter.length ==
-                        InstallmentStatus.values.length,
-                    onSelected: (v) => notifier.setAllStatuses(v),
-                  ),
-                  FilterChip(
-                    label: const Text('در انتظار'),
-                    selected: state.statusFilter.contains(
-                      InstallmentStatus.pending,
-                    ),
-                    onSelected: (v) =>
-                        notifier.toggleStatus(InstallmentStatus.pending, v),
-                  ),
-                  FilterChip(
-                    label: const Text('عقب‌افتاده'),
-                    selected: state.statusFilter.contains(
-                      InstallmentStatus.overdue,
-                    ),
-                    onSelected: (v) =>
-                        notifier.toggleStatus(InstallmentStatus.overdue, v),
-                  ),
-                  FilterChip(
-                    label: const Text('پرداخت شده'),
-                    selected: state.statusFilter.contains(
-                      InstallmentStatus.paid,
-                    ),
-                    onSelected: (v) =>
-                        notifier.toggleStatus(InstallmentStatus.paid, v),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(width: 12),
-            SizedBox(
-              width: 200,
-              child: DropdownButton<int?>(
-                value: state.counterpartyFilter,
-                isExpanded: true,
-                items: [
-                  const DropdownMenuItem(value: null, child: Text('همه')),
-                  ...state.counterparties.map(
-                    (c) => DropdownMenuItem(value: c.id, child: Text(c.name)),
-                  ),
-                ],
-                onChanged: (v) => notifier.setCounterpartyFilter(v),
-              ),
-            ),
-            const SizedBox(width: 12),
-            SizedBox(
-              width: 160,
-              child: DropdownButton<String?>(
-                value: state.counterpartyTypeFilter,
-                isExpanded: true,
-                items: const [
-                  DropdownMenuItem(value: null, child: Text('همه انواع')),
-                  DropdownMenuItem(value: 'person', child: Text('شخص')),
-                  DropdownMenuItem(value: 'bank', child: Text('بانک')),
-                  DropdownMenuItem(value: 'company', child: Text('شرکت')),
-                ],
-                onChanged: (v) => notifier.setCounterpartyTypeFilter(v),
-              ),
-            ),
-          ],
-        ),
-
-        const SizedBox(height: 12),
-        // rows section
-        rowsSection(),
-      ],
-    ),
-  );
+          const SizedBox(height: 12),
+          // rows section
+          rowsSection(),
+        ],
+      ),
+    );
   }
 }

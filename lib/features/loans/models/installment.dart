@@ -62,7 +62,7 @@ class Installment {
               ? 'paid'
               : 'overdue',
       'paid_at': paidAt,
-          'paid_at_jalali': paidAtJalali,
+      'paid_at_jalali': paidAtJalali,
       'actual_paid_amount': actualPaidAmount,
       'notification_id': notificationId,
     };
@@ -89,7 +89,7 @@ class Installment {
           : int.parse(map['amount'].toString()),
       status: status,
       paidAt: map['paid_at'] as String?,
-        paidAtJalali: map['paid_at_jalali'] as String?,
+      paidAtJalali: map['paid_at_jalali'] as String?,
       actualPaidAmount: map['actual_paid_amount'] is int
           ? map['actual_paid_amount'] as int
           : (map['actual_paid_amount'] != null

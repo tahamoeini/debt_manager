@@ -91,8 +91,7 @@ class _AdvancedReportsScreenState extends ConsumerState<AdvancedReportsScreen> {
                 const SizedBox(width: 8),
                 Expanded(
                   child: FilledButton.icon(
-                    onPressed: () =>
-                        context.pushNamed('debtPayoffProjection'),
+                    onPressed: () => context.pushNamed('debtPayoffProjection'),
                     icon: const Icon(Icons.timeline),
                     label: const Text('پیش‌بینی بدهی'),
                   ),

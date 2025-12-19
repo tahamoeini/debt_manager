@@ -162,8 +162,9 @@ class HomeScreen extends ConsumerWidget {
                             onTap: () async {
                               final res = await context.pushNamed<bool>(
                                 'loanDetail',
-                                pathParameters:
-                                    {'loanId': inst.loanId.toString()},
+                                pathParameters: {
+                                  'loanId': inst.loanId.toString()
+                                },
                               );
                               if (res == true) {
                                 ref

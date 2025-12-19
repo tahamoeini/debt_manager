@@ -453,7 +453,8 @@ class _LoanDetailScreenState extends ConsumerState<LoanDetailScreen> {
                         const SizedBox(height: 12),
                         // Transactions linked to this loan (disbursement, fees, etc.)
                         FutureBuilder<List<Map<String, dynamic>>>(
-                          future: DatabaseHelper.instance.getTransactionsByRelated('loan', loan.id ?? -1),
+                          future: DatabaseHelper.instance
+                              .getTransactionsByRelated('loan', loan.id ?? -1),
                           builder: (ctx, snap) {
                             if (snap.connectionState != ConnectionState.done) {
                               return const SizedBox.shrink();
@@ -468,23 +469,29 @@ class _LoanDetailScreenState extends ConsumerState<LoanDetailScreen> {
                                   children: [
                                     Text(
                                       'تراکنش‌ها',
-                                      style: Theme.of(context).textTheme.titleMedium,
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .titleMedium,
                                     ),
                                     const SizedBox(height: 8),
                                     ...txns.map((t) {
-                                      final ts = t['timestamp'] as String? ?? '';
-                                      final dir = t['direction'] as String? ?? '';
+                                      final ts =
+                                          t['timestamp'] as String? ?? '';
+                                      final dir =
+                                          t['direction'] as String? ?? '';
                                       final amt = t['amount'];
-                                      final desc = t['description'] as String? ?? '';
+                                      final desc =
+                                          t['description'] as String? ?? '';
                                       return ListTile(
                                         dense: true,
-                                        title: Text(desc.isNotEmpty ? desc : ts),
+                                        title:
+                                            Text(desc.isNotEmpty ? desc : ts),
                                         subtitle: Text(ts),
                                         trailing: Text(
                                           "${dir == 'credit' ? '+' : '-'} ${formatCurrency(amt is int ? amt : int.tryParse('$amt') ?? 0)}",
                                         ),
                                       );
-                                    }).toList(),
+                                    }),
                                   ],
                                 ),
                               ),
@@ -547,17 +554,24 @@ class _LoanDetailScreenState extends ConsumerState<LoanDetailScreen> {
                             children: [
                               IconButton(
                                 icon: const Icon(Icons.edit),
-                                onPressed: () => _showEditInstallmentSheet(inst),
+                                onPressed: () =>
+                                    _showEditInstallmentSheet(inst),
                               ),
                             ],
                           ),
                         ),
                         FutureBuilder<List<Map<String, dynamic>>>(
-                          future: DatabaseHelper.instance.getTransactionsByRelated('installment', inst.id ?? -1),
+                          future: DatabaseHelper.instance
+                              .getTransactionsByRelated(
+                                  'installment', inst.id ?? -1),
                           builder: (c, s) {
-                            if (s.connectionState != ConnectionState.done) return const SizedBox.shrink();
+                            if (s.connectionState != ConnectionState.done) {
+                              return const SizedBox.shrink();
+                            }
                             final list = s.data ?? [];
-                            if (list.isEmpty) return const SizedBox.shrink();
+                            if (list.isEmpty) {
+                              return const SizedBox.shrink();
+                            }
                             return Column(
                               children: list.map((t) {
                                 final ts = t['timestamp'] as String? ?? '';
