@@ -32,7 +32,9 @@ Future<void> main() async {
       // Warm up settings getters for downstream callers.
       try {
         await settings.getBiometricEnabled();
-      } catch (_) {}
+      } catch (e) {
+        debugPrint('Failed to warm up biometric settings: $e');
+      }
 
       await NotificationService().init();
       await SmartNotificationService().init();
@@ -43,7 +45,9 @@ Future<void> main() async {
         if (smartEnabled) {
           await SmartInsightsService().runInsights(notify: false);
         }
-      } catch (_) {}
+      } catch (e) {
+        debugPrint('Failed to run initial smart insights: $e');
+      }
 
       runApp(const ProviderScope(child: DebtManagerApp()));
     },

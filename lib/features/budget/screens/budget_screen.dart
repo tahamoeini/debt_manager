@@ -51,10 +51,14 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
         essentialBudget: totalBudgets,
         safetyFactor: 1.2,
       );
-      setState(() {
-        _incomeSuggestion = safe;
-      });
-    } catch (_) {}
+      if (mounted) {
+        setState(() {
+          _incomeSuggestion = safe;
+        });
+      }
+    } catch (e) {
+      debugPrint('Failed to load income suggestion: $e');
+    }
   }
 
   void _refresh() {
@@ -71,6 +75,7 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
       await svc.checkBudgetThresholds(_currentPeriod());
     } catch (e) {
       // Silently fail - don't disrupt the UI if notifications fail
+      debugPrint('Budget threshold check failed: $e');
     }
   }
 

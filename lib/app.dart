@@ -72,6 +72,7 @@ class _DebtManagerAppState extends ConsumerState<DebtManagerApp>
 
   @override
   void dispose() {
+    _cancelLockTimer();
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
