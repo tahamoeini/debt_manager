@@ -125,8 +125,8 @@ class PdfReportGenerator {
                               i.status == InstallmentStatus.overdue
                                   ? 'معوق'
                                   : (i.status == InstallmentStatus.paid
-                                        ? 'پرداخت‌شده'
-                                        : 'مشخص'),
+                                      ? 'پرداخت‌شده'
+                                      : 'مشخص'),
                             ],
                           )
                           .toList(),

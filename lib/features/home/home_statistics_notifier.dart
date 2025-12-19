@@ -28,7 +28,8 @@ class HomeStats {
 }
 
 // Use Riverpod v2 StateNotifier from flutter_riverpod
-final homeStatisticsProvider = FutureProvider.autoDispose<HomeStats>((ref) async {
+final homeStatisticsProvider =
+    FutureProvider.autoDispose<HomeStats>((ref) async {
   final db = ref.read(databaseHelperProvider);
 
   await db.refreshOverdueInstallments(DateTime.now());
@@ -53,8 +54,7 @@ final homeStatisticsProvider = FutureProvider.autoDispose<HomeStats>((ref) async
     for (final inst in installments) {
       if (inst.paidAt != null) {
         final paidDate = DateTime.parse(inst.paidAt!);
-        if (paidDate.isAfter(startOfMonth) &&
-            paidDate.isBefore(endOfMonth)) {
+        if (paidDate.isAfter(startOfMonth) && paidDate.isBefore(endOfMonth)) {
           monthlySpending += inst.actualPaidAmount ?? inst.amount;
         }
       }

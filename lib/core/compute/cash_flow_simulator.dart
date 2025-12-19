@@ -39,15 +39,15 @@ class DailyCashSnapshot {
   });
 
   Map<String, dynamic> toMap() => {
-    'date': date.toIso8601String(),
-    'dateJalali': dateJalaliString,
-    'openingBalance': openingBalance,
-    'income': income,
-    'expenses': expenses,
-    'debtPayments': debtPayments,
-    'closingBalance': closingBalance,
-    'isNegative': isNegative,
-  };
+        'date': date.toIso8601String(),
+        'dateJalali': dateJalaliString,
+        'openingBalance': openingBalance,
+        'income': income,
+        'expenses': expenses,
+        'debtPayments': debtPayments,
+        'closingBalance': closingBalance,
+        'isNegative': isNegative,
+      };
 }
 
 /// Input DTO for simulator
@@ -201,14 +201,14 @@ class CashFlowResult {
   }
 
   Map<String, dynamic> toMap() => {
-    'snapshots': snapshots.map((s) => s.toMap()).toList(),
-    'hasNegativeCash': hasNegativeCash,
-    'minBalance': minBalance,
-    'maxBalance': maxBalance,
-    'daysUntilNegative': daysUntilNegative,
-    'safetyLevel': safetyLevel,
-    'recommendation': recommendation,
-  };
+        'snapshots': snapshots.map((s) => s.toMap()).toList(),
+        'hasNegativeCash': hasNegativeCash,
+        'minBalance': minBalance,
+        'maxBalance': maxBalance,
+        'daysUntilNegative': daysUntilNegative,
+        'safetyLevel': safetyLevel,
+        'recommendation': recommendation,
+      };
 }
 
 /// Post-process snapshots to compute result
@@ -235,12 +235,10 @@ CashFlowResult analyzeCashFlow(List<DailyCashSnapshot> snapshots) {
 
   for (var i = 0; i < snapshots.length; i++) {
     final snap = snapshots[i];
-    minBalance = minBalance > snap.closingBalance
-        ? snap.closingBalance
-        : minBalance;
-    maxBalance = maxBalance < snap.closingBalance
-        ? snap.closingBalance
-        : maxBalance;
+    minBalance =
+        minBalance > snap.closingBalance ? snap.closingBalance : minBalance;
+    maxBalance =
+        maxBalance < snap.closingBalance ? snap.closingBalance : maxBalance;
 
     if (snap.isNegative && daysUntilNegative < 0) {
       daysUntilNegative = i;

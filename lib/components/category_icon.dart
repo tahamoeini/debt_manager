@@ -131,12 +131,10 @@ class CategoryChip extends StatelessWidget {
 
     final color =
         customColor ?? CategoryIcons.getColor(category, brightness: brightness);
-    final backgroundColor = isSelected
-        ? color.withValues(alpha: 0.2)
-        : colorScheme.surface;
-    final borderColor = isSelected
-        ? color
-        : colorScheme.outline.withValues(alpha: 0.3);
+    final backgroundColor =
+        isSelected ? color.withValues(alpha: 0.2) : colorScheme.surface;
+    final borderColor =
+        isSelected ? color : colorScheme.outline.withValues(alpha: 0.3);
 
     final content = Container(
       padding: const EdgeInsets.symmetric(

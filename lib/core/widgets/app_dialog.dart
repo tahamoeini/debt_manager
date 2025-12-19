@@ -57,8 +57,7 @@ class AppDialog extends StatelessWidget {
           : null,
       content: content,
       contentPadding: contentPadding ?? AppDimensions.dialogPadding,
-      actionsPadding:
-          actionsPadding ??
+      actionsPadding: actionsPadding ??
           const EdgeInsets.only(left: 16, right: 16, bottom: 16),
       actions: actions,
     );

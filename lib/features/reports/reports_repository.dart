@@ -128,15 +128,15 @@ class ReportsRepository {
     try {
       final res =
           await compute<Map<String, dynamic>, List<Map<String, dynamic>>>(
-            spendingOverTimeEntry,
-            {
-              'loans': loanMaps,
-              'insts': instMaps,
-              'monthsBack': monthsBack,
-              'nowYear': nowJ.year,
-              'nowMonth': nowJ.month,
-            },
-          );
+        spendingOverTimeEntry,
+        {
+          'loans': loanMaps,
+          'insts': instMaps,
+          'monthsBack': monthsBack,
+          'nowYear': nowJ.year,
+          'nowMonth': nowJ.month,
+        },
+      );
       if (_ref != null) {
         _ref!.read(reportsCacheProvider.notifier).put(cacheKey, res);
       }
@@ -186,15 +186,15 @@ class ReportsRepository {
     try {
       final res =
           await compute<Map<String, dynamic>, List<Map<String, dynamic>>>(
-            netWorthOverTimeEntry,
-            {
-              'loans': loanMaps,
-              'insts': instMaps,
-              'monthsBack': monthsBack,
-              'nowYear': nowJ.year,
-              'nowMonth': nowJ.month,
-            },
-          );
+        netWorthOverTimeEntry,
+        {
+          'loans': loanMaps,
+          'insts': instMaps,
+          'monthsBack': monthsBack,
+          'nowYear': nowJ.year,
+          'nowMonth': nowJ.month,
+        },
+      );
       if (_ref != null) {
         _ref!.read(reportsCacheProvider.notifier).put(cacheKey, res);
       }
@@ -232,9 +232,9 @@ class ReportsRepository {
     try {
       final res =
           await compute<Map<String, dynamic>, List<Map<String, dynamic>>>(
-            projectDebtPayoffEntry,
-            {'loan': loanMap, 'insts': instMaps, 'extraPayment': extraPayment},
-          );
+        projectDebtPayoffEntry,
+        {'loan': loanMap, 'insts': instMaps, 'extraPayment': extraPayment},
+      );
       if (_ref != null) {
         _ref!.read(reportsCacheProvider.notifier).put(cacheKey, res);
       }
@@ -274,14 +274,14 @@ class ReportsRepository {
     try {
       final res =
           await compute<Map<String, dynamic>, List<Map<String, dynamic>>>(
-            projectAllDebtsPayoffEntry,
-            {
-              'loans': loanMaps,
-              'insts': instMaps,
-              'extraPayment': extraPayment,
-              'strategy': strategy,
-            },
-          );
+        projectAllDebtsPayoffEntry,
+        {
+          'loans': loanMaps,
+          'insts': instMaps,
+          'extraPayment': extraPayment,
+          'strategy': strategy,
+        },
+      );
       if (_ref != null) {
         _ref!.read(reportsCacheProvider.notifier).put(cacheKey, res);
       }

@@ -182,13 +182,13 @@ class HomeScreen extends ConsumerWidget {
                           color: Colors.transparent,
                           child: InkWell(
                             onTap: () async {
-                              final res = await Navigator.of(context)
-                                  .push<bool>(
-                                    MaterialPageRoute(
-                                      builder: (_) =>
-                                          LoanDetailScreen(loanId: inst.loanId),
-                                    ),
-                                  );
+                              final res =
+                                  await Navigator.of(context).push<bool>(
+                                MaterialPageRoute(
+                                  builder: (_) =>
+                                      LoanDetailScreen(loanId: inst.loanId),
+                                ),
+                              );
                               if (res == true) {
                                 ref
                                     .read(refreshTriggerProvider.notifier)
@@ -345,9 +345,9 @@ class HomeScreen extends ConsumerWidget {
                               show: true,
                               getDotPainter: (spot, percent, barData, index) =>
                                   FlDotCirclePainter(
-                                    radius: 4,
-                                    color: Colors.blue.shade700,
-                                  ),
+                                radius: 4,
+                                color: Colors.blue.shade700,
+                              ),
                             ),
                             belowBarData: BarAreaData(
                               show: true,

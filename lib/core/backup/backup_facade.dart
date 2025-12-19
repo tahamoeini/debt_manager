@@ -16,7 +16,8 @@ class BackupFacade {
     return await plain_backup.BackupService.instance.exportAll();
   }
 
-  Future<void> importPlainJson(String jsonString, {bool clearBefore = true}) async {
+  Future<void> importPlainJson(String jsonString,
+      {bool clearBefore = true}) async {
     await plain_backup.BackupService.instance
         .importFromJsonString(jsonString, clearBefore: clearBefore);
   }
@@ -52,12 +53,15 @@ class BackupFacade {
 
   // -------- QR Bytes (encrypted+compressed) --------
   Future<Uint8List> exportQrBytes(String password) async {
-    return await qr_backup.BackupService.exportEncryptedCompressedBytes(password);
+    return await qr_backup.BackupService.exportEncryptedCompressedBytes(
+        password);
   }
 
   /// Decrypt QR wrapper bytes to a JSON string (without importing).
-  Future<String> decryptQrBytesToJson(Uint8List wrapperBytes, String password) async {
-    return await qr_backup.BackupService.decryptCompressedBytes(wrapperBytes, password);
+  Future<String> decryptQrBytesToJson(
+      Uint8List wrapperBytes, String password) async {
+    return await qr_backup.BackupService.decryptCompressedBytes(
+        wrapperBytes, password);
   }
 
   /// Convenience: decrypt QR wrapper and import the contained JSON.

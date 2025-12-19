@@ -1,4 +1,4 @@
-name: Release
+name: Release Pipeline
 
 concurrency:
   group: release-${{ github.ref }}
@@ -7,23 +7,155 @@ concurrency:
 on:
   push:
     tags:
-      - 'v*'
+      - 'v[0-9]+.[0-9]+.[0-9]+'
+      - 'v[0-9]+.[0-9]+.[0-9]+-*'
   workflow_dispatch:
     inputs:
-      create_release:
-        description: 'Create a GitHub release'
+      version_bump:
+        description: 'Version bump type (major, minor, patch)'
+        required: true
+        type: choice
+        options:
+          - patch
+          - minor
+          - major
+      prerelease:
+        description: 'Create as prerelease'
         required: false
-        default: 'true'
+        type: boolean
+        default: false
 
 permissions:
   contents: write
 
 jobs:
-  build-release:
+  # Block release unless CI passes
+  verify-ci:
+    name: Verify CI Status
     runs-on: ubuntu-latest
-    timeout-minutes: 60
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      checks: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Wait for CI to complete
+        if: github.event_name == 'workflow_dispatch'
+        uses: lewagon/wait-on-check-action@v1.3.4
+        with:
+          ref: ${{ github.sha }}
+          check-name: 'CI Check'
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          wait-interval: 10
+
+  # Calculate semantic version from commits
+  version:
+    name: Calculate Version
+    needs: verify-ci
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
     permissions:
       contents: write
+    outputs:
+      new_version: ${{ steps.semver.outputs.new_version }}
+      new_tag: ${{ steps.semver.outputs.new_tag }}
+      changelog: ${{ steps.semver.outputs.changelog }}
+      
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Calculate semantic version
+        id: semver
+        shell: bash
+        run: |
+          # If triggered by tag push, use the tag
+          if [[ "${{ github.ref }}" == refs/tags/v* ]]; then
+            TAG="${{ github.ref_name }}"
+            VERSION="${TAG#v}"
+            echo "new_version=$VERSION" >> $GITHUB_OUTPUT
+            echo "new_tag=$TAG" >> $GITHUB_OUTPUT
+            echo "changelog=Release $VERSION" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+          
+          # Get the latest tag (fallback to v0.0.0 if none)
+          LATEST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "v0.0.0")
+          echo "Latest tag: $LATEST_TAG"
+          
+          # Parse current version
+          CURRENT_VERSION="${LATEST_TAG#v}"
+          IFS='.' read -r MAJOR MINOR PATCH <<< "$CURRENT_VERSION"
+          
+          # Get commits since last tag
+          COMMITS=$(git log ${LATEST_TAG}..HEAD --pretty=format:"%s" 2>/dev/null || git log --pretty=format:"%s")
+          
+          # Determine bump type from conventional commits
+          BUMP_TYPE="${{ github.event.inputs.version_bump || 'patch' }}"
+          
+          if [ "${{ github.event_name }}" != "workflow_dispatch" ]; then
+            # Auto-detect from commits
+            if echo "$COMMITS" | grep -qiE "^(feat|feature)(\(.*\))?!:|BREAKING CHANGE:"; then
+              BUMP_TYPE="major"
+            elif echo "$COMMITS" | grep -qiE "^(feat|feature)(\(.*\))?:"; then
+              BUMP_TYPE="minor"
+            else
+              BUMP_TYPE="patch"
+            fi
+          fi
+          
+          echo "Bump type: $BUMP_TYPE"
+          
+          # Calculate new version
+          case $BUMP_TYPE in
+            major)
+              NEW_VERSION="$((MAJOR + 1)).0.0"
+              ;;
+            minor)
+              NEW_VERSION="${MAJOR}.$((MINOR + 1)).0"
+              ;;
+            patch)
+              NEW_VERSION="${MAJOR}.${MINOR}.$((PATCH + 1))"
+              ;;
+          esac
+          
+          NEW_TAG="v${NEW_VERSION}"
+          
+          # Generate changelog from commits
+          CHANGELOG=$(cat <<EOF
+          ## What's Changed
+          
+          $(echo "$COMMITS" | head -20 | sed 's/^/- /')
+          
+          **Full Changelog**: https://github.com/${{ github.repository }}/compare/${LATEST_TAG}...${NEW_TAG}
+          EOF
+          )
+          
+          echo "new_version=$NEW_VERSION" >> $GITHUB_OUTPUT
+          echo "new_tag=$NEW_TAG" >> $GITHUB_OUTPUT
+          echo "changelog<<EOF" >> $GITHUB_OUTPUT
+          echo "$CHANGELOG" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+  # Build optimized release
+  build:
+    name: Build Release APK
+    needs: version
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    permissions:
+      contents: read
+    outputs:
+      apk_path: ${{ steps.build.outputs.apk_path }}
+      apk_size: ${{ steps.build.outputs.apk_size }}
+      aab_path: ${{ steps.build.outputs.aab_path }}
+      aab_size: ${{ steps.build.outputs.aab_size }}
 
     steps:
       - name: Checkout
@@ -34,86 +166,132 @@ jobs:
       - name: Setup Flutter and Build Tools
         uses: ./.github/actions/setup-flutter
 
-      - name: Analyze code
-        run: flutter analyze --no-fatal-infos
-
-      - name: Run tests
-        run: flutter test --concurrency=8 --test-randomize-ordering-seed=random
-
-      - name: Build APK (release)
-        run: flutter build apk --release -v
-
-      - name: Build App Bundle (release)
-        run: flutter build appbundle --release -v
-
-      - name: Extract version info
-        id: version
+      - name: Configure build version
         shell: bash
         run: |
-          if [[ "${{ github.ref }}" == refs/tags/* ]]; then
-            TAG="${{ github.ref_name }}"
-            VERSION="${TAG#v}"
-            IS_TAG="true"
-          else
-            SHORT_SHA=$(git rev-parse --short HEAD)
-            TIMESTAMP=$(date +%Y%m%d_%H%M%S)
-            VERSION="manual-${TIMESTAMP}-${SHORT_SHA}"
-            TAG="release-${TIMESTAMP}-${SHORT_SHA}"
-            IS_TAG="false"
-          fi
-          echo "version=$VERSION" >> $GITHUB_OUTPUT
-          echo "tag=$TAG" >> $GITHUB_OUTPUT
-          echo "is_tag=$IS_TAG" >> $GITHUB_OUTPUT
+          VERSION="${{ needs.version.outputs.new_version }}"
+          VERSION_CODE=$(date +%s)
+          
+          # Update pubspec.yaml version
+          sed -i "s/^version:.*/version: ${VERSION}+${VERSION_CODE}/" pubspec.yaml
+          
+          echo "Building version: $VERSION ($VERSION_CODE)"
 
-      - name: Get build artifacts info
-        id: artifacts
+      - name: Run pre-release checks
+        run: |
+          flutter analyze --fatal-infos --fatal-warnings
+          flutter test --concurrency=8
+
+      - name: Build optimized release APK
+        id: build
         shell: bash
         run: |
-          APK_PATH="build/app/outputs/flutter-apk/app-release.apk"
+          # Build release APK with optimizations
+          flutter build apk \
+            --release \
+            --shrink \
+            --split-per-abi \
+            --target-platform android-arm64 \
+            --obfuscate \
+            --split-debug-info=build/app/outputs/symbols
+          
+          # Build App Bundle for Play Store
+          flutter build appbundle \
+            --release \
+            --obfuscate \
+            --split-debug-info=build/app/outputs/symbols
+          
+          # Get artifact info
+          APK_PATH="build/app/outputs/flutter-apk/app-arm64-v8a-release.apk"
           AAB_PATH="build/app/outputs/bundle/release/app-release.aab"
+          
           APK_SIZE=$(du -h "$APK_PATH" | cut -f1)
           AAB_SIZE=$(du -h "$AAB_PATH" | cut -f1)
+          
           echo "apk_path=$APK_PATH" >> $GITHUB_OUTPUT
           echo "apk_size=$APK_SIZE" >> $GITHUB_OUTPUT
           echo "aab_path=$AAB_PATH" >> $GITHUB_OUTPUT
           echo "aab_size=$AAB_SIZE" >> $GITHUB_OUTPUT
-
-      - name: Create Release Notes
-        id: notes
-        shell: bash
-        run: |
-          cat > release_notes.md << EOF
-          ## Debt Manager v${{ steps.version.outputs.version }}
           
-          ### Build Artifacts
-          - **APK**: ${{ steps.artifacts.outputs.apk_size }}
-          - **AAB**: ${{ steps.artifacts.outputs.aab_size }}
-          
-          ### Installation
-          Download the APK or AAB file and install it on your Android device.
-          EOF
+          echo "✅ APK built: $APK_SIZE"
+          echo "✅ AAB built: $AAB_SIZE"
 
-      - name: Create GitHub Release
-        if: steps.version.outputs.is_tag == 'true' || github.event.inputs.create_release == 'true'
-        uses: softprops/action-gh-release@v2
-        with:
-          tag_name: ${{ steps.version.outputs.tag }}
-          name: "Debt Manager v${{ steps.version.outputs.version }}"
-          body_path: release_notes.md
-          draft: false
-          prerelease: false
-          files: |
-            ${{ steps.artifacts.outputs.apk_path }}
-            ${{ steps.artifacts.outputs.aab_path }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Upload build artifacts (retention)
+      - name: Upload debug symbols
         uses: actions/upload-artifact@v4
         with:
-          name: build-${{ steps.version.outputs.version }}
+          name: debug-symbols-${{ needs.version.outputs.new_version }}
+          path: build/app/outputs/symbols/
+          retention-days: 90
+          if-no-files-found: warn
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-builds-${{ needs.version.outputs.new_version }}
           path: |
-            build/app/outputs/flutter-apk/app-release.apk
-            build/app/outputs/bundle/release/app-release.aab
-          retention-days: 30
+            ${{ steps.build.outputs.apk_path }}
+            ${{ steps.build.outputs.aab_path }}
+          retention-days: 90
           if-no-files-found: error
+
+  # Create GitHub release
+  release:
+    name: Create GitHub Release
+    needs: [version, build]
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: release-builds-${{ needs.version.outputs.new_version }}
+          path: artifacts/
+
+      - name: Create release notes
+        shell: bash
+        run: |
+          cat > release_notes.md << 'EOF'
+          # 🎉 Debt Manager ${{ needs.version.outputs.new_version }}
+          
+          ## 📦 Build Information
+          - **APK Size**: ${{ needs.build.outputs.apk_size }}
+          - **AAB Size**: ${{ needs.build.outputs.aab_size }}
+          - **Build Date**: $(date -u +"%Y-%m-%d %H:%M UTC")
+          - **Optimizations**: Code shrinking, resource shrinking, obfuscation enabled
+          
+          ## 📥 Installation
+          1. Download the APK file (`app-arm64-v8a-release.apk`)
+          2. Enable "Install from unknown sources" in Android settings
+          3. Install the APK on your device
+          
+          ${{ needs.version.outputs.changelog }}
+          EOF
+
+      - name: Create or update git tag
+        if: github.event_name == 'workflow_dispatch'
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git tag -a "${{ needs.version.outputs.new_tag }}" -m "Release ${{ needs.version.outputs.new_version }}"
+          git push origin "${{ needs.version.outputs.new_tag }}"
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ needs.version.outputs.new_tag }}
+          name: "Debt Manager ${{ needs.version.outputs.new_version }}"
+          body_path: release_notes.md
+          draft: false
+          prerelease: ${{ github.event.inputs.prerelease || false }}
+          files: |
+            artifacts/app-arm64-v8a-release.apk
+            artifacts/app-release.aab
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -12,7 +12,8 @@ void main() {
   });
 
   test('Wrong password fails decryption', () async {
-    final env = await BackupCrypto.encryptJsonAsync(jsonEncode({'x': 42}), 'pw1');
+    final env =
+        await BackupCrypto.encryptJsonAsync(jsonEncode({'x': 42}), 'pw1');
     expect(
       () => BackupCrypto.decryptJsonAsync(env, 'pw2'),
       throwsA(isA<Exception>()),
@@ -20,7 +21,8 @@ void main() {
   });
 
   test('Tampered ciphertext fails with MAC validation error', () async {
-    final env = await BackupCrypto.encryptJsonAsync(jsonEncode({'x': 42}), 'pw');
+    final env =
+        await BackupCrypto.encryptJsonAsync(jsonEncode({'x': 42}), 'pw');
     final cipher = base64Decode(env['cipher'] as String);
     // Flip a bit
     cipher[0] = cipher[0] ^ 0xFF;
@@ -165,9 +167,11 @@ void main() {
     test('unsupported envelope version throws', () async {
       final invalidEnvelope = {
         'v': 1, // Old version
-        'salt': base64Encode([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16]),
+        'salt': base64Encode(
+            [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16]),
         'nonce': base64Encode([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]),
-        'cipher': base64Encode([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16]),
+        'cipher': base64Encode(
+            [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16]),
       };
 
       expect(

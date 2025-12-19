@@ -76,12 +76,11 @@ class _AppShellState extends State<AppShell> {
                                     valueListenable: DebugLogger.overlayEnabled,
                                     builder: (context, val, _) =>
                                         SwitchListTile(
-                                          title: const Text('SafeArea overlay'),
-                                          value: val,
-                                          onChanged: (v) =>
-                                              DebugLogger.overlayEnabled.value =
-                                                  v,
-                                        ),
+                                      title: const Text('SafeArea overlay'),
+                                      value: val,
+                                      onChanged: (v) =>
+                                          DebugLogger.overlayEnabled.value = v,
+                                    ),
                                   ),
                                 ],
                               ),
@@ -92,16 +91,13 @@ class _AppShellState extends State<AppShell> {
                                         DebugLogger.showBoundsEnabled,
                                     builder: (context, val, _) =>
                                         SwitchListTile(
-                                          title: const Text(
-                                            'Show widget bounds',
-                                          ),
-                                          value: val,
-                                          onChanged: (v) =>
-                                              DebugLogger
-                                                      .showBoundsEnabled
-                                                      .value =
-                                                  v,
-                                        ),
+                                      title: const Text(
+                                        'Show widget bounds',
+                                      ),
+                                      value: val,
+                                      onChanged: (v) => DebugLogger
+                                          .showBoundsEnabled.value = v,
+                                    ),
                                   ),
                                 ],
                               ),

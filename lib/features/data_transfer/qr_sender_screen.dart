@@ -97,65 +97,66 @@ class _QrSenderScreenState extends State<QrSenderScreen> {
         child: _loading
             ? const Center(child: CircularProgressIndicator())
             : _pages.isEmpty
-            ? Center(
-                child: ElevatedButton(
-                  onPressed: _buildBackupAndChunks,
-                  child: const Text('Retry export'),
-                ),
-              )
-            : Column(
-                children: [
-                  Expanded(
-                    child: Center(
-                      child: QrImageView(data: _pages[_index], size: 320),
+                ? Center(
+                    child: ElevatedButton(
+                      onPressed: _buildBackupAndChunks,
+                      child: const Text('Retry export'),
                     ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(12.0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text('${_index + 1} / ${_pages.length}'),
-                        Row(
+                  )
+                : Column(
+                    children: [
+                      Expanded(
+                        child: Center(
+                          child: QrImageView(data: _pages[_index], size: 320),
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.all(12.0),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            IconButton(
-                              onPressed: () {
-                                setState(
-                                  () => _index =
-                                      (_index - 1 + _pages.length) %
-                                      _pages.length,
-                                );
-                              },
-                              icon: const Icon(Icons.arrow_back),
-                            ),
-                            IconButton(
-                              onPressed: () {
-                                setState(
-                                  () => _index = (_index + 1) % _pages.length,
-                                );
-                              },
-                              icon: const Icon(Icons.arrow_forward),
-                            ),
-                            IconButton(
-                              onPressed: () {
-                                setState(() => _autoPlay = !_autoPlay);
-                                if (_autoPlay) {
-                                  _startAutoPlay();
-                                } else {
-                                  _stopAutoPlay();
-                                }
-                              },
-                              icon: Icon(
-                                _autoPlay ? Icons.pause : Icons.play_arrow,
-                              ),
+                            Text('${_index + 1} / ${_pages.length}'),
+                            Row(
+                              children: [
+                                IconButton(
+                                  onPressed: () {
+                                    setState(
+                                      () => _index =
+                                          (_index - 1 + _pages.length) %
+                                              _pages.length,
+                                    );
+                                  },
+                                  icon: const Icon(Icons.arrow_back),
+                                ),
+                                IconButton(
+                                  onPressed: () {
+                                    setState(
+                                      () =>
+                                          _index = (_index + 1) % _pages.length,
+                                    );
+                                  },
+                                  icon: const Icon(Icons.arrow_forward),
+                                ),
+                                IconButton(
+                                  onPressed: () {
+                                    setState(() => _autoPlay = !_autoPlay);
+                                    if (_autoPlay) {
+                                      _startAutoPlay();
+                                    } else {
+                                      _stopAutoPlay();
+                                    }
+                                  },
+                                  icon: Icon(
+                                    _autoPlay ? Icons.pause : Icons.play_arrow,
+                                  ),
+                                ),
+                              ],
                             ),
                           ],
                         ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
-                ],
-              ),
       ),
     );
   }

@@ -49,7 +49,7 @@ class _TransferSendState {
 /// Notifier for transfer send state
 class _TransferSendNotifier extends StateNotifier<_TransferSendState> {
   _TransferSendNotifier()
-    : super(_TransferSendState(transferId: _generateTransferId()));
+      : super(_TransferSendState(transferId: _generateTransferId()));
 
   static String _generateTransferId() {
     return DateTime.now().millisecondsSinceEpoch.toString();
@@ -85,8 +85,8 @@ class _TransferSendNotifier extends StateNotifier<_TransferSendState> {
 
 final _transferSendProvider =
     StateNotifierProvider<_TransferSendNotifier, _TransferSendState>((ref) {
-      return _TransferSendNotifier();
-    });
+  return _TransferSendNotifier();
+});
 
 /// QR transfer sender screen
 class TransferSendScreen extends ConsumerStatefulWidget {
@@ -374,9 +374,9 @@ class _InfoRow extends StatelessWidget {
           Text(
             value,
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
-              fontWeight: FontWeight.bold,
-              fontFamily: 'monospace',
-            ),
+                  fontWeight: FontWeight.bold,
+                  fontFamily: 'monospace',
+                ),
           ),
         ],
       ),

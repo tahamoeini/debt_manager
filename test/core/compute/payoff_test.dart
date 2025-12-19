@@ -5,7 +5,7 @@ void main() {
     // Helper: Snowball strategy (lowest balance first)
     List<Map<String, dynamic>> simulateSnowball({
       required List<Map<String, dynamic>>
-      debts, // [{balance, rate, minPayment}]
+          debts, // [{balance, rate, minPayment}]
       required int extraPayment,
       required int maxMonths,
     }) {
@@ -60,7 +60,7 @@ void main() {
     // Helper: Avalanche strategy (highest rate first)
     List<Map<String, dynamic>> simulateAvalanche({
       required List<Map<String, dynamic>>
-      debts, // [{balance, rate, minPayment}]
+          debts, // [{balance, rate, minPayment}]
       required int extraPayment,
       required int maxMonths,
     }) {

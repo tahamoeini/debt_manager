@@ -282,10 +282,10 @@ void main() {
 
       final avgFirstHalf =
           firstHalf.fold<int>(0, (sum, s) => sum + s.closingBalance) ~/
-          firstHalf.length;
+              firstHalf.length;
       final avgSecondHalf =
           secondHalf.fold<int>(0, (sum, s) => sum + s.closingBalance) ~/
-          secondHalf.length;
+              secondHalf.length;
 
       expect(avgSecondHalf, greaterThan(avgFirstHalf));
     });

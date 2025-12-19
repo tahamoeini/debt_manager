@@ -79,8 +79,7 @@ class BackupRestoreService {
         timestamp: now.toIso8601String(),
         appVersion: '1.0.0', // TODO: Get from pubspec or constants
         checksum: checksum,
-        name:
-            backupName ??
+        name: backupName ??
             'Backup-${DateFormat('yyyy-MM-dd-HHmmss').format(now)}',
         data: backupData,
         metadata: metadata,
@@ -99,7 +98,8 @@ class BackupRestoreService {
       }
 
       // Encrypt payload JSON using AES-GCM envelope
-      final envelope = await BackupCrypto.encryptJsonAsync(payloadJson, password);
+      final envelope =
+          await BackupCrypto.encryptJsonAsync(payloadJson, password);
       final envelopeBytes = utf8.encode(jsonEncode(envelope));
 
       archive.addFile(
@@ -171,7 +171,8 @@ class BackupRestoreService {
         final envelopeMap = jsonDecode(
           utf8.decode(encFile.content as List<int>),
         ) as Map<String, dynamic>;
-        payloadJson = await BackupCrypto.decryptJsonAsync(envelopeMap, password);
+        payloadJson =
+            await BackupCrypto.decryptJsonAsync(envelopeMap, password);
       } else {
         payloadJson = utf8.decode(legacyJsonFile!.content as List<int>);
       }
@@ -180,9 +181,8 @@ class BackupRestoreService {
 
       // Validate checksum
       final dataJson = jsonEncode(payload.data);
-      final calculatedChecksum = sha256
-          .convert(utf8.encode(dataJson))
-          .toString();
+      final calculatedChecksum =
+          sha256.convert(utf8.encode(dataJson)).toString();
       if (calculatedChecksum != payload.checksum) {
         throw BackupIntegrityException(
           'Backup checksum mismatch. File may be corrupted.',
@@ -223,8 +223,7 @@ class BackupRestoreService {
     final conflicts = <BackupConflict>[];
 
     // Validate payload structure: ensure required data sections exist
-    final hasRequiredData =
-        payload.data['loans'] is List &&
+    final hasRequiredData = payload.data['loans'] is List &&
         payload.data['installments'] is List &&
         payload.data['counterparties'] is List;
 
@@ -285,19 +284,19 @@ class BackupRestoreService {
 
       // Insert loans and keep loan id mapping. Use direct DB inserts to avoid
       // triggering side-effects (notifications, insights) during restore.
-      final loans = (payload.data['loans'] as List? ?? [])
-          .cast<Map<String, dynamic>>();
+      final loans =
+          (payload.data['loans'] as List? ?? []).cast<Map<String, dynamic>>();
       final loanIdMap = <int, int>{};
       for (final l in loans) {
-        final oldId = l['id'] is int
-            ? l['id'] as int
-            : int.tryParse('${l['id']}') ?? 0;
+        final oldId =
+            l['id'] is int ? l['id'] as int : int.tryParse('${l['id']}') ?? 0;
         final loan = Loan.fromMap(l);
         final remappedCp = cpIdMap[loan.counterpartyId] ?? loan.counterpartyId;
         final loanToInsert = loan.copyWith(counterpartyId: remappedCp);
         final loanMap = Map<String, dynamic>.from(loanToInsert.toMap());
         loanMap.remove('id');
-        final filteredLoanMap = await _filterToExistingColumns(db, 'loans', loanMap);
+        final filteredLoanMap =
+            await _filterToExistingColumns(db, 'loans', loanMap);
         final newId = await db.insert('loans', filteredLoanMap);
         loanIdMap[oldId] = newId;
       }
@@ -314,7 +313,8 @@ class BackupRestoreService {
         instMap['loan_id'] = newLoanId;
         // Remove id to allow autoincrement on insert
         instMap.remove('id');
-        final filteredInstMap = await _filterToExistingColumns(db, 'installments', instMap);
+        final filteredInstMap =
+            await _filterToExistingColumns(db, 'installments', instMap);
         await db.insert('installments', filteredInstMap);
       }
     } catch (e) {
@@ -354,7 +354,9 @@ class BackupRestoreService {
     final buffer = StringBuffer();
     for (final ch in key.runes) {
       final s = String.fromCharCode(ch);
-      if (s.toUpperCase() == s && buffer.isNotEmpty && RegExp(r'[A-Za-z]').hasMatch(s)) {
+      if (s.toUpperCase() == s &&
+          buffer.isNotEmpty &&
+          RegExp(r'[A-Za-z]').hasMatch(s)) {
         buffer.write('_');
         buffer.write(s.toLowerCase());
       } else {
@@ -374,10 +376,10 @@ class BackupRestoreService {
       final existingCounterparties = await _db.getAllCounterparties();
       final existingLoanIds = existingLoans.map((l) => l.id).toSet();
 
-    // Prefetch all installments grouped by loan_id to avoid N+1 queries
-    final loanIds = existingLoanIds.isNotEmpty
-      ? existingLoanIds.whereType<int>().toList()
-      : <int>[];
+      // Prefetch all installments grouped by loan_id to avoid N+1 queries
+      final loanIds = existingLoanIds.isNotEmpty
+          ? existingLoanIds.whereType<int>().toList()
+          : <int>[];
       final existingInstallmentsByLoanId = loanIds.isNotEmpty
           ? await _db.getInstallmentsGroupedByLoanId(loanIds)
           : <int, List<Installment>>{};
@@ -395,7 +397,8 @@ class BackupRestoreService {
           // Insert directly to avoid any side-effects
           final m = Map<String, dynamic>.from(cpData);
           m.remove('id');
-          final filtered = await _filterToExistingColumns(db, 'counterparties', m);
+          final filtered =
+              await _filterToExistingColumns(db, 'counterparties', m);
           await db.insert('counterparties', filtered);
         }
       }
@@ -417,14 +420,16 @@ class BackupRestoreService {
         final loanId = instData['loan_id'];
         if (loanId != null && instId != null) {
           // Use prefetched installments map
-          final existingIds = (existingInstallmentsByLoanId[loanId as int] ?? [])
-              .map((i) => i.id)
-              .toSet();
+          final existingIds =
+              (existingInstallmentsByLoanId[loanId as int] ?? [])
+                  .map((i) => i.id)
+                  .toSet();
 
           if (!existingIds.contains(instId)) {
             final m = Map<String, dynamic>.from(instData);
             m.remove('id');
-            final filtered = await _filterToExistingColumns(db, 'installments', m);
+            final filtered =
+                await _filterToExistingColumns(db, 'installments', m);
             await db.insert('installments', filtered);
           }
         }

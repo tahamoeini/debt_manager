@@ -29,8 +29,10 @@ class BackupCrypto {
     String password,
   ) async {
     final rand = Random.secure();
-    final salt = Uint8List.fromList(List<int>.generate(16, (_) => rand.nextInt(256)));
-    final nonce = Uint8List.fromList(List<int>.generate(12, (_) => rand.nextInt(256)));
+    final salt =
+        Uint8List.fromList(List<int>.generate(16, (_) => rand.nextInt(256)));
+    final nonce =
+        Uint8List.fromList(List<int>.generate(12, (_) => rand.nextInt(256)));
 
     final algorithm = AesGcm.with256bits();
     final key = await _deriveKey(password, salt);
