@@ -22,6 +22,10 @@ class NotificationService {
   static const String _channelDescription = 'Reminders for loan installments';
 
   Future<void> init() async {
+    if (kIsWeb) {
+      debugPrint('NotificationService.init: skipping initialization on web');
+      return;
+    }
     tzdata.initializeTimeZones();
     try {
       // Try to use a safe local timezone. The timezone package needs an IANA name,
@@ -181,10 +185,18 @@ class NotificationService {
   }
 
   Future<void> cancelNotification(int notificationId) async {
+    if (kIsWeb) {
+      debugPrint('cancelNotification: skipping on web');
+      return;
+    }
     await _plugin.cancel(notificationId);
   }
 
   Future<void> cancelAll() async {
+    if (kIsWeb) {
+      debugPrint('cancelAll: skipping on web');
+      return;
+    }
     await _plugin.cancelAll();
   }
 
@@ -202,6 +214,11 @@ class NotificationService {
 
     final db = DatabaseHelper.instance;
     final installments = await db.getUpcomingInstallments(now, to);
+
+    if (kIsWeb) {
+      debugPrint('rebuildScheduledNotifications: skipping on web');
+      return;
+    }
 
     await cancelAll();
 

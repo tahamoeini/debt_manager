@@ -166,6 +166,7 @@ class _AppShellState extends State<AppShell> {
     switch (index) {
       case 1:
         return FloatingActionButton.large(
+          heroTag: 'app-shell-add-loan',
           onPressed: () async {
             final res = await Navigator.of(context).push<bool>(
               MaterialPageRoute(builder: (_) => const AddLoanScreen()),
@@ -180,6 +181,7 @@ class _AppShellState extends State<AppShell> {
         );
       case 2:
         return FloatingActionButton.large(
+          heroTag: 'app-shell-add-budget',
           onPressed: () async {
             final res = await Navigator.of(context).push<bool>(
               MaterialPageRoute(builder: (_) => const AddBudgetScreen()),

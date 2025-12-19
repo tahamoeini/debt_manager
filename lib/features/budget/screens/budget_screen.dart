@@ -223,6 +223,7 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
             Padding(
               padding: const EdgeInsets.only(bottom: 8.0),
               child: FloatingActionButton.extended(
+                heroTag: 'budget-income-suggestion',
                 onPressed: () {
                   UIUtils.showAppSnackBar(
                     context,
@@ -234,6 +235,7 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
               ),
             ),
           FloatingActionButton.large(
+            heroTag: 'budget-add',
             onPressed: () async {
               await Navigator.of(context).push(
                 MaterialPageRoute(builder: (_) => const AddBudgetScreen()),

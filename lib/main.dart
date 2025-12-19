@@ -11,6 +11,7 @@ import 'core/smart_insights/smart_insights_service.dart';
 import 'core/debug/debug_logger.dart';
 
 Future<void> main() async {
+  // Ensure bindings are initialized before any async work and in the root zone.
   WidgetsFlutterBinding.ensureInitialized();
 
   // Setup global error handlers for easier debugging in debug builds.
@@ -24,6 +25,7 @@ Future<void> main() async {
   // Capture any uncaught errors in zones.
   runZonedGuarded(
     () async {
+
       await DatabaseHelper.instance.refreshOverdueInstallments(DateTime.now());
 
       final settings = SettingsRepository();
