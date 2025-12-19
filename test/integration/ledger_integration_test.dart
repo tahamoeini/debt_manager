@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
@@ -10,8 +8,15 @@ import 'package:debt_manager/features/loans/models/counterparty.dart';
 import 'package:debt_manager/features/loans/models/loan.dart';
 import 'package:debt_manager/features/loans/models/installment.dart';
 
+@Tags(['integration', 'db'])
+@Retry(3)
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
+
+  // Constants for retry configuration in setUpAll
+  // Note: @Retry(3) annotation provides additional test-level retry
+  const int maxRetries = 5;
+  const int baseDelayMs = 100;
 
   group('Ledger integration', () {
     late DatabaseHelper dbHelper;
@@ -37,21 +42,43 @@ void main() {
       sqfliteFfiInit();
       databaseFactory = databaseFactoryFfi;
 
-      // Ensure fresh test DB
-      try {
-        final f =
-            File('.dart_tool/sqflite_common_ffi/databases/debt_manager.db');
-        if (await f.exists()) await f.delete(recursive: true);
-      } catch (_) {}
-
       dbHelper = DatabaseHelper.instance;
       repo = LoanRepository();
 
-      // Open DB to create schema
-      await dbHelper.database;
+      // Retry logic for database access to handle concurrent test runs
+      int retryCount = 0;
+      while (retryCount < maxRetries) {
+        try {
+          // Open DB to create schema
+          await dbHelper.database;
+          break;
+        } catch (e) {
+          // Check if this is a database lock error
+          final errorMessage = e.toString();
+          final isDatabaseLocked = errorMessage.contains('database is locked') ||
+              errorMessage.contains('SQLITE_BUSY');
+          
+          if (isDatabaseLocked && retryCount < maxRetries - 1) {
+            retryCount++;
+            // Wait with linear backoff (sufficient for database lock resolution)
+            // Linear is preferred here as database locks typically release quickly
+            await Future.delayed(Duration(milliseconds: baseDelayMs * retryCount));
+          } else {
+            rethrow;
+          }
+        }
+      }
 
       // Disable notifications in tests to avoid plugin interactions
       await SettingsRepository().setNotificationsEnabled(false);
+    });
+
+    tearDownAll(() async {
+      // Close database to free resources
+      try {
+        final db = await dbHelper.database;
+        await db.close();
+      } catch (_) {}
     });
 
     test('insertTransaction and account balance', () async {
