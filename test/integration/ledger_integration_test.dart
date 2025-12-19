@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
@@ -10,6 +8,8 @@ import 'package:debt_manager/features/loans/models/counterparty.dart';
 import 'package:debt_manager/features/loans/models/loan.dart';
 import 'package:debt_manager/features/loans/models/installment.dart';
 
+@Tags(['integration', 'db'])
+@Retry(3)
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
@@ -37,21 +37,37 @@ void main() {
       sqfliteFfiInit();
       databaseFactory = databaseFactoryFfi;
 
-      // Ensure fresh test DB
-      try {
-        final f =
-            File('.dart_tool/sqflite_common_ffi/databases/debt_manager.db');
-        if (await f.exists()) await f.delete(recursive: true);
-      } catch (_) {}
-
       dbHelper = DatabaseHelper.instance;
       repo = LoanRepository();
 
-      // Open DB to create schema
-      await dbHelper.database;
+      // Retry logic for database access to handle concurrent test runs
+      int retryCount = 0;
+      while (retryCount < 5) {
+        try {
+          // Open DB to create schema
+          await dbHelper.database;
+          break;
+        } catch (e) {
+          if (e.toString().contains('database is locked') && retryCount < 4) {
+            retryCount++;
+            // Wait with exponential backoff
+            await Future.delayed(Duration(milliseconds: 100 * retryCount));
+          } else {
+            rethrow;
+          }
+        }
+      }
 
       // Disable notifications in tests to avoid plugin interactions
       await SettingsRepository().setNotificationsEnabled(false);
+    });
+
+    tearDownAll(() async {
+      // Close database to free resources
+      try {
+        final db = await dbHelper.database;
+        await db.close();
+      } catch (_) {}
     });
 
     test('insertTransaction and account balance', () async {
