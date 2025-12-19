@@ -183,7 +183,10 @@ jobs:
       - name: Run pre-release checks
         run: |
           flutter analyze --fatal-infos --fatal-warnings
-          flutter test --concurrency=8
+          # Run integration tests sequentially to avoid database locks
+          flutter test test/integration/ --concurrency=1
+          # Run all unit/widget tests with high concurrency
+          flutter test --exclude-path=test/integration/ --concurrency=8
 
       - name: Build optimized release APK
         id: build

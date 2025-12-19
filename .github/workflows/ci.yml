@@ -55,7 +55,15 @@ jobs:
 
       - name: Run unit and widget tests
         run: |
+          # Run integration tests sequentially to avoid database locks
+          flutter test test/integration/ \
+            --concurrency=1 \
+            --test-randomize-ordering-seed=random \
+            --coverage \
+            --reporter=expanded
+          # Run all unit/widget tests with high concurrency
           flutter test \
+            --exclude-path=test/integration/ \
             --concurrency=8 \
             --test-randomize-ordering-seed=random \
             --coverage \
