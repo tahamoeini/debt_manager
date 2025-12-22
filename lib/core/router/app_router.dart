@@ -27,6 +27,7 @@ import 'package:debt_manager/features/data_transfer/qr_receiver_screen.dart';
 import 'package:debt_manager/features/automation/screens/can_i_afford_this_screen.dart';
 import 'package:debt_manager/features/achievements/screens/progress_screen.dart';
 import 'package:debt_manager/core/security/lock_screen.dart';
+import 'package:debt_manager/core/router/invalid_id_error_page.dart';
 
 // Provide a GoRouter configured for the app. The router watches the
 // [AuthNotifier] for refreshes so that redirects can react to auth changes.
@@ -78,27 +79,12 @@ final goRouterProvider = Provider<GoRouter>((ref) {
                   
                   // If loanId is invalid, show error UI instead of crashing
                   if (id == null) {
-                    return MaterialPage(
-                      child: Scaffold(
-                        appBar: AppBar(title: const Text('خطا')),
-                        body: Center(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              const Icon(Icons.error_outline, size: 64, color: Colors.red),
-                              const SizedBox(height: 16),
-                              const Text(
-                                'شناسه وام نامعتبر است',
-                                style: TextStyle(fontSize: 18),
-                              ),
-                              const SizedBox(height: 16),
-                              ElevatedButton(
-                                onPressed: () => context.go('/loans'),
-                                child: const Text('بازگشت به لیست وام‌ها'),
-                              ),
-                            ],
-                          ),
-                        ),
+                    return const MaterialPage(
+                      child: InvalidIdErrorPage(
+                        title: 'خطا',
+                        message: 'شناسه وام نامعتبر است',
+                        returnRoute: '/loans',
+                        returnButtonText: 'بازگشت به لیست وام‌ها',
                       ),
                     );
                   }
@@ -115,27 +101,12 @@ final goRouterProvider = Provider<GoRouter>((ref) {
                   
                   // If loanId is invalid, show error UI instead of crashing
                   if (id == null) {
-                    return MaterialPage(
-                      child: Scaffold(
-                        appBar: AppBar(title: const Text('خطا')),
-                        body: Center(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              const Icon(Icons.error_outline, size: 64, color: Colors.red),
-                              const SizedBox(height: 16),
-                              const Text(
-                                'شناسه وام نامعتبر است',
-                                style: TextStyle(fontSize: 18),
-                              ),
-                              const SizedBox(height: 16),
-                              ElevatedButton(
-                                onPressed: () => context.go('/loans'),
-                                child: const Text('بازگشت به لیست وام‌ها'),
-                              ),
-                            ],
-                          ),
-                        ),
+                    return const MaterialPage(
+                      child: InvalidIdErrorPage(
+                        title: 'خطا',
+                        message: 'شناسه وام نامعتبر است',
+                        returnRoute: '/loans',
+                        returnButtonText: 'بازگشت به لیست وام‌ها',
                       ),
                     );
                   }
