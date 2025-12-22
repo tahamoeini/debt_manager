@@ -708,6 +708,7 @@ class DatabaseHelper {
             name TEXT NOT NULL,
             type TEXT NOT NULL,
             balance INTEGER NOT NULL DEFAULT 0,
+            notes TEXT,
             created_at TEXT NOT NULL
           )
         ''');
@@ -716,10 +717,10 @@ class DatabaseHelper {
           CREATE TABLE IF NOT EXISTS categories (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             name TEXT NOT NULL,
-            parent_id INTEGER,
             type TEXT,
-            created_at TEXT NOT NULL,
-            FOREIGN KEY(parent_id) REFERENCES categories(id) ON DELETE SET NULL
+            color TEXT,
+            icon TEXT,
+            created_at TEXT NOT NULL
           )
         ''');
 
@@ -729,8 +730,6 @@ class DatabaseHelper {
             category_id INTEGER NOT NULL,
             amount INTEGER NOT NULL,
             period TEXT NOT NULL,
-            start_date_jalali TEXT,
-            rollover INTEGER NOT NULL DEFAULT 0,
             created_at TEXT NOT NULL,
             FOREIGN KEY(category_id) REFERENCES categories(id) ON DELETE CASCADE
           )
@@ -903,7 +902,13 @@ class DatabaseHelper {
             await transaction.execute('UPDATE accounts SET balance = COALESCE(balance,0) - ? WHERE id = ?', [amount, accountId]);
           }
         }
-      } catch (_) {}
+      } catch (error, stackTrace) {
+        // Ensure atomicity: if account balance update fails, roll back the transaction.
+        debugPrint('insertTransaction balance update failed for txn ${txnMap['id'] ?? 'unknown'}: $error');
+        debugPrint(stackTrace.toString());
+        // Rethrow so the surrounding DB transaction is rolled back.
+        rethrow;
+      }
       return id;
     });
   }
@@ -977,6 +982,7 @@ class DatabaseHelper {
         'name': a.name,
         'type': a.type,
         'balance': a.balance ?? 0,
+        'notes': a.notes,
         'created_at': a.createdAt,
       };
       _transactionStore.add(map);
@@ -987,6 +993,7 @@ class DatabaseHelper {
       'name': a.name,
       'type': a.type,
       'balance': a.balance ?? 0,
+      'notes': a.notes,
       'created_at': a.createdAt,
     });
   }
@@ -998,6 +1005,7 @@ class DatabaseHelper {
       'name': a.name,
       'type': a.type,
       'balance': a.balance ?? 0,
+      'notes': a.notes,
       'created_at': a.createdAt,
     }, where: 'id = ?', whereArgs: [a.id]);
   }
@@ -1077,8 +1085,6 @@ class DatabaseHelper {
       'category_id': b.categoryId,
       'amount': b.amount,
       'period': b.period,
-      'start_date_jalali': b.createdAt,
-      'rollover': 0,
       'created_at': b.createdAt,
     });
   }
@@ -1090,8 +1096,6 @@ class DatabaseHelper {
       'category_id': b.categoryId,
       'amount': b.amount,
       'period': b.period,
-      'start_date_jalali': b.createdAt,
-      'rollover': 0,
       'created_at': b.createdAt,
     }, where: 'id = ?', whereArgs: [b.id]);
   }
@@ -1447,10 +1451,19 @@ class DatabaseHelper {
         String? catName = tag;
         if (catName == null) {
           try {
-            final repo = AutomationRulesRepository();
-            final suggestion = await repo.applyRules(payee, loan.notes ?? '', loan.principalAmount);
-            catName = suggestion['category'] as String?;
-          } catch (_) {}
+            // Only attempt to use automation rules if the underlying table exists.
+            final automationTable = await db.rawQuery(
+              "SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'automation_rules' LIMIT 1",
+            );
+            if (automationTable.isNotEmpty) {
+              final repo = AutomationRulesRepository();
+              final suggestion = await repo.applyRules(payee, loan.notes ?? '', loan.principalAmount);
+              catName = suggestion['category'] as String?;
+            }
+          } catch (e) {
+            // Make sure any automation-related failure does not affect the main transaction.
+            debugPrint('AutomationRulesRepository.applyRules failed: $e');
+          }
         }
         if (catName != null) {
           final catRows = await db.query('categories', where: 'name = ?', whereArgs: [catName], limit: 1);
@@ -1743,10 +1756,19 @@ class DatabaseHelper {
             catName = tag;
             if (catName == null) {
               try {
-                final repo = AutomationRulesRepository();
-                final suggestion = await repo.applyRules(payee, loan.notes ?? '', (amt).abs());
-                catName = suggestion['category'] as String?;
-              } catch (_) {}
+                // Only attempt to use automation rules if the underlying table exists.
+                final automationTable = await db.rawQuery(
+                  "SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'automation_rules' LIMIT 1",
+                );
+                if (automationTable.isNotEmpty) {
+                  final repo = AutomationRulesRepository();
+                  final suggestion = await repo.applyRules(payee, loan.notes ?? '', (amt).abs());
+                  catName = suggestion['category'] as String?;
+                }
+              } catch (e) {
+                // Make sure any automation-related failure does not affect the main transaction.
+                debugPrint('AutomationRulesRepository.applyRules failed: $e');
+              }
             }
           }
 
