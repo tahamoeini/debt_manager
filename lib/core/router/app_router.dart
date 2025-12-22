@@ -29,6 +29,10 @@ import 'package:debt_manager/features/achievements/screens/progress_screen.dart'
 import 'package:debt_manager/core/security/lock_screen.dart';
 import 'package:debt_manager/core/router/invalid_id_error_page.dart';
 
+// Error messages for invalid route parameters
+const String _kInvalidLoanIdMessage = 'شناسه وام نامعتبر است';
+const String _kReturnToLoansButtonText = 'بازگشت به لیست وام‌ها';
+
 // Provide a GoRouter configured for the app. The router watches the
 // [AuthNotifier] for refreshes so that redirects can react to auth changes.
 final goRouterProvider = Provider<GoRouter>((ref) {
@@ -82,9 +86,9 @@ final goRouterProvider = Provider<GoRouter>((ref) {
                     return const MaterialPage(
                       child: InvalidIdErrorPage(
                         title: 'خطا',
-                        message: 'شناسه وام نامعتبر است',
+                        message: _kInvalidLoanIdMessage,
                         returnRoute: '/loans',
-                        returnButtonText: 'بازگشت به لیست وام‌ها',
+                        returnButtonText: _kReturnToLoansButtonText,
                       ),
                     );
                   }
@@ -104,9 +108,9 @@ final goRouterProvider = Provider<GoRouter>((ref) {
                     return const MaterialPage(
                       child: InvalidIdErrorPage(
                         title: 'خطا',
-                        message: 'شناسه وام نامعتبر است',
+                        message: _kInvalidLoanIdMessage,
                         returnRoute: '/loans',
-                        returnButtonText: 'بازگشت به لیست وام‌ها',
+                        returnButtonText: _kReturnToLoansButtonText,
                       ),
                     );
                   }
