@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart';
 class LedgerEntry {
   final int? id;
   final int amount; // positive=inflow, negative=outflow
+  final int? categoryId;
   final String refType; // e.g., loan_disbursement, installment_payment, manual
   final int? refId;
   final String dateJalali; // yyyy-MM-dd
@@ -14,6 +15,7 @@ class LedgerEntry {
   const LedgerEntry({
     this.id,
     required this.amount,
+    this.categoryId,
     required this.refType,
     this.refId,
     required this.dateJalali,
@@ -24,6 +26,7 @@ class LedgerEntry {
   LedgerEntry copyWith({
     int? id,
     int? amount,
+    int? categoryId,
     String? refType,
     int? refId,
     String? dateJalali,
@@ -33,6 +36,7 @@ class LedgerEntry {
     return LedgerEntry(
       id: id ?? this.id,
       amount: amount ?? this.amount,
+      categoryId: categoryId ?? this.categoryId,
       refType: refType ?? this.refType,
       refId: refId ?? this.refId,
       dateJalali: dateJalali ?? this.dateJalali,
@@ -45,6 +49,7 @@ class LedgerEntry {
     return {
       if (id != null) 'id': id,
       'amount': amount,
+      'category_id': categoryId,
       'ref_type': refType,
       'ref_id': refId,
       'date_jalali': dateJalali,
@@ -61,6 +66,11 @@ class LedgerEntry {
       amount: map['amount'] is int
           ? map['amount'] as int
           : int.parse(map['amount'].toString()),
+      categoryId: map['category_id'] is int
+          ? map['category_id'] as int
+          : (map['category_id'] != null
+              ? int.tryParse('${map['category_id']}')
+              : null),
       refType: map['ref_type'] as String? ?? '',
       refId: map['ref_id'] is int
           ? map['ref_id'] as int

@@ -7,6 +7,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:debt_manager/core/utils/jalali_utils.dart';
 import 'package:debt_manager/core/utils/ui_utils.dart';
+import 'package:debt_manager/core/utils/calendar_utils.dart';
+import 'package:debt_manager/core/utils/calendar_picker.dart';
 import 'package:debt_manager/core/notifications/notification_service.dart';
 import 'package:debt_manager/core/settings/settings_repository.dart';
 import 'package:debt_manager/features/loans/models/counterparty.dart';
@@ -16,6 +18,8 @@ import 'package:shamsi_date/shamsi_date.dart';
 import 'package:debt_manager/features/loans/loan_list_notifier.dart';
 import 'package:debt_manager/features/budget/models/budget.dart';
 import 'package:debt_manager/features/budget/budgets_repository.dart';
+import 'package:debt_manager/features/finance/finance_repository.dart';
+import 'package:debt_manager/features/finance/models/finance_models.dart';
 
 class AddLoanScreen extends ConsumerStatefulWidget {
   // If [existingLoan] is provided the screen operates in edit mode and will
@@ -52,6 +56,8 @@ class _AddLoanScreenState extends ConsumerState<AddLoanScreen> {
   bool _disburseNow = false;
   int? _disburseAccountId;
   List<Budget> _accounts = [];
+  List<Category> _categories = [];
+  int? _selectedCategoryId;
 
   // Use repository via Riverpod when performing DB operations
 
@@ -97,6 +103,14 @@ class _AddLoanScreenState extends ConsumerState<AddLoanScreen> {
         if (!mounted) return;
         setState(() => _accounts = list);
       } catch (_) {}
+
+      // Load categories for optional disbursement tagging
+      try {
+        final frepo = ref.read(financeRepositoryProvider);
+        final cats = await frepo.getCategories();
+        if (!mounted) return;
+        setState(() => _categories = cats);
+      } catch (_) {}
     });
   }
 
@@ -119,8 +133,8 @@ class _AddLoanScreenState extends ConsumerState<AddLoanScreen> {
 
   Future<void> _pickStartDate() async {
     final now = DateTime.now();
-    final picked = await showDatePicker(
-      context: context,
+    final picked = await showCalendarAwareDatePicker(
+      context,
       initialDate: now,
       firstDate: DateTime(now.year - 5),
       lastDate: DateTime(now.year + 5),
@@ -128,7 +142,15 @@ class _AddLoanScreenState extends ConsumerState<AddLoanScreen> {
     if (picked != null) {
       if (!mounted) return;
       setState(() {
-        _startJalali = dateTimeToJalali(picked);
+        if (picked is DateTime) {
+          _startJalali = dateTimeToJalali(picked);
+        } else if (picked is Jalali) {
+          _startJalali = picked;
+        } else {
+          debugPrint(
+              'Unexpected date type from showCalendarAwareDatePicker: ${picked.runtimeType}');
+          _startJalali = null;
+        }
       });
     }
   }
@@ -238,7 +260,11 @@ class _AddLoanScreenState extends ConsumerState<AddLoanScreen> {
         );
 
         final loanId = _disburseNow && _disburseAccountId != null
-            ? await repo.disburseLoan(loan, accountId: _disburseAccountId)
+            ? await repo.disburseLoan(
+                loan,
+                accountId: _disburseAccountId,
+                categoryId: _selectedCategoryId,
+              )
             : await repo.insertLoan(loan);
 
         // Load settings (reminder offset) once per submission and generate installments.
@@ -499,10 +525,23 @@ class _AddLoanScreenState extends ConsumerState<AddLoanScreen> {
                           Row(
                             children: [
                               Expanded(
-                                child: Text(
-                                  _startJalali == null
-                                      ? 'تاریخ شروع انتخاب نشده'
-                                      : 'شروع: ${formatJalaliForDisplay(_startJalali!)}',
+                                child: ValueListenableBuilder<CalendarType>(
+                                  valueListenable:
+                                      SettingsRepository.calendarTypeNotifier,
+                                  builder: (context, calType, _) {
+                                    if (_startJalali == null) {
+                                      return const Text(
+                                          'تاریخ شروع انتخاب نشده');
+                                    }
+                                    final display = calType ==
+                                            CalendarType.jalali
+                                        ? formatJalaliForDisplay(_startJalali!)
+                                        : formatDateForDisplayWithCalendar(
+                                            _startJalali!.toDateTime(),
+                                            calType,
+                                          );
+                                    return Text('شروع: $display');
+                                  },
                                 ),
                               ),
                               FilledButton(
@@ -539,7 +578,7 @@ class _AddLoanScreenState extends ConsumerState<AddLoanScreen> {
                     onChanged: (v) => setState(() => _disburseNow = v ?? false),
                     controlAffinity: ListTileControlAffinity.leading,
                   ),
-                  if (_disburseNow)
+                  if (_disburseNow) ...[
                     DropdownButtonFormField<int>(
                       value: _disburseAccountId,
                       decoration: const InputDecoration(labelText: 'حساب مقصد'),
@@ -556,6 +595,26 @@ class _AddLoanScreenState extends ConsumerState<AddLoanScreen> {
                           ? 'لطفا حساب را انتخاب کنید'
                           : null,
                     ),
+                    const SizedBox(height: 8),
+                    DropdownButtonFormField<int?>(
+                      value: _selectedCategoryId,
+                      decoration: const InputDecoration(
+                          labelText: 'دسته‌بندی تراکنش (اختیاری)'),
+                      items: [
+                        const DropdownMenuItem<int?>(
+                          value: null,
+                          child: Text('بدون دسته‌بندی'),
+                        ),
+                        ..._categories.where((c) => c.id != null).map(
+                              (c) => DropdownMenuItem<int?>(
+                                value: c.id,
+                                child: Text(c.name),
+                              ),
+                            ),
+                      ],
+                      onChanged: (v) => setState(() => _selectedCategoryId = v),
+                    ),
+                  ],
                   const SizedBox(height: 20),
                   FilledButton(
                     onPressed: _isSubmitting ? null : _submit,

@@ -28,6 +28,7 @@ import 'package:debt_manager/features/automation/screens/can_i_afford_this_scree
 import 'package:debt_manager/features/achievements/screens/progress_screen.dart';
 import 'package:debt_manager/core/security/lock_screen.dart';
 import 'package:debt_manager/core/router/invalid_id_error_page.dart';
+import 'package:debt_manager/features/transactions/add_transaction_screen.dart';
 
 // Error messages for invalid route parameters
 const String _kInvalidLoanIdMessage = 'شناسه وام نامعتبر است';
@@ -256,6 +257,28 @@ final goRouterProvider = Provider<GoRouter>((ref) {
             path: '/progress',
             pageBuilder: (context, state) =>
                 const MaterialPage(child: ProgressScreen()),
+          ),
+          GoRoute(
+            name: 'transactionAdd',
+            path: '/transaction/add',
+            pageBuilder: (context, state) {
+              final extra = state.extra;
+              int? presetAccountId;
+              int? presetCategoryId;
+              String? presetCategoryName;
+              if (extra is Map<String, dynamic>) {
+                presetAccountId = extra['presetAccountId'] as int?;
+                presetCategoryId = extra['presetCategoryId'] as int?;
+                presetCategoryName = extra['presetCategoryName'] as String?;
+              }
+              return MaterialPage(
+                child: AddTransactionScreen(
+                  presetAccountId: presetAccountId,
+                  presetCategoryId: presetCategoryId,
+                  presetCategoryName: presetCategoryName,
+                ),
+              );
+            },
           ),
         ],
       ),

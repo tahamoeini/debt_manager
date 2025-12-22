@@ -35,7 +35,7 @@ class LoanRepository {
 
   /// Insert a loan and optionally create a disbursement transaction
   /// against [accountId]. Returns the inserted loan id.
-  Future<int> disburseLoan(Loan loan, {int? accountId}) async {
+  Future<int> disburseLoan(Loan loan, {int? accountId, int? categoryId}) async {
     final loanId = await _db.insertLoan(loan);
     if (accountId != null) {
       final now = DateTime.now().toIso8601String();
@@ -49,8 +49,21 @@ class LoanRepository {
         'description': 'Loan disbursed: ${loan.title}',
         'source': 'system',
       };
+      if (categoryId != null) txn['category_id'] = categoryId;
       await _db.insertTransaction(txn);
     }
+
+    // If an explicit category id was provided, ensure the ledger entry created
+    // by insertLoan for the loan disbursement gets tagged accordingly.
+    if (categoryId != null) {
+      try {
+        await _db.setLedgerEntryCategoryByRef(
+            'loan_disbursement', loanId, categoryId);
+      } catch (_) {
+        // swallow: non-critical
+      }
+    }
+
     return loanId;
   }
 

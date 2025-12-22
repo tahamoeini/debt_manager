@@ -168,6 +168,16 @@ class _AppShellState extends State<AppShell> {
 
   Widget? _buildFabForIndex(int index) {
     switch (index) {
+      case 0:
+        return FloatingActionButton.large(
+          heroTag: 'app-shell-add-transaction',
+          onPressed: () => context.pushNamed('transactionAdd'),
+          tooltip: 'Add transaction',
+          child: Semantics(
+            label: 'Add transaction',
+            child: const Icon(Icons.add_shopping_cart_outlined),
+          ),
+        );
       case 1:
         return FloatingActionButton.large(
           heroTag: 'app-shell-add-loan',

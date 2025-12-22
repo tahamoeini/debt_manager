@@ -4,6 +4,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:debt_manager/core/utils/format_utils.dart';
 import 'package:debt_manager/core/utils/jalali_utils.dart';
+import 'package:debt_manager/core/utils/calendar_utils.dart';
+import 'package:debt_manager/core/utils/calendar_picker.dart';
+import 'package:debt_manager/core/settings/settings_repository.dart';
 import 'package:debt_manager/features/shared/summary_cards.dart';
 import 'package:debt_manager/features/loans/models/installment.dart';
 import 'package:debt_manager/features/loans/models/loan.dart';
@@ -193,8 +196,16 @@ class ReportsScreen extends ConsumerWidget {
 
             return Card(
               child: ListTile(
-                title: Text(
-                  formatJalaliForDisplay(parseJalali(inst.dueDateJalali)),
+                title: ValueListenableBuilder<CalendarType>(
+                  valueListenable: SettingsRepository.calendarTypeNotifier,
+                  builder: (context, calType, _) {
+                    return Text(
+                      formatDateForDisplayWithCalendar(
+                        _jalaliToGregorianDateTime(inst.dueDateJalali),
+                        calType,
+                      ),
+                    );
+                  },
                 ),
                 subtitle: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -325,9 +336,14 @@ class ReportsScreen extends ConsumerWidget {
           const SizedBox(height: 20),
           const Text('فیلترها', style: TextStyle(fontWeight: FontWeight.w700)),
           const SizedBox(height: 8),
-          Row(
+          // Responsive filter row: direction + date pickers + filter sheet
+          Wrap(
+            spacing: 12,
+            runSpacing: 8,
+            crossAxisAlignment: WrapCrossAlignment.center,
             children: [
-              Expanded(
+              SizedBox(
+                width: 200,
                 child: Material(
                   type: MaterialType.transparency,
                   child: DropdownButton<LoanDirection?>(
@@ -348,41 +364,143 @@ class ReportsScreen extends ConsumerWidget {
                   ),
                 ),
               ),
-              const SizedBox(width: 12),
               FilledButton(
                 onPressed: () async {
                   final now = DateTime.now();
-                  final picked = await showDatePicker(
-                    context: context,
+                  final picked = await showCalendarAwareDatePicker(
+                    context,
                     initialDate: now,
                     firstDate: DateTime(now.year - 5),
                     lastDate: DateTime(now.year + 5),
                   );
-                  if (picked != null) notifier.setFrom(picked);
+                  if (picked != null) {
+                    if (picked is DateTime) {
+                      notifier.setFrom(picked);
+                    } else {
+                      // Check if it's a Jalali-like object with toDateTime()
+                      try {
+                        // Use dynamic to avoid direct Jalali import (already imported via jalali_utils)
+                        final dt = (picked as dynamic).toDateTime() as DateTime;
+                        notifier.setFrom(dt);
+                      } catch (e) {
+                        debugPrint(
+                            'Failed to convert picked date to DateTime: $e');
+                      }
+                    }
+                  }
                 },
-                child: Text(
-                  state.from == null
-                      ? 'از تاریخ'
-                      : formatJalaliForDisplay(dateTimeToJalali(state.from!)),
+                child: ValueListenableBuilder<CalendarType>(
+                  valueListenable: SettingsRepository.calendarTypeNotifier,
+                  builder: (context, calType, _) {
+                    return Text(
+                      state.from == null
+                          ? 'از تاریخ'
+                          : formatDateForDisplayWithCalendar(
+                              state.from!,
+                              calType,
+                            ),
+                    );
+                  },
                 ),
               ),
-              const SizedBox(width: 8),
               FilledButton(
                 onPressed: () async {
                   final now = DateTime.now();
-                  final picked = await showDatePicker(
-                    context: context,
+                  final picked = await showCalendarAwareDatePicker(
+                    context,
                     initialDate: now,
                     firstDate: DateTime(now.year - 5),
                     lastDate: DateTime(now.year + 5),
                   );
-                  if (picked != null) notifier.setTo(picked);
+                  if (picked != null) {
+                    if (picked is DateTime) {
+                      notifier.setTo(picked);
+                    } else {
+                      try {
+                        final dt = (picked as dynamic).toDateTime() as DateTime;
+                        notifier.setTo(dt);
+                      } catch (e) {
+                        debugPrint(
+                            'Failed to convert picked date to DateTime: $e');
+                      }
+                    }
+                  }
                 },
-                child: Text(
-                  state.to == null
-                      ? 'تا تاریخ'
-                      : formatJalaliForDisplay(dateTimeToJalali(state.to!)),
+                child: ValueListenableBuilder<CalendarType>(
+                  valueListenable: SettingsRepository.calendarTypeNotifier,
+                  builder: (context, calType, _) {
+                    return Text(
+                      state.to == null
+                          ? 'تا تاریخ'
+                          : formatDateForDisplayWithCalendar(
+                              state.to!,
+                              calType,
+                            ),
+                    );
+                  },
                 ),
+              ),
+              IconButton(
+                tooltip: 'فیلترهای بیشتر',
+                icon: const Icon(Icons.filter_list),
+                onPressed: () async {
+                  // show bottom sheet for counterparty/type filters
+                  await showModalBottomSheet<void>(
+                    context: context,
+                    builder: (ctx) {
+                      return Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text('فیلترهای بیشتر',
+                                style: TextStyle(fontWeight: FontWeight.w700)),
+                            const SizedBox(height: 12),
+                            DropdownButton<int?>(
+                              value: state.counterpartyFilter,
+                              isExpanded: true,
+                              items: [
+                                const DropdownMenuItem(
+                                    value: null, child: Text('همه')),
+                                ...state.counterparties.map((c) =>
+                                    DropdownMenuItem(
+                                        value: c.id, child: Text(c.name))),
+                              ],
+                              onChanged: (v) =>
+                                  notifier.setCounterpartyFilter(v),
+                            ),
+                            const SizedBox(height: 8),
+                            DropdownButton<String?>(
+                              value: state.counterpartyTypeFilter,
+                              isExpanded: true,
+                              items: const [
+                                DropdownMenuItem(
+                                    value: null, child: Text('همه انواع')),
+                                DropdownMenuItem(
+                                    value: 'person', child: Text('شخص')),
+                                DropdownMenuItem(
+                                    value: 'bank', child: Text('بانک')),
+                                DropdownMenuItem(
+                                    value: 'company', child: Text('شرکت')),
+                              ],
+                              onChanged: (v) =>
+                                  notifier.setCounterpartyTypeFilter(v),
+                            ),
+                            const SizedBox(height: 12),
+                            Align(
+                              alignment: Alignment.centerRight,
+                              child: FilledButton(
+                                onPressed: () => Navigator.of(ctx).pop(),
+                                child: const Text('بستن'),
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                  );
+                },
               ),
             ],
           ),
@@ -467,5 +585,20 @@ class ReportsScreen extends ConsumerWidget {
         ],
       ),
     );
+  }
+
+  /// Helper to convert Jalali date string (yyyy-MM-dd) to Gregorian DateTime.
+  DateTime _jalaliToGregorianDateTime(String jalaliDateStr) {
+    try {
+      final j = parseJalali(jalaliDateStr);
+      final g = j.toGregorian();
+      return DateTime(g.year, g.month, g.day);
+    } catch (e) {
+      // Parsing failed: surface a clear error rather than misinterpreting Jalali as Gregorian.
+      throw FormatException(
+        'Invalid Jalali date string (expected yyyy-MM-dd): $jalaliDateStr',
+        jalaliDateStr,
+      );
+    }
   }
 }

@@ -4,6 +4,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:debt_manager/core/utils/format_utils.dart';
 import 'package:debt_manager/core/utils/jalali_utils.dart';
+import 'package:debt_manager/core/utils/calendar_utils.dart';
+import 'package:debt_manager/core/settings/settings_repository.dart';
 import 'package:debt_manager/core/theme/app_constants.dart';
 // Loan/installment/counterparty types are part of HomeStats; no direct imports needed here
 import 'package:debt_manager/features/home/home_statistics_notifier.dart';
@@ -103,6 +105,83 @@ class HomeScreen extends ConsumerWidget {
               'اقساط نزدیک',
               style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
             ),
+            const SizedBox(height: 12),
+            // New finance overview row: Net Worth, Monthly Cashflow, Budget Health
+            Row(
+              children: [
+                Expanded(
+                  child: Card(
+                    child: Padding(
+                      padding: const EdgeInsets.all(12),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text('دارایی خالص',
+                              style: TextStyle(fontWeight: FontWeight.w600)),
+                          const SizedBox(height: 8),
+                          SensitiveText(
+                            formatCurrency(data.netWorth),
+                            style: Theme.of(context).textTheme.headlineSmall,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Card(
+                    child: Padding(
+                      padding: const EdgeInsets.all(12),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text('جریان نقدی ماهانه',
+                              style: TextStyle(fontWeight: FontWeight.w600)),
+                          const SizedBox(height: 8),
+                          SensitiveText(
+                            formatCurrency(data.monthlyCashflow),
+                            style: Theme.of(context).textTheme.headlineSmall,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Card(
+                    child: Padding(
+                      padding: const EdgeInsets.all(12),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text('سلامت بودجه',
+                              style: TextStyle(fontWeight: FontWeight.w600)),
+                          const SizedBox(height: 8),
+                          Builder(builder: (ctx) {
+                            final cash = data.monthlyCashflow;
+                            final spent = data.monthlySpending;
+                            String label;
+                            if (cash == 0) {
+                              label = 'N/A';
+                            } else {
+                              final pct = ((cash - spent) * 100 / cash)
+                                  .clamp(-999, 999)
+                                  .toInt();
+                              label = '$pct%';
+                            }
+                            return Text(label,
+                                style:
+                                    Theme.of(context).textTheme.headlineSmall);
+                          }),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
             const SizedBox(height: 8),
             if (upcoming.isEmpty)
               Card(
@@ -124,7 +203,6 @@ class HomeScreen extends ConsumerWidget {
                 final cp = loan != null ? cpById[loan.counterpartyId] : null;
                 final cpName = cp?.name ?? '';
                 final dueJalali = parseJalali(inst.dueDateJalali);
-                final dueDisplay = formatJalaliForDisplay(dueJalali);
 
                 return Card(
                   child: Padding(
@@ -145,7 +223,16 @@ class HomeScreen extends ConsumerWidget {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Text(dueDisplay),
+                            ValueListenableBuilder<CalendarType>(
+                              valueListenable:
+                                  SettingsRepository.calendarTypeNotifier,
+                              builder: (context, calType, _) {
+                                final dt = dueJalali.toDateTime();
+                                final label = formatDateForDisplayWithCalendar(
+                                    dt, calType);
+                                return Text(label);
+                              },
+                            ),
                             SensitiveText(formatCurrency(inst.amount)),
                           ],
                         ),

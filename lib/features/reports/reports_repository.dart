@@ -40,22 +40,6 @@ class ReportsRepository {
   Future<Map<String, int>> getSpendingByCategory(int year, int month) async {
     await _db.refreshOverdueInstallments(DateTime.now());
 
-    // Fetch loans, counterparties and installments in bulk, then run heavy
-    // computation in an isolate via compute(). We pass plain Maps to the
-    // isolate function.
-    final loans = await _db.getAllLoans(direction: LoanDirection.borrowed);
-    final counterparties = await _db.getAllCounterparties();
-
-    final loanIds = loans.map((e) => e.id).whereType<int>().toList();
-    final grouped = loanIds.isNotEmpty
-        ? await _db.getInstallmentsGroupedByLoanId(loanIds)
-        : <int, List<Installment>>{};
-    final allInstallments = grouped.values.expand((l) => l).toList();
-
-    final loansMaps = loans.map((l) => l.toMap()).toList();
-    final cpMaps = counterparties.map((c) => c.toMap()).toList();
-    final instMaps = allInstallments.map((i) => i.toMap()).toList();
-
     // Try cache when Riverpod ref is available
     final cacheKey =
         'spendingByCategory:$year-${month.toString().padLeft(2, '0')}';
@@ -66,36 +50,12 @@ class ReportsRepository {
       if (cached != null) return cached;
     }
 
-    try {
-      final res = await compute<Map<String, dynamic>, Map<String, int>>(
-        spendingByCategoryEntry,
-        {
-          'loans': loansMaps,
-          'cps': cpMaps,
-          'insts': instMaps,
-          'year': year,
-          'month': month,
-        },
-      );
-
-      // Store in cache
-      if (_ref != null) {
-        _ref!.read(reportsCacheProvider.notifier).put(cacheKey, res);
-      }
-      return res;
-    } catch (e) {
-      final fallback = computeSpendingByCategory(
-        loansMaps,
-        cpMaps,
-        instMaps,
-        year,
-        month,
-      );
-      if (_ref != null) {
-        _ref!.read(reportsCacheProvider.notifier).put(cacheKey, fallback);
-      }
-      return fallback;
+    // Prefer precise category_id-based aggregation from ledger entries
+    final result = await _db.getSpendingByCategoryForMonth(year, month);
+    if (_ref != null) {
+      _ref!.read(reportsCacheProvider.notifier).put(cacheKey, result);
     }
+    return result;
   }
 
   // Get total spending per month for the last N months

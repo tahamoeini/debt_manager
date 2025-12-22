@@ -224,7 +224,13 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       }
     }
 
-    await _repo.setAppLockEnabled(enabled);
+    // Use AuthNotifier to persist + update runtime lock state.
+    try {
+      await ref.read(authNotifierProvider).setAppLockEnabled(enabled);
+    } catch (_) {
+      // Fallback to repository persistence if notifier fails.
+      await _repo.setAppLockEnabled(enabled);
+    }
     if (mounted) {
       setState(() {
         _appLockEnabled = enabled;

@@ -5,6 +5,7 @@ import 'package:debt_manager/core/settings/settings_repository.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:debt_manager/core/security/security_service.dart';
+import 'dart:async';
 
 // Auth notifier used by GoRouter as a refreshable ChangeNotifier.
 class AuthNotifier extends ChangeNotifier {
@@ -12,36 +13,94 @@ class AuthNotifier extends ChangeNotifier {
 
   final SettingsRepository _settings;
   bool _unlocked = false;
+  bool _appLockEnabledCached = false;
+
+  // Auto-lock duration after inactivity when app lock is enabled.
+  final Duration _autoLockDuration = const Duration(minutes: 5);
+  Timer? _inactivityTimer;
 
   bool get unlocked => _unlocked;
 
   Future<void> tryUnlock() async {
-    final enabled = await _settings.getBiometricEnabled();
-    if (!enabled) {
+    // If app lock is disabled, we're always considered unlocked.
+    final appLockEnabled = await _settings.getAppLockEnabled();
+    _appLockEnabledCached = appLockEnabled;
+    if (!appLockEnabled) {
+      _unlocked = true;
+      _startInactivityTimer();
+      notifyListeners();
+      return;
+    }
+
+    // App lock is enabled. Decide based on biometric availability/setting.
+    final biometricSettingEnabled = await _settings.getBiometricEnabled();
+    if (!biometricSettingEnabled) {
+      // No biometric required → unlocked (PIN flow is handled by LockScreen when needed).
       _unlocked = true;
       notifyListeners();
       return;
     }
+
     final avail = await SecurityService.instance.isBiometricAvailable();
     if (!avail) {
       _unlocked = true;
       notifyListeners();
       return;
     }
+
     final ok = await SecurityService.instance.authenticate();
     _unlocked = ok;
+    if (_unlocked) _startInactivityTimer();
     notifyListeners();
   }
 
   void lock() {
     _unlocked = false;
+    _cancelInactivityTimer();
     notifyListeners();
   }
 
   /// Mark app as unlocked (used after successful PIN/biometric via UI).
   void unlock() {
     _unlocked = true;
+    _startInactivityTimer();
     notifyListeners();
+  }
+
+  /// Reset the inactivity timer (call on user interaction to keep app unlocked).
+  void touch() {
+    if (!_appLockEnabledCached) return;
+    _startInactivityTimer();
+  }
+
+  /// Set the app lock enabled flag and persist via SettingsRepository.
+  Future<void> setAppLockEnabled(bool enabled) async {
+    await _settings.setAppLockEnabled(enabled);
+    _appLockEnabledCached = enabled;
+    if (!enabled) {
+      // If disabling app lock, ensure app is unlocked.
+      _unlocked = true;
+      _cancelInactivityTimer();
+    } else {
+      // If enabling, lock immediately.
+      _unlocked = false;
+    }
+    notifyListeners();
+  }
+
+  void _startInactivityTimer() {
+    _cancelInactivityTimer();
+    if (!_appLockEnabledCached) return;
+    _inactivityTimer = Timer(_autoLockDuration, () {
+      lock();
+    });
+  }
+
+  void _cancelInactivityTimer() {
+    try {
+      _inactivityTimer?.cancel();
+    } catch (_) {}
+    _inactivityTimer = null;
   }
 }
 
