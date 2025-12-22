@@ -20,7 +20,7 @@ class NotificationIds {
   /// Generate notification ID for installment reminder with offset.
   /// offsetDays is encoded in the ID to support multiple offsets per installment.
   static int forInstallmentOffset(int installmentId, int offsetDays) {
-    // Encode offset in upper bits: ID = base + (installmentId * 100) + offsetDays
+    // Encode offset using a multiplication factor: ID = base + (installmentId * 100) + offsetDays
     // This supports offsets 0-99 and installmentIds up to ~9,999,999
     return installmentOffsetBase + (installmentId * 100) + offsetDays;
   }
