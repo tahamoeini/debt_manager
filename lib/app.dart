@@ -8,6 +8,8 @@ import 'core/debug/debug_overlay.dart';
 import 'core/settings/settings_repository.dart';
 import 'core/db/database_helper.dart';
 import 'core/security/lock_screen.dart';
+import 'core/localization/app_localizations.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 
 class DebtManagerApp extends ConsumerStatefulWidget {
   const DebtManagerApp({super.key});
@@ -268,21 +270,37 @@ class _DebtManagerAppState extends ConsumerState<DebtManagerApp>
               ),
             );
 
-            return MaterialApp.router(
-              title: 'Debt Manager',
-              debugShowCheckedModeBanner: false,
-              theme: lightTheme,
-              darkTheme: darkTheme,
-              themeMode: themeMode,
-              routerConfig: goRouter,
-              // Navigator observers are attached via GoRouter; remove invalid parameter here.
-              // Inject debug overlay at the top-level so it wraps all routes.
-              builder: (context, child) => GestureDetector(
-                behavior: HitTestBehavior.translucent,
-                onTap: _resetLockTimer,
-                onPanDown: (_) => _resetLockTimer(),
-                child: DebugOverlay(child: child ?? const SizedBox.shrink()),
-              ),
+            return ValueListenableBuilder<LanguageOption>(
+              valueListenable: SettingsRepository.languageNotifier,
+              builder: (context, lang, _) {
+                final locale =
+                    lang == LanguageOption.english ? const Locale('en') : const Locale('fa');
+                return MaterialApp.router(
+                  title: 'Debt Manager',
+                  debugShowCheckedModeBanner: false,
+                  theme: lightTheme,
+                  darkTheme: darkTheme,
+                  themeMode: themeMode,
+                  routerConfig: goRouter,
+                  locale: locale,
+                  supportedLocales: const [Locale('fa'), Locale('en')],
+                  localizationsDelegates: const [
+                    // Custom app localizations
+                    AppLocalizations.delegate,
+                    // Flutter built-in localizations
+                    GlobalMaterialLocalizations.delegate,
+                    GlobalWidgetsLocalizations.delegate,
+                    GlobalCupertinoLocalizations.delegate,
+                  ],
+                  // Inject debug overlay at the top-level so it wraps all routes.
+                  builder: (context, child) => GestureDetector(
+                    behavior: HitTestBehavior.translucent,
+                    onTap: _resetLockTimer,
+                    onPanDown: (_) => _resetLockTimer(),
+                    child: DebugOverlay(child: child ?? const SizedBox.shrink()),
+                  ),
+                );
+              },
             );
           },
         );

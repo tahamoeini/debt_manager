@@ -4,6 +4,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:debt_manager/core/utils/format_utils.dart';
 import 'package:debt_manager/core/utils/jalali_utils.dart';
+import 'package:debt_manager/core/utils/calendar_utils.dart';
+import 'package:debt_manager/core/settings/settings_repository.dart';
 import 'package:debt_manager/features/shared/summary_cards.dart';
 import 'package:debt_manager/features/loans/models/installment.dart';
 import 'package:debt_manager/features/loans/models/loan.dart';
@@ -193,8 +195,16 @@ class ReportsScreen extends ConsumerWidget {
 
             return Card(
               child: ListTile(
-                title: Text(
-                  formatJalaliForDisplay(parseJalali(inst.dueDateJalali)),
+                title: ValueListenableBuilder<CalendarType>(
+                  valueListenable: SettingsRepository.calendarTypeNotifier,
+                  builder: (context, calType, _) {
+                    return Text(
+                      formatDateForDisplayWithCalendar(
+                        _jalaliToGregorianDateTime(inst.dueDateJalali),
+                        calType,
+                      ),
+                    );
+                  },
                 ),
                 subtitle: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -360,10 +370,18 @@ class ReportsScreen extends ConsumerWidget {
                   );
                   if (picked != null) notifier.setFrom(picked);
                 },
-                child: Text(
-                  state.from == null
-                      ? 'از تاریخ'
-                      : formatJalaliForDisplay(dateTimeToJalali(state.from!)),
+                child: ValueListenableBuilder<CalendarType>(
+                  valueListenable: SettingsRepository.calendarTypeNotifier,
+                  builder: (context, calType, _) {
+                    return Text(
+                      state.from == null
+                          ? 'از تاریخ'
+                          : formatDateForDisplayWithCalendar(
+                              state.from!,
+                              calType,
+                            ),
+                    );
+                  },
                 ),
               ),
               const SizedBox(width: 8),
@@ -378,10 +396,18 @@ class ReportsScreen extends ConsumerWidget {
                   );
                   if (picked != null) notifier.setTo(picked);
                 },
-                child: Text(
-                  state.to == null
-                      ? 'تا تاریخ'
-                      : formatJalaliForDisplay(dateTimeToJalali(state.to!)),
+                child: ValueListenableBuilder<CalendarType>(
+                  valueListenable: SettingsRepository.calendarTypeNotifier,
+                  builder: (context, calType, _) {
+                    return Text(
+                      state.to == null
+                          ? 'تا تاریخ'
+                          : formatDateForDisplayWithCalendar(
+                              state.to!,
+                              calType,
+                            ),
+                    );
+                  },
                 ),
               ),
             ],
@@ -468,4 +494,17 @@ class ReportsScreen extends ConsumerWidget {
       ),
     );
   }
+
+  /// Helper to convert Jalali date string (yyyy-MM-dd) to Gregorian DateTime.
+  DateTime _jalaliToGregorianDateTime(String jalaliDateStr) {
+    try {
+      final j = parseJalali(jalaliDateStr);
+      final g = j.toGregorian();
+      return DateTime(g.year, g.month, g.day);
+    } catch (_) {
+      // Fallback: treat as already Gregorian
+      return DateTime.parse(jalaliDateStr);
+    }
+  }
 }
+

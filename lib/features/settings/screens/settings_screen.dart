@@ -230,6 +230,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         _appLockEnabled = enabled;
       });
     }
+    // Trigger router/auth refresh so redirect responds immediately to toggle
+    await ref.read(authNotifierProvider).tryUnlock();
   }
 
   Future<void> _saveLockTimeout(int minutes) async {
