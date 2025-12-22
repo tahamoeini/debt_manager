@@ -72,27 +72,74 @@ final goRouterProvider = Provider<GoRouter>((ref) {
               GoRoute(
                 name: 'loanDetail',
                 path: 'loan/:loanId',
-                redirect: (context, state) {
-                  final idStr = state.pathParameters['loanId'] ?? '';
-                  final id = int.tryParse(idStr);
-                  // If loanId is invalid or missing, redirect to loans list
-                  return id == null ? '/loans' : null;
-                },
                 pageBuilder: (context, state) {
                   final idStr = state.pathParameters['loanId'] ?? '';
                   final id = int.tryParse(idStr);
-                  return MaterialPage(child: LoanDetailScreen(loanId: id!));
+                  
+                  // If loanId is invalid, show error UI instead of crashing
+                  if (id == null) {
+                    return MaterialPage(
+                      child: Scaffold(
+                        appBar: AppBar(title: const Text('خطا')),
+                        body: Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              const Icon(Icons.error_outline, size: 64, color: Colors.red),
+                              const SizedBox(height: 16),
+                              const Text(
+                                'شناسه وام نامعتبر است',
+                                style: TextStyle(fontSize: 18),
+                              ),
+                              const SizedBox(height: 16),
+                              ElevatedButton(
+                                onPressed: () => context.go('/loans'),
+                                child: const Text('بازگشت به لیست وام‌ها'),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    );
+                  }
+                  
+                  return MaterialPage(child: LoanDetailScreen(loanId: id));
                 },
               ),
               GoRoute(
                 name: 'loanEdit',
                 path: 'loan/:loanId/edit',
-                redirect: (context, state) {
+                pageBuilder: (context, state) {
                   final idStr = state.pathParameters['loanId'] ?? '';
                   final id = int.tryParse(idStr);
-                  return id == null ? '/loans' : null;
-                },
-                pageBuilder: (context, state) {
+                  
+                  // If loanId is invalid, show error UI instead of crashing
+                  if (id == null) {
+                    return MaterialPage(
+                      child: Scaffold(
+                        appBar: AppBar(title: const Text('خطا')),
+                        body: Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              const Icon(Icons.error_outline, size: 64, color: Colors.red),
+                              const SizedBox(height: 16),
+                              const Text(
+                                'شناسه وام نامعتبر است',
+                                style: TextStyle(fontSize: 18),
+                              ),
+                              const SizedBox(height: 16),
+                              ElevatedButton(
+                                onPressed: () => context.go('/loans'),
+                                child: const Text('بازگشت به لیست وام‌ها'),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    );
+                  }
+                  
                   Loan? loan;
                   Counterparty? counterparty;
                   final extra = state.extra;
