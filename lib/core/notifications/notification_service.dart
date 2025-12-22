@@ -35,6 +35,9 @@ class RealNotificationPlugin implements NotificationPlugin {
   final FlutterLocalNotificationsPlugin _plugin;
   RealNotificationPlugin(this._plugin);
 
+  /// Provides access to the underlying plugin for initialization purposes.
+  FlutterLocalNotificationsPlugin get plugin => _plugin;
+
   @override
   Future<void> zonedSchedule(
     int id,
@@ -128,7 +131,7 @@ class NotificationService {
 
     // Initialize plugin only if using real plugin
     if (_plugin is RealNotificationPlugin) {
-      final realPlugin = _plugin._plugin;
+      final realPlugin = (_plugin as RealNotificationPlugin).plugin;
 
       const androidInit = AndroidInitializationSettings('@mipmap/ic_launcher');
       const iosInit = DarwinInitializationSettings(
