@@ -306,21 +306,5 @@ final goRouterProvider = Provider<GoRouter>((ref) {
         ],
       ),
     ],
-    redirect: (context, state) {
-      // Deny-by-default: if not unlocked and route is not public -> /lock
-      final unlocked = auth.unlocked;
-      final currentPath = state.uri.path;
-      final publicAllowlist = const {'/lock'}; // add onboarding if present
-      final isPublic = publicAllowlist.contains(currentPath);
-
-      if (!unlocked && !isPublic) {
-        return '/lock';
-      }
-
-      // If unlocked and currently on lock, go home
-      if (unlocked && currentPath == '/lock') return '/';
-
-      return null;
-    },
   );
 });
