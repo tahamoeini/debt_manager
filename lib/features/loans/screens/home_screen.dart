@@ -4,6 +4,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:debt_manager/core/utils/format_utils.dart';
 import 'package:debt_manager/core/utils/jalali_utils.dart';
+import 'package:debt_manager/core/utils/calendar_utils.dart';
+import 'package:debt_manager/core/settings/settings_repository.dart';
 import 'package:debt_manager/core/theme/app_constants.dart';
 // Loan/installment/counterparty types are part of HomeStats; no direct imports needed here
 import 'package:debt_manager/features/home/home_statistics_notifier.dart';
@@ -194,7 +196,6 @@ class HomeScreen extends ConsumerWidget {
                 final cp = loan != null ? cpById[loan.counterpartyId] : null;
                 final cpName = cp?.name ?? '';
                 final dueJalali = parseJalali(inst.dueDateJalali);
-                final dueDisplay = formatJalaliForDisplay(dueJalali);
 
                 return Card(
                   child: Padding(
@@ -215,7 +216,16 @@ class HomeScreen extends ConsumerWidget {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Text(dueDisplay),
+                            ValueListenableBuilder<CalendarType>(
+                              valueListenable:
+                                  SettingsRepository.calendarTypeNotifier,
+                              builder: (context, calType, _) {
+                                final dt = dueJalali.toDateTime();
+                                final label = formatDateForDisplayWithCalendar(
+                                    dt, calType);
+                                return Text(label);
+                              },
+                            ),
                             SensitiveText(formatCurrency(inst.amount)),
                           ],
                         ),

@@ -320,6 +320,9 @@ class DatabaseHelper {
     await db.execute(
       'CREATE INDEX IF NOT EXISTS idx_ledger_date ON ledger_entries(date_jalali)',
     );
+    await db.execute(
+      'CREATE INDEX IF NOT EXISTS idx_ledger_category_date ON ledger_entries(category_id, date_jalali)',
+    );
   }
 
   FutureOr<void> _onUpgrade(
@@ -472,6 +475,8 @@ class DatabaseHelper {
               'CREATE UNIQUE INDEX IF NOT EXISTS idx_ledger_ref ON ledger_entries(ref_type, ref_id)');
           await db.execute(
               'CREATE INDEX IF NOT EXISTS idx_ledger_date ON ledger_entries(date_jalali)');
+          await db.execute(
+              'CREATE INDEX IF NOT EXISTS idx_ledger_category_date ON ledger_entries(category_id, date_jalali)');
         } catch (_) {}
 
         // Backfill paid_at_jalali from paid_at
@@ -780,6 +785,7 @@ class DatabaseHelper {
           // Recreate indices
           await txn.execute('CREATE UNIQUE INDEX IF NOT EXISTS idx_ledger_ref ON ledger_entries(ref_type, ref_id)');
           await txn.execute('CREATE INDEX IF NOT EXISTS idx_ledger_date ON ledger_entries(date_jalali)');
+          await txn.execute('CREATE INDEX IF NOT EXISTS idx_ledger_category_date ON ledger_entries(category_id, date_jalali)');
         });
 
         // Attempt best-effort backfills (non-transactional, tolerate failures)
@@ -1136,6 +1142,49 @@ class DatabaseHelper {
       if (v is String) return int.tryParse(v) ?? 0;
     } catch (_) {}
     return 0;
+  }
+
+  /// Returns a map of category name -> total spent (positive number) for a given Jalali month.
+  /// Month is specified by `year` and `month` (1-12). Only expense entries (amount < 0) are summed.
+  Future<Map<String, int>> getSpendingByCategoryForMonth(
+      int year, int month) async {
+    // Build the period prefix like 'yyyy-MM'
+    final mm = month.toString().padLeft(2, '0');
+    final like = '$year-$mm%';
+
+    if (_isWeb) {
+      // Best-effort web fallback using in-memory ledger store; categories not persisted on web here.
+      final out = <String, int>{};
+      for (final r in _ledgerStore) {
+        final d = r['date_jalali'] as String?;
+        if (d == null || !d.startsWith('$year-$mm')) continue;
+        final amtRaw = r['amount'];
+        final amt = amtRaw is int ? amtRaw : int.tryParse('$amtRaw') ?? 0;
+        if (amt >= 0) continue; // expenses only
+        // No category name storage on web fallback; group under 'Uncategorized'
+        const name = 'Uncategorized';
+        out[name] = (out[name] ?? 0) + (-amt);
+      }
+      return out;
+    }
+
+    final db = await database;
+    final rows = await db.rawQuery('''
+      SELECT c.name as category, COALESCE(SUM(-le.amount),0) as spent
+      FROM ledger_entries le
+      LEFT JOIN categories c ON c.id = le.category_id
+      WHERE le.date_jalali LIKE ? AND le.amount < 0
+      GROUP BY c.name
+    ''', [like]);
+
+    final map = <String, int>{};
+    for (final r in rows) {
+      final name = (r['category'] as String?) ?? 'Uncategorized';
+      final v = r['spent'];
+      final val = v is int ? v : (v is String ? int.tryParse(v) ?? 0 : 0);
+      map[name] = val;
+    }
+    return map;
   }
 
 
