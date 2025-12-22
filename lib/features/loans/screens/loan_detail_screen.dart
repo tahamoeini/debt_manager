@@ -19,6 +19,8 @@ import 'package:debt_manager/features/budget/models/budget.dart';
 import 'package:debt_manager/features/loans/loan_detail_notifier.dart';
 import 'package:debt_manager/features/loans/loan_list_notifier.dart';
 import 'package:go_router/go_router.dart';
+import 'package:debt_manager/features/finance/finance_repository.dart';
+import 'package:debt_manager/features/finance/models/finance_models.dart';
 
 // Delay before showing celebration to allow UI to update
 const Duration _celebrationDelay = Duration(milliseconds: 300);
@@ -69,6 +71,15 @@ class _LoanDetailScreenState extends ConsumerState<LoanDetailScreen> {
     );
     // Initial selected Jalali date - with error handling
     Jalali selectedJalali = _parseJalaliSafe(inst.dueDateJalali);
+    // Load categories for optional tagging of this payment
+    List<Category> _sheetCategories = [];
+    try {
+      final frepo = ref.read(financeRepositoryProvider);
+      _sheetCategories = await frepo.getCategories();
+    } catch (_) {
+      _sheetCategories = [];
+    }
+    int? _selectedCategory;
 
     await showModalBottomSheet<void>(
       context: context,
@@ -82,7 +93,7 @@ class _LoanDetailScreenState extends ConsumerState<LoanDetailScreen> {
             builder: (context, setInnerState) {
               return Padding(
                 padding: const EdgeInsets.all(16.0),
-                child: Column(
+                  child: Column(
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -104,6 +115,17 @@ class _LoanDetailScreenState extends ConsumerState<LoanDetailScreen> {
                         labelText: 'مبلغ پرداختی واقعی (اختیاری)',
                       ),
                     ),
+                    const SizedBox(height: 8),
+                    // Category selector for this payment (optional)
+                    if (_sheetCategories.isNotEmpty)
+                      DropdownButtonFormField<int?>(
+                        value: null,
+                        decoration: const InputDecoration(labelText: 'دسته‌بندی پرداخت (اختیاری)'),
+                        items: _sheetCategories
+                            .map((c) => DropdownMenuItem<int?>(value: c.id, child: Text(c.name)))
+                            .toList(),
+                        onChanged: (v) => setInnerState(() => _selectedCategory = v),
+                      ),
                     const SizedBox(height: 8),
                     Row(
                       children: [
@@ -252,6 +274,17 @@ class _LoanDetailScreenState extends ConsumerState<LoanDetailScreen> {
                                   loanDetailProvider(widget.loanId).notifier,
                                 )
                                 .updateInstallment(updated);
+
+                            // If user selected a category for this payment, persist it on the ledger entry
+                            if (_selectedCategory != null && inst.id != null) {
+                              try {
+                                await DatabaseHelper.instance.setLedgerEntryCategoryByRef(
+                                  'installment_payment',
+                                  inst.id!,
+                                  _selectedCategory!,
+                                );
+                              } catch (_) {}
+                            }
 
                             // Cancel notifications if marking paid
                             if (isPaid && inst.id != null) {

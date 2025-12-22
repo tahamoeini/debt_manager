@@ -1242,6 +1242,28 @@ class DatabaseHelper {
     );
   }
 
+  /// Set `category_id` for a ledger entry identified by its ref_type/ref_id.
+  /// Returns number of rows updated.
+  Future<int> setLedgerEntryCategoryByRef(String refType, int refId, int categoryId) async {
+    if (_isWeb) {
+      var updated = 0;
+      for (var r in _ledgerStore) {
+        if (r['ref_type'] == refType && r['ref_id'] == refId) {
+          r['category_id'] = categoryId;
+          updated++;
+        }
+      }
+      return updated;
+    }
+    final db = await database;
+    return await db.update(
+      'ledger_entries',
+      {'category_id': categoryId},
+      where: 'ref_type = ? AND ref_id = ?',
+      whereArgs: [refType, refId],
+    );
+  }
+
   Future<int> getLedgerBalance({int initialBalance = 0}) async {
     if (_isWeb) {
       final total = _ledgerStore.fold<int>(initialBalance, (sum, r) {
@@ -1644,10 +1666,40 @@ class DatabaseHelper {
             (direction == LoanDirection.borrowed ? -1 : 1);
         final paidJ =
             installment.paidAtJalali ?? _isoToJalaliString(installment.paidAt);
+        // Attempt to resolve a category id for this installment payment
+        int? categoryId;
+        try {
+          String? catName;
+          if (loan != null) {
+            final cpRows = await db.query(
+              'counterparties',
+              where: 'id = ?',
+              whereArgs: [loan.counterpartyId],
+              limit: 1,
+            );
+            final payee = (cpRows.isNotEmpty ? cpRows.first['name'] as String? : loan.title) ?? '';
+            final tag = (cpRows.isNotEmpty ? cpRows.first['tag'] as String? : null);
+            catName = tag;
+            if (catName == null) {
+              try {
+                final repo = AutomationRulesRepository();
+                final suggestion = await repo.applyRules(payee, loan.notes ?? '', (amt).abs());
+                catName = suggestion['category'] as String?;
+              } catch (_) {}
+            }
+          }
+
+          if (catName != null) {
+            final catRows = await db.query('categories', where: 'name = ?', whereArgs: [catName], limit: 1);
+            if (catRows.isNotEmpty) categoryId = catRows.first['id'] as int?;
+          }
+        } catch (_) {}
+
         await upsertLedgerEntry(
           LedgerEntry(
             id: null,
             amount: amt,
+            categoryId: categoryId,
             refType: 'installment_payment',
             refId: installment.id,
             dateJalali: paidJ,

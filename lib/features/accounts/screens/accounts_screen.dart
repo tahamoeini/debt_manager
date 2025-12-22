@@ -105,6 +105,17 @@ class AccountsScreen extends ConsumerWidget {
             );
           }
         },
+        trailing: IconButton(
+          icon: const Icon(Icons.add_shopping_cart_outlined),
+          tooltip: 'افزودن تراکنش برای این حساب',
+          onPressed: () {
+            // Pre-fill category with loan title to help user
+            context.pushNamed('transactionAdd', extra: {
+              'presetAccountId': null,
+              'presetCategoryName': loan.title,
+            });
+          },
+        ),
       ),
     );
   }
