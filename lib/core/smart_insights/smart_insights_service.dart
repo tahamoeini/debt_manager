@@ -30,11 +30,11 @@ class SmartInsightsService {
 
       if (!notify) return;
 
-      var nid = 10000;
+      var suggestionId = 1; // Start from 1 for each insight type
       for (final s in subs) {
         final scheduled = DateTime.now().add(const Duration(seconds: 2));
         await _notifier.scheduleSmartSuggestion(
-          notificationId: nid++,
+          suggestionId: suggestionId++,
           scheduledTime: scheduled,
           title: 'Subscription detected',
           body: insights_engine.SmartInsightsService()
@@ -45,7 +45,7 @@ class SmartInsightsService {
       for (final b in bills) {
         final scheduled = DateTime.now().add(const Duration(seconds: 3));
         await _notifier.scheduleSmartSuggestion(
-          notificationId: nid++,
+          suggestionId: suggestionId++,
           scheduledTime: scheduled,
           title: 'Bill change detected',
           body: insights_engine.SmartInsightsService()
@@ -56,7 +56,7 @@ class SmartInsightsService {
       for (final a in anomalies) {
         final scheduled = DateTime.now().add(const Duration(seconds: 4));
         await _notifier.scheduleSmartSuggestion(
-          notificationId: nid++,
+          suggestionId: suggestionId++,
           scheduledTime: scheduled,
           title: 'Unusual spending detected',
           body: a['description'] as String? ?? 'Anomaly detected',

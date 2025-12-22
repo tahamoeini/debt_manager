@@ -20,6 +20,7 @@ class _LockScreenState extends ConsumerState<LockScreen> {
   String? _error;
   bool _showPin = false;
   final _pinCtrl = TextEditingController();
+  int _dbFailureCount = 0;
 
   @override
   void initState() {
@@ -92,11 +93,23 @@ class _LockScreenState extends ConsumerState<LockScreen> {
     if (ok) {
       // Derive DB key from PIN and attempt to open encrypted DB if present.
       final key = await SecurityService.instance.deriveKeyFromPin(pin);
-      try {
-        if (key != null) {
+      if (key != null) {
+        try {
           await DatabaseHelper.instance.openWithKey(key);
+        } catch (e) {
+          // DB open failed - do NOT unlock the app
+          debugPrint('Failed to open encrypted database with derived key: $e');
+          _dbFailureCount++;
+          setState(() {
+            _authenticating = false;
+            _error = 'باز کردن پایگاه داده با مشکل مواجه شد.\n'
+                'اگر این خطا تکرار شد، برنامه را بسته و دوباره باز کنید. '
+                'در صورت ادامهٔ مشکل، احتمال خرابی داده‌ها یا اشتباه بودن پین/رمز وجود دارد.';
+          });
+          return;
         }
-      } catch (_) {}
+      }
+      // Only unlock if DB opened successfully (or no DB encryption)
       ref.read(authNotifierProvider).unlock();
       if (!mounted) return;
       Navigator.of(context).pop(true);
@@ -167,6 +180,19 @@ class _LockScreenState extends ConsumerState<LockScreen> {
                     onPressed: _authenticating ? null : _authenticate,
                     child: const Text('تلاش مجدد'),
                   ),
+                  if (_dbFailureCount >= 2) ...[
+                    const SizedBox(height: 12),
+                    Text(
+                      'اگر مشکل ادامه داشت، ممکن است نیاز به بازیابی نسخه پشتیبان یا نصب مجدد برنامه باشد.',
+                      style: Theme.of(context).textTheme.bodySmall,
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 8),
+                    OutlinedButton(
+                      onPressed: () => SystemNavigator.pop(),
+                      child: const Text('خروج از برنامه'),
+                    ),
+                  ],
                 ],
               ),
             ),

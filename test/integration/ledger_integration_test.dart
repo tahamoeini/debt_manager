@@ -52,14 +52,16 @@ void main() {
         } catch (e) {
           // Check if this is a database lock error
           final errorMessage = e.toString();
-          final isDatabaseLocked = errorMessage.contains('database is locked') ||
-              errorMessage.contains('SQLITE_BUSY');
-          
+          final isDatabaseLocked =
+              errorMessage.contains('database is locked') ||
+                  errorMessage.contains('SQLITE_BUSY');
+
           if (isDatabaseLocked && retryCount < maxRetries - 1) {
             retryCount++;
             // Wait with linear backoff (sufficient for database lock resolution)
             // Linear is preferred here as database locks typically release quickly
-            await Future.delayed(Duration(milliseconds: baseDelayMs * retryCount));
+            await Future.delayed(
+                Duration(milliseconds: baseDelayMs * retryCount));
           } else {
             rethrow;
           }
