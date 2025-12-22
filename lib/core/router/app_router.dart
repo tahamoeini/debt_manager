@@ -80,7 +80,7 @@ final goRouterProvider = Provider<GoRouter>((ref) {
                 pageBuilder: (context, state) {
                   final idStr = state.pathParameters['loanId'] ?? '';
                   final id = int.tryParse(idStr);
-                  
+
                   // If loanId is invalid, show error UI instead of crashing
                   if (id == null) {
                     return const MaterialPage(
@@ -92,7 +92,7 @@ final goRouterProvider = Provider<GoRouter>((ref) {
                       ),
                     );
                   }
-                  
+
                   return MaterialPage(child: LoanDetailScreen(loanId: id));
                 },
               ),
@@ -102,7 +102,7 @@ final goRouterProvider = Provider<GoRouter>((ref) {
                 pageBuilder: (context, state) {
                   final idStr = state.pathParameters['loanId'] ?? '';
                   final id = int.tryParse(idStr);
-                  
+
                   // If loanId is invalid, show error UI instead of crashing
                   if (id == null) {
                     return const MaterialPage(
@@ -114,7 +114,7 @@ final goRouterProvider = Provider<GoRouter>((ref) {
                       ),
                     );
                   }
-                  
+
                   Loan? loan;
                   Counterparty? counterparty;
                   final extra = state.extra;

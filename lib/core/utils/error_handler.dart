@@ -47,78 +47,40 @@ class ErrorHandler {
   /// Get user-friendly error message from exception.
   /// Strips technical details and provides localized messages.
   ///
-  /// Attempts to classify errors by matching keywords in the error string.
-  /// If exactly one category matches, returns its specific message.
-  /// If multiple categories match (ambiguous), returns a generic fallback to avoid misclassification.
-  /// 
-  /// Category precedence (first match wins when count == 1):
-  /// 1. Network/connection errors
-  /// 2. Timeout errors
-  /// 3. Permission errors
-  /// 4. Database/SQL errors
-  /// 5. Authentication/PIN errors
-  /// 6. Encryption errors
-  ///
-  /// Returns [fallback] (or default generic message) when:
-  /// - No categories match
-  /// - Multiple categories match (e.g., "network timeout" matches both network and timeout)
+  /// Get user-friendly error message from exception.
+  /// Strips technical details and provides localized messages.
   static String getUserMessage(dynamic error, {String? fallback}) {
     if (error == null) return fallback ?? 'خطای نامشخص';
 
-    // Map common errors to user-friendly Persian messages.
-    // Evaluate all patterns and avoid arbitrarily picking the first match
-    // when multiple categories match the same error string.
+    // Map common errors to user-friendly Persian messages
     final errorStr = error.toString().toLowerCase();
-
-    int matchCount = 0;
-    String? mappedMessage;
-
-    void addMatch(bool condition, String message) {
-      if (condition) {
-        matchCount++;
-        // Preserve existing behavior in the common case by keeping
-        // the first matching category's message.
-        mappedMessage ??= message;
-      }
+    
+    // Check patterns in priority order (most specific first)
+    if (errorStr.contains('network') || errorStr.contains('connection')) {
+      return 'خطای اتصال به شبکه';
     }
-
-    addMatch(
-      errorStr.contains('network') || errorStr.contains('connection'),
-      'خطای اتصال به شبکه',
-    );
-
-    addMatch(
-      errorStr.contains('timeout'),
-      'زمان انتظار به پایان رسید',
-    );
-
-    addMatch(
-      errorStr.contains('permission'),
-      'دسترسی مورد نیاز وجود ندارد',
-    );
-
-    addMatch(
-      errorStr.contains('database') || errorStr.contains('sql'),
-      'خطا در ذخیره‌سازی داده',
-    );
-
-    addMatch(
-      errorStr.contains('authentication') || errorStr.contains('pin'),
-      'خطای احراز هویت',
-    );
-
-    addMatch(
-      errorStr.contains('encryption'),
-      'خطای رمزگذاری',
-    );
-
-    if (matchCount == 1 && mappedMessage != null) {
-      // Exactly one category matched: return its specific message.
-      return mappedMessage;
+    
+    if (errorStr.contains('timeout')) {
+      return 'زمان انتظار به پایان رسید';
     }
-
-    // Either no categories matched or multiple categories matched;
-    // fall back to a generic message to avoid misclassification.
+    
+    if (errorStr.contains('permission')) {
+      return 'دسترسی مورد نیاز وجود ندارد';
+    }
+    
+    if (errorStr.contains('database') || errorStr.contains('sql')) {
+      return 'خطا در ذخیره‌سازی داده';
+    }
+    
+    if (errorStr.contains('authentication') || errorStr.contains('pin')) {
+      return 'خطای احراز هویت';
+    }
+    
+    if (errorStr.contains('encryption')) {
+      return 'خطای رمزگذاری';
+    }
+    
+    // Return fallback or generic message
     return fallback ?? 'خطایی رخ داده است';
   }
 

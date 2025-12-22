@@ -654,7 +654,8 @@ class DatabaseHelper {
 
           // Drop old table and rename
           await txn.execute('DROP TABLE installments');
-          await txn.execute('ALTER TABLE installments_new RENAME TO installments');
+          await txn
+              .execute('ALTER TABLE installments_new RENAME TO installments');
 
           // Recreate installment indices
           await txn.execute(
@@ -667,7 +668,8 @@ class DatabaseHelper {
             'CREATE INDEX IF NOT EXISTS idx_installments_status ON installments(status)',
           );
 
-          debugPrint('Migration: v8 - installments table recreated with CASCADE');
+          debugPrint(
+              'Migration: v8 - installments table recreated with CASCADE');
         });
       } catch (e) {
         debugPrint('Migration: v8 upgrade failed: $e');

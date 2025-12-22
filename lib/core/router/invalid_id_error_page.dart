@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 /// A reusable error page for invalid route parameter IDs.
-/// 
+///
 /// Displays a user-friendly error message with an icon and a button
 /// to navigate back to a safe location.
 class InvalidIdErrorPage extends StatelessWidget {
@@ -16,13 +16,13 @@ class InvalidIdErrorPage extends StatelessWidget {
 
   /// The title shown in the app bar
   final String title;
-  
+
   /// The error message shown to the user
   final String message;
-  
+
   /// The route to navigate to when the return button is pressed
   final String returnRoute;
-  
+
   /// The text shown on the return button
   final String returnButtonText;
 

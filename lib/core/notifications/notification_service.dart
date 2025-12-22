@@ -130,8 +130,9 @@ class NotificationService {
     }
 
     // Initialize plugin only if using real plugin
-    if (_plugin is RealNotificationPlugin) {
-      final realPlugin = (_plugin as RealNotificationPlugin).plugin;
+    final plugin = _plugin;
+    if (plugin is RealNotificationPlugin) {
+      final realPlugin = plugin.plugin;
 
       const androidInit = AndroidInitializationSettings('@mipmap/ic_launcher');
       const iosInit = DarwinInitializationSettings(
