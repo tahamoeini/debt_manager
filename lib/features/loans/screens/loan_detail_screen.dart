@@ -5,7 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shamsi_date/shamsi_date.dart';
 
 import 'package:debt_manager/core/notifications/notification_service.dart';
-import 'package:debt_manager/core/notifications/notification_ids.dart';
+import 'package:debt_manager/core/settings/settings_repository.dart';
 import 'package:debt_manager/core/utils/format_utils.dart';
 import 'package:debt_manager/core/db/database_helper.dart';
 import 'package:debt_manager/core/utils/jalali_utils.dart';
@@ -253,24 +253,19 @@ class _LoanDetailScreenState extends ConsumerState<LoanDetailScreen> {
                                 )
                                 .updateInstallment(updated);
 
-                            // Cancel notifications if marking paid (mapped + legacy IDs)
-                            if (isPaid) {
-                              final ids = <int>{};
-                              if (inst.id != null) {
-                                ids.add(inst.id!);
-                                ids.add(inst.id! + 1000);
-                                ids.add(
-                                    NotificationIds.forInstallment(inst.id!));
-                              }
-                              if (inst.notificationId != null) {
-                                ids.add(inst.notificationId!);
-                              }
-                              for (final id in ids) {
-                                try {
-                                  await NotificationService()
-                                      .cancelNotification(id);
-                                } catch (_) {}
-                              }
+                            // Cancel notifications if marking paid
+                            if (isPaid && inst.id != null) {
+                              try {
+                                // Get offset days from settings to cancel all notifications
+                                final settings = SettingsRepository();
+                                final maxOffsetDays =
+                                    await settings.getReminderOffsetDays();
+                                await NotificationService()
+                                    .cancelInstallmentNotifications(
+                                  inst.id!,
+                                  maxOffsetDays,
+                                );
+                              } catch (_) {}
                             }
 
                             // Check if all installments are now paid and celebrate!

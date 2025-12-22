@@ -8,7 +8,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:debt_manager/core/utils/jalali_utils.dart';
 import 'package:debt_manager/core/utils/ui_utils.dart';
 import 'package:debt_manager/core/notifications/notification_service.dart';
-import 'package:debt_manager/core/notifications/notification_ids.dart';
 import 'package:debt_manager/core/settings/settings_repository.dart';
 import 'package:debt_manager/features/loans/models/counterparty.dart';
 import 'package:debt_manager/features/loans/models/loan.dart';
@@ -283,17 +282,14 @@ class _AddLoanScreenState extends ConsumerState<AddLoanScreen> {
           );
 
           try {
-            final mappedId = NotificationIds.forInstallment(instId);
             await NotificationService().scheduleInstallmentReminder(
-              notificationId: mappedId,
+              installmentId: instId,
               scheduledTime: scheduledTime,
               title: 'یادآور اقساط',
               body:
                   '${loan.title} - تاریخ: ${formatJalaliForDisplay(dueJalali)}',
+              offsetDays: offsetDays,
             );
-
-            final updated = inst.copyWith(notificationId: mappedId);
-            await repo.updateInstallment(updated.copyWith(id: instId));
           } catch (_) {
             // ignore notification failures for now
           }

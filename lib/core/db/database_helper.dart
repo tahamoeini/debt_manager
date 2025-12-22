@@ -13,7 +13,6 @@ import 'package:debt_manager/features/loans/models/installment.dart';
 import 'package:debt_manager/core/utils/jalali_utils.dart';
 import 'package:debt_manager/features/ledger/models/ledger_entry.dart';
 import 'package:debt_manager/core/notifications/notification_service.dart';
-import 'package:debt_manager/core/notifications/notification_ids.dart';
 import 'package:debt_manager/core/db/installment_dao.dart';
 import 'package:debt_manager/core/smart_insights/smart_insights_service.dart';
 import 'package:debt_manager/core/settings/settings_repository.dart';
@@ -28,9 +27,9 @@ class DatabaseHelper {
   factory DatabaseHelper() => instance;
 
   static const _dbName = 'debt_manager.db';
-  static const _dbVersion = 7;
+  static const _dbVersion = 8; // Bumped for FK cascade migration
   // bump DB version to add transactions table and paid_at_jalali/ledger
-  static const _newDbVersion = 7;
+  static const _newDbVersion = 8;
 
   plain.Database? _db;
   // In-memory fallback stores for web builds (sqflite is not available on web).
@@ -80,6 +79,7 @@ class DatabaseHelper {
     return plain.openDatabase(
       path,
       version: _newDbVersion,
+      onConfigure: _onConfigure,
       onCreate: _onCreate,
       onUpgrade: _onUpgrade,
     );
@@ -107,6 +107,7 @@ class DatabaseHelper {
       _db = await cipher.openDatabase(
         path,
         version: _dbVersion,
+        onConfigure: _onConfigure,
         onCreate: _onCreate,
         onUpgrade: _onUpgrade,
         password: key,
@@ -116,6 +117,7 @@ class DatabaseHelper {
       _db = await plain.openDatabase(
         path,
         version: _dbVersion,
+        onConfigure: _onConfigure,
         onCreate: _onCreate,
         onUpgrade: _onUpgrade,
       );
@@ -166,6 +168,14 @@ class DatabaseHelper {
     }
   }
 
+  /// Configure database connection (enable foreign keys).
+  /// This runs before onCreate/onUpgrade.
+  FutureOr<void> _onConfigure(plain.Database db) async {
+    // Enable foreign key constraints
+    await db.execute('PRAGMA foreign_keys = ON');
+    debugPrint('DatabaseHelper: Foreign keys enabled');
+  }
+
   FutureOr<void> _onCreate(plain.Database db, int version) async {
     await db.execute('''
       CREATE TABLE counterparties (
@@ -193,7 +203,7 @@ class DatabaseHelper {
         term_months INTEGER,
         notes TEXT,
         created_at TEXT NOT NULL,
-        FOREIGN KEY(counterparty_id) REFERENCES counterparties(id)
+        FOREIGN KEY(counterparty_id) REFERENCES counterparties(id) ON DELETE CASCADE
       )
     ''');
 
@@ -232,7 +242,7 @@ class DatabaseHelper {
         paid_at_jalali TEXT,
         actual_paid_amount INTEGER,
         notification_id INTEGER,
-        FOREIGN KEY(loan_id) REFERENCES loans(id)
+        FOREIGN KEY(loan_id) REFERENCES loans(id) ON DELETE CASCADE
       )
     ''');
 
@@ -572,6 +582,93 @@ class DatabaseHelper {
         }
       } catch (e) {
         debugPrint('Migration: v7 upgrade completed with warnings: $e');
+      }
+    }
+
+    if (oldVersion < 8) {
+      // Add ON DELETE CASCADE to foreign keys by recreating tables
+      // This is necessary because SQLite doesn't support ALTER TABLE to modify FK constraints
+      debugPrint('Migration: v8 - Adding ON DELETE CASCADE to foreign keys');
+
+      try {
+        // 1. Recreate loans table with CASCADE
+        await db.execute('''
+          CREATE TABLE loans_new (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            counterparty_id INTEGER NOT NULL,
+            title TEXT NOT NULL,
+            direction TEXT NOT NULL,
+            principal_amount INTEGER NOT NULL,
+            installment_count INTEGER NOT NULL,
+            installment_amount INTEGER NOT NULL,
+            start_date_jalali TEXT NOT NULL,
+            interest_rate REAL,
+            compounding_frequency TEXT,
+            grace_period_days INTEGER,
+            monthly_payment INTEGER,
+            term_months INTEGER,
+            notes TEXT,
+            created_at TEXT NOT NULL,
+            FOREIGN KEY(counterparty_id) REFERENCES counterparties(id) ON DELETE CASCADE
+          )
+        ''');
+
+        // Copy data
+        await db.execute('''
+          INSERT INTO loans_new SELECT * FROM loans
+        ''');
+
+        // Drop old table and rename
+        await db.execute('DROP TABLE loans');
+        await db.execute('ALTER TABLE loans_new RENAME TO loans');
+
+        // Recreate loan indices
+        await db.execute(
+          'CREATE INDEX IF NOT EXISTS idx_loans_counterparty ON loans(counterparty_id)',
+        );
+
+        debugPrint('Migration: v8 - loans table recreated with CASCADE');
+
+        // 2. Recreate installments table with CASCADE
+        await db.execute('''
+          CREATE TABLE installments_new (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            loan_id INTEGER NOT NULL,
+            due_date_jalali TEXT NOT NULL,
+            amount INTEGER NOT NULL,
+            status TEXT NOT NULL,
+            paid_at TEXT,
+            paid_at_jalali TEXT,
+            actual_paid_amount INTEGER,
+            notification_id INTEGER,
+            FOREIGN KEY(loan_id) REFERENCES loans(id) ON DELETE CASCADE
+          )
+        ''');
+
+        // Copy data
+        await db.execute('''
+          INSERT INTO installments_new SELECT * FROM installments
+        ''');
+
+        // Drop old table and rename
+        await db.execute('DROP TABLE installments');
+        await db.execute('ALTER TABLE installments_new RENAME TO installments');
+
+        // Recreate installment indices
+        await db.execute(
+          'CREATE INDEX IF NOT EXISTS idx_installments_loan_id ON installments(loan_id)',
+        );
+        await db.execute(
+          'CREATE INDEX IF NOT EXISTS idx_installments_due_date ON installments(due_date_jalali)',
+        );
+        await db.execute(
+          'CREATE INDEX IF NOT EXISTS idx_installments_status ON installments(status)',
+        );
+
+        debugPrint('Migration: v8 - installments table recreated with CASCADE');
+      } catch (e) {
+        debugPrint('Migration: v8 upgrade failed: $e');
+        throw Exception('Failed to migrate to v8: $e');
       }
     }
 
@@ -1219,17 +1316,17 @@ class DatabaseHelper {
     // Fetch installments to cancel notifications
     final installments = await getInstallmentsByLoanId(loanId);
 
+    // Get max offset days from settings to cancel all possible notification IDs
+    final settings = SettingsRepository();
+    final maxOffsetDays = await settings.getReminderOffsetDays();
+
     for (final inst in installments) {
-      final ids = <int>{};
       if (inst.id != null) {
-        ids.add(inst.id!);
-        ids.add(inst.id! + 1000);
-        ids.add(NotificationIds.forInstallment(inst.id!));
-      }
-      if (inst.notificationId != null) ids.add(inst.notificationId!);
-      for (final id in ids) {
         try {
-          await NotificationService().cancelNotification(id);
+          await NotificationService().cancelInstallmentNotifications(
+            inst.id!,
+            maxOffsetDays,
+          );
         } catch (_) {}
       }
     }

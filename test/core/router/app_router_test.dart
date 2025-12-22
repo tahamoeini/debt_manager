@@ -6,7 +6,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 void main() {
   group('Routing security and params', () {
-    testWidgets('When locked, navigating to guarded route redirects to /lock', (tester) async {
+    testWidgets('When locked, navigating to guarded route redirects to /lock',
+        (tester) async {
       final container = ProviderContainer();
       addTearDown(container.dispose);
       addTearDown(() async {

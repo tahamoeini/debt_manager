@@ -55,7 +55,9 @@ void main() {
       // Verify with wrong PIN
       final result = await service.verifyPin('9999');
       expect(result, false);
-    }, skip: 'Requires pointycastle PBKDF2 registry initialization. Run as integration test or on device.');
+    },
+        skip:
+            'Requires pointycastle PBKDF2 registry initialization. Run as integration test or on device.');
 
     test('verifyPin returns true for correct PIN', () async {
       final service = SecurityService.instance;
@@ -66,7 +68,9 @@ void main() {
       // Verify with correct PIN
       final result = await service.verifyPin('1234');
       expect(result, true);
-    }, skip: 'Requires pointycastle PBKDF2 registry initialization. Run as integration test or on device.');
+    },
+        skip:
+            'Requires pointycastle PBKDF2 registry initialization. Run as integration test or on device.');
 
     test('verifyPin enforces lockout after 5 failed attempts', () async {
       final service = SecurityService.instance;
@@ -83,7 +87,9 @@ void main() {
       final result = await service.verifyPin('1234');
       expect(result, false,
           reason: 'Should be locked out after 5 failed attempts');
-    }, skip: 'Requires pointycastle PBKDF2 registry initialization. Run as integration test or on device.');
+    },
+        skip:
+            'Requires pointycastle PBKDF2 registry initialization. Run as integration test or on device.');
 
     test('hasPin returns true after setting PIN', () async {
       final service = SecurityService.instance;
@@ -93,7 +99,9 @@ void main() {
       await service.setPin('1234');
 
       expect(await service.hasPin(), true);
-    }, skip: 'Requires pointycastle PBKDF2 registry initialization. Run as integration test or on device.');
+    },
+        skip:
+            'Requires pointycastle PBKDF2 registry initialization. Run as integration test or on device.');
 
     test('deletePin removes PIN', () async {
       final service = SecurityService.instance;
@@ -103,7 +111,9 @@ void main() {
 
       await service.deletePin();
       expect(await service.hasPin(), false);
-    }, skip: 'Requires pointycastle PBKDF2 registry initialization. Run as integration test or on device.');
+    },
+        skip:
+            'Requires pointycastle PBKDF2 registry initialization. Run as integration test or on device.');
 
     test('deriveKeyFromPin returns consistent key', () async {
       final service = SecurityService.instance;
@@ -116,7 +126,9 @@ void main() {
       expect(key1, isNotNull);
       expect(key2, isNotNull);
       expect(key1, equals(key2), reason: 'Same PIN should derive same key');
-    }, skip: 'Requires pointycastle PBKDF2 registry initialization. Run as integration test or on device.');
+    },
+        skip:
+            'Requires pointycastle PBKDF2 registry initialization. Run as integration test or on device.');
 
     test('deriveKeyFromPin returns null for wrong PIN', () async {
       final service = SecurityService.instance;
@@ -128,7 +140,9 @@ void main() {
       // Key derivation happens regardless, but wrong PIN won't match stored hash
       expect(key, isNotNull,
           reason: 'Key is derived, but verification would fail');
-    }, skip: 'Requires pointycastle PBKDF2 registry initialization. Run as integration test or on device.');
+    },
+        skip:
+            'Requires pointycastle PBKDF2 registry initialization. Run as integration test or on device.');
   });
 
   group('SecurityService Lockout Behavior', () {
@@ -156,6 +170,8 @@ void main() {
       final finalResult = await service.verifyPin('1234');
       expect(finalResult, false,
           reason: 'Should be locked out after 5 more failed attempts');
-    }, skip: 'Requires pointycastle PBKDF2 registry initialization. Run as integration test or on device.');
+    },
+        skip:
+            'Requires pointycastle PBKDF2 registry initialization. Run as integration test or on device.');
   });
 }
