@@ -411,6 +411,16 @@ class DatabaseHelper {
       await db.execute(
         'CREATE INDEX IF NOT EXISTS idx_budgets_period ON budgets(period)',
       );
+      // Ensure ledger indices exist even for existing databases
+      await db.execute(
+        'CREATE UNIQUE INDEX IF NOT EXISTS idx_ledger_ref ON ledger_entries(ref_type, ref_id)',
+      );
+      await db.execute(
+        'CREATE INDEX IF NOT EXISTS idx_ledger_date ON ledger_entries(date_jalali)',
+      );
+      await db.execute(
+        'CREATE INDEX IF NOT EXISTS idx_ledger_category_date ON ledger_entries(category_id, date_jalali)',
+      );
     } catch (_) {
       // Indices creation errors are non-fatal
     }
