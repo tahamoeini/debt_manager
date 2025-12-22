@@ -591,81 +591,84 @@ class DatabaseHelper {
       debugPrint('Migration: v8 - Adding ON DELETE CASCADE to foreign keys');
 
       try {
-        // 1. Recreate loans table with CASCADE
-        await db.execute('''
-          CREATE TABLE loans_new (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            counterparty_id INTEGER NOT NULL,
-            title TEXT NOT NULL,
-            direction TEXT NOT NULL,
-            principal_amount INTEGER NOT NULL,
-            installment_count INTEGER NOT NULL,
-            installment_amount INTEGER NOT NULL,
-            start_date_jalali TEXT NOT NULL,
-            interest_rate REAL,
-            compounding_frequency TEXT,
-            grace_period_days INTEGER,
-            monthly_payment INTEGER,
-            term_months INTEGER,
-            notes TEXT,
-            created_at TEXT NOT NULL,
-            FOREIGN KEY(counterparty_id) REFERENCES counterparties(id) ON DELETE CASCADE
-          )
-        ''');
+        // Wrap all operations in a transaction to ensure atomicity
+        await db.transaction((txn) async {
+          // 1. Recreate loans table with CASCADE
+          await txn.execute('''
+            CREATE TABLE loans_new (
+              id INTEGER PRIMARY KEY AUTOINCREMENT,
+              counterparty_id INTEGER NOT NULL,
+              title TEXT NOT NULL,
+              direction TEXT NOT NULL,
+              principal_amount INTEGER NOT NULL,
+              installment_count INTEGER NOT NULL,
+              installment_amount INTEGER NOT NULL,
+              start_date_jalali TEXT NOT NULL,
+              interest_rate REAL,
+              compounding_frequency TEXT,
+              grace_period_days INTEGER,
+              monthly_payment INTEGER,
+              term_months INTEGER,
+              notes TEXT,
+              created_at TEXT NOT NULL,
+              FOREIGN KEY(counterparty_id) REFERENCES counterparties(id) ON DELETE CASCADE
+            )
+          ''');
 
-        // Copy data
-        await db.execute('''
-          INSERT INTO loans_new SELECT * FROM loans
-        ''');
+          // Copy data
+          await txn.execute('''
+            INSERT INTO loans_new SELECT * FROM loans
+          ''');
 
-        // Drop old table and rename
-        await db.execute('DROP TABLE loans');
-        await db.execute('ALTER TABLE loans_new RENAME TO loans');
+          // Drop old table and rename
+          await txn.execute('DROP TABLE loans');
+          await txn.execute('ALTER TABLE loans_new RENAME TO loans');
 
-        // Recreate loan indices
-        await db.execute(
-          'CREATE INDEX IF NOT EXISTS idx_loans_counterparty ON loans(counterparty_id)',
-        );
+          // Recreate loan indices
+          await txn.execute(
+            'CREATE INDEX IF NOT EXISTS idx_loans_counterparty ON loans(counterparty_id)',
+          );
 
-        debugPrint('Migration: v8 - loans table recreated with CASCADE');
+          debugPrint('Migration: v8 - loans table recreated with CASCADE');
 
-        // 2. Recreate installments table with CASCADE
-        await db.execute('''
-          CREATE TABLE installments_new (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            loan_id INTEGER NOT NULL,
-            due_date_jalali TEXT NOT NULL,
-            amount INTEGER NOT NULL,
-            status TEXT NOT NULL,
-            paid_at TEXT,
-            paid_at_jalali TEXT,
-            actual_paid_amount INTEGER,
-            notification_id INTEGER,
-            FOREIGN KEY(loan_id) REFERENCES loans(id) ON DELETE CASCADE
-          )
-        ''');
+          // 2. Recreate installments table with CASCADE
+          await txn.execute('''
+            CREATE TABLE installments_new (
+              id INTEGER PRIMARY KEY AUTOINCREMENT,
+              loan_id INTEGER NOT NULL,
+              due_date_jalali TEXT NOT NULL,
+              amount INTEGER NOT NULL,
+              status TEXT NOT NULL,
+              paid_at TEXT,
+              paid_at_jalali TEXT,
+              actual_paid_amount INTEGER,
+              notification_id INTEGER,
+              FOREIGN KEY(loan_id) REFERENCES loans(id) ON DELETE CASCADE
+            )
+          ''');
 
-        // Copy data
-        await db.execute('''
-          INSERT INTO installments_new SELECT * FROM installments
-        ''');
+          // Copy data
+          await txn.execute('''
+            INSERT INTO installments_new SELECT * FROM installments
+          ''');
 
-        // Drop old table and rename
-        await db.execute('DROP TABLE installments');
-        await db.execute('ALTER TABLE installments_new RENAME TO installments');
+          // Drop old table and rename
+          await txn.execute('DROP TABLE installments');
+          await txn.execute('ALTER TABLE installments_new RENAME TO installments');
 
-        // Recreate installment indices
-        await db.execute(
-          'CREATE INDEX IF NOT EXISTS idx_installments_loan_id ON installments(loan_id)',
-        );
-        await db.execute(
-          'CREATE INDEX IF NOT EXISTS idx_installments_due_date ON installments(due_date_jalali)',
-        );
-        await db.execute(
-          'CREATE INDEX IF NOT EXISTS idx_installments_status ON installments(status)',
-        );
+          // Recreate installment indices
+          await txn.execute(
+            'CREATE INDEX IF NOT EXISTS idx_installments_loan_id ON installments(loan_id)',
+          );
+          await txn.execute(
+            'CREATE INDEX IF NOT EXISTS idx_installments_due_date ON installments(due_date_jalali)',
+          );
+          await txn.execute(
+            'CREATE INDEX IF NOT EXISTS idx_installments_status ON installments(status)',
+          );
 
-        debugPrint('Migration: v8 - installments table recreated with CASCADE');
+          debugPrint('Migration: v8 - installments table recreated with CASCADE');
+        });
       } catch (e) {
         debugPrint('Migration: v8 upgrade failed: $e');
         throw Exception('Failed to migrate to v8: $e');
