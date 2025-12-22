@@ -46,6 +46,22 @@ class ErrorHandler {
 
   /// Get user-friendly error message from exception.
   /// Strips technical details and provides localized messages.
+  ///
+  /// Attempts to classify errors by matching keywords in the error string.
+  /// If exactly one category matches, returns its specific message.
+  /// If multiple categories match (ambiguous), returns a generic fallback to avoid misclassification.
+  /// 
+  /// Category precedence (first match wins when count == 1):
+  /// 1. Network/connection errors
+  /// 2. Timeout errors
+  /// 3. Permission errors
+  /// 4. Database/SQL errors
+  /// 5. Authentication/PIN errors
+  /// 6. Encryption errors
+  ///
+  /// Returns [fallback] (or default generic message) when:
+  /// - No categories match
+  /// - Multiple categories match (e.g., "network timeout" matches both network and timeout)
   static String getUserMessage(dynamic error, {String? fallback}) {
     if (error == null) return fallback ?? 'خطای نامشخص';
 
