@@ -175,9 +175,20 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
                 DropdownButtonFormField<int?>(
                   value: _selectedCategoryId,
                   decoration: const InputDecoration(labelText: 'دسته‌بندی (اختیاری)'),
-                  items: _categories
-                      .map((c) => DropdownMenuItem<int?>(value: c.id, child: Text(c.name)))
-                      .toList(),
+                  items: [
+                    const DropdownMenuItem<int?>(
+                      value: null,
+                      child: Text('بدون دسته‌بندی'),
+                    ),
+                    ..._categories
+                        .where((c) => c.id != null)
+                        .map(
+                          (c) => DropdownMenuItem<int?>(
+                            value: c.id,
+                            child: Text(c.name),
+                          ),
+                        ),
+                  ],
                   onChanged: (v) => setState(() => _selectedCategoryId = v),
                 ),
                 const SizedBox(height: 8),
@@ -207,6 +218,8 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
                           setState(() => _selectedDate = jalaliToDateTime(picked));
                         } else if (picked is DateTime) {
                           setState(() => _selectedDate = picked);
+                        } else {
+                          debugPrint('Unexpected date type from showCalendarAwareDatePicker: ${picked.runtimeType}');
                         }
                       },
                       child: const Text('انتخاب'),

@@ -121,11 +121,17 @@ class _LoanDetailScreenState extends ConsumerState<LoanDetailScreen> {
                     // Category selector for this payment (optional)
                     if (_sheetCategories.isNotEmpty)
                       DropdownButtonFormField<int?>(
-                        value: null,
+                        value: _selectedCategory,
                         decoration: const InputDecoration(labelText: 'دسته‌بندی پرداخت (اختیاری)'),
-                        items: _sheetCategories
-                            .map((c) => DropdownMenuItem<int?>(value: c.id, child: Text(c.name)))
-                            .toList(),
+                        items: [
+                          const DropdownMenuItem<int?>(
+                            value: null,
+                            child: Text('بدون دسته‌بندی'),
+                          ),
+                          ..._sheetCategories
+                              .where((c) => c.id != null)
+                              .map((c) => DropdownMenuItem<int?>(value: c.id, child: Text(c.name))),
+                        ],
                         onChanged: (v) => setInnerState(() => _selectedCategory = v),
                       ),
                     const SizedBox(height: 8),
@@ -158,8 +164,11 @@ class _LoanDetailScreenState extends ConsumerState<LoanDetailScreen> {
                               setInnerState(() {
                                 if (picked is DateTime) {
                                   selectedJalali = dateTimeToJalali(picked);
+                                } else if (picked is Jalali) {
+                                  selectedJalali = picked;
                                 } else {
-                                  selectedJalali = picked as Jalali;
+                                  // Unexpected type from showCalendarAwareDatePicker; ignore to avoid a crash.
+                                  debugPrint('Unexpected date type from showCalendarAwareDatePicker: ${picked.runtimeType}');
                                 }
                               });
                             }
