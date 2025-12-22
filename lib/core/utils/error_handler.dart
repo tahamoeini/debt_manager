@@ -49,34 +49,60 @@ class ErrorHandler {
   static String getUserMessage(dynamic error, {String? fallback}) {
     if (error == null) return fallback ?? 'خطای نامشخص';
 
-    // Map common errors to user-friendly Persian messages
+    // Map common errors to user-friendly Persian messages.
+    // Evaluate all patterns and avoid arbitrarily picking the first match
+    // when multiple categories match the same error string.
     final errorStr = error.toString().toLowerCase();
 
-    if (errorStr.contains('network') || errorStr.contains('connection')) {
-      return 'خطای اتصال به شبکه';
+    int matchCount = 0;
+    String? mappedMessage;
+
+    void addMatch(bool condition, String message) {
+      if (condition) {
+        matchCount++;
+        // Preserve existing behavior in the common case by keeping
+        // the first matching category's message.
+        mappedMessage ??= message;
+      }
     }
 
-    if (errorStr.contains('timeout')) {
-      return 'زمان انتظار به پایان رسید';
+    addMatch(
+      errorStr.contains('network') || errorStr.contains('connection'),
+      'خطای اتصال به شبکه',
+    );
+
+    addMatch(
+      errorStr.contains('timeout'),
+      'زمان انتظار به پایان رسید',
+    );
+
+    addMatch(
+      errorStr.contains('permission'),
+      'دسترسی مورد نیاز وجود ندارد',
+    );
+
+    addMatch(
+      errorStr.contains('database') || errorStr.contains('sql'),
+      'خطا در ذخیره‌سازی داده',
+    );
+
+    addMatch(
+      errorStr.contains('authentication') || errorStr.contains('pin'),
+      'خطای احراز هویت',
+    );
+
+    addMatch(
+      errorStr.contains('encryption'),
+      'خطای رمزگذاری',
+    );
+
+    if (matchCount == 1 && mappedMessage != null) {
+      // Exactly one category matched: return its specific message.
+      return mappedMessage;
     }
 
-    if (errorStr.contains('permission')) {
-      return 'دسترسی مورد نیاز وجود ندارد';
-    }
-
-    if (errorStr.contains('database') || errorStr.contains('sql')) {
-      return 'خطا در ذخیره‌سازی داده';
-    }
-
-    if (errorStr.contains('authentication') || errorStr.contains('pin')) {
-      return 'خطای احراز هویت';
-    }
-
-    if (errorStr.contains('encryption')) {
-      return 'خطای رمزگذاری';
-    }
-
-    // Return fallback or generic message
+    // Either no categories matched or multiple categories matched;
+    // fall back to a generic message to avoid misclassification.
     return fallback ?? 'خطایی رخ داده است';
   }
 
