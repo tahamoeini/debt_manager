@@ -144,9 +144,11 @@ class _AddLoanScreenState extends ConsumerState<AddLoanScreen> {
       setState(() {
         if (picked is DateTime) {
           _startJalali = dateTimeToJalali(picked);
+        } else if (picked is Jalali) {
+          _startJalali = picked;
         } else {
-          // Assume Jalali
-          _startJalali = picked as Jalali;
+          debugPrint('Unexpected date type from showCalendarAwareDatePicker: ${picked.runtimeType}');
+          _startJalali = null;
         }
       });
     }
@@ -593,14 +595,20 @@ class _AddLoanScreenState extends ConsumerState<AddLoanScreen> {
                     DropdownButtonFormField<int?>(
                       value: _selectedCategoryId,
                       decoration: const InputDecoration(labelText: 'دسته‌بندی تراکنش (اختیاری)'),
-                      items: _categories
-                          .map(
-                            (c) => DropdownMenuItem<int?>(
-                              value: c.id,
-                              child: Text(c.name),
+                      items: [
+                        const DropdownMenuItem<int?>(
+                          value: null,
+                          child: Text('بدون دسته‌بندی'),
+                        ),
+                        ..._categories
+                            .where((c) => c.id != null)
+                            .map(
+                              (c) => DropdownMenuItem<int?>(
+                                value: c.id,
+                                child: Text(c.name),
+                              ),
                             ),
-                          )
-                          .toList(growable: false),
+                      ],
                       onChanged: (v) => setState(() => _selectedCategoryId = v),
                     ),
                   ],

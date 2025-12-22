@@ -377,12 +377,14 @@ class ReportsScreen extends ConsumerWidget {
                     if (picked is DateTime) {
                       notifier.setFrom(picked);
                     } else {
-                      // Assume Jalali-like object with toDateTime()
+                      // Check if it's a Jalali-like object with toDateTime()
                       try {
-                        // dynamic to avoid import cycles
-                        final dt = picked.toDateTime();
+                        // Use dynamic to avoid direct Jalali import (already imported via jalali_utils)
+                        final dt = (picked as dynamic).toDateTime() as DateTime;
                         notifier.setFrom(dt);
-                      } catch (_) {}
+                      } catch (e) {
+                        debugPrint('Failed to convert picked date to DateTime: $e');
+                      }
                     }
                   }
                 },
@@ -414,9 +416,11 @@ class ReportsScreen extends ConsumerWidget {
                       notifier.setTo(picked);
                     } else {
                       try {
-                        final dt = picked.toDateTime();
+                        final dt = (picked as dynamic).toDateTime() as DateTime;
                         notifier.setTo(dt);
-                      } catch (_) {}
+                      } catch (e) {
+                        debugPrint('Failed to convert picked date to DateTime: $e');
+                      }
                     }
                   }
                 },
@@ -577,9 +581,12 @@ class ReportsScreen extends ConsumerWidget {
       final j = parseJalali(jalaliDateStr);
       final g = j.toGregorian();
       return DateTime(g.year, g.month, g.day);
-    } catch (_) {
-      // Fallback: treat as already Gregorian
-      return DateTime.parse(jalaliDateStr);
+    } catch (e) {
+      // Parsing failed: surface a clear error rather than misinterpreting Jalali as Gregorian.
+      throw FormatException(
+        'Invalid Jalali date string (expected yyyy-MM-dd): $jalaliDateStr',
+        jalaliDateStr,
+      );
     }
   }
 }
