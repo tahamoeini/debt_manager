@@ -1437,7 +1437,11 @@ class DatabaseHelper {
           ? loan.startDateJalali
           : _isoToJalaliString(loan.createdAt);
 
-      // Resolve category id from counterparty tag or automation suggestions
+      // Resolve category id from counterparty tag or automation suggestions.
+      // NOTE: This involves querying counterparties, categories, and potentially
+      // automation_rules tables. For batch loan imports, consider pre-resolving
+      // categories to avoid repeated queries. Current implementation prioritizes
+      // accuracy and ease of use for typical single-loan insertion flows.
       int? categoryId;
       try {
         final cpRows = await db.query(
@@ -1740,7 +1744,14 @@ class DatabaseHelper {
             (direction == LoanDirection.borrowed ? -1 : 1);
         final paidJ =
             installment.paidAtJalali ?? _isoToJalaliString(installment.paidAt);
-        // Attempt to resolve a category id for this installment payment
+        
+        // Attempt to resolve a category id for this installment payment.
+        // NOTE: This category resolution involves multiple database queries
+        // (counterparties, categories, automation_rules) and may add latency
+        // to the installment update operation. For high-frequency updates,
+        // consider caching category mappings or moving resolution to a
+        // background task. Current implementation prioritizes data consistency
+        // over performance for typical use cases with moderate update frequency.
         int? categoryId;
         try {
           String? catName;
