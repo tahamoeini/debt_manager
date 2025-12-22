@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shamsi_date/shamsi_date.dart';
-import '../models/installment_payment.dart';
-import '../providers/installment_payments_provider.dart';
-import '../../accounts/providers/accounts_provider.dart';
-import '../../core/utils/jalali_date_picker.dart';
+import 'package:debt_manager/features/installments/providers/installment_payments_provider.dart';
+import 'package:debt_manager/features/accounts/providers/accounts_provider.dart';
+import 'package:debt_manager/core/utils/jalali_date_picker.dart';
 
 class PaymentRecordScreen extends ConsumerStatefulWidget {
   final int loanId;

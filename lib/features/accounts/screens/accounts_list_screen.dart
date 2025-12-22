@@ -115,7 +115,7 @@ class AccountCard extends StatelessWidget {
           },
           size: 32,
         ),
-        title: Text(account.title),
+        title: Text(account.displayName),
         subtitle: Text(account.typeLabel),
         trailing: Column(
           mainAxisAlignment: MainAxisAlignment.center,

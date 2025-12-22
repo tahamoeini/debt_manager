@@ -31,7 +31,7 @@ class InstallmentPayment {
 
   /// Is this payment overdue?
   bool get isOverdue => 
-    status == PaymentStatus.pending && Jalali.now().isAfter(dueDate);
+    status == PaymentStatus.pending && Jalali.now().toDateTime().isAfter(dueDate.toDateTime());
 
   /// Remaining amount to pay
   double get remainingAmount => (amount - amountPaid).abs();

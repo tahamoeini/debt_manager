@@ -1,16 +1,38 @@
-import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shamsi_date/shamsi_date.dart';
-import '../models/installment_payment.dart';
-import '../repositories/installment_payments_repository.dart';
+import 'package:debt_manager/features/installments/models/installment_payment.dart';
+import 'package:debt_manager/features/installments/repositories/installment_payments_repository.dart';
+import 'package:debt_manager/core/providers/core_providers.dart';
 
-part 'installment_payments_provider.g.dart';
+/// Provides a list of all upcoming payments
+final upcomingPaymentsProvider = FutureProvider<List<InstallmentPayment>>((ref) async {
+  final repo = ref.watch(installmentPaymentsRepositoryProvider);
+  return repo.getUpcomingPayments();
+});
 
-@riverpod
-class PaymentsNotifier extends _$PaymentsNotifier {
-  @override
-  Future<List<InstallmentPayment>> build(int loanId) async {
-    final repo = ref.watch(installmentPaymentsRepositoryProvider);
-    return repo.getPaymentsByLoan(loanId);
+/// Provides a list of all overdue payments
+final overduePaymentsProvider = FutureProvider<List<InstallmentPayment>>((ref) async {
+  final repo = ref.watch(installmentPaymentsRepositoryProvider);
+  return repo.getOverduePayments();
+});
+
+/// Provides payments for a specific loan
+final paymentsForLoanProvider = FutureProviderFamily<List<InstallmentPayment>, int>((ref, loanId) async {
+  final repo = ref.watch(installmentPaymentsRepositoryProvider);
+  return repo.getPaymentsByLoan(loanId);
+});
+
+/// Notifier for managing payment operations for a specific loan
+class LoanPaymentsNotifier extends StateNotifier<AsyncValue<List<InstallmentPayment>>> {
+  final InstallmentPaymentsRepository _repository;
+  final int _loanId;
+
+  LoanPaymentsNotifier(this._repository, this._loanId)
+      : super(const AsyncValue.loading());
+
+  Future<void> loadPayments() async {
+    state = const AsyncValue.loading();
+    state = await AsyncValue.guard(() => _repository.getPaymentsByLoan(_loanId));
   }
 
   Future<void> recordPayment({
@@ -20,16 +42,15 @@ class PaymentsNotifier extends _$PaymentsNotifier {
     required Jalali paidDate,
     String? notes,
   }) async {
-    final repo = ref.watch(installmentPaymentsRepositoryProvider);
-    await repo.recordPayment(
-      loanId: state.valueOrNull?.first.loanId ?? 0,
+    await _repository.recordPayment(
+      loanId: _loanId,
       installmentId: installmentId,
       accountId: accountId,
       amount: amount,
       paidDate: paidDate,
       notes: notes,
     );
-    ref.invalidateSelf();
+    await loadPayments();
   }
 
   Future<void> updatePaymentStatus(
@@ -37,37 +58,21 @@ class PaymentsNotifier extends _$PaymentsNotifier {
     PaymentStatus status,
     double amountPaid,
   ) async {
-    final repo = ref.watch(installmentPaymentsRepositoryProvider);
-    await repo.updatePaymentStatus(paymentId, status, amountPaid);
-    ref.invalidateSelf();
+    await _repository.updatePaymentStatus(paymentId, status, amountPaid);
+    await loadPayments();
   }
 
   Future<void> markAsPaid(int paymentId, Jalali paidDate) async {
-    final repo = ref.watch(installmentPaymentsRepositoryProvider);
-    await repo.markAsPaid(paymentId, paidDate);
-    ref.invalidateSelf();
+    await _repository.markAsPaid(paymentId, paidDate);
+    await loadPayments();
   }
 }
 
-@riverpod
-InstallmentPaymentsRepository installmentPaymentsRepository(
-  InstallmentPaymentsRepositoryRef ref,
-) {
-  throw UnimplementedError();
-}
-
-@riverpod
-Future<List<InstallmentPayment>> upcomingPayments(
-  UpcomingPaymentsRef ref,
-) async {
+/// Provides the payments notifier for a specific loan
+final paymentsNotifierProvider = StateNotifierProvider.family<
+    LoanPaymentsNotifier,
+    AsyncValue<List<InstallmentPayment>>,
+    int>((ref, loanId) {
   final repo = ref.watch(installmentPaymentsRepositoryProvider);
-  return repo.getUpcomingPayments();
-}
-
-@riverpod
-Future<List<InstallmentPayment>> overduePayments(
-  OverduePaymentsRef ref,
-) async {
-  final repo = ref.watch(installmentPaymentsRepositoryProvider);
-  return repo.getOverduePayments();
-}
+  return LoanPaymentsNotifier(repo, loanId)..loadPayments();
+});

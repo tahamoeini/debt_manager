@@ -1,7 +1,7 @@
 import 'package:shamsi_date/shamsi_date.dart';
 import '../models/installment_payment.dart';
-import '../../accounts/models/account.dart';
 import '../../../core/db/database_helper.dart';
+import '../../../core/utils/jalali_date_provider.dart';
 
 class InstallmentPaymentsRepository {
   final DatabaseHelper _db;
@@ -133,9 +133,9 @@ class InstallmentPaymentsRepository {
       loanId: row['loan_id'] as int,
       accountId: row['account_id'] as int,
       amount: (row['amount'] as num).toDouble(),
-      dueDate: Jalali.parse(row['due_date'] as String),
+      dueDate: JalaliDateProvider.parseJalali(row['due_date'] as String),
       paidDate: row['paid_date'] != null
-          ? Jalali.parse(row['paid_date'] as String)
+          ? JalaliDateProvider.parseJalali(row['paid_date'] as String)
           : null,
       amountPaid: (row['amount_paid'] as num).toDouble(),
       status: PaymentStatus.values[row['status'] as int],

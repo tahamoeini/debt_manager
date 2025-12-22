@@ -5,6 +5,8 @@ import 'package:debt_manager/core/settings/settings_repository.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:debt_manager/core/security/security_service.dart';
+import 'package:debt_manager/features/accounts/repositories/accounts_repository.dart';
+import 'package:debt_manager/features/installments/repositories/installment_payments_repository.dart';
 import 'dart:async';
 
 // Auth notifier used by GoRouter as a refreshable ChangeNotifier.
@@ -124,7 +126,8 @@ class AuthNotifier extends ChangeNotifier {
 }
 
 final authNotifierProvider = Provider<AuthNotifier>((ref) {
-  return AuthNotifier.withInit(ref.read(settingsRepositoryProvider));
+  final settings = ref.read(settingsRepositoryProvider);
+  return AuthNotifier.withInit(settings);
 });
 
 // Provides the shared DatabaseHelper singleton.
@@ -141,7 +144,21 @@ final smartNotificationServiceProvider = Provider<SmartNotificationService>((
 
 // Provides SettingsRepository singleton.
 final settingsRepositoryProvider = Provider<SettingsRepository>((ref) {
-  return SettingsRepository();
+  final settings = SettingsRepository();
+  // Note: init() is called asynchronously in app startup before this provider is accessed
+  return settings;
+});
+
+/// Provides the accounts repository instance
+final accountsRepositoryProvider = Provider<AccountsRepository>((ref) {
+  final dbHelper = ref.read(databaseHelperProvider);
+  return AccountsRepository(dbHelper);
+});
+
+/// Provides the installment payments repository instance
+final installmentPaymentsRepositoryProvider = Provider<InstallmentPaymentsRepository>((ref) {
+  final dbHelper = ref.read(databaseHelperProvider);
+  return InstallmentPaymentsRepository(dbHelper);
 });
 
 // Simple refresh trigger used across the app to request reloads.

@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shamsi_date/shamsi_date.dart';
-import '../../loans/loan_list_notifier.dart';
-import '../../accounts/providers/accounts_provider.dart';
-import '../../core/utils/jalali_date_provider.dart';
+import 'package:debt_manager/features/loans/loan_list_notifier.dart';
+import 'package:debt_manager/features/accounts/providers/accounts_provider.dart';
 
 class ReportsTabbedScreen extends ConsumerStatefulWidget {
   const ReportsTabbedScreen({Key? key}) : super(key: key);

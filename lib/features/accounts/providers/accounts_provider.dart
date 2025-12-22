@@ -1,45 +1,51 @@
-import 'package:riverpod_annotation/riverpod_annotation.dart';
-import '../models/account.dart';
-import '../repositories/accounts_repository.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:debt_manager/features/accounts/models/account.dart';
+import 'package:debt_manager/features/accounts/repositories/accounts_repository.dart';
+import 'package:debt_manager/core/providers/core_providers.dart';
 
-part 'accounts_provider.g.dart';
+/// Provides a list of all accounts
+final accountsListProvider = FutureProvider<List<Account>>((ref) async {
+  final repo = ref.watch(accountsRepositoryProvider);
+  return repo.listAccounts();
+});
 
-@riverpod
-class AccountsNotifier extends _$AccountsNotifier {
-  @override
-  Future<List<Account>> build() async {
-    final repo = ref.watch(accountsRepositoryProvider);
-    return repo.listAccounts();
+/// Provides a single account by ID
+final accountByIdProvider = FutureProviderFamily<Account?, int>((ref, id) async {
+  final repo = ref.watch(accountsRepositoryProvider);
+  return repo.getAccountById(id);
+});
+
+/// Notifier for managing account operations
+class AccountsNotifier extends StateNotifier<AsyncValue<List<Account>>> {
+  final AccountsRepository _repository;
+
+  AccountsNotifier(this._repository)
+      : super(const AsyncValue.loading());
+
+  Future<void> loadAccounts() async {
+    state = const AsyncValue.loading();
+    state = await AsyncValue.guard(() => _repository.listAccounts());
   }
 
   Future<void> addAccount(Account account) async {
-    final repo = ref.watch(accountsRepositoryProvider);
-    await repo.insertAccount(account);
-    ref.invalidateSelf();
+    await _repository.insertAccount(account);
+    await loadAccounts();
   }
 
   Future<void> updateAccount(Account account) async {
-    final repo = ref.watch(accountsRepositoryProvider);
-    await repo.updateAccount(account);
-    ref.invalidateSelf();
+    await _repository.updateAccount(account);
+    await loadAccounts();
   }
 
   Future<void> deleteAccount(int id) async {
-    final repo = ref.watch(accountsRepositoryProvider);
-    await repo.deleteAccount(id);
-    ref.invalidateSelf();
+    await _repository.deleteAccount(id);
+    await loadAccounts();
   }
 }
 
-@riverpod
-AccountsRepository accountsRepository(AccountsRepositoryRef ref) {
-  // Will be initialized by dependency injection in core
-  throw UnimplementedError();
-}
-
-/// Fetch a single account by ID
-@riverpod
-Future<Account?> accountById(AccountByIdRef ref, int id) async {
+/// Provides the accounts notifier
+final accountsNotifierProvider =
+    StateNotifierProvider<AccountsNotifier, AsyncValue<List<Account>>>((ref) {
   final repo = ref.watch(accountsRepositoryProvider);
-  return repo.getAccountById(id);
-}
+  return AccountsNotifier(repo)..loadAccounts();
+});

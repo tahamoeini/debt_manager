@@ -1,5 +1,4 @@
 import 'package:shamsi_date/shamsi_date.dart';
-import 'package:intl/intl.dart' as intl;
 
 /// Jalali-only date handling for Debt Manager.
 /// All dates are stored as ISO strings in DB; displayed/input as Jalali.
@@ -11,7 +10,7 @@ class JalaliDateProvider {
     try {
       final dt = DateTime.parse(isoString);
       final jalali = Jalali.fromDateTime(dt);
-      return jalali.formatFull();
+      return formatFull(jalali);
     } catch (_) {
       return isoString; // Fallback if parsing fails
     }
@@ -27,10 +26,27 @@ class JalaliDateProvider {
     return jalali.toDateTime().toIso8601String();
   }
 
-  /// Parse ISO string to Jalali for display.
-  static Jalali parseISO(String isoString) {
-    final dt = DateTime.parse(isoString);
-    return Jalali.fromDateTime(dt);
+  /// Parse a Jalali date string (e.g., "1403-12-22") to Jalali object.
+  static Jalali parseJalali(String jalaliString) {
+    try {
+      // Support format: "1403-12-22" or similar
+      final parts = jalaliString.split('-');
+      if (parts.length == 3) {
+        final year = int.parse(parts[0]);
+        final month = int.parse(parts[1]);
+        final day = int.parse(parts[2]);
+        return Jalali(year, month, day);
+      }
+    } catch (_) {}
+    
+    // Fallback: try to parse as ISO and convert
+    try {
+      final dt = DateTime.parse(jalaliString);
+      return Jalali.fromDateTime(dt);
+    } catch (_) {
+      // Last resort: return today
+      return Jalali.now();
+    }
   }
 
   /// Get today's date in Jalali, as ISO string.

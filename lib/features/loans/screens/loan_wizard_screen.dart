@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shamsi_date/shamsi_date.dart';
-import '../models/loan.dart';
-import '../models/counterparty.dart';
-import '../../accounts/models/account.dart';
-import '../../accounts/providers/accounts_provider.dart';
-import '../../core/providers/core_providers.dart';
-import '../../core/utils/jalali_date_picker.dart';
+import 'package:debt_manager/features/loans/models/loan.dart';
+import 'package:debt_manager/features/loans/models/counterparty.dart';
+import 'package:debt_manager/features/accounts/models/account.dart';
+import 'package:debt_manager/features/accounts/providers/accounts_provider.dart';
+import 'package:debt_manager/core/providers/core_providers.dart';
+import 'package:debt_manager/core/utils/jalali_date_picker.dart';
+import 'package:debt_manager/core/utils/jalali_date_provider.dart';
 
 class LoanWizardScreen extends ConsumerStatefulWidget {
   final Loan? existingLoan;
@@ -63,7 +64,7 @@ class _LoanWizardScreenState extends ConsumerState<LoanWizardScreen> {
     _totalCtrl = TextEditingController(text: _totalAmount.toStringAsFixed(0));
     _installmentCountCtrl = TextEditingController(text: _installmentCount.toString());
     _startDate = widget.existingLoan?.startDateJalali != null
-        ? Jalali.parse(widget.existingLoan!.startDateJalali)
+        ? JalaliDateProvider.parseJalali(widget.existingLoan!.startDateJalali)
         : Jalali.now();
     _interestCtrl = TextEditingController(text: widget.existingLoan?.interestRate?.toString() ?? '');
     _disbursementAccount = null;

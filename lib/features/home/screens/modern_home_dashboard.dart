@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shamsi_date/shamsi_date.dart';
-import '../../accounts/providers/accounts_provider.dart';
-import '../../installments/providers/installment_payments_provider.dart';
-import '../../loans/loan_list_notifier.dart';
-import '../../core/utils/jalali_date_provider.dart';
+import 'package:debt_manager/features/accounts/providers/accounts_provider.dart';
+import 'package:debt_manager/features/installments/providers/installment_payments_provider.dart';
+import 'package:debt_manager/features/loans/loan_list_notifier.dart';
+import 'package:debt_manager/core/utils/jalali_date_provider.dart';
 
 class ModernHomeDashboard extends ConsumerWidget {
   const ModernHomeDashboard({Key? key}) : super(key: key);
@@ -14,7 +14,6 @@ class ModernHomeDashboard extends ConsumerWidget {
     final accountsAsync = ref.watch(accountsNotifierProvider);
     final upcomingAsync = ref.watch(upcomingPaymentsProvider);
     final overdueAsync = ref.watch(overduePaymentsProvider);
-    final loansAsync = ref.watch(loansListNotifierProvider);
 
     return Scaffold(
       body: CustomScrollView(
