@@ -3,11 +3,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shamsi_date/shamsi_date.dart';
 import 'package:debt_manager/features/accounts/providers/accounts_provider.dart';
 import 'package:debt_manager/features/installments/providers/installment_payments_provider.dart';
-import 'package:debt_manager/features/loans/loan_list_notifier.dart';
 import 'package:debt_manager/core/utils/jalali_date_provider.dart';
 
 class ModernHomeDashboard extends ConsumerWidget {
-  const ModernHomeDashboard({Key? key}) : super(key: key);
+  const ModernHomeDashboard({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

@@ -12,7 +12,7 @@ import 'package:debt_manager/core/utils/jalali_date_provider.dart';
 class LoanWizardScreen extends ConsumerStatefulWidget {
   final Loan? existingLoan;
 
-  const LoanWizardScreen({this.existingLoan, Key? key}) : super(key: key);
+  const LoanWizardScreen({this.existingLoan, super.key});
 
   @override
   ConsumerState<LoanWizardScreen> createState() => _LoanWizardScreenState();
@@ -60,6 +60,7 @@ class _LoanWizardScreenState extends ConsumerState<LoanWizardScreen> {
     _totalAmount = (widget.existingLoan?.installmentAmount ?? 0).toDouble() * (widget.existingLoan?.installmentCount ?? 1);
     _installmentCount = widget.existingLoan?.installmentCount ?? 12;
     _installmentAmount = (widget.existingLoan?.installmentAmount ?? 0).toDouble();
+    _installmentCtrl = TextEditingController(text: _installmentAmount.toStringAsFixed(0));
     _principalCtrl = TextEditingController(text: _principalAmount.toStringAsFixed(0));
     _totalCtrl = TextEditingController(text: _totalAmount.toStringAsFixed(0));
     _installmentCountCtrl = TextEditingController(text: _installmentCount.toString());
@@ -90,6 +91,7 @@ class _LoanWizardScreenState extends ConsumerState<LoanWizardScreen> {
     _installmentCountCtrl.dispose();
     _interestCtrl.dispose();
     _notesCtrl.dispose();
+    _installmentCtrl.dispose();
     super.dispose();
   }
 
@@ -160,7 +162,7 @@ class _LoanWizardScreenState extends ConsumerState<LoanWizardScreen> {
 
         // Counterparty
         DropdownButtonFormField<Counterparty>(
-          value: _selectedCounterparty,
+          initialValue: _selectedCounterparty,
           decoration: InputDecoration(
             labelText: 'طرف معامله',
             border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
@@ -372,7 +374,7 @@ class _LoanWizardScreenState extends ConsumerState<LoanWizardScreen> {
             ),
             const SizedBox(height: 16),
             DropdownButtonFormField<Account>(
-              value: _disbursementAccount,
+              initialValue: _disbursementAccount,
               decoration: InputDecoration(
                 labelText: 'انتخاب حساب',
                 border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
@@ -500,6 +502,5 @@ class _LoanWizardScreenState extends ConsumerState<LoanWizardScreen> {
     Navigator.pop(context);
   }
 
-  late TextEditingController _installmentCtrl =
-      TextEditingController(text: _installmentAmount.toStringAsFixed(0));
+    late final TextEditingController _installmentCtrl;
 }

@@ -16,8 +16,8 @@ class PaymentRecordScreen extends ConsumerStatefulWidget {
     required this.installmentId,
     required this.installmentAmount,
     required this.dueDate,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   ConsumerState<PaymentRecordScreen> createState() => _PaymentRecordScreenState();
@@ -103,7 +103,7 @@ class _PaymentRecordScreenState extends ConsumerState<PaymentRecordScreen> {
               error: (err, stack) => Text('خطا: $err'),
               data: (accountList) {
                 return DropdownButtonFormField<int>(
-                  value: _selectedAccountId,
+                  initialValue: _selectedAccountId,
                   decoration: InputDecoration(
                     labelText: 'حساب منبع',
                     border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),

@@ -6,7 +6,7 @@ import 'account_form_screen.dart';
 class AccountDetailScreen extends ConsumerWidget {
   final Account account;
 
-  const AccountDetailScreen({required this.account, Key? key}) : super(key: key);
+  const AccountDetailScreen({required this.account, super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

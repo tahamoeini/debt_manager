@@ -4,10 +4,13 @@ import '../models/installment_payment.dart';
 import '../providers/installment_payments_provider.dart';
 import 'payment_record_screen.dart';
 
+Color _alphaScaled(Color color, double factor) =>
+  color.withAlpha((color.a * 255 * factor).round());
+
 class PaymentsListScreen extends ConsumerWidget {
   final int loanId;
 
-  const PaymentsListScreen({required this.loanId, Key? key}) : super(key: key);
+  const PaymentsListScreen({required this.loanId, super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -138,7 +141,7 @@ class _SummaryCard extends StatelessWidget {
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(12),
-          color: color.withOpacity(0.1),
+          color: _alphaScaled(color, 0.1),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -172,7 +175,6 @@ class _PaymentCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     final statusColor = switch (payment.status) {
       PaymentStatus.pending => Colors.orange,
       PaymentStatus.paid => Colors.green,
@@ -185,7 +187,7 @@ class _PaymentCard extends StatelessWidget {
       child: ListTile(
         onTap: onTap,
         leading: CircleAvatar(
-          backgroundColor: statusColor.withOpacity(0.2),
+          backgroundColor: _alphaScaled(statusColor, 0.2),
           child: Icon(
             switch (payment.status) {
               PaymentStatus.pending => Icons.schedule,
@@ -207,7 +209,7 @@ class _PaymentCard extends StatelessWidget {
         ),
         trailing: Chip(
           label: Text(payment.statusLabel),
-          backgroundColor: statusColor.withOpacity(0.2),
+          backgroundColor: _alphaScaled(statusColor, 0.2),
           labelStyle: TextStyle(color: statusColor),
         ),
       ),

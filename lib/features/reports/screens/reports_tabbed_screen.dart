@@ -5,7 +5,7 @@ import 'package:debt_manager/features/loans/loan_list_notifier.dart';
 import 'package:debt_manager/features/accounts/providers/accounts_provider.dart';
 
 class ReportsTabbedScreen extends ConsumerStatefulWidget {
-  const ReportsTabbedScreen({Key? key}) : super(key: key);
+  const ReportsTabbedScreen({super.key});
 
   @override
   ConsumerState<ReportsTabbedScreen> createState() => _ReportsTabbedScreenState();
@@ -386,7 +386,7 @@ class _StatCard extends StatelessWidget {
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(12),
-          color: color.withOpacity(0.1),
+          color: color.withAlpha((color.a * 255 * 0.1).round()),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,

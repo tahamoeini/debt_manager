@@ -6,7 +6,7 @@ import 'account_form_screen.dart';
 import 'account_detail_screen.dart';
 
 class AccountsListScreen extends ConsumerWidget {
-  const AccountsListScreen({Key? key}) : super(key: key);
+  const AccountsListScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -98,8 +98,8 @@ class AccountCard extends StatelessWidget {
     required this.account,
     required this.onTap,
     required this.onEdit,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {

@@ -6,7 +6,7 @@ import '../providers/accounts_provider.dart';
 class AccountFormScreen extends ConsumerStatefulWidget {
   final Account? account;
 
-  const AccountFormScreen({this.account, Key? key}) : super(key: key);
+  const AccountFormScreen({this.account, super.key});
 
   @override
   ConsumerState<AccountFormScreen> createState() => _AccountFormScreenState();
@@ -64,7 +64,7 @@ class _AccountFormScreenState extends ConsumerState<AccountFormScreen> {
 
             // Type
             DropdownButtonFormField<AccountType>(
-              value: _selectedType,
+              initialValue: _selectedType,
               decoration: InputDecoration(
                 labelText: 'نوع حساب',
                 border: OutlineInputBorder(
