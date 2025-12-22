@@ -10,6 +10,8 @@ import 'package:debt_manager/core/utils/format_utils.dart';
 import 'package:debt_manager/core/db/database_helper.dart';
 import 'package:debt_manager/core/utils/jalali_utils.dart';
 import 'package:debt_manager/core/utils/ui_utils.dart';
+import 'package:debt_manager/core/utils/calendar_utils.dart';
+import 'package:debt_manager/core/utils/calendar_picker.dart';
 import 'package:debt_manager/core/utils/celebration_utils.dart';
 import 'package:debt_manager/features/achievements/achievements_repository.dart';
 import 'package:debt_manager/features/loans/models/installment.dart';
@@ -130,22 +132,35 @@ class _LoanDetailScreenState extends ConsumerState<LoanDetailScreen> {
                     Row(
                       children: [
                         Expanded(
-                          child: Text(
-                            'تاریخ سررسید: ${formatJalaliForDisplay(selectedJalali)}',
+                          child: ValueListenableBuilder<CalendarType>(
+                            valueListenable: SettingsRepository.calendarTypeNotifier,
+                            builder: (context, calType, _) {
+                              final display = calType == CalendarType.jalali
+                                  ? formatJalaliForDisplay(selectedJalali)
+                                  : formatDateForDisplayWithCalendar(
+                                      selectedJalali.toDateTime(),
+                                      calType,
+                                    );
+                              return Text('تاریخ سررسید: $display');
+                            },
                           ),
                         ),
                         TextButton(
                           onPressed: () async {
                             final initial = jalaliToDateTime(selectedJalali);
-                            final picked = await showDatePicker(
-                              context: context,
+                            final picked = await showCalendarAwareDatePicker(
+                              context,
                               initialDate: initial,
                               firstDate: DateTime(1900),
                               lastDate: DateTime(2100),
                             );
                             if (picked != null) {
                               setInnerState(() {
-                                selectedJalali = dateTimeToJalali(picked);
+                                if (picked is DateTime) {
+                                  selectedJalali = dateTimeToJalali(picked);
+                                } else {
+                                  selectedJalali = picked as Jalali;
+                                }
                               });
                             }
                           },
@@ -550,8 +565,15 @@ class _LoanDetailScreenState extends ConsumerState<LoanDetailScreen> {
                           'مبلغ قسط: ${formatCurrency(loan.installmentAmount)}',
                         ),
                         const SizedBox(height: 8),
-                        Text(
-                          'شروع: ${formatJalaliForDisplay(_parseJalaliSafe(loan.startDateJalali))}',
+                        ValueListenableBuilder<CalendarType>(
+                          valueListenable: SettingsRepository.calendarTypeNotifier,
+                          builder: (context, calType, _) {
+                            final j = _parseJalaliSafe(loan.startDateJalali);
+                            final display = calType == CalendarType.jalali
+                                ? formatJalaliForDisplay(j)
+                                : formatDateForDisplayWithCalendar(j.toDateTime(), calType);
+                            return Text('شروع: $display');
+                          },
                         ),
                       ],
                     ),
@@ -568,10 +590,15 @@ class _LoanDetailScreenState extends ConsumerState<LoanDetailScreen> {
                 ...installments.map(
                   (inst) => Card(
                     child: ExpansionTile(
-                      title: Text(
-                        formatJalaliForDisplay(
-                          _parseJalaliSafe(inst.dueDateJalali),
-                        ),
+                      title: ValueListenableBuilder<CalendarType>(
+                        valueListenable: SettingsRepository.calendarTypeNotifier,
+                        builder: (context, calType, _) {
+                          final j = _parseJalaliSafe(inst.dueDateJalali);
+                          final display = calType == CalendarType.jalali
+                              ? formatJalaliForDisplay(j)
+                              : formatDateForDisplayWithCalendar(j.toDateTime(), calType);
+                          return Text(display);
+                        },
                       ),
                       subtitle: Text(_statusText(inst.status)),
                       children: [

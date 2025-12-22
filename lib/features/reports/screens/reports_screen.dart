@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:debt_manager/core/utils/format_utils.dart';
 import 'package:debt_manager/core/utils/jalali_utils.dart';
 import 'package:debt_manager/core/utils/calendar_utils.dart';
+import 'package:debt_manager/core/utils/calendar_picker.dart';
 import 'package:debt_manager/core/settings/settings_repository.dart';
 import 'package:debt_manager/features/shared/summary_cards.dart';
 import 'package:debt_manager/features/loans/models/installment.dart';
@@ -366,13 +367,24 @@ class ReportsScreen extends ConsumerWidget {
               FilledButton(
                 onPressed: () async {
                   final now = DateTime.now();
-                  final picked = await showDatePicker(
-                    context: context,
+                  final picked = await showCalendarAwareDatePicker(
+                    context,
                     initialDate: now,
                     firstDate: DateTime(now.year - 5),
                     lastDate: DateTime(now.year + 5),
                   );
-                  if (picked != null) notifier.setFrom(picked);
+                  if (picked != null) {
+                    if (picked is DateTime) {
+                      notifier.setFrom(picked);
+                    } else {
+                      // Assume Jalali-like object with toDateTime()
+                      try {
+                        // dynamic to avoid import cycles
+                        final dt = picked.toDateTime();
+                        notifier.setFrom(dt);
+                      } catch (_) {}
+                    }
+                  }
                 },
                 child: ValueListenableBuilder<CalendarType>(
                   valueListenable: SettingsRepository.calendarTypeNotifier,
@@ -391,13 +403,22 @@ class ReportsScreen extends ConsumerWidget {
               FilledButton(
                 onPressed: () async {
                   final now = DateTime.now();
-                  final picked = await showDatePicker(
-                    context: context,
+                  final picked = await showCalendarAwareDatePicker(
+                    context,
                     initialDate: now,
                     firstDate: DateTime(now.year - 5),
                     lastDate: DateTime(now.year + 5),
                   );
-                  if (picked != null) notifier.setTo(picked);
+                  if (picked != null) {
+                    if (picked is DateTime) {
+                      notifier.setTo(picked);
+                    } else {
+                      try {
+                        final dt = picked.toDateTime();
+                        notifier.setTo(dt);
+                      } catch (_) {}
+                    }
+                  }
                 },
                 child: ValueListenableBuilder<CalendarType>(
                   valueListenable: SettingsRepository.calendarTypeNotifier,

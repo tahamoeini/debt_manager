@@ -7,6 +7,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:debt_manager/core/utils/jalali_utils.dart';
 import 'package:debt_manager/core/utils/ui_utils.dart';
+import 'package:debt_manager/core/utils/calendar_utils.dart';
+import 'package:debt_manager/core/utils/calendar_picker.dart';
 import 'package:debt_manager/core/notifications/notification_service.dart';
 import 'package:debt_manager/core/settings/settings_repository.dart';
 import 'package:debt_manager/features/loans/models/counterparty.dart';
@@ -131,8 +133,8 @@ class _AddLoanScreenState extends ConsumerState<AddLoanScreen> {
 
   Future<void> _pickStartDate() async {
     final now = DateTime.now();
-    final picked = await showDatePicker(
-      context: context,
+    final picked = await showCalendarAwareDatePicker(
+      context,
       initialDate: now,
       firstDate: DateTime(now.year - 5),
       lastDate: DateTime(now.year + 5),
@@ -140,7 +142,12 @@ class _AddLoanScreenState extends ConsumerState<AddLoanScreen> {
     if (picked != null) {
       if (!mounted) return;
       setState(() {
-        _startJalali = dateTimeToJalali(picked);
+        if (picked is DateTime) {
+          _startJalali = dateTimeToJalali(picked);
+        } else {
+          // Assume Jalali
+          _startJalali = picked as Jalali;
+        }
       });
     }
   }
@@ -515,10 +522,20 @@ class _AddLoanScreenState extends ConsumerState<AddLoanScreen> {
                           Row(
                             children: [
                               Expanded(
-                                child: Text(
-                                  _startJalali == null
-                                      ? 'تاریخ شروع انتخاب نشده'
-                                      : 'شروع: ${formatJalaliForDisplay(_startJalali!)}',
+                                child: ValueListenableBuilder<CalendarType>(
+                                  valueListenable: SettingsRepository.calendarTypeNotifier,
+                                  builder: (context, calType, _) {
+                                    if (_startJalali == null) {
+                                      return const Text('تاریخ شروع انتخاب نشده');
+                                    }
+                                    final display = calType == CalendarType.jalali
+                                        ? formatJalaliForDisplay(_startJalali!)
+                                        : formatDateForDisplayWithCalendar(
+                                            _startJalali!.toDateTime(),
+                                            calType,
+                                          );
+                                    return Text('شروع: $display');
+                                  },
                                 ),
                               ),
                               FilledButton(
