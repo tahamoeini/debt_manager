@@ -83,6 +83,7 @@ class DatabaseHelper {
       onConfigure: _onConfigure,
       onCreate: _onCreate,
       onUpgrade: _onUpgrade,
+      onOpen: _onOpen,
     );
   }
 
@@ -111,6 +112,7 @@ class DatabaseHelper {
         onConfigure: _onConfigure,
         onCreate: _onCreate,
         onUpgrade: _onUpgrade,
+        onOpen: _onOpen,
         password: key,
       );
     } else {
@@ -121,6 +123,7 @@ class DatabaseHelper {
         onConfigure: _onConfigure,
         onCreate: _onCreate,
         onUpgrade: _onUpgrade,
+        onOpen: _onOpen,
       );
     }
   }
@@ -176,6 +179,11 @@ class DatabaseHelper {
     debugPrint('DatabaseHelper: Foreign keys enabled');
   }
 
+  /// Ensure essential tables exist even on databases created before v9 when opened at v10.
+  FutureOr<void> _onOpen(plain.Database db) async {
+    await _ensureCoreTables(db);
+  }
+
   FutureOr<void> _onCreate(plain.Database db, int version) async {
     await db.execute('''
       CREATE TABLE counterparties (
@@ -183,6 +191,43 @@ class DatabaseHelper {
         name TEXT NOT NULL,
         type TEXT,
         tag TEXT
+      )
+    ''');
+
+    await db.execute('''
+      CREATE TABLE IF NOT EXISTS accounts (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT NOT NULL,
+        type TEXT NOT NULL,
+        balance INTEGER NOT NULL DEFAULT 0,
+        notes TEXT,
+        created_at TEXT NOT NULL
+      )
+    ''');
+
+    await db.execute('''
+      CREATE TABLE IF NOT EXISTS categories (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT NOT NULL,
+        parent_id INTEGER,
+        type TEXT,
+        color TEXT,
+        icon TEXT,
+        created_at TEXT NOT NULL,
+        FOREIGN KEY(parent_id) REFERENCES categories(id) ON DELETE SET NULL
+      )
+    ''');
+
+    await db.execute('''
+      CREATE TABLE IF NOT EXISTS budget_lines (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        category_id INTEGER NOT NULL,
+        amount INTEGER NOT NULL,
+        period TEXT NOT NULL,
+        start_date_jalali TEXT,
+        rollover INTEGER NOT NULL DEFAULT 0,
+        created_at TEXT NOT NULL,
+        FOREIGN KEY(category_id) REFERENCES categories(id) ON DELETE CASCADE
       )
     ''');
 
@@ -323,6 +368,104 @@ class DatabaseHelper {
     await db.execute(
       'CREATE INDEX IF NOT EXISTS idx_ledger_category_date ON ledger_entries(category_id, date_jalali)',
     );
+    await db.execute(
+      'CREATE INDEX IF NOT EXISTS idx_accounts_name ON accounts(name)',
+    );
+    await db.execute(
+      'CREATE INDEX IF NOT EXISTS idx_categories_name ON categories(name)',
+    );
+    await db.execute(
+      'CREATE INDEX IF NOT EXISTS idx_budget_lines_category ON budget_lines(category_id)',
+    );
+
+    try {
+      await db.insert('accounts', {
+        'name': 'Cash',
+        'type': 'cash',
+        'balance': 0,
+        'created_at': DateTime.now().toIso8601String(),
+      });
+    } catch (_) {}
+  }
+
+  Future<void> _ensureCoreTables(plain.Database db) async {
+    try {
+      final tables = await db.rawQuery(
+        "SELECT name FROM sqlite_master WHERE type='table'",
+      );
+      final names = tables
+          .map((r) => r['name'] as String?)
+          .whereType<String>()
+          .toSet();
+
+      if (!names.contains('accounts')) {
+        await db.execute('''
+          CREATE TABLE accounts (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT NOT NULL,
+            type TEXT NOT NULL,
+            balance INTEGER NOT NULL DEFAULT 0,
+            notes TEXT,
+            created_at TEXT NOT NULL
+          )
+        ''');
+        await db.execute(
+          'CREATE INDEX IF NOT EXISTS idx_accounts_name ON accounts(name)',
+        );
+        await db.insert('accounts', {
+          'name': 'Cash',
+          'type': 'cash',
+          'balance': 0,
+          'created_at': DateTime.now().toIso8601String(),
+        });
+      }
+
+      if (!names.contains('categories')) {
+        await db.execute('''
+          CREATE TABLE categories (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT NOT NULL,
+            parent_id INTEGER,
+            type TEXT,
+            color TEXT,
+            icon TEXT,
+            created_at TEXT NOT NULL,
+            FOREIGN KEY(parent_id) REFERENCES categories(id) ON DELETE SET NULL
+          )
+        ''');
+        await db.execute(
+          'CREATE INDEX IF NOT EXISTS idx_categories_name ON categories(name)',
+        );
+      }
+
+      if (!names.contains('budget_lines')) {
+        await db.execute('''
+          CREATE TABLE budget_lines (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            category_id INTEGER NOT NULL,
+            amount INTEGER NOT NULL,
+            period TEXT NOT NULL,
+            start_date_jalali TEXT,
+            rollover INTEGER NOT NULL DEFAULT 0,
+            created_at TEXT NOT NULL,
+            FOREIGN KEY(category_id) REFERENCES categories(id) ON DELETE CASCADE
+          )
+        ''');
+        await db.execute(
+          'CREATE INDEX IF NOT EXISTS idx_budget_lines_category ON budget_lines(category_id)',
+        );
+      }
+
+      await db.execute(
+        'CREATE UNIQUE INDEX IF NOT EXISTS idx_ledger_ref ON ledger_entries(ref_type, ref_id)',
+      );
+      await db.execute(
+        'CREATE INDEX IF NOT EXISTS idx_ledger_date ON ledger_entries(date_jalali)',
+      );
+      await db.execute(
+        'CREATE INDEX IF NOT EXISTS idx_ledger_category_date ON ledger_entries(category_id, date_jalali)',
+      );
+    } catch (_) {}
   }
 
   FutureOr<void> _onUpgrade(
@@ -487,6 +630,28 @@ class DatabaseHelper {
               'CREATE INDEX IF NOT EXISTS idx_ledger_date ON ledger_entries(date_jalali)');
           await db.execute(
               'CREATE INDEX IF NOT EXISTS idx_ledger_category_date ON ledger_entries(category_id, date_jalali)');
+          await db.execute(
+            'CREATE INDEX IF NOT EXISTS idx_ledger_category_date ON ledger_entries(category_id, date_jalali)',
+          );
+          await db.execute(
+            'CREATE INDEX IF NOT EXISTS idx_accounts_name ON accounts(name)',
+          );
+          await db.execute(
+            'CREATE INDEX IF NOT EXISTS idx_categories_name ON categories(name)',
+          );
+          await db.execute(
+            'CREATE INDEX IF NOT EXISTS idx_budget_lines_category ON budget_lines(category_id)',
+          );
+
+          try {
+            // Seed a default cash account so integrations can update balances safely.
+            await db.insert('accounts', {
+              'name': 'Cash',
+              'type': 'cash',
+              'balance': 0,
+              'created_at': DateTime.now().toIso8601String(),
+            });
+          } catch (_) {}
         } catch (_) {}
 
         // Backfill paid_at_jalali from paid_at
@@ -959,19 +1124,18 @@ class DatabaseHelper {
 
   Future<List<Account>> getAccounts() async {
     if (_isWeb) {
-      return _transactionStore
-          .where((_) => true)
-          .map((_) => Account(
-                id: _['id'] as int?,
-                name: _['name'] as String? ?? 'Unnamed',
-                type: _['type'] as String? ?? 'cash',
-                balance: _['balance'] is int
-                    ? _['balance'] as int
-                    : int.tryParse('${_['balance']}') ?? 0,
-                notes: _['notes'] as String?,
-                createdAt: _['created_at'] as String? ??
-                    DateTime.now().toIso8601String(),
-              ))
+        return _transactionStore
+          .map((row) => Account(
+            id: row['id'] as int?,
+            name: row['name'] as String? ?? 'Unnamed',
+            type: row['type'] as String? ?? 'cash',
+            balance: row['balance'] is int
+              ? row['balance'] as int
+              : int.tryParse('${row['balance']}') ?? 0,
+            notes: row['notes'] as String?,
+            createdAt: row['created_at'] as String? ??
+              DateTime.now().toIso8601String(),
+            ))
           .toList();
     }
 

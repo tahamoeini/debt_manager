@@ -74,14 +74,14 @@ class _LoanDetailScreenState extends ConsumerState<LoanDetailScreen> {
     // Initial selected Jalali date - with error handling
     Jalali selectedJalali = _parseJalaliSafe(inst.dueDateJalali);
     // Load categories for optional tagging of this payment
-    List<Category> _sheetCategories = [];
+    List<Category> sheetCategories = [];
     try {
       final frepo = ref.read(financeRepositoryProvider);
-      _sheetCategories = await frepo.getCategories();
+      sheetCategories = await frepo.getCategories();
     } catch (_) {
-      _sheetCategories = [];
+      sheetCategories = [];
     }
-    int? _selectedCategory;
+    int? selectedCategory;
 
     await showModalBottomSheet<void>(
       context: context,
@@ -119,9 +119,9 @@ class _LoanDetailScreenState extends ConsumerState<LoanDetailScreen> {
                     ),
                     const SizedBox(height: 8),
                     // Category selector for this payment (optional)
-                    if (_sheetCategories.isNotEmpty)
+                    if (sheetCategories.isNotEmpty)
                       DropdownButtonFormField<int?>(
-                        value: _selectedCategory,
+                        value: selectedCategory,
                         decoration: const InputDecoration(
                             labelText: 'دسته‌بندی پرداخت (اختیاری)'),
                         items: [
@@ -129,12 +129,12 @@ class _LoanDetailScreenState extends ConsumerState<LoanDetailScreen> {
                             value: null,
                             child: Text('بدون دسته‌بندی'),
                           ),
-                          ..._sheetCategories.where((c) => c.id != null).map(
+                          ...sheetCategories.where((c) => c.id != null).map(
                               (c) => DropdownMenuItem<int?>(
                                   value: c.id, child: Text(c.name))),
                         ],
                         onChanged: (v) =>
-                            setInnerState(() => _selectedCategory = v),
+                            setInnerState(() => selectedCategory = v),
                       ),
                     const SizedBox(height: 8),
                     Row(

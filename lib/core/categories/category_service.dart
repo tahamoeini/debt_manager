@@ -112,8 +112,9 @@ class CategoryService {
         } catch (_) {}
       }
       final allCategories = {...defaultCategories, ...custom};
-      if (allCategories.contains(trimmed))
+      if (allCategories.contains(trimmed)) {
         throw Exception('Category already exists');
+      }
       custom.add(trimmed);
       await _saveCustomCategories(custom);
     }
@@ -148,8 +149,9 @@ class CategoryService {
       final index = custom.indexOf(oldName.toLowerCase());
       if (index == -1) throw Exception('Category not found');
       final allCategories = {...defaultCategories, ...custom};
-      if (allCategories.contains(trimmed))
+      if (allCategories.contains(trimmed)) {
         throw Exception('New category name already exists');
+      }
       custom[index] = trimmed;
       await _saveCustomCategories(custom);
     }
@@ -168,8 +170,9 @@ class CategoryService {
         found = null;
       }
       if (found != null) {
-        if (isDefaultCategory(found.name))
+        if (isDefaultCategory(found.name)) {
           throw Exception('Cannot delete default category');
+        }
         await db.deleteCategory(found.id!);
         return;
       }
