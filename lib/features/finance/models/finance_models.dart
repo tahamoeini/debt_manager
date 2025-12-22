@@ -5,7 +5,8 @@ import 'package:flutter/foundation.dart';
 class Account {
   final int? id;
   final String name;
-  final String type; // 'savings', 'checking', 'cash', 'credit_card', 'loan', 'investment'
+  final String
+      type; // 'savings', 'checking', 'cash', 'credit_card', 'loan', 'investment'
   final int? balance; // optional balance tracking
   final String? notes;
   final String createdAt;

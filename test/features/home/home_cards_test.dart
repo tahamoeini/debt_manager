@@ -5,7 +5,8 @@ import 'package:debt_manager/features/loans/screens/home_screen.dart';
 import 'package:debt_manager/features/home/home_statistics_notifier.dart';
 
 void main() {
-  testWidgets('Home shows net worth and monthly cashflow cards', (tester) async {
+  testWidgets('Home shows net worth and monthly cashflow cards',
+      (tester) async {
     final stub = HomeStats(
       borrowed: 1000,
       lent: 500,

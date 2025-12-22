@@ -278,8 +278,9 @@ class _DebtManagerAppState extends ConsumerState<DebtManagerApp>
             return ValueListenableBuilder<LanguageOption>(
               valueListenable: SettingsRepository.languageNotifier,
               builder: (context, lang, _) {
-                final locale =
-                    lang == LanguageOption.english ? const Locale('en') : const Locale('fa');
+                final locale = lang == LanguageOption.english
+                    ? const Locale('en')
+                    : const Locale('fa');
                 return MaterialApp.router(
                   title: 'Debt Manager',
                   debugShowCheckedModeBanner: false,
@@ -312,7 +313,8 @@ class _DebtManagerAppState extends ConsumerState<DebtManagerApp>
                         ref.read(authNotifierProvider).touch();
                       } catch (_) {}
                     },
-                    child: DebugOverlay(child: child ?? const SizedBox.shrink()),
+                    child:
+                        DebugOverlay(child: child ?? const SizedBox.shrink()),
                   ),
                 );
               },

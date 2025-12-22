@@ -63,7 +63,10 @@ class CategoryService {
       await _ensureMigrated();
       final db = DatabaseHelper.instance;
       final rows = await db.getCategories();
-      final names = rows.map((c) => c.name).where((n) => !defaultCategories.contains(n)).toList();
+      final names = rows
+          .map((c) => c.name)
+          .where((n) => !defaultCategories.contains(n))
+          .toList();
       return names;
     } catch (_) {
       final prefs = await SharedPreferences.getInstance();
@@ -109,7 +112,8 @@ class CategoryService {
         } catch (_) {}
       }
       final allCategories = {...defaultCategories, ...custom};
-      if (allCategories.contains(trimmed)) throw Exception('Category already exists');
+      if (allCategories.contains(trimmed))
+        throw Exception('Category already exists');
       custom.add(trimmed);
       await _saveCustomCategories(custom);
     }
@@ -123,7 +127,9 @@ class CategoryService {
       await _ensureMigrated();
       final db = DatabaseHelper.instance;
       final rows = await db.getCategories();
-      final found = rows.firstWhere((c) => c.name.toLowerCase() == oldName.toLowerCase(), orElse: () => throw Exception('Category not found'));
+      final found = rows.firstWhere(
+          (c) => c.name.toLowerCase() == oldName.toLowerCase(),
+          orElse: () => throw Exception('Category not found'));
       final conflict = rows.any((c) => c.name.toLowerCase() == trimmed);
       if (conflict) throw Exception('New category name already exists');
       await db.updateCategory(found.copyWith(name: trimmed));
@@ -142,7 +148,8 @@ class CategoryService {
       final index = custom.indexOf(oldName.toLowerCase());
       if (index == -1) throw Exception('Category not found');
       final allCategories = {...defaultCategories, ...custom};
-      if (allCategories.contains(trimmed)) throw Exception('New category name already exists');
+      if (allCategories.contains(trimmed))
+        throw Exception('New category name already exists');
       custom[index] = trimmed;
       await _saveCustomCategories(custom);
     }
@@ -155,12 +162,14 @@ class CategoryService {
       final rows = await db.getCategories();
       Category? found;
       try {
-        found = rows.firstWhere((c) => c.name.toLowerCase() == category.toLowerCase());
+        found = rows
+            .firstWhere((c) => c.name.toLowerCase() == category.toLowerCase());
       } catch (_) {
         found = null;
       }
       if (found != null) {
-        if (isDefaultCategory(found.name)) throw Exception('Cannot delete default category');
+        if (isDefaultCategory(found.name))
+          throw Exception('Cannot delete default category');
         await db.deleteCategory(found.id!);
         return;
       }
@@ -194,7 +203,8 @@ class CategoryService {
           final items = list.cast<String>();
           final db = DatabaseHelper.instance;
           final existing = await db.getCategories();
-          final existingNames = existing.map((c) => c.name.toLowerCase()).toSet();
+          final existingNames =
+              existing.map((c) => c.name.toLowerCase()).toSet();
           for (final name in items) {
             final n = name.trim().toLowerCase();
             if (n.isEmpty) continue;

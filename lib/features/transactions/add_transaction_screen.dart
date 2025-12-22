@@ -25,7 +25,8 @@ class AddTransactionScreen extends ConsumerStatefulWidget {
   });
 
   @override
-  ConsumerState<AddTransactionScreen> createState() => _AddTransactionScreenState();
+  ConsumerState<AddTransactionScreen> createState() =>
+      _AddTransactionScreenState();
 }
 
 class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
@@ -61,7 +62,8 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
             _selectedCategoryId = widget.presetCategoryId;
           } else if (widget.presetCategoryName != null) {
             final idx = _categories.indexWhere((c) =>
-                c.name.toLowerCase() == widget.presetCategoryName!.toLowerCase());
+                c.name.toLowerCase() ==
+                widget.presetCategoryName!.toLowerCase());
             if (idx != -1) _selectedCategoryId = _categories[idx].id;
           }
         });
@@ -134,7 +136,8 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
                   value: _selectedAccountId,
                   decoration: const InputDecoration(labelText: 'حساب'),
                   items: _accounts
-                      .map((a) => DropdownMenuItem<int?>(value: a.id, child: Text(a.name)))
+                      .map((a) => DropdownMenuItem<int?>(
+                          value: a.id, child: Text(a.name)))
                       .toList(),
                   onChanged: (v) => setState(() => _selectedAccountId = v),
                 ),
@@ -146,7 +149,8 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
                         title: const Text('برداشت'),
                         value: 'debit',
                         groupValue: _direction,
-                        onChanged: (v) => setState(() => _direction = v ?? 'debit'),
+                        onChanged: (v) =>
+                            setState(() => _direction = v ?? 'debit'),
                       ),
                     ),
                     Expanded(
@@ -154,7 +158,8 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
                         title: const Text('واریز'),
                         value: 'credit',
                         groupValue: _direction,
-                        onChanged: (v) => setState(() => _direction = v ?? 'debit'),
+                        onChanged: (v) =>
+                            setState(() => _direction = v ?? 'debit'),
                       ),
                     ),
                   ],
@@ -164,25 +169,26 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
                   controller: _amountCtrl,
                   keyboardType: TextInputType.number,
                   decoration: const InputDecoration(labelText: 'مبلغ'),
-                  validator: (v) => (v?.trim().isEmpty ?? true) ? 'مقدار را وارد کنید' : null,
+                  validator: (v) =>
+                      (v?.trim().isEmpty ?? true) ? 'مقدار را وارد کنید' : null,
                 ),
                 const SizedBox(height: 8),
                 TextFormField(
                   controller: _descCtrl,
-                  decoration: const InputDecoration(labelText: 'توضیحات (اختیاری)'),
+                  decoration:
+                      const InputDecoration(labelText: 'توضیحات (اختیاری)'),
                 ),
                 const SizedBox(height: 8),
                 DropdownButtonFormField<int?>(
                   value: _selectedCategoryId,
-                  decoration: const InputDecoration(labelText: 'دسته‌بندی (اختیاری)'),
+                  decoration:
+                      const InputDecoration(labelText: 'دسته‌بندی (اختیاری)'),
                   items: [
                     const DropdownMenuItem<int?>(
                       value: null,
                       child: Text('بدون دسته‌بندی'),
                     ),
-                    ..._categories
-                        .where((c) => c.id != null)
-                        .map(
+                    ..._categories.where((c) => c.id != null).map(
                           (c) => DropdownMenuItem<int?>(
                             value: c.id,
                             child: Text(c.name),
@@ -196,7 +202,8 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
                   children: [
                     Expanded(
                       child: ValueListenableBuilder<CalendarType>(
-                        valueListenable: SettingsRepository.calendarTypeNotifier,
+                        valueListenable:
+                            SettingsRepository.calendarTypeNotifier,
                         builder: (context, calType, _) {
                           return Text(
                             'تاریخ: ${formatDateForDisplayWithCalendar(_selectedDate, calType)}',
@@ -215,11 +222,13 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
                         if (picked == null) return;
                         // Convert to DateTime if Jalali returned
                         if (picked is Jalali) {
-                          setState(() => _selectedDate = jalaliToDateTime(picked));
+                          setState(
+                              () => _selectedDate = jalaliToDateTime(picked));
                         } else if (picked is DateTime) {
                           setState(() => _selectedDate = picked);
                         } else {
-                          debugPrint('Unexpected date type from showCalendarAwareDatePicker: ${picked.runtimeType}');
+                          debugPrint(
+                              'Unexpected date type from showCalendarAwareDatePicker: ${picked.runtimeType}');
                         }
                       },
                       child: const Text('انتخاب'),

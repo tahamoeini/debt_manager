@@ -57,7 +57,8 @@ class LoanRepository {
     // by insertLoan for the loan disbursement gets tagged accordingly.
     if (categoryId != null) {
       try {
-        await _db.setLedgerEntryCategoryByRef('loan_disbursement', loanId, categoryId);
+        await _db.setLedgerEntryCategoryByRef(
+            'loan_disbursement', loanId, categoryId);
       } catch (_) {
         // swallow: non-critical
       }

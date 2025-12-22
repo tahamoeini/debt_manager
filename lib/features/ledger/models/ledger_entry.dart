@@ -68,7 +68,9 @@ class LedgerEntry {
           : int.parse(map['amount'].toString()),
       categoryId: map['category_id'] is int
           ? map['category_id'] as int
-          : (map['category_id'] != null ? int.tryParse('${map['category_id']}') : null),
+          : (map['category_id'] != null
+              ? int.tryParse('${map['category_id']}')
+              : null),
       refType: map['ref_type'] as String? ?? '',
       refId: map['ref_id'] is int
           ? map['ref_id'] as int

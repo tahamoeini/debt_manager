@@ -383,7 +383,8 @@ class ReportsScreen extends ConsumerWidget {
                         final dt = (picked as dynamic).toDateTime() as DateTime;
                         notifier.setFrom(dt);
                       } catch (e) {
-                        debugPrint('Failed to convert picked date to DateTime: $e');
+                        debugPrint(
+                            'Failed to convert picked date to DateTime: $e');
                       }
                     }
                   }
@@ -419,7 +420,8 @@ class ReportsScreen extends ConsumerWidget {
                         final dt = (picked as dynamic).toDateTime() as DateTime;
                         notifier.setTo(dt);
                       } catch (e) {
-                        debugPrint('Failed to convert picked date to DateTime: $e');
+                        debugPrint(
+                            'Failed to convert picked date to DateTime: $e');
                       }
                     }
                   }
@@ -452,28 +454,38 @@ class ReportsScreen extends ConsumerWidget {
                           mainAxisSize: MainAxisSize.min,
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Text('فیلترهای بیشتر', style: TextStyle(fontWeight: FontWeight.w700)),
+                            const Text('فیلترهای بیشتر',
+                                style: TextStyle(fontWeight: FontWeight.w700)),
                             const SizedBox(height: 12),
                             DropdownButton<int?>(
                               value: state.counterpartyFilter,
                               isExpanded: true,
                               items: [
-                                const DropdownMenuItem(value: null, child: Text('همه')),
-                                ...state.counterparties.map((c) => DropdownMenuItem(value: c.id, child: Text(c.name))),
+                                const DropdownMenuItem(
+                                    value: null, child: Text('همه')),
+                                ...state.counterparties.map((c) =>
+                                    DropdownMenuItem(
+                                        value: c.id, child: Text(c.name))),
                               ],
-                              onChanged: (v) => notifier.setCounterpartyFilter(v),
+                              onChanged: (v) =>
+                                  notifier.setCounterpartyFilter(v),
                             ),
                             const SizedBox(height: 8),
                             DropdownButton<String?>(
                               value: state.counterpartyTypeFilter,
                               isExpanded: true,
                               items: const [
-                                DropdownMenuItem(value: null, child: Text('همه انواع')),
-                                DropdownMenuItem(value: 'person', child: Text('شخص')),
-                                DropdownMenuItem(value: 'bank', child: Text('بانک')),
-                                DropdownMenuItem(value: 'company', child: Text('شرکت')),
+                                DropdownMenuItem(
+                                    value: null, child: Text('همه انواع')),
+                                DropdownMenuItem(
+                                    value: 'person', child: Text('شخص')),
+                                DropdownMenuItem(
+                                    value: 'bank', child: Text('بانک')),
+                                DropdownMenuItem(
+                                    value: 'company', child: Text('شرکت')),
                               ],
-                              onChanged: (v) => notifier.setCounterpartyTypeFilter(v),
+                              onChanged: (v) =>
+                                  notifier.setCounterpartyTypeFilter(v),
                             ),
                             const SizedBox(height: 12),
                             Align(
@@ -590,4 +602,3 @@ class ReportsScreen extends ConsumerWidget {
     }
   }
 }
-

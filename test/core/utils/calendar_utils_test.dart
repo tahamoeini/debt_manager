@@ -29,7 +29,8 @@ void main() {
         child: ValueListenableBuilder<CalendarType>(
           valueListenable: SettingsRepository.calendarTypeNotifier,
           builder: (context, calType, _) {
-            return Text(formatDateForDisplayWithCalendar(fixedDate, calType), textDirection: TextDirection.ltr);
+            return Text(formatDateForDisplayWithCalendar(fixedDate, calType),
+                textDirection: TextDirection.ltr);
           },
         ),
       );

@@ -95,7 +95,7 @@ class _LoanDetailScreenState extends ConsumerState<LoanDetailScreen> {
             builder: (context, setInnerState) {
               return Padding(
                 padding: const EdgeInsets.all(16.0),
-                  child: Column(
+                child: Column(
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -122,24 +122,27 @@ class _LoanDetailScreenState extends ConsumerState<LoanDetailScreen> {
                     if (_sheetCategories.isNotEmpty)
                       DropdownButtonFormField<int?>(
                         value: _selectedCategory,
-                        decoration: const InputDecoration(labelText: 'دسته‌بندی پرداخت (اختیاری)'),
+                        decoration: const InputDecoration(
+                            labelText: 'دسته‌بندی پرداخت (اختیاری)'),
                         items: [
                           const DropdownMenuItem<int?>(
                             value: null,
                             child: Text('بدون دسته‌بندی'),
                           ),
-                          ..._sheetCategories
-                              .where((c) => c.id != null)
-                              .map((c) => DropdownMenuItem<int?>(value: c.id, child: Text(c.name))),
+                          ..._sheetCategories.where((c) => c.id != null).map(
+                              (c) => DropdownMenuItem<int?>(
+                                  value: c.id, child: Text(c.name))),
                         ],
-                        onChanged: (v) => setInnerState(() => _selectedCategory = v),
+                        onChanged: (v) =>
+                            setInnerState(() => _selectedCategory = v),
                       ),
                     const SizedBox(height: 8),
                     Row(
                       children: [
                         Expanded(
                           child: ValueListenableBuilder<CalendarType>(
-                            valueListenable: SettingsRepository.calendarTypeNotifier,
+                            valueListenable:
+                                SettingsRepository.calendarTypeNotifier,
                             builder: (context, calType, _) {
                               final display = calType == CalendarType.jalali
                                   ? formatJalaliForDisplay(selectedJalali)
@@ -168,7 +171,8 @@ class _LoanDetailScreenState extends ConsumerState<LoanDetailScreen> {
                                   selectedJalali = picked;
                                 } else {
                                   // Unexpected type from showCalendarAwareDatePicker; ignore to avoid a crash.
-                                  debugPrint('Unexpected date type from showCalendarAwareDatePicker: ${picked.runtimeType}');
+                                  debugPrint(
+                                      'Unexpected date type from showCalendarAwareDatePicker: ${picked.runtimeType}');
                                 }
                               });
                             }
@@ -302,7 +306,8 @@ class _LoanDetailScreenState extends ConsumerState<LoanDetailScreen> {
                             // If user selected a category for this payment, persist it on the ledger entry
                             if (_selectedCategory != null && inst.id != null) {
                               try {
-                                await DatabaseHelper.instance.setLedgerEntryCategoryByRef(
+                                await DatabaseHelper.instance
+                                    .setLedgerEntryCategoryByRef(
                                   'installment_payment',
                                   inst.id!,
                                   _selectedCategory!,
@@ -575,12 +580,14 @@ class _LoanDetailScreenState extends ConsumerState<LoanDetailScreen> {
                         ),
                         const SizedBox(height: 8),
                         ValueListenableBuilder<CalendarType>(
-                          valueListenable: SettingsRepository.calendarTypeNotifier,
+                          valueListenable:
+                              SettingsRepository.calendarTypeNotifier,
                           builder: (context, calType, _) {
                             final j = _parseJalaliSafe(loan.startDateJalali);
                             final display = calType == CalendarType.jalali
                                 ? formatJalaliForDisplay(j)
-                                : formatDateForDisplayWithCalendar(j.toDateTime(), calType);
+                                : formatDateForDisplayWithCalendar(
+                                    j.toDateTime(), calType);
                             return Text('شروع: $display');
                           },
                         ),
@@ -600,12 +607,14 @@ class _LoanDetailScreenState extends ConsumerState<LoanDetailScreen> {
                   (inst) => Card(
                     child: ExpansionTile(
                       title: ValueListenableBuilder<CalendarType>(
-                        valueListenable: SettingsRepository.calendarTypeNotifier,
+                        valueListenable:
+                            SettingsRepository.calendarTypeNotifier,
                         builder: (context, calType, _) {
                           final j = _parseJalaliSafe(inst.dueDateJalali);
                           final display = calType == CalendarType.jalali
                               ? formatJalaliForDisplay(j)
-                              : formatDateForDisplayWithCalendar(j.toDateTime(), calType);
+                              : formatDateForDisplayWithCalendar(
+                                  j.toDateTime(), calType);
                           return Text(display);
                         },
                       ),

@@ -17,7 +17,7 @@ class HomeStats {
   final List<Installment> upcoming;
   final Map<int, Loan> loansById;
   final Map<int, Counterparty> counterpartiesById;
-  
+
   HomeStats({
     required this.borrowed,
     required this.lent,
@@ -96,7 +96,8 @@ final homeStatisticsProvider =
   // Net worth and monthly cashflow (use Jalali year-month for ledger entries)
   final netWorth = await db.getNetWorth();
   final jalaliNow = dateTimeToJalali(DateTime.now());
-  final period = '${jalaliNow.year.toString().padLeft(4, '0')}-${jalaliNow.month.toString().padLeft(2, '0')}';
+  final period =
+      '${jalaliNow.year.toString().padLeft(4, '0')}-${jalaliNow.month.toString().padLeft(2, '0')}';
   final monthlyCashflow = await db.getMonthlyCashflow(period);
 
   // load related loans and counterparties

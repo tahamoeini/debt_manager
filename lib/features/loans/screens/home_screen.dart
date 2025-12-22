@@ -116,7 +116,8 @@ class HomeScreen extends ConsumerWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text('دارایی خالص', style: TextStyle(fontWeight: FontWeight.w600)),
+                          const Text('دارایی خالص',
+                              style: TextStyle(fontWeight: FontWeight.w600)),
                           const SizedBox(height: 8),
                           SensitiveText(
                             formatCurrency(data.netWorth),
@@ -135,7 +136,8 @@ class HomeScreen extends ConsumerWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text('جریان نقدی ماهانه', style: TextStyle(fontWeight: FontWeight.w600)),
+                          const Text('جریان نقدی ماهانه',
+                              style: TextStyle(fontWeight: FontWeight.w600)),
                           const SizedBox(height: 8),
                           SensitiveText(
                             formatCurrency(data.monthlyCashflow),
@@ -154,7 +156,8 @@ class HomeScreen extends ConsumerWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text('سلامت بودجه', style: TextStyle(fontWeight: FontWeight.w600)),
+                          const Text('سلامت بودجه',
+                              style: TextStyle(fontWeight: FontWeight.w600)),
                           const SizedBox(height: 8),
                           Builder(builder: (ctx) {
                             final cash = data.monthlyCashflow;
@@ -163,10 +166,14 @@ class HomeScreen extends ConsumerWidget {
                             if (cash == 0) {
                               label = 'N/A';
                             } else {
-                              final pct = ((cash - spent) * 100 / cash).clamp(-999, 999).toInt();
+                              final pct = ((cash - spent) * 100 / cash)
+                                  .clamp(-999, 999)
+                                  .toInt();
                               label = '$pct%';
                             }
-                            return Text(label, style: Theme.of(context).textTheme.headlineSmall);
+                            return Text(label,
+                                style:
+                                    Theme.of(context).textTheme.headlineSmall);
                           }),
                         ],
                       ),

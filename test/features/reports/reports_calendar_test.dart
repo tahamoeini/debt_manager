@@ -72,7 +72,8 @@ void main() {
       await tester.pumpAndSettle();
 
       // Verify Jalali is default
-      expect(SettingsRepository.calendarTypeNotifier.value, CalendarType.jalali);
+      expect(
+          SettingsRepository.calendarTypeNotifier.value, CalendarType.jalali);
 
       // Switch to Gregorian
       SettingsRepository.calendarTypeNotifier.value = CalendarType.gregorian;
@@ -83,8 +84,8 @@ void main() {
       // Switch back to Jalali
       SettingsRepository.calendarTypeNotifier.value = CalendarType.jalali;
       await tester.pumpAndSettle();
-      expect(SettingsRepository.calendarTypeNotifier.value, CalendarType.jalali);
+      expect(
+          SettingsRepository.calendarTypeNotifier.value, CalendarType.jalali);
     });
   });
 }
-

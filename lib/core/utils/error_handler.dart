@@ -54,32 +54,32 @@ class ErrorHandler {
 
     // Map common errors to user-friendly Persian messages
     final errorStr = error.toString().toLowerCase();
-    
+
     // Check patterns in priority order (most specific first)
     if (errorStr.contains('network') || errorStr.contains('connection')) {
       return 'خطای اتصال به شبکه';
     }
-    
+
     if (errorStr.contains('timeout')) {
       return 'زمان انتظار به پایان رسید';
     }
-    
+
     if (errorStr.contains('permission')) {
       return 'دسترسی مورد نیاز وجود ندارد';
     }
-    
+
     if (errorStr.contains('database') || errorStr.contains('sql')) {
       return 'خطا در ذخیره‌سازی داده';
     }
-    
+
     if (errorStr.contains('authentication') || errorStr.contains('pin')) {
       return 'خطای احراز هویت';
     }
-    
+
     if (errorStr.contains('encryption')) {
       return 'خطای رمزگذاری';
     }
-    
+
     // Return fallback or generic message
     return fallback ?? 'خطایی رخ داده است';
   }

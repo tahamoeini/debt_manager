@@ -20,9 +20,11 @@ class FinanceRepository {
   Future<int> updateBudgetLine(BudgetLine b) => _db.updateBudgetLine(b);
   Future<int> deleteBudgetLine(int id) => _db.deleteBudgetLine(id);
 
-  Future<int> getBudgetSpent(int categoryId, String period) => _db.getBudgetSpent(categoryId, period);
+  Future<int> getBudgetSpent(int categoryId, String period) =>
+      _db.getBudgetSpent(categoryId, period);
   Future<int> getNetWorth() => _db.getNetWorth();
-  Future<int> getMonthlyCashflow(String period) => _db.getMonthlyCashflow(period);
+  Future<int> getMonthlyCashflow(String period) =>
+      _db.getMonthlyCashflow(period);
 }
 
 final financeRepositoryProvider = Provider<FinanceRepository>((ref) {

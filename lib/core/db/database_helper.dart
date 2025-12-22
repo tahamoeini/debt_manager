@@ -736,9 +736,12 @@ class DatabaseHelper {
         ''');
 
         // Indices for faster lookups
-        await db.execute('CREATE INDEX IF NOT EXISTS idx_accounts_name ON accounts(name)');
-        await db.execute('CREATE INDEX IF NOT EXISTS idx_categories_name ON categories(name)');
-        await db.execute('CREATE INDEX IF NOT EXISTS idx_budget_lines_category ON budget_lines(category_id)');
+        await db.execute(
+            'CREATE INDEX IF NOT EXISTS idx_accounts_name ON accounts(name)');
+        await db.execute(
+            'CREATE INDEX IF NOT EXISTS idx_categories_name ON categories(name)');
+        await db.execute(
+            'CREATE INDEX IF NOT EXISTS idx_budget_lines_category ON budget_lines(category_id)');
 
         // Seed a default 'Cash' account if none exist to avoid null-account UX
         try {
@@ -789,12 +792,16 @@ class DatabaseHelper {
           ''');
 
           await txn.execute('DROP TABLE ledger_entries');
-          await txn.execute('ALTER TABLE ledger_entries_new RENAME TO ledger_entries');
+          await txn.execute(
+              'ALTER TABLE ledger_entries_new RENAME TO ledger_entries');
 
           // Recreate indices
-          await txn.execute('CREATE UNIQUE INDEX IF NOT EXISTS idx_ledger_ref ON ledger_entries(ref_type, ref_id)');
-          await txn.execute('CREATE INDEX IF NOT EXISTS idx_ledger_date ON ledger_entries(date_jalali)');
-          await txn.execute('CREATE INDEX IF NOT EXISTS idx_ledger_category_date ON ledger_entries(category_id, date_jalali)');
+          await txn.execute(
+              'CREATE UNIQUE INDEX IF NOT EXISTS idx_ledger_ref ON ledger_entries(ref_type, ref_id)');
+          await txn.execute(
+              'CREATE INDEX IF NOT EXISTS idx_ledger_date ON ledger_entries(date_jalali)');
+          await txn.execute(
+              'CREATE INDEX IF NOT EXISTS idx_ledger_category_date ON ledger_entries(category_id, date_jalali)');
         });
 
         // Attempt best-effort backfills (non-transactional, tolerate failures)
@@ -897,14 +904,19 @@ class DatabaseHelper {
         if (accountId != null) {
           // Apply balance change on accounts table
           if (direction == 'credit') {
-            await transaction.execute('UPDATE accounts SET balance = COALESCE(balance,0) + ? WHERE id = ?', [amount, accountId]);
+            await transaction.execute(
+                'UPDATE accounts SET balance = COALESCE(balance,0) + ? WHERE id = ?',
+                [amount, accountId]);
           } else {
-            await transaction.execute('UPDATE accounts SET balance = COALESCE(balance,0) - ? WHERE id = ?', [amount, accountId]);
+            await transaction.execute(
+                'UPDATE accounts SET balance = COALESCE(balance,0) - ? WHERE id = ?',
+                [amount, accountId]);
           }
         }
       } catch (error, stackTrace) {
         // Ensure atomicity: if account balance update fails, roll back the transaction.
-        debugPrint('insertTransaction balance update failed for txn ${txnMap['id'] ?? 'unknown'}: $error');
+        debugPrint(
+            'insertTransaction balance update failed for txn ${txnMap['id'] ?? 'unknown'}: $error');
         debugPrint(stackTrace.toString());
         // Rethrow so the surrounding DB transaction is rolled back.
         rethrow;
@@ -953,9 +965,12 @@ class DatabaseHelper {
                 id: _['id'] as int?,
                 name: _['name'] as String? ?? 'Unnamed',
                 type: _['type'] as String? ?? 'cash',
-                balance: _['balance'] is int ? _['balance'] as int : int.tryParse('${_['balance']}') ?? 0,
+                balance: _['balance'] is int
+                    ? _['balance'] as int
+                    : int.tryParse('${_['balance']}') ?? 0,
                 notes: _['notes'] as String?,
-                createdAt: _['created_at'] as String? ?? DateTime.now().toIso8601String(),
+                createdAt: _['created_at'] as String? ??
+                    DateTime.now().toIso8601String(),
               ))
           .toList();
     }
@@ -967,9 +982,12 @@ class DatabaseHelper {
               id: r['id'] as int?,
               name: r['name'] as String? ?? 'Unnamed',
               type: r['type'] as String? ?? 'cash',
-              balance: r['balance'] is int ? r['balance'] as int : int.tryParse('${r['balance']}') ?? 0,
+              balance: r['balance'] is int
+                  ? r['balance'] as int
+                  : int.tryParse('${r['balance']}') ?? 0,
               notes: r['notes'] as String?,
-              createdAt: r['created_at'] as String? ?? DateTime.now().toIso8601String(),
+              createdAt: r['created_at'] as String? ??
+                  DateTime.now().toIso8601String(),
             ))
         .toList();
   }
@@ -1001,13 +1019,17 @@ class DatabaseHelper {
   Future<int> updateAccount(Account a) async {
     if (_isWeb) return 1;
     final db = await database;
-    return await db.update('accounts', {
-      'name': a.name,
-      'type': a.type,
-      'balance': a.balance ?? 0,
-      'notes': a.notes,
-      'created_at': a.createdAt,
-    }, where: 'id = ?', whereArgs: [a.id]);
+    return await db.update(
+        'accounts',
+        {
+          'name': a.name,
+          'type': a.type,
+          'balance': a.balance ?? 0,
+          'notes': a.notes,
+          'created_at': a.createdAt,
+        },
+        where: 'id = ?',
+        whereArgs: [a.id]);
   }
 
   Future<int> deleteAccount(int id) async {
@@ -1027,7 +1049,8 @@ class DatabaseHelper {
               type: r['type'] as String? ?? 'expense',
               color: r['color'] as String?,
               icon: r['icon'] as String?,
-              createdAt: r['created_at'] as String? ?? DateTime.now().toIso8601String(),
+              createdAt: r['created_at'] as String? ??
+                  DateTime.now().toIso8601String(),
             ))
         .toList();
   }
@@ -1047,13 +1070,17 @@ class DatabaseHelper {
   Future<int> updateCategory(Category c) async {
     if (_isWeb) return 1;
     final db = await database;
-    return await db.update('categories', {
-      'name': c.name,
-      'type': c.type,
-      'color': c.color,
-      'icon': c.icon,
-      'created_at': c.createdAt,
-    }, where: 'id = ?', whereArgs: [c.id]);
+    return await db.update(
+        'categories',
+        {
+          'name': c.name,
+          'type': c.type,
+          'color': c.color,
+          'icon': c.icon,
+          'created_at': c.createdAt,
+        },
+        where: 'id = ?',
+        whereArgs: [c.id]);
   }
 
   Future<int> deleteCategory(int id) async {
@@ -1073,7 +1100,8 @@ class DatabaseHelper {
               amount: r['amount'] as int,
               period: r['period'] as String,
               spent: r['spent'] is int ? r['spent'] as int : null,
-              createdAt: r['created_at'] as String? ?? DateTime.now().toIso8601String(),
+              createdAt: r['created_at'] as String? ??
+                  DateTime.now().toIso8601String(),
             ))
         .toList();
   }
@@ -1092,12 +1120,16 @@ class DatabaseHelper {
   Future<int> updateBudgetLine(BudgetLine b) async {
     if (_isWeb) return 1;
     final db = await database;
-    return await db.update('budget_lines', {
-      'category_id': b.categoryId,
-      'amount': b.amount,
-      'period': b.period,
-      'created_at': b.createdAt,
-    }, where: 'id = ?', whereArgs: [b.id]);
+    return await db.update(
+        'budget_lines',
+        {
+          'category_id': b.categoryId,
+          'amount': b.amount,
+          'period': b.period,
+          'created_at': b.createdAt,
+        },
+        where: 'id = ?',
+        whereArgs: [b.id]);
   }
 
   Future<int> deleteBudgetLine(int id) async {
@@ -1134,7 +1166,8 @@ class DatabaseHelper {
     if (_isWeb) return 0;
     final db = await database;
     try {
-      final rows = await db.rawQuery('SELECT COALESCE(SUM(balance),0) as total FROM accounts');
+      final rows = await db
+          .rawQuery('SELECT COALESCE(SUM(balance),0) as total FROM accounts');
       final v = rows.first['total'];
       if (v is int) return v;
       if (v is String) return int.tryParse(v) ?? 0;
@@ -1200,8 +1233,6 @@ class DatabaseHelper {
     }
     return map;
   }
-
-
 
   Future<List<Map<String, dynamic>>> getTransactionsByRelated(
       String relatedType, int relatedId) async {
@@ -1309,7 +1340,8 @@ class DatabaseHelper {
 
   /// Set `category_id` for a ledger entry identified by its ref_type/ref_id.
   /// Returns number of rows updated.
-  Future<int> setLedgerEntryCategoryByRef(String refType, int refId, int categoryId) async {
+  Future<int> setLedgerEntryCategoryByRef(
+      String refType, int refId, int categoryId) async {
     if (_isWeb) {
       var updated = 0;
       for (var r in _ledgerStore) {
@@ -1450,7 +1482,10 @@ class DatabaseHelper {
           whereArgs: [loan.counterpartyId],
           limit: 1,
         );
-        final payee = (cpRows.isNotEmpty ? cpRows.first['name'] as String? : loan.title) ?? '';
+        final payee = (cpRows.isNotEmpty
+                ? cpRows.first['name'] as String?
+                : loan.title) ??
+            '';
         final tag = (cpRows.isNotEmpty ? cpRows.first['tag'] as String? : null);
         String? catName = tag;
         if (catName == null) {
@@ -1461,7 +1496,8 @@ class DatabaseHelper {
             );
             if (automationTable.isNotEmpty) {
               final repo = AutomationRulesRepository();
-              final suggestion = await repo.applyRules(payee, loan.notes ?? '', loan.principalAmount);
+              final suggestion = await repo.applyRules(
+                  payee, loan.notes ?? '', loan.principalAmount);
               catName = suggestion['category'] as String?;
             }
           } catch (e) {
@@ -1470,7 +1506,8 @@ class DatabaseHelper {
           }
         }
         if (catName != null) {
-          final catRows = await db.query('categories', where: 'name = ?', whereArgs: [catName], limit: 1);
+          final catRows = await db.query('categories',
+              where: 'name = ?', whereArgs: [catName], limit: 1);
           if (catRows.isNotEmpty) categoryId = catRows.first['id'] as int?;
         }
       } catch (_) {}
@@ -1744,7 +1781,7 @@ class DatabaseHelper {
             (direction == LoanDirection.borrowed ? -1 : 1);
         final paidJ =
             installment.paidAtJalali ?? _isoToJalaliString(installment.paidAt);
-        
+
         // Attempt to resolve a category id for this installment payment.
         // NOTE: This category resolution involves multiple database queries
         // (counterparties, categories, automation_rules) and may add latency
@@ -1762,8 +1799,12 @@ class DatabaseHelper {
               whereArgs: [loan.counterpartyId],
               limit: 1,
             );
-            final payee = (cpRows.isNotEmpty ? cpRows.first['name'] as String? : loan.title) ?? '';
-            final tag = (cpRows.isNotEmpty ? cpRows.first['tag'] as String? : null);
+            final payee = (cpRows.isNotEmpty
+                    ? cpRows.first['name'] as String?
+                    : loan.title) ??
+                '';
+            final tag =
+                (cpRows.isNotEmpty ? cpRows.first['tag'] as String? : null);
             catName = tag;
             if (catName == null) {
               try {
@@ -1773,7 +1814,8 @@ class DatabaseHelper {
                 );
                 if (automationTable.isNotEmpty) {
                   final repo = AutomationRulesRepository();
-                  final suggestion = await repo.applyRules(payee, loan.notes ?? '', (amt).abs());
+                  final suggestion = await repo.applyRules(
+                      payee, loan.notes ?? '', (amt).abs());
                   catName = suggestion['category'] as String?;
                 }
               } catch (e) {
@@ -1784,7 +1826,8 @@ class DatabaseHelper {
           }
 
           if (catName != null) {
-            final catRows = await db.query('categories', where: 'name = ?', whereArgs: [catName], limit: 1);
+            final catRows = await db.query('categories',
+                where: 'name = ?', whereArgs: [catName], limit: 1);
             if (catRows.isNotEmpty) categoryId = catRows.first['id'] as int?;
           }
         } catch (_) {}

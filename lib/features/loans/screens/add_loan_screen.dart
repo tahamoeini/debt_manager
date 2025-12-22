@@ -147,7 +147,8 @@ class _AddLoanScreenState extends ConsumerState<AddLoanScreen> {
         } else if (picked is Jalali) {
           _startJalali = picked;
         } else {
-          debugPrint('Unexpected date type from showCalendarAwareDatePicker: ${picked.runtimeType}');
+          debugPrint(
+              'Unexpected date type from showCalendarAwareDatePicker: ${picked.runtimeType}');
           _startJalali = null;
         }
       });
@@ -525,12 +526,15 @@ class _AddLoanScreenState extends ConsumerState<AddLoanScreen> {
                             children: [
                               Expanded(
                                 child: ValueListenableBuilder<CalendarType>(
-                                  valueListenable: SettingsRepository.calendarTypeNotifier,
+                                  valueListenable:
+                                      SettingsRepository.calendarTypeNotifier,
                                   builder: (context, calType, _) {
                                     if (_startJalali == null) {
-                                      return const Text('تاریخ شروع انتخاب نشده');
+                                      return const Text(
+                                          'تاریخ شروع انتخاب نشده');
                                     }
-                                    final display = calType == CalendarType.jalali
+                                    final display = calType ==
+                                            CalendarType.jalali
                                         ? formatJalaliForDisplay(_startJalali!)
                                         : formatDateForDisplayWithCalendar(
                                             _startJalali!.toDateTime(),
@@ -594,15 +598,14 @@ class _AddLoanScreenState extends ConsumerState<AddLoanScreen> {
                     const SizedBox(height: 8),
                     DropdownButtonFormField<int?>(
                       value: _selectedCategoryId,
-                      decoration: const InputDecoration(labelText: 'دسته‌بندی تراکنش (اختیاری)'),
+                      decoration: const InputDecoration(
+                          labelText: 'دسته‌بندی تراکنش (اختیاری)'),
                       items: [
                         const DropdownMenuItem<int?>(
                           value: null,
                           child: Text('بدون دسته‌بندی'),
                         ),
-                        ..._categories
-                            .where((c) => c.id != null)
-                            .map(
+                        ..._categories.where((c) => c.id != null).map(
                               (c) => DropdownMenuItem<int?>(
                                 value: c.id,
                                 child: Text(c.name),
