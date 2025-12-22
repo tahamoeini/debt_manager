@@ -16,7 +16,7 @@ class AuthNotifier extends ChangeNotifier {
   bool _appLockEnabledCached = false;
 
   // Auto-lock duration after inactivity when app lock is enabled.
-  Duration _autoLockDuration = const Duration(minutes: 5);
+  final Duration _autoLockDuration = const Duration(minutes: 5);
   Timer? _inactivityTimer;
 
   bool get unlocked => _unlocked;

@@ -1660,7 +1660,7 @@ class DatabaseHelper {
               final repo = AutomationRulesRepository();
               final suggestion = await repo.applyRules(
                   payee, loan.notes ?? '', loan.principalAmount);
-              catName = suggestion['category'] as String?;
+              catName = suggestion['category'];
             }
           } catch (e) {
             // Make sure any automation-related failure does not affect the main transaction.
@@ -1978,7 +1978,7 @@ class DatabaseHelper {
                   final repo = AutomationRulesRepository();
                   final suggestion = await repo.applyRules(
                       payee, loan.notes ?? '', (amt).abs());
-                  catName = suggestion['category'] as String?;
+                  catName = suggestion['category'];
                 }
               } catch (e) {
                 // Make sure any automation-related failure does not affect the main transaction.

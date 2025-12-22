@@ -121,7 +121,7 @@ class _LoanDetailScreenState extends ConsumerState<LoanDetailScreen> {
                     // Category selector for this payment (optional)
                     if (sheetCategories.isNotEmpty)
                       DropdownButtonFormField<int?>(
-                        value: selectedCategory,
+                        initialValue: selectedCategory,
                         decoration: const InputDecoration(
                             labelText: 'دسته‌بندی پرداخت (اختیاری)'),
                         items: [
@@ -304,13 +304,13 @@ class _LoanDetailScreenState extends ConsumerState<LoanDetailScreen> {
                                 .updateInstallment(updated);
 
                             // If user selected a category for this payment, persist it on the ledger entry
-                            if (_selectedCategory != null && inst.id != null) {
+                            if (selectedCategory != null && inst.id != null) {
                               try {
                                 await DatabaseHelper.instance
                                     .setLedgerEntryCategoryByRef(
                                   'installment_payment',
                                   inst.id!,
-                                  _selectedCategory!,
+                                  selectedCategory!,
                                 );
                               } catch (_) {}
                             }

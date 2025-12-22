@@ -132,7 +132,7 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
             child: ListView(
               children: [
                 DropdownButtonFormField<int?>(
-                  value: _selectedAccountId,
+                  initialValue: _selectedAccountId,
                   decoration: const InputDecoration(labelText: 'حساب'),
                   items: _accounts
                       .map((a) => DropdownMenuItem<int?>(
@@ -179,7 +179,7 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
                 ),
                 const SizedBox(height: 8),
                 DropdownButtonFormField<int?>(
-                  value: _selectedCategoryId,
+                  initialValue: _selectedCategoryId,
                   decoration:
                       const InputDecoration(labelText: 'دسته‌بندی (اختیاری)'),
                   items: [
