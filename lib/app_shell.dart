@@ -6,8 +6,9 @@ import 'core/debug/debug_logger.dart';
 
 class AppShell extends StatefulWidget {
   final Widget child;
+  final String location;
 
-  const AppShell({super.key, required this.child});
+  const AppShell({super.key, required this.child, required this.location});
 
   @override
   State<AppShell> createState() => _AppShellState();
@@ -29,30 +30,10 @@ class _AppShellState extends State<AppShell> {
 
   @override
   Widget build(BuildContext context) {
-    final router = GoRouter.of(context);
-    String location;
-    try {
-      location = (router as dynamic).location as String;
-    } catch (_) {
-      location = '/';
-    }
-    final selectedIndex = _indexForLocation(location);
+    final selectedIndex = _indexForLocation(widget.location);
 
-    bool routerCanPop() {
-      try {
-        return (router as dynamic).canPop() as bool;
-      } catch (_) {
-        return Navigator.of(context).canPop();
-      }
-    }
-
-    void routerPop() {
-      try {
-        (router as dynamic).pop();
-      } catch (_) {
-        Navigator.of(context).pop();
-      }
-    }
+    bool routerCanPop() => GoRouter.of(context).canPop();
+    void routerPop() => GoRouter.of(context).pop();
 
     return PopScope(
       canPop: !routerCanPop(),
@@ -147,8 +128,8 @@ class _AppShellState extends State<AppShell> {
           selectedIndex: selectedIndex,
           onDestinationSelected: (int index) {
             final target = _tabs[index];
-            if ((router as dynamic).location != target) {
-              (router as dynamic).go(target);
+            if (widget.location != target) {
+              context.go(target);
             }
           },
           destinations: const [

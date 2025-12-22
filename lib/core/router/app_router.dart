@@ -39,8 +39,17 @@ final goRouterProvider = Provider<GoRouter>((ref) {
     refreshListenable: auth,
     initialLocation: '/',
     routes: [
+      // Public route(s) outside of the shell
+      GoRoute(
+        name: 'lock',
+        path: '/lock',
+        pageBuilder: (context, state) =>
+            const MaterialPage(fullscreenDialog: true, child: LockScreen()),
+      ),
+      // Private routes inside the shell
       ShellRoute(
-        builder: (context, state, child) => AppShell(child: child),
+        builder: (context, state, child) =>
+            AppShell(location: state.uri.path, child: child),
         routes: [
           GoRoute(
             name: 'home',
@@ -63,15 +72,26 @@ final goRouterProvider = Provider<GoRouter>((ref) {
               GoRoute(
                 name: 'loanDetail',
                 path: 'loan/:loanId',
+                redirect: (context, state) {
+                  final idStr = state.pathParameters['loanId'] ?? '';
+                  final id = int.tryParse(idStr);
+                  // If loanId is invalid or missing, redirect to loans list
+                  return id == null ? '/loans' : null;
+                },
                 pageBuilder: (context, state) {
                   final idStr = state.pathParameters['loanId'] ?? '';
                   final id = int.tryParse(idStr);
-                  return MaterialPage(child: LoanDetailScreen(loanId: id ?? 0));
+                  return MaterialPage(child: LoanDetailScreen(loanId: id!));
                 },
               ),
               GoRoute(
                 name: 'loanEdit',
                 path: 'loan/:loanId/edit',
+                redirect: (context, state) {
+                  final idStr = state.pathParameters['loanId'] ?? '';
+                  final id = int.tryParse(idStr);
+                  return id == null ? '/loans' : null;
+                },
                 pageBuilder: (context, state) {
                   Loan? loan;
                   Counterparty? counterparty;
@@ -215,43 +235,22 @@ final goRouterProvider = Provider<GoRouter>((ref) {
             pageBuilder: (context, state) =>
                 const MaterialPage(child: ProgressScreen()),
           ),
-          // Lock screen route - shown when auth is required
-          GoRoute(
-            name: 'lock',
-            path: '/lock',
-            pageBuilder: (context, state) =>
-                const MaterialPage(fullscreenDialog: true, child: LockScreen()),
-          ),
         ],
       ),
     ],
     redirect: (context, state) {
-      // If not unlocked and trying to access guarded routes, go to /lock
+      // Deny-by-default: if not unlocked and route is not public -> /lock
       final unlocked = auth.unlocked;
       final currentPath = state.uri.path;
-      final accessingLock = currentPath == '/lock';
+      final publicAllowlist = const {'/lock'}; // add onboarding if present
+      final isPublic = publicAllowlist.contains(currentPath);
 
-      // Define guarded route prefixes (any route under these should require auth)
-      const guardedPrefixes = [
-        '/loans',
-        '/budgets',
-        '/reports',
-        '/insights',
-        '/backup',
-        '/settings',
-        '/export',
-      ];
-
-      final wantsGuarded = guardedPrefixes.any(
-        (p) => currentPath.startsWith(p),
-      );
-
-      if (!unlocked && wantsGuarded && !accessingLock) {
+      if (!unlocked && !isPublic) {
         return '/lock';
       }
 
       // If unlocked and currently on lock, go home
-      if (unlocked && accessingLock) return '/';
+      if (unlocked && currentPath == '/lock') return '/';
 
       return null;
     },
