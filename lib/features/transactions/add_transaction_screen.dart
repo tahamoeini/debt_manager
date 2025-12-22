@@ -147,7 +147,9 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
                       child: RadioListTile<String>(
                         title: const Text('برداشت'),
                         value: 'debit',
+                        // ignore: deprecated_member_use
                         groupValue: _direction,
+                        // ignore: deprecated_member_use
                         onChanged: (v) =>
                             setState(() => _direction = v ?? 'debit'),
                       ),
@@ -156,7 +158,9 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
                       child: RadioListTile<String>(
                         title: const Text('واریز'),
                         value: 'credit',
+                        // ignore: deprecated_member_use
                         groupValue: _direction,
+                        // ignore: deprecated_member_use
                         onChanged: (v) =>
                             setState(() => _direction = v ?? 'debit'),
                       ),
