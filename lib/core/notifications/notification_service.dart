@@ -242,8 +242,13 @@ class NotificationService {
     required String body,
     required int offsetDays,
   }) async {
-    // Cancel existing notifications (use offsetDays as maxOffset)
-    await cancelInstallmentNotifications(installmentId, offsetDays);
+    // Cancel existing notifications using a fixed max offset so that any
+    // previously scheduled reminders with larger offsets are also removed.
+    const int kMaxInstallmentNotificationOffsetDays = 30;
+    await cancelInstallmentNotifications(
+      installmentId,
+      kMaxInstallmentNotificationOffsetDays,
+    );
 
     // Schedule offset reminder if offsetDays > 0
     if (offsetDays > 0) {
