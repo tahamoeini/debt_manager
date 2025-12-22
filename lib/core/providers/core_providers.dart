@@ -16,18 +16,30 @@ class AuthNotifier extends ChangeNotifier {
   bool get unlocked => _unlocked;
 
   Future<void> tryUnlock() async {
-    final enabled = await _settings.getBiometricEnabled();
-    if (!enabled) {
+    // If app lock is disabled, we're always considered unlocked.
+    final appLockEnabled = await _settings.getAppLockEnabled();
+    if (!appLockEnabled) {
       _unlocked = true;
       notifyListeners();
       return;
     }
+
+    // App lock is enabled. Decide based on biometric availability/setting.
+    final biometricSettingEnabled = await _settings.getBiometricEnabled();
+    if (!biometricSettingEnabled) {
+      // No biometric required → unlocked (PIN flow is handled by LockScreen when needed).
+      _unlocked = true;
+      notifyListeners();
+      return;
+    }
+
     final avail = await SecurityService.instance.isBiometricAvailable();
     if (!avail) {
       _unlocked = true;
       notifyListeners();
       return;
     }
+
     final ok = await SecurityService.instance.authenticate();
     _unlocked = ok;
     notifyListeners();
