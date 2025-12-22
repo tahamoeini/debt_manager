@@ -103,6 +103,76 @@ class HomeScreen extends ConsumerWidget {
               'اقساط نزدیک',
               style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
             ),
+            const SizedBox(height: 12),
+            // New finance overview row: Net Worth, Monthly Cashflow, Budget Health
+            Row(
+              children: [
+                Expanded(
+                  child: Card(
+                    child: Padding(
+                      padding: const EdgeInsets.all(12),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text('دارایی خالص', style: TextStyle(fontWeight: FontWeight.w600)),
+                          const SizedBox(height: 8),
+                          SensitiveText(
+                            formatCurrency(data.netWorth),
+                            style: Theme.of(context).textTheme.headlineSmall,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Card(
+                    child: Padding(
+                      padding: const EdgeInsets.all(12),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text('جریان نقدی ماهانه', style: TextStyle(fontWeight: FontWeight.w600)),
+                          const SizedBox(height: 8),
+                          SensitiveText(
+                            formatCurrency(data.monthlyCashflow),
+                            style: Theme.of(context).textTheme.headlineSmall,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Card(
+                    child: Padding(
+                      padding: const EdgeInsets.all(12),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text('سلامت بودجه', style: TextStyle(fontWeight: FontWeight.w600)),
+                          const SizedBox(height: 8),
+                          Builder(builder: (ctx) {
+                            final cash = data.monthlyCashflow;
+                            final spent = data.monthlySpending;
+                            String label;
+                            if (cash == 0) {
+                              label = 'N/A';
+                            } else {
+                              final pct = ((cash - spent) * 100 / cash).clamp(-999, 999).toInt();
+                              label = '$pct%';
+                            }
+                            return Text(label, style: Theme.of(context).textTheme.headlineSmall);
+                          }),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
             const SizedBox(height: 8),
             if (upcoming.isEmpty)
               Card(

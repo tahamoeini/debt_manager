@@ -335,9 +335,14 @@ class ReportsScreen extends ConsumerWidget {
           const SizedBox(height: 20),
           const Text('فیلترها', style: TextStyle(fontWeight: FontWeight.w700)),
           const SizedBox(height: 8),
-          Row(
+          // Responsive filter row: direction + date pickers + filter sheet
+          Wrap(
+            spacing: 12,
+            runSpacing: 8,
+            crossAxisAlignment: WrapCrossAlignment.center,
             children: [
-              Expanded(
+              SizedBox(
+                width: 200,
                 child: Material(
                   type: MaterialType.transparency,
                   child: DropdownButton<LoanDirection?>(
@@ -358,7 +363,6 @@ class ReportsScreen extends ConsumerWidget {
                   ),
                 ),
               ),
-              const SizedBox(width: 12),
               FilledButton(
                 onPressed: () async {
                   final now = DateTime.now();
@@ -384,7 +388,6 @@ class ReportsScreen extends ConsumerWidget {
                   },
                 ),
               ),
-              const SizedBox(width: 8),
               FilledButton(
                 onPressed: () async {
                   final now = DateTime.now();
@@ -409,6 +412,58 @@ class ReportsScreen extends ConsumerWidget {
                     );
                   },
                 ),
+              ),
+              IconButton(
+                tooltip: 'فیلترهای بیشتر',
+                icon: const Icon(Icons.filter_list),
+                onPressed: () async {
+                  // show bottom sheet for counterparty/type filters
+                  await showModalBottomSheet<void>(
+                    context: context,
+                    builder: (ctx) {
+                      return Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text('فیلترهای بیشتر', style: TextStyle(fontWeight: FontWeight.w700)),
+                            const SizedBox(height: 12),
+                            DropdownButton<int?>(
+                              value: state.counterpartyFilter,
+                              isExpanded: true,
+                              items: [
+                                const DropdownMenuItem(value: null, child: Text('همه')),
+                                ...state.counterparties.map((c) => DropdownMenuItem(value: c.id, child: Text(c.name))),
+                              ],
+                              onChanged: (v) => notifier.setCounterpartyFilter(v),
+                            ),
+                            const SizedBox(height: 8),
+                            DropdownButton<String?>(
+                              value: state.counterpartyTypeFilter,
+                              isExpanded: true,
+                              items: const [
+                                DropdownMenuItem(value: null, child: Text('همه انواع')),
+                                DropdownMenuItem(value: 'person', child: Text('شخص')),
+                                DropdownMenuItem(value: 'bank', child: Text('بانک')),
+                                DropdownMenuItem(value: 'company', child: Text('شرکت')),
+                              ],
+                              onChanged: (v) => notifier.setCounterpartyTypeFilter(v),
+                            ),
+                            const SizedBox(height: 12),
+                            Align(
+                              alignment: Alignment.centerRight,
+                              child: FilledButton(
+                                onPressed: () => Navigator.of(ctx).pop(),
+                                child: const Text('بستن'),
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                  );
+                },
               ),
             ],
           ),

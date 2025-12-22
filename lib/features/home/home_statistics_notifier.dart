@@ -3,23 +3,28 @@ import 'package:debt_manager/core/providers/core_providers.dart';
 import 'package:debt_manager/features/loans/models/installment.dart';
 import 'package:debt_manager/features/loans/models/loan.dart';
 import 'package:debt_manager/features/loans/models/counterparty.dart';
+import 'package:debt_manager/core/utils/jalali_utils.dart';
 
 // Simple DTO holding home summary values.
 class HomeStats {
   final int borrowed;
   final int lent;
   final int net;
+  final int netWorth;
   final int monthlySpending; // Current month expenses
+  final int monthlyCashflow;
   final List<int> spendingTrend; // Last 6 months of spending
   final List<Installment> upcoming;
   final Map<int, Loan> loansById;
   final Map<int, Counterparty> counterpartiesById;
-
+  
   HomeStats({
     required this.borrowed,
     required this.lent,
     required this.net,
+    required this.netWorth,
     required this.monthlySpending,
+    required this.monthlyCashflow,
     required this.spendingTrend,
     required this.upcoming,
     required this.loansById,
@@ -88,6 +93,12 @@ final homeStatisticsProvider =
   final to = today.add(const Duration(days: 7));
   final upcoming = await db.getUpcomingInstallments(today, to);
 
+  // Net worth and monthly cashflow (use Jalali year-month for ledger entries)
+  final netWorth = await db.getNetWorth();
+  final jalaliNow = dateTimeToJalali(DateTime.now());
+  final period = '${jalaliNow.year.toString().padLeft(4, '0')}-${jalaliNow.month.toString().padLeft(2, '0')}';
+  final monthlyCashflow = await db.getMonthlyCashflow(period);
+
   // load related loans and counterparties
   final loanIds = upcoming.map((i) => i.loanId).toSet();
   final Map<int, Loan> loansById = {};
@@ -103,7 +114,9 @@ final homeStatisticsProvider =
     borrowed: borrowed,
     lent: lent,
     net: net,
+    netWorth: netWorth,
     monthlySpending: monthlySpending,
+    monthlyCashflow: monthlyCashflow,
     spendingTrend: spendingTrend,
     upcoming: upcoming,
     loansById: loansById,

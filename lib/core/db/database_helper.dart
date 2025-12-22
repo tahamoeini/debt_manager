@@ -12,6 +12,7 @@ import 'package:debt_manager/features/loans/models/loan.dart';
 import 'package:debt_manager/features/loans/models/installment.dart';
 import 'package:debt_manager/core/utils/jalali_utils.dart';
 import 'package:debt_manager/features/ledger/models/ledger_entry.dart';
+import 'package:debt_manager/features/finance/models/finance_models.dart';
 import 'package:debt_manager/core/notifications/notification_service.dart';
 import 'package:debt_manager/core/db/installment_dao.dart';
 import 'package:debt_manager/core/smart_insights/smart_insights_service.dart';
@@ -27,9 +28,9 @@ class DatabaseHelper {
   factory DatabaseHelper() => instance;
 
   static const _dbName = 'debt_manager.db';
-  static const _dbVersion = 8; // Bumped for FK cascade migration
+  static const _dbVersion = 9; // Bumped for accounts, categories, budget_lines
   // bump DB version to add transactions table and paid_at_jalali/ledger
-  static const _newDbVersion = 8;
+  static const _newDbVersion = 9;
 
   plain.Database? _db;
   // In-memory fallback stores for web builds (sqflite is not available on web).
@@ -677,6 +678,72 @@ class DatabaseHelper {
       }
     }
 
+    if (oldVersion < 9) {
+      // v9: Add accounts, categories, and budget_lines to support the
+      // coherent financial model (accounts, categories, budgets per line).
+      debugPrint('Migration: v9 - Creating accounts, categories, budget_lines');
+      try {
+        // Use IF NOT EXISTS to be idempotent across runs
+        await db.execute('''
+          CREATE TABLE IF NOT EXISTS accounts (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT NOT NULL,
+            type TEXT NOT NULL,
+            balance INTEGER NOT NULL DEFAULT 0,
+            created_at TEXT NOT NULL
+          )
+        ''');
+
+        await db.execute('''
+          CREATE TABLE IF NOT EXISTS categories (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT NOT NULL,
+            parent_id INTEGER,
+            type TEXT,
+            created_at TEXT NOT NULL,
+            FOREIGN KEY(parent_id) REFERENCES categories(id) ON DELETE SET NULL
+          )
+        ''');
+
+        await db.execute('''
+          CREATE TABLE IF NOT EXISTS budget_lines (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            category_id INTEGER NOT NULL,
+            amount INTEGER NOT NULL,
+            period TEXT NOT NULL,
+            start_date_jalali TEXT,
+            rollover INTEGER NOT NULL DEFAULT 0,
+            created_at TEXT NOT NULL,
+            FOREIGN KEY(category_id) REFERENCES categories(id) ON DELETE CASCADE
+          )
+        ''');
+
+        // Indices for faster lookups
+        await db.execute('CREATE INDEX IF NOT EXISTS idx_accounts_name ON accounts(name)');
+        await db.execute('CREATE INDEX IF NOT EXISTS idx_categories_name ON categories(name)');
+        await db.execute('CREATE INDEX IF NOT EXISTS idx_budget_lines_category ON budget_lines(category_id)');
+
+        // Seed a default 'Cash' account if none exist to avoid null-account UX
+        try {
+          final rows = await db.rawQuery('SELECT COUNT(1) as c FROM accounts');
+          final count = (rows.isNotEmpty && rows.first['c'] != null)
+              ? int.tryParse('${rows.first['c']}') ?? 0
+              : 0;
+          if (count == 0) {
+            await db.insert('accounts', {
+              'name': 'Cash',
+              'type': 'cash',
+              'balance': 0,
+              'created_at': DateTime.now().toIso8601String(),
+            });
+          }
+        } catch (_) {}
+      } catch (e) {
+        debugPrint('Migration: v9 upgrade failed: $e');
+        // don't throw here to avoid blocking upgrades on non-critical schema
+      }
+    }
+
     debugPrint(
         'DatabaseHelper: Migration to v$newVersion completed successfully');
   }
@@ -742,6 +809,224 @@ class DatabaseHelper {
     final db = await database;
     return await db.query('transactions', orderBy: 'timestamp DESC');
   }
+
+  // -----------------
+  // Accounts / Categories / BudgetLines CRUD
+  // -----------------
+
+  Future<List<Account>> getAccounts() async {
+    if (_isWeb) {
+      return _transactionStore
+          .where((_) => true)
+          .map((_) => Account(
+                id: _['id'] as int?,
+                name: _['name'] as String? ?? 'Unnamed',
+                type: _['type'] as String? ?? 'cash',
+                balance: _['balance'] is int ? _['balance'] as int : int.tryParse('${_['balance']}') ?? 0,
+                notes: _['notes'] as String?,
+                createdAt: _['created_at'] as String? ?? DateTime.now().toIso8601String(),
+              ))
+          .toList();
+    }
+
+    final db = await database;
+    final rows = await db.query('accounts', orderBy: 'name ASC');
+    return rows
+        .map((r) => Account(
+              id: r['id'] as int?,
+              name: r['name'] as String? ?? 'Unnamed',
+              type: r['type'] as String? ?? 'cash',
+              balance: r['balance'] is int ? r['balance'] as int : int.tryParse('${r['balance']}') ?? 0,
+              notes: r['notes'] as String?,
+              createdAt: r['created_at'] as String? ?? DateTime.now().toIso8601String(),
+            ))
+        .toList();
+  }
+
+  Future<int> insertAccount(Account a) async {
+    if (_isWeb) {
+      _transactionId++;
+      final map = {
+        'id': _transactionId,
+        'name': a.name,
+        'type': a.type,
+        'balance': a.balance ?? 0,
+        'created_at': a.createdAt,
+      };
+      _transactionStore.add(map);
+      return _transactionId;
+    }
+    final db = await database;
+    return await db.insert('accounts', {
+      'name': a.name,
+      'type': a.type,
+      'balance': a.balance ?? 0,
+      'created_at': a.createdAt,
+    });
+  }
+
+  Future<int> updateAccount(Account a) async {
+    if (_isWeb) return 1;
+    final db = await database;
+    return await db.update('accounts', {
+      'name': a.name,
+      'type': a.type,
+      'balance': a.balance ?? 0,
+      'created_at': a.createdAt,
+    }, where: 'id = ?', whereArgs: [a.id]);
+  }
+
+  Future<int> deleteAccount(int id) async {
+    if (_isWeb) return 1;
+    final db = await database;
+    return await db.delete('accounts', where: 'id = ?', whereArgs: [id]);
+  }
+
+  Future<List<Category>> getCategories() async {
+    if (_isWeb) return [];
+    final db = await database;
+    final rows = await db.query('categories', orderBy: 'name ASC');
+    return rows
+        .map((r) => Category(
+              id: r['id'] as int?,
+              name: r['name'] as String? ?? 'Unnamed',
+              type: r['type'] as String? ?? 'expense',
+              color: r['color'] as String?,
+              icon: r['icon'] as String?,
+              createdAt: r['created_at'] as String? ?? DateTime.now().toIso8601String(),
+            ))
+        .toList();
+  }
+
+  Future<int> insertCategory(Category c) async {
+    if (_isWeb) return 1;
+    final db = await database;
+    return await db.insert('categories', {
+      'name': c.name,
+      'type': c.type,
+      'color': c.color,
+      'icon': c.icon,
+      'created_at': c.createdAt,
+    });
+  }
+
+  Future<int> updateCategory(Category c) async {
+    if (_isWeb) return 1;
+    final db = await database;
+    return await db.update('categories', {
+      'name': c.name,
+      'type': c.type,
+      'color': c.color,
+      'icon': c.icon,
+      'created_at': c.createdAt,
+    }, where: 'id = ?', whereArgs: [c.id]);
+  }
+
+  Future<int> deleteCategory(int id) async {
+    if (_isWeb) return 1;
+    final db = await database;
+    return await db.delete('categories', where: 'id = ?', whereArgs: [id]);
+  }
+
+  Future<List<BudgetLine>> getBudgetLines() async {
+    if (_isWeb) return [];
+    final db = await database;
+    final rows = await db.query('budget_lines', orderBy: 'created_at DESC');
+    return rows
+        .map((r) => BudgetLine(
+              id: r['id'] as int?,
+              categoryId: r['category_id'] as int,
+              amount: r['amount'] as int,
+              period: r['period'] as String,
+              spent: r['spent'] is int ? r['spent'] as int : null,
+              createdAt: r['created_at'] as String? ?? DateTime.now().toIso8601String(),
+            ))
+        .toList();
+  }
+
+  Future<int> insertBudgetLine(BudgetLine b) async {
+    if (_isWeb) return 1;
+    final db = await database;
+    return await db.insert('budget_lines', {
+      'category_id': b.categoryId,
+      'amount': b.amount,
+      'period': b.period,
+      'start_date_jalali': b.createdAt,
+      'rollover': 0,
+      'created_at': b.createdAt,
+    });
+  }
+
+  Future<int> updateBudgetLine(BudgetLine b) async {
+    if (_isWeb) return 1;
+    final db = await database;
+    return await db.update('budget_lines', {
+      'category_id': b.categoryId,
+      'amount': b.amount,
+      'period': b.period,
+      'start_date_jalali': b.createdAt,
+      'rollover': 0,
+      'created_at': b.createdAt,
+    }, where: 'id = ?', whereArgs: [b.id]);
+  }
+
+  Future<int> deleteBudgetLine(int id) async {
+    if (_isWeb) return 1;
+    final db = await database;
+    return await db.delete('budget_lines', where: 'id = ?', whereArgs: [id]);
+  }
+
+  // -----------------
+  // Aggregations
+  // -----------------
+
+  /// Returns total spent for a category in a given period (period format: 'yyyy-MM')
+  Future<int> getBudgetSpent(int categoryId, String period) async {
+    if (_isWeb) return 0;
+    final db = await database;
+    try {
+      final rows = await db.rawQuery('''
+        SELECT COALESCE(SUM(amount),0) as spent
+        FROM ledger_entries
+        WHERE date_jalali LIKE ?
+          AND note IN (SELECT name FROM categories WHERE id = ?)
+      ''', ['$period%', categoryId]);
+      final v = rows.first['spent'];
+      if (v is int) return v;
+      if (v is String) return int.tryParse(v) ?? 0;
+    } catch (_) {}
+    return 0;
+  }
+
+  Future<int> getNetWorth() async {
+    if (_isWeb) return 0;
+    final db = await database;
+    try {
+      final rows = await db.rawQuery('SELECT COALESCE(SUM(balance),0) as total FROM accounts');
+      final v = rows.first['total'];
+      if (v is int) return v;
+      if (v is String) return int.tryParse(v) ?? 0;
+    } catch (_) {}
+    return 0;
+  }
+
+  Future<int> getMonthlyCashflow(String period) async {
+    if (_isWeb) return 0;
+    final db = await database;
+    try {
+      final rows = await db.rawQuery('''
+        SELECT COALESCE(SUM(amount),0) as total
+        FROM ledger_entries
+        WHERE date_jalali LIKE ?
+      ''', ['$period%']);
+      final v = rows.first['total'];
+      if (v is int) return v;
+      if (v is String) return int.tryParse(v) ?? 0;
+    } catch (_) {}
+    return 0;
+  }
+
+
 
   Future<List<Map<String, dynamic>>> getTransactionsByRelated(
       String relatedType, int relatedId) async {
