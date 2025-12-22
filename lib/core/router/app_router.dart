@@ -27,6 +27,11 @@ import 'package:debt_manager/features/data_transfer/qr_receiver_screen.dart';
 import 'package:debt_manager/features/automation/screens/can_i_afford_this_screen.dart';
 import 'package:debt_manager/features/achievements/screens/progress_screen.dart';
 import 'package:debt_manager/core/security/lock_screen.dart';
+import 'package:debt_manager/core/router/invalid_id_error_page.dart';
+
+// Error messages for invalid route parameters
+const String _kInvalidLoanIdMessage = 'شناسه وام نامعتبر است';
+const String _kReturnToLoansButtonText = 'بازگشت به لیست وام‌ها';
 
 // Provide a GoRouter configured for the app. The router watches the
 // [AuthNotifier] for refreshes so that redirects can react to auth changes.
@@ -72,27 +77,44 @@ final goRouterProvider = Provider<GoRouter>((ref) {
               GoRoute(
                 name: 'loanDetail',
                 path: 'loan/:loanId',
-                redirect: (context, state) {
-                  final idStr = state.pathParameters['loanId'] ?? '';
-                  final id = int.tryParse(idStr);
-                  // If loanId is invalid or missing, redirect to loans list
-                  return id == null ? '/loans' : null;
-                },
                 pageBuilder: (context, state) {
                   final idStr = state.pathParameters['loanId'] ?? '';
                   final id = int.tryParse(idStr);
-                  return MaterialPage(child: LoanDetailScreen(loanId: id!));
+                  
+                  // If loanId is invalid, show error UI instead of crashing
+                  if (id == null) {
+                    return const MaterialPage(
+                      child: InvalidIdErrorPage(
+                        title: 'خطا',
+                        message: _kInvalidLoanIdMessage,
+                        returnRoute: '/loans',
+                        returnButtonText: _kReturnToLoansButtonText,
+                      ),
+                    );
+                  }
+                  
+                  return MaterialPage(child: LoanDetailScreen(loanId: id));
                 },
               ),
               GoRoute(
                 name: 'loanEdit',
                 path: 'loan/:loanId/edit',
-                redirect: (context, state) {
+                pageBuilder: (context, state) {
                   final idStr = state.pathParameters['loanId'] ?? '';
                   final id = int.tryParse(idStr);
-                  return id == null ? '/loans' : null;
-                },
-                pageBuilder: (context, state) {
+                  
+                  // If loanId is invalid, show error UI instead of crashing
+                  if (id == null) {
+                    return const MaterialPage(
+                      child: InvalidIdErrorPage(
+                        title: 'خطا',
+                        message: _kInvalidLoanIdMessage,
+                        returnRoute: '/loans',
+                        returnButtonText: _kReturnToLoansButtonText,
+                      ),
+                    );
+                  }
+                  
                   Loan? loan;
                   Counterparty? counterparty;
                   final extra = state.extra;
