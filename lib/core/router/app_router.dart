@@ -34,6 +34,22 @@ import 'package:debt_manager/features/transactions/add_transaction_screen.dart';
 const String _kInvalidLoanIdMessage = 'شناسه وام نامعتبر است';
 const String _kReturnToLoansButtonText = 'بازگشت به لیست وام‌ها';
 
+// Redirect helper: returns the path to navigate to, or null to stay.
+String? lockRedirect({
+  required bool appLockEnabled,
+  required bool unlocked,
+  required String location,
+}) {
+  final onLock = location == '/lock';
+  if (appLockEnabled && !unlocked) {
+    return onLock ? null : '/lock';
+  }
+  if (!appLockEnabled || unlocked) {
+    return onLock ? '/' : null;
+  }
+  return null;
+}
+
 // Provide a GoRouter configured for the app. The router watches the
 // [AuthNotifier] for refreshes so that redirects can react to auth changes.
 final goRouterProvider = Provider<GoRouter>((ref) {
@@ -44,6 +60,13 @@ final goRouterProvider = Provider<GoRouter>((ref) {
     debugLogDiagnostics: false,
     refreshListenable: auth,
     initialLocation: '/',
+    redirect: (context, state) {
+      return lockRedirect(
+        appLockEnabled: auth.appLockEnabled,
+        unlocked: auth.unlocked,
+        location: state.uri.path,
+      );
+    },
     routes: [
       // Public route(s) outside of the shell
       GoRoute(

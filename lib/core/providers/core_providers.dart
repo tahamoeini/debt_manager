@@ -20,6 +20,25 @@ class AuthNotifier extends ChangeNotifier {
   Timer? _inactivityTimer;
 
   bool get unlocked => _unlocked;
+  bool get appLockEnabled => _appLockEnabledCached;
+
+  // Load persisted app lock state on creation so routing can gate immediately.
+  void _init() {
+    _settings.getAppLockEnabled().then((enabled) {
+      _appLockEnabledCached = enabled;
+      if (!enabled) {
+        _unlocked = true;
+      }
+      notifyListeners();
+    });
+  }
+
+  // Factory helper to ensure initialization when provided.
+  factory AuthNotifier.withInit(SettingsRepository settings) {
+    final n = AuthNotifier(settings);
+    n._init();
+    return n;
+  }
 
   Future<void> tryUnlock() async {
     // If app lock is disabled, we're always considered unlocked.
@@ -105,7 +124,7 @@ class AuthNotifier extends ChangeNotifier {
 }
 
 final authNotifierProvider = Provider<AuthNotifier>((ref) {
-  return AuthNotifier(ref.read(settingsRepositoryProvider));
+  return AuthNotifier.withInit(ref.read(settingsRepositoryProvider));
 });
 
 // Provides the shared DatabaseHelper singleton.
