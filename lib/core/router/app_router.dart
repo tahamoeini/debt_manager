@@ -34,6 +34,22 @@ import 'package:debt_manager/features/transactions/add_transaction_screen.dart';
 const String _kInvalidLoanIdMessage = 'شناسه وام نامعتبر است';
 const String _kReturnToLoansButtonText = 'بازگشت به لیست وام‌ها';
 
+// Redirect helper: returns the path to navigate to, or null to stay.
+String? lockRedirect({
+  required bool appLockEnabled,
+  required bool unlocked,
+  required String location,
+}) {
+  final onLock = location == '/lock';
+  if (appLockEnabled && !unlocked) {
+    return onLock ? null : '/lock';
+  }
+  if (!appLockEnabled || unlocked) {
+    return onLock ? '/' : null;
+  }
+  return null;
+}
+
 // Provide a GoRouter configured for the app. The router watches the
 // [AuthNotifier] for refreshes so that redirects can react to auth changes.
 final goRouterProvider = Provider<GoRouter>((ref) {
@@ -44,6 +60,13 @@ final goRouterProvider = Provider<GoRouter>((ref) {
     debugLogDiagnostics: false,
     refreshListenable: auth,
     initialLocation: '/',
+    redirect: (context, state) {
+      return lockRedirect(
+        appLockEnabled: auth.appLockEnabled,
+        unlocked: auth.unlocked,
+        location: state.uri.path,
+      );
+    },
     routes: [
       // Public route(s) outside of the shell
       GoRoute(
@@ -283,21 +306,5 @@ final goRouterProvider = Provider<GoRouter>((ref) {
         ],
       ),
     ],
-    redirect: (context, state) {
-      // Deny-by-default: if not unlocked and route is not public -> /lock
-      final unlocked = auth.unlocked;
-      final currentPath = state.uri.path;
-      final publicAllowlist = const {'/lock'}; // add onboarding if present
-      final isPublic = publicAllowlist.contains(currentPath);
-
-      if (!unlocked && !isPublic) {
-        return '/lock';
-      }
-
-      // If unlocked and currently on lock, go home
-      if (unlocked && currentPath == '/lock') return '/';
-
-      return null;
-    },
   );
 });
