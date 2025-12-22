@@ -6,6 +6,7 @@ import 'package:debt_manager/core/db/database_helper.dart';
 import 'package:debt_manager/features/loans/models/counterparty.dart';
 import 'package:debt_manager/features/loans/models/loan.dart';
 import 'package:debt_manager/features/loans/models/installment.dart';
+import 'package:debt_manager/core/notifications/notification_service.dart';
 
 class BackupService {
   static final BackupService instance = BackupService._internal();
@@ -94,8 +95,12 @@ class BackupService {
       await _db.insertInstallment(inst);
     }
 
-    // Note: we intentionally do not attempt to re-schedule notifications here.
-    // TODO: In a future version reconstruct/schedule notifications for future installments.
+    // Rebuild notifications after import to ensure future installments have reminders
+    try {
+      await NotificationService.instance.rebuildScheduledNotifications();
+    } catch (e) {
+      debugPrint('Failed to rebuild notifications after import: $e');
+    }
   }
 
   // Convenience: import from a JSON string.

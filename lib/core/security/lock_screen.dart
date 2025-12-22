@@ -92,11 +92,19 @@ class _LockScreenState extends ConsumerState<LockScreen> {
     if (ok) {
       // Derive DB key from PIN and attempt to open encrypted DB if present.
       final key = await SecurityService.instance.deriveKeyFromPin(pin);
-      try {
-        if (key != null) {
+      if (key != null) {
+        try {
           await DatabaseHelper.instance.openWithKey(key);
+        } catch (e) {
+          // DB open failed - do NOT unlock the app
+          setState(() {
+            _authenticating = false;
+            _error = 'خطا در باز کردن پایگاه داده. لطفاً دوباره تلاش کنید.';
+          });
+          return;
         }
-      } catch (_) {}
+      }
+      // Only unlock if DB opened successfully (or no DB encryption)
       ref.read(authNotifierProvider).unlock();
       if (!mounted) return;
       Navigator.of(context).pop(true);

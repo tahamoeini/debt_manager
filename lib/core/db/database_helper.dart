@@ -2,7 +2,7 @@
 import 'dart:async';
 
 import 'package:flutter/foundation.dart'
-    show kIsWeb, defaultTargetPlatform, TargetPlatform;
+    show kIsWeb, defaultTargetPlatform, TargetPlatform, debugPrint;
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart' as plain;
 import 'package:sqflite_sqlcipher/sqflite.dart' as cipher;
@@ -312,6 +312,8 @@ class DatabaseHelper {
 
   FutureOr<void> _onUpgrade(
       plain.Database db, int oldVersion, int newVersion) async {
+    debugPrint('DatabaseHelper: Migrating from v$oldVersion to v$newVersion');
+
     if (oldVersion < 2) {
       // Add the actual_paid_amount column to installments. Use a try/catch
       // to tolerate existing databases where the column may already exist.
@@ -319,8 +321,9 @@ class DatabaseHelper {
         await db.execute(
           'ALTER TABLE installments ADD COLUMN actual_paid_amount INTEGER',
         );
-      } catch (_) {
-        // ignore
+        debugPrint('Migration: Added actual_paid_amount column');
+      } catch (e) {
+        debugPrint('Migration: actual_paid_amount column may exist: $e');
       }
     }
 
@@ -328,8 +331,9 @@ class DatabaseHelper {
       // Add the optional tag column to counterparties.
       try {
         await db.execute('ALTER TABLE counterparties ADD COLUMN tag TEXT');
-      } catch (_) {
-        // ignore if it already exists
+        debugPrint('Migration: Added tag column to counterparties');
+      } catch (e) {
+        debugPrint('Migration: tag column may exist: $e');
       }
     }
 
@@ -554,12 +558,25 @@ class DatabaseHelper {
                   map,
                   conflictAlgorithm: plain.ConflictAlgorithm.ignore,
                 );
-              } catch (_) {}
-            } catch (_) {}
+              } catch (e) {
+                debugPrint(
+                    'Migration: Ledger entry insertion failed for installment: $e');
+              }
+            } catch (e) {
+              debugPrint(
+                  'Migration: Failed to process installment ledger entry: $e');
+            }
           }
-        } catch (_) {}
-      } catch (_) {}
+        } catch (e) {
+          debugPrint('Migration: Paid installments ledger seeding warning: $e');
+        }
+      } catch (e) {
+        debugPrint('Migration: v7 upgrade completed with warnings: $e');
+      }
     }
+
+    debugPrint(
+        'DatabaseHelper: Migration to v$newVersion completed successfully');
   }
 
   // -----------------
