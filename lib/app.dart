@@ -57,6 +57,11 @@ class _DebtManagerAppState extends ConsumerState<DebtManagerApp>
           _startLockTimer();
         });
       }
+      // Sync AuthNotifier with persisted setting
+      try {
+        final auth = ref.read(authNotifierProvider);
+        auth.setAppLockEnabled(enabled);
+      } catch (_) {}
     });
     // If DB is encrypted, prompt for PIN right after first frame so DB
     // can be opened before other database accesses occur.
@@ -295,8 +300,18 @@ class _DebtManagerAppState extends ConsumerState<DebtManagerApp>
                   // Inject debug overlay at the top-level so it wraps all routes.
                   builder: (context, child) => GestureDetector(
                     behavior: HitTestBehavior.translucent,
-                    onTap: _resetLockTimer,
-                    onPanDown: (_) => _resetLockTimer(),
+                    onTap: () {
+                      _resetLockTimer();
+                      try {
+                        ref.read(authNotifierProvider).touch();
+                      } catch (_) {}
+                    },
+                    onPanDown: (_) {
+                      _resetLockTimer();
+                      try {
+                        ref.read(authNotifierProvider).touch();
+                      } catch (_) {}
+                    },
                     child: DebugOverlay(child: child ?? const SizedBox.shrink()),
                   ),
                 );

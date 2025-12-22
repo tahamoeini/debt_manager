@@ -4,6 +4,9 @@ import 'package:shamsi_date/shamsi_date.dart';
 
 import 'package:debt_manager/core/db/database_helper.dart';
 import 'package:debt_manager/core/utils/jalali_utils.dart';
+import 'package:debt_manager/core/utils/calendar_utils.dart';
+import 'package:debt_manager/core/utils/calendar_picker.dart';
+import 'package:debt_manager/core/settings/settings_repository.dart';
 import 'package:debt_manager/core/utils/format_utils.dart';
 import 'package:debt_manager/features/finance/finance_repository.dart';
 import 'package:debt_manager/features/finance/models/finance_models.dart';
@@ -180,16 +183,31 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
                 const SizedBox(height: 8),
                 Row(
                   children: [
-                    Expanded(child: Text('تاریخ: ${formatJalali(dateTimeToJalali(_selectedDate))}')),
+                    Expanded(
+                      child: ValueListenableBuilder<CalendarType>(
+                        valueListenable: SettingsRepository.calendarTypeNotifier,
+                        builder: (context, calType, _) {
+                          return Text(
+                            'تاریخ: ${formatDateForDisplayWithCalendar(_selectedDate, calType)}',
+                          );
+                        },
+                      ),
+                    ),
                     TextButton(
                       onPressed: () async {
-                        final picked = await showDatePicker(
-                          context: context,
+                        final picked = await showCalendarAwareDatePicker(
+                          context,
                           initialDate: _selectedDate,
                           firstDate: DateTime(1900),
                           lastDate: DateTime(2100),
                         );
-                        if (picked != null) setState(() => _selectedDate = picked);
+                        if (picked == null) return;
+                        // Convert to DateTime if Jalali returned
+                        if (picked is Jalali) {
+                          setState(() => _selectedDate = jalaliToDateTime(picked));
+                        } else if (picked is DateTime) {
+                          setState(() => _selectedDate = picked);
+                        }
                       },
                       child: const Text('انتخاب'),
                     ),

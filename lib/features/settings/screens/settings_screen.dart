@@ -224,14 +224,18 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       }
     }
 
-    await _repo.setAppLockEnabled(enabled);
+    // Use AuthNotifier to persist + update runtime lock state.
+    try {
+      await ref.read(authNotifierProvider).setAppLockEnabled(enabled);
+    } catch (_) {
+      // Fallback to repository persistence if notifier fails.
+      await _repo.setAppLockEnabled(enabled);
+    }
     if (mounted) {
       setState(() {
         _appLockEnabled = enabled;
       });
     }
-    // Trigger router/auth refresh so redirect responds immediately to toggle
-    await ref.read(authNotifierProvider).tryUnlock();
   }
 
   Future<void> _saveLockTimeout(int minutes) async {

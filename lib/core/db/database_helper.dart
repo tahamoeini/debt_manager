@@ -1090,16 +1090,18 @@ class DatabaseHelper {
   // Aggregations
   // -----------------
 
-  /// Returns total spent for a category in a given period (period format: 'yyyy-MM')
+  /// Returns total spent (positive number) for a category in a given period (period format: 'yyyy-MM').
+  /// Only expense entries (amount < 0) are included and summed as positive.
   Future<int> getBudgetSpent(int categoryId, String period) async {
     if (_isWeb) return 0;
     final db = await database;
     try {
       final rows = await db.rawQuery('''
-        SELECT COALESCE(SUM(amount),0) as spent
+        SELECT COALESCE(SUM(-amount),0) as spent
         FROM ledger_entries
         WHERE date_jalali LIKE ?
           AND category_id = ?
+          AND amount < 0
       ''', ['$period%', categoryId]);
       final v = rows.first['spent'];
       if (v is int) return v;

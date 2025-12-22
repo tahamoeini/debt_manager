@@ -208,6 +208,20 @@ class BudgetsRepository {
       final cat = budget.category!.trim();
       if (cat.isEmpty) return 0;
 
+      // Prefer category_id based computation when category name matches a defined category.
+      try {
+        final cats = await _db.getCategories();
+        final idx = cats.indexWhere(
+          (c) => c.name.toLowerCase() == cat.toLowerCase(),
+        );
+        if (idx != -1 && cats[idx].id != null) {
+          // Use precise aggregation via category_id when available.
+          return await _db.getBudgetSpent(cats[idx].id!, period);
+        }
+      } catch (_) {
+        // Fall through to legacy text matching.
+      }
+
       if (_isWeb) {
         final entries = await _db.getLedgerEntriesBetween(start, end);
         final loans = await DatabaseHelper.instance.getAllLoans();
