@@ -6,6 +6,7 @@ import 'package:timezone/timezone.dart' as tz;
 
 import '../db/database_helper.dart';
 import '../settings/settings_repository.dart';
+import '../utils/error_handler.dart';
 import '../utils/jalali_utils.dart';
 import 'notification_ids.dart';
 
@@ -99,13 +100,29 @@ class NotificationService {
     try {
       // Set local timezone to UTC for consistent behavior across platforms
       tz.setLocalLocation(tz.getLocation('UTC'));
-    } catch (_) {
+    } catch (e) {
+      ErrorHandler.logWarning(
+        'NotificationService',
+        'Failed to set UTC timezone: $e. Attempting first available timezone.',
+      );
       // Fallback to first available timezone
       try {
         final availableNames = tz.timeZoneDatabase.locations.keys.first;
         tz.setLocalLocation(tz.getLocation(availableNames));
-      } catch (_) {
+        ErrorHandler.logInfo(
+          'NotificationService',
+          'Successfully set timezone to: $availableNames',
+        );
+      } catch (e2) {
+        ErrorHandler.logWarning(
+          'NotificationService',
+          'Failed to set first available timezone: $e2. Falling back to tz.UTC.',
+        );
         tz.setLocalLocation(tz.UTC);
+        ErrorHandler.logInfo(
+          'NotificationService',
+          'Using tz.UTC as final fallback.',
+        );
       }
     }
 
