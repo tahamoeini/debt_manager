@@ -264,7 +264,9 @@ class NotificationService {
   }) async {
     // Cancel existing notifications using a fixed max offset so that any
     // previously scheduled reminders with larger offsets are also removed.
-    const int kMaxInstallmentNotificationOffsetDays = 30;
+    // Using 365 days to ensure we clean up any historical notifications,
+    // even if user had previously set a very large offset value.
+    const int kMaxInstallmentNotificationOffsetDays = 365;
     await cancelInstallmentNotifications(
       installmentId,
       kMaxInstallmentNotificationOffsetDays,

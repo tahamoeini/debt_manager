@@ -166,10 +166,10 @@ void main() {
         await service.verifyPin('wrong');
       }
 
-      // Should still be able to try (not locked out yet, needs 5 consecutive)
-      final finalResult = await service.verifyPin('1234');
-      expect(finalResult, false,
-          reason: 'Should be locked out after 5 more failed attempts');
+      // Should still be able to authenticate (not locked out yet, only 4 consecutive failures)
+      final notLockedOutResult = await service.verifyPin('1234');
+      expect(notLockedOutResult, true,
+          reason: 'Should not be locked out after only 4 consecutive failed attempts');
     },
         skip:
             'Requires pointycastle PBKDF2 registry initialization. Run as integration test or on device.');
