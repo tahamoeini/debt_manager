@@ -22,7 +22,7 @@ void main() {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
-          homeStatisticsProvider.overrideWith((ref) => AsyncValue.data(stub)),
+          homeStatisticsProvider.overrideWith((ref) => stub),
         ],
         child: const MaterialApp(home: Scaffold(body: HomeScreen())),
       ),

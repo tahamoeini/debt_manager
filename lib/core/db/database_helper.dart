@@ -28,9 +28,9 @@ class DatabaseHelper {
   factory DatabaseHelper() => instance;
 
   static const _dbName = 'debt_manager.db';
-  static const _dbVersion = 9; // Bumped for accounts, categories, budget_lines
-  // bump DB version to add transactions table and paid_at_jalali/ledger
-  static const _newDbVersion = 9;
+  static const _dbVersion = 10; // Bumped for ledger.category_id migration
+  // bump DB version to add transactions table and paid_at_jalali/ledger and v9/v10 work
+  static const _newDbVersion = 10;
 
   plain.Database? _db;
   // In-memory fallback stores for web builds (sqflite is not available on web).
@@ -125,7 +125,6 @@ class DatabaseHelper {
     }
   }
 
-  /// Enable encryption on the existing database using the provided user PIN.
   /// This performs an in-place conversion using SQLCipher `PRAGMA rekey`.
   /// The PIN's derived key is not stored; only a salted hash is kept by
   /// the `SecurityService` for verification.
@@ -306,11 +305,13 @@ class DatabaseHelper {
       CREATE TABLE IF NOT EXISTS ledger_entries (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         amount INTEGER NOT NULL,
+        category_id INTEGER,
         ref_type TEXT NOT NULL,
         ref_id INTEGER,
         date_jalali TEXT NOT NULL,
         note TEXT,
-        created_at TEXT NOT NULL
+        created_at TEXT NOT NULL,
+        FOREIGN KEY(category_id) REFERENCES categories(id) ON DELETE SET NULL
       )
     ''');
     await db.execute(
@@ -458,11 +459,13 @@ class DatabaseHelper {
             CREATE TABLE IF NOT EXISTS ledger_entries (
               id INTEGER PRIMARY KEY AUTOINCREMENT,
               amount INTEGER NOT NULL,
+              category_id INTEGER,
               ref_type TEXT NOT NULL,
               ref_id INTEGER,
               date_jalali TEXT NOT NULL,
               note TEXT,
-              created_at TEXT NOT NULL
+              created_at TEXT NOT NULL,
+              FOREIGN KEY(category_id) REFERENCES categories(id) ON DELETE SET NULL
             )
           ''');
           await db.execute(
@@ -744,6 +747,93 @@ class DatabaseHelper {
       }
     }
 
+    if (oldVersion < 10) {
+      // v10: add category_id to ledger_entries and attempt backfill from
+      // existing data (note matching category name or counterparty tags).
+      debugPrint('Migration: v10 - Adding category_id to ledger_entries');
+      try {
+        await db.transaction((txn) async {
+          // Recreate ledger_entries with category_id and FK to categories
+          await txn.execute('''
+            CREATE TABLE ledger_entries_new (
+              id INTEGER PRIMARY KEY AUTOINCREMENT,
+              amount INTEGER NOT NULL,
+              category_id INTEGER,
+              ref_type TEXT NOT NULL,
+              ref_id INTEGER,
+              date_jalali TEXT NOT NULL,
+              note TEXT,
+              created_at TEXT NOT NULL,
+              FOREIGN KEY(category_id) REFERENCES categories(id) ON DELETE SET NULL
+            )
+          ''');
+
+          // Copy existing data, leaving category_id NULL for now
+          await txn.execute('''
+            INSERT INTO ledger_entries_new (id, amount, ref_type, ref_id, date_jalali, note, created_at)
+            SELECT id, amount, ref_type, ref_id, date_jalali, note, created_at FROM ledger_entries
+          ''');
+
+          await txn.execute('DROP TABLE ledger_entries');
+          await txn.execute('ALTER TABLE ledger_entries_new RENAME TO ledger_entries');
+
+          // Recreate indices
+          await txn.execute('CREATE UNIQUE INDEX IF NOT EXISTS idx_ledger_ref ON ledger_entries(ref_type, ref_id)');
+          await txn.execute('CREATE INDEX IF NOT EXISTS idx_ledger_date ON ledger_entries(date_jalali)');
+        });
+
+        // Attempt best-effort backfills (non-transactional, tolerate failures)
+        try {
+          // 1) If note matches a category name exactly, assign that category
+          await db.execute('''
+            UPDATE ledger_entries
+            SET category_id = (
+              SELECT id FROM categories WHERE name = ledger_entries.note LIMIT 1
+            )
+            WHERE note IS NOT NULL AND category_id IS NULL
+          ''');
+        } catch (_) {}
+
+        try {
+          // 2) For loan disbursements, try to use the counterparty.tag -> categories.name
+          await db.execute('''
+            UPDATE ledger_entries
+            SET category_id = (
+              SELECT c.id FROM categories c
+              WHERE c.name = (
+                SELECT tag FROM counterparties cp
+                WHERE cp.id = (
+                  SELECT counterparty_id FROM loans l WHERE l.id = ledger_entries.ref_id
+                )
+              ) LIMIT 1
+            )
+            WHERE ref_type = 'loan_disbursement' AND ref_id IS NOT NULL AND category_id IS NULL
+          ''');
+        } catch (_) {}
+
+        try {
+          // 3) For installment payments, follow installment -> loan -> counterparty.tag
+          await db.execute('''
+            UPDATE ledger_entries
+            SET category_id = (
+              SELECT c.id FROM categories c
+              WHERE c.name = (
+                SELECT tag FROM counterparties cp
+                WHERE cp.id = (
+                  SELECT counterparty_id FROM loans l WHERE l.id = (
+                    SELECT loan_id FROM installments i WHERE i.id = ledger_entries.ref_id
+                  )
+                )
+              ) LIMIT 1
+            )
+            WHERE ref_type = 'installment_payment' AND ref_id IS NOT NULL AND category_id IS NULL
+          ''');
+        } catch (_) {}
+      } catch (e) {
+        debugPrint('Migration: v10 upgrade warning: $e');
+      }
+    }
+
     debugPrint(
         'DatabaseHelper: Migration to v$newVersion completed successfully');
   }
@@ -779,7 +869,27 @@ class DatabaseHelper {
     }
 
     final db = await database;
-    return await db.insert('transactions', txn);
+    // Keep transaction atomic: insert transaction and update account balance
+    final Map<String, dynamic> txnMap = Map<String, dynamic>.from(txn);
+    return await db.transaction<int>((transaction) async {
+      final id = await transaction.insert('transactions', txnMap);
+      try {
+        final accountId = txnMap['account_id'] as int?;
+        final direction = txnMap['direction'] as String? ?? 'debit';
+        final amount = txnMap['amount'] is int
+            ? txnMap['amount'] as int
+            : int.tryParse('${txnMap['amount']}') ?? 0;
+        if (accountId != null) {
+          // Apply balance change on accounts table
+          if (direction == 'credit') {
+            await transaction.execute('UPDATE accounts SET balance = COALESCE(balance,0) + ? WHERE id = ?', [amount, accountId]);
+          } else {
+            await transaction.execute('UPDATE accounts SET balance = COALESCE(balance,0) - ? WHERE id = ?', [amount, accountId]);
+          }
+        }
+      } catch (_) {}
+      return id;
+    });
   }
 
   Future<List<Map<String, dynamic>>> getTransactionsByAccount(
@@ -989,7 +1099,7 @@ class DatabaseHelper {
         SELECT COALESCE(SUM(amount),0) as spent
         FROM ledger_entries
         WHERE date_jalali LIKE ?
-          AND note IN (SELECT name FROM categories WHERE id = ?)
+          AND category_id = ?
       ''', ['$period%', categoryId]);
       final v = rows.first['spent'];
       if (v is int) return v;
@@ -1239,10 +1349,37 @@ class DatabaseHelper {
       final date = loan.startDateJalali.isNotEmpty
           ? loan.startDateJalali
           : _isoToJalaliString(loan.createdAt);
+
+      // Resolve category id from counterparty tag or automation suggestions
+      int? categoryId;
+      try {
+        final cpRows = await db.query(
+          'counterparties',
+          where: 'id = ?',
+          whereArgs: [loan.counterpartyId],
+          limit: 1,
+        );
+        final payee = (cpRows.isNotEmpty ? cpRows.first['name'] as String? : loan.title) ?? '';
+        final tag = (cpRows.isNotEmpty ? cpRows.first['tag'] as String? : null);
+        String? catName = tag;
+        if (catName == null) {
+          try {
+            final repo = AutomationRulesRepository();
+            final suggestion = await repo.applyRules(payee, loan.notes ?? '', loan.principalAmount);
+            catName = suggestion['category'] as String?;
+          } catch (_) {}
+        }
+        if (catName != null) {
+          final catRows = await db.query('categories', where: 'name = ?', whereArgs: [catName], limit: 1);
+          if (catRows.isNotEmpty) categoryId = catRows.first['id'] as int?;
+        }
+      } catch (_) {}
+
       await upsertLedgerEntry(
         LedgerEntry(
           id: null,
           amount: amt,
+          categoryId: categoryId,
           refType: 'loan_disbursement',
           refId: id,
           dateJalali: date,

@@ -214,7 +214,23 @@ class NotificationService {
         : NotificationIds.forInstallmentDueDate(installmentId);
 
     try {
-      final tz.TZDateTime tzTime = tz.TZDateTime.from(scheduledTime, tz.local);
+      tz.TZDateTime tzTime;
+      try {
+        tzTime = tz.TZDateTime.from(scheduledTime, tz.local);
+      } catch (e) {
+        // Timezone data may not be initialized in tests; initialize and
+        // fallback to UTC local timezone to avoid LateInitializationError.
+        try {
+          tzdata.initializeTimeZones();
+          tz.setLocalLocation(tz.UTC);
+          tzTime = tz.TZDateTime.from(scheduledTime, tz.local);
+        } catch (e2) {
+          debugPrint('Failed to initialize timezone for notifications: $e2');
+          // As a last resort, use UTC DateTime converted to TZDateTime via tz.UTC
+          tzTime = tz.TZDateTime.from(scheduledTime.toUtc(), tz.UTC);
+        }
+      }
+
       await _plugin.zonedSchedule(
         notificationId,
         title,
