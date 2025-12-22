@@ -5,25 +5,29 @@ import 'package:debt_manager/features/installments/repositories/installment_paym
 import 'package:debt_manager/core/providers/core_providers.dart';
 
 /// Provides a list of all upcoming payments
-final upcomingPaymentsProvider = FutureProvider<List<InstallmentPayment>>((ref) async {
+final upcomingPaymentsProvider =
+    FutureProvider<List<InstallmentPayment>>((ref) async {
   final repo = ref.watch(installmentPaymentsRepositoryProvider);
   return repo.getUpcomingPayments();
 });
 
 /// Provides a list of all overdue payments
-final overduePaymentsProvider = FutureProvider<List<InstallmentPayment>>((ref) async {
+final overduePaymentsProvider =
+    FutureProvider<List<InstallmentPayment>>((ref) async {
   final repo = ref.watch(installmentPaymentsRepositoryProvider);
   return repo.getOverduePayments();
 });
 
 /// Provides payments for a specific loan
-final paymentsForLoanProvider = FutureProviderFamily<List<InstallmentPayment>, int>((ref, loanId) async {
+final paymentsForLoanProvider =
+    FutureProviderFamily<List<InstallmentPayment>, int>((ref, loanId) async {
   final repo = ref.watch(installmentPaymentsRepositoryProvider);
   return repo.getPaymentsByLoan(loanId);
 });
 
 /// Notifier for managing payment operations for a specific loan
-class LoanPaymentsNotifier extends StateNotifier<AsyncValue<List<InstallmentPayment>>> {
+class LoanPaymentsNotifier
+    extends StateNotifier<AsyncValue<List<InstallmentPayment>>> {
   final InstallmentPaymentsRepository _repository;
   final int _loanId;
 
@@ -32,7 +36,8 @@ class LoanPaymentsNotifier extends StateNotifier<AsyncValue<List<InstallmentPaym
 
   Future<void> loadPayments() async {
     state = const AsyncValue.loading();
-    state = await AsyncValue.guard(() => _repository.getPaymentsByLoan(_loanId));
+    state =
+        await AsyncValue.guard(() => _repository.getPaymentsByLoan(_loanId));
   }
 
   Future<void> recordPayment({

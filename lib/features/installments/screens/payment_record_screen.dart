@@ -20,7 +20,8 @@ class PaymentRecordScreen extends ConsumerStatefulWidget {
   });
 
   @override
-  ConsumerState<PaymentRecordScreen> createState() => _PaymentRecordScreenState();
+  ConsumerState<PaymentRecordScreen> createState() =>
+      _PaymentRecordScreenState();
 }
 
 class _PaymentRecordScreenState extends ConsumerState<PaymentRecordScreen> {
@@ -32,7 +33,8 @@ class _PaymentRecordScreenState extends ConsumerState<PaymentRecordScreen> {
   @override
   void initState() {
     super.initState();
-    _amountCtrl = TextEditingController(text: widget.installmentAmount.toStringAsFixed(0));
+    _amountCtrl = TextEditingController(
+        text: widget.installmentAmount.toStringAsFixed(0));
     _paidDate = Jalali.now();
     _selectedAccountId = null;
     _notesCtrl = TextEditingController();
@@ -70,7 +72,8 @@ class _PaymentRecordScreenState extends ConsumerState<PaymentRecordScreen> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         const Text('مبلغ قسط:'),
-                        Text('${widget.installmentAmount.toStringAsFixed(0)} ریال'),
+                        Text(
+                            '${widget.installmentAmount.toStringAsFixed(0)} ریال'),
                       ],
                     ),
                     Row(
@@ -92,7 +95,8 @@ class _PaymentRecordScreenState extends ConsumerState<PaymentRecordScreen> {
               keyboardType: TextInputType.number,
               decoration: InputDecoration(
                 labelText: 'مبلغ پرداخت (ریال)',
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                border:
+                    OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
               ),
             ),
             const SizedBox(height: 16),
@@ -106,7 +110,8 @@ class _PaymentRecordScreenState extends ConsumerState<PaymentRecordScreen> {
                   initialValue: _selectedAccountId,
                   decoration: InputDecoration(
                     labelText: 'حساب منبع',
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                    border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12)),
                   ),
                   items: accountList
                       .map((acc) => DropdownMenuItem(
@@ -145,7 +150,8 @@ class _PaymentRecordScreenState extends ConsumerState<PaymentRecordScreen> {
               maxLines: 3,
               decoration: InputDecoration(
                 labelText: 'یادداشت‌ها',
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                border:
+                    OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
               ),
             ),
             const SizedBox(height: 32),

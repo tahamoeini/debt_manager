@@ -5,7 +5,7 @@ import '../providers/installment_payments_provider.dart';
 import 'payment_record_screen.dart';
 
 Color _alphaScaled(Color color, double factor) =>
-  color.withAlpha((color.a * 255 * factor).round());
+    color.withAlpha((color.a * 255 * factor).round());
 
 class PaymentsListScreen extends ConsumerWidget {
   final int loanId;
@@ -29,8 +29,10 @@ class PaymentsListScreen extends ConsumerWidget {
           }
 
           // Group by status
-          final pending = payments.where((p) => p.status == PaymentStatus.pending).toList();
-          final paid = payments.where((p) => p.status == PaymentStatus.paid).toList();
+          final pending =
+              payments.where((p) => p.status == PaymentStatus.pending).toList();
+          final paid =
+              payments.where((p) => p.status == PaymentStatus.paid).toList();
           final overdue = payments.where((p) => p.isOverdue).toList();
 
           return SingleChildScrollView(

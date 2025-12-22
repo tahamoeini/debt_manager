@@ -21,12 +21,12 @@ class LoanWizardScreen extends ConsumerStatefulWidget {
 class _LoanWizardScreenState extends ConsumerState<LoanWizardScreen> {
   late int _currentStep;
   late String _setupMode; // 'installment-first' or 'total-first'
-  
+
   // Step 1: Basic info
   late Counterparty? _selectedCounterparty;
   late LoanDirection _direction;
   late TextEditingController _titleCtrl;
-  
+
   // Step 2: Mode selection & amounts
   late double _principalAmount;
   late double _totalAmount;
@@ -35,17 +35,17 @@ class _LoanWizardScreenState extends ConsumerState<LoanWizardScreen> {
   late TextEditingController _principalCtrl;
   late TextEditingController _totalCtrl;
   late TextEditingController _installmentCountCtrl;
-  
+
   // Step 3: Dates & interest
   late Jalali _startDate;
   late TextEditingController _interestCtrl;
-  
+
   // Step 4: Disbursement account
   late Account? _disbursementAccount;
-  
+
   // Step 5: Review & save
   late TextEditingController _notesCtrl;
-  
+
   late List<Counterparty> _counterparties;
 
   @override
@@ -57,21 +57,27 @@ class _LoanWizardScreenState extends ConsumerState<LoanWizardScreen> {
     _direction = LoanDirection.borrowed;
     _titleCtrl = TextEditingController(text: widget.existingLoan?.title ?? '');
     _principalAmount = (widget.existingLoan?.principalAmount ?? 0).toDouble();
-    _totalAmount = (widget.existingLoan?.installmentAmount ?? 0).toDouble() * (widget.existingLoan?.installmentCount ?? 1);
+    _totalAmount = (widget.existingLoan?.installmentAmount ?? 0).toDouble() *
+        (widget.existingLoan?.installmentCount ?? 1);
     _installmentCount = widget.existingLoan?.installmentCount ?? 12;
-    _installmentAmount = (widget.existingLoan?.installmentAmount ?? 0).toDouble();
-    _installmentCtrl = TextEditingController(text: _installmentAmount.toStringAsFixed(0));
-    _principalCtrl = TextEditingController(text: _principalAmount.toStringAsFixed(0));
+    _installmentAmount =
+        (widget.existingLoan?.installmentAmount ?? 0).toDouble();
+    _installmentCtrl =
+        TextEditingController(text: _installmentAmount.toStringAsFixed(0));
+    _principalCtrl =
+        TextEditingController(text: _principalAmount.toStringAsFixed(0));
     _totalCtrl = TextEditingController(text: _totalAmount.toStringAsFixed(0));
-    _installmentCountCtrl = TextEditingController(text: _installmentCount.toString());
+    _installmentCountCtrl =
+        TextEditingController(text: _installmentCount.toString());
     _startDate = widget.existingLoan?.startDateJalali != null
         ? JalaliDateProvider.parseJalali(widget.existingLoan!.startDateJalali)
         : Jalali.now();
-    _interestCtrl = TextEditingController(text: widget.existingLoan?.interestRate?.toString() ?? '');
+    _interestCtrl = TextEditingController(
+        text: widget.existingLoan?.interestRate?.toString() ?? '');
     _disbursementAccount = null;
     _notesCtrl = TextEditingController(text: widget.existingLoan?.notes ?? '');
     _counterparties = [];
-    
+
     _loadCounterparties();
   }
 
@@ -105,8 +111,10 @@ class _LoanWizardScreenState extends ConsumerState<LoanWizardScreen> {
       body: Stepper(
         currentStep: _currentStep,
         onStepTapped: (step) => setState(() => _currentStep = step),
-        onStepContinue: _currentStep < 4 ? () => setState(() => _currentStep++) : null,
-        onStepCancel: _currentStep > 0 ? () => setState(() => _currentStep--) : null,
+        onStepContinue:
+            _currentStep < 4 ? () => setState(() => _currentStep++) : null,
+        onStepCancel:
+            _currentStep > 0 ? () => setState(() => _currentStep--) : null,
         steps: [
           // Step 1: Basic Info
           Step(
@@ -150,7 +158,8 @@ class _LoanWizardScreenState extends ConsumerState<LoanWizardScreen> {
         // Direction
         SegmentedButton<LoanDirection>(
           segments: const [
-            ButtonSegment(label: Text('قرض گرفتن'), value: LoanDirection.borrowed),
+            ButtonSegment(
+                label: Text('قرض گرفتن'), value: LoanDirection.borrowed),
             ButtonSegment(label: Text('قرض دادن'), value: LoanDirection.lent),
           ],
           selected: {_direction},
@@ -201,7 +210,8 @@ class _LoanWizardScreenState extends ConsumerState<LoanWizardScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         // Mode Selection
-        Text('نحوه ورود اطلاعات:', style: Theme.of(context).textTheme.titleMedium),
+        Text('نحوه ورود اطلاعات:',
+            style: Theme.of(context).textTheme.titleMedium),
         const SizedBox(height: 12),
         SegmentedButton<String>(
           segments: const [
@@ -222,7 +232,8 @@ class _LoanWizardScreenState extends ConsumerState<LoanWizardScreen> {
             keyboardType: TextInputType.number,
             decoration: InputDecoration(
               labelText: 'مبلغ اصلی (ریال)',
-              border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+              border:
+                  OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
             ),
             onChanged: (_) => _recalculateAmounts(),
           ),
@@ -233,7 +244,8 @@ class _LoanWizardScreenState extends ConsumerState<LoanWizardScreen> {
             keyboardType: TextInputType.number,
             decoration: InputDecoration(
               labelText: 'تعداد اقساط',
-              border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+              border:
+                  OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
             ),
             onChanged: (_) => _recalculateAmounts(),
           ),
@@ -244,7 +256,8 @@ class _LoanWizardScreenState extends ConsumerState<LoanWizardScreen> {
             keyboardType: TextInputType.number,
             decoration: InputDecoration(
               labelText: 'مبلغ هر قسط (ریال)',
-              border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+              border:
+                  OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
             ),
             onChanged: (_) => _recalculateAmounts(),
           ),
@@ -255,7 +268,8 @@ class _LoanWizardScreenState extends ConsumerState<LoanWizardScreen> {
             keyboardType: TextInputType.number,
             decoration: InputDecoration(
               labelText: 'مبلغ اصلی (ریال)',
-              border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+              border:
+                  OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
             ),
             onChanged: (_) => _recalculateAmounts(),
           ),
@@ -266,7 +280,8 @@ class _LoanWizardScreenState extends ConsumerState<LoanWizardScreen> {
             keyboardType: TextInputType.number,
             decoration: InputDecoration(
               labelText: 'کل مبلغ بازپرداخت (ریال)',
-              border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+              border:
+                  OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
             ),
             onChanged: (_) => _recalculateAmounts(),
           ),
@@ -277,7 +292,8 @@ class _LoanWizardScreenState extends ConsumerState<LoanWizardScreen> {
             keyboardType: TextInputType.number,
             decoration: InputDecoration(
               labelText: 'تعداد اقساط',
-              border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+              border:
+                  OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
             ),
             onChanged: (_) => _recalculateAmounts(),
           ),
@@ -291,8 +307,7 @@ class _LoanWizardScreenState extends ConsumerState<LoanWizardScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('خلاصه:',
-                    style: Theme.of(context).textTheme.titleMedium),
+                Text('خلاصه:', style: Theme.of(context).textTheme.titleMedium),
                 const SizedBox(height: 12),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -360,7 +375,7 @@ class _LoanWizardScreenState extends ConsumerState<LoanWizardScreen> {
 
   Widget _buildStep4() {
     final accounts = ref.watch(accountsNotifierProvider);
-    
+
     return accounts.when(
       loading: () => const Center(child: CircularProgressIndicator()),
       error: (err, stack) => Center(child: Text('خطا: $err')),
@@ -377,12 +392,14 @@ class _LoanWizardScreenState extends ConsumerState<LoanWizardScreen> {
               initialValue: _disbursementAccount,
               decoration: InputDecoration(
                 labelText: 'انتخاب حساب',
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                border:
+                    OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
               ),
               items: accountList
                   .map((acc) => DropdownMenuItem(
                         value: acc,
-                        child: Text('${acc.displayName} (${acc.balance.toStringAsFixed(0)})'),
+                        child: Text(
+                            '${acc.displayName} (${acc.balance.toStringAsFixed(0)})'),
                       ))
                   .toList(),
               onChanged: (acc) => setState(() => _disbursementAccount = acc),
@@ -442,7 +459,8 @@ class _LoanWizardScreenState extends ConsumerState<LoanWizardScreen> {
             maxLines: 3,
             decoration: InputDecoration(
               labelText: 'یادداشت‌ها',
-              border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+              border:
+                  OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
             ),
           ),
           const SizedBox(height: 24),
@@ -502,5 +520,5 @@ class _LoanWizardScreenState extends ConsumerState<LoanWizardScreen> {
     Navigator.pop(context);
   }
 
-    late final TextEditingController _installmentCtrl;
+  late final TextEditingController _installmentCtrl;
 }

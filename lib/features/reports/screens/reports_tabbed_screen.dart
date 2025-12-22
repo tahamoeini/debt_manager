@@ -8,7 +8,8 @@ class ReportsTabbedScreen extends ConsumerStatefulWidget {
   const ReportsTabbedScreen({super.key});
 
   @override
-  ConsumerState<ReportsTabbedScreen> createState() => _ReportsTabbedScreenState();
+  ConsumerState<ReportsTabbedScreen> createState() =>
+      _ReportsTabbedScreenState();
 }
 
 class _ReportsTabbedScreenState extends ConsumerState<ReportsTabbedScreen>
@@ -186,7 +187,8 @@ class _SimpleReportTab extends ConsumerWidget {
 
               final totalBorrowed = loansList.fold<double>(
                 0,
-                (sum, loan) => sum +
+                (sum, loan) =>
+                    sum +
                     (loan.direction.toString().contains('borrowed')
                         ? loan.principalAmount
                         : 0),
@@ -194,7 +196,8 @@ class _SimpleReportTab extends ConsumerWidget {
 
               final totalLent = loansList.fold<double>(
                 0,
-                (sum, loan) => sum +
+                (sum, loan) =>
+                    sum +
                     (loan.direction.toString().contains('lent')
                         ? loan.principalAmount
                         : 0),
@@ -397,7 +400,9 @@ class _StatCard extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             Text(
-              isCount ? amount.toStringAsFixed(0) : '${amount.toStringAsFixed(0)} ریال',
+              isCount
+                  ? amount.toStringAsFixed(0)
+                  : '${amount.toStringAsFixed(0)} ریال',
               style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                     color: color,
                   ),

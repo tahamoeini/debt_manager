@@ -10,7 +10,8 @@ final accountsListProvider = FutureProvider<List<Account>>((ref) async {
 });
 
 /// Provides a single account by ID
-final accountByIdProvider = FutureProviderFamily<Account?, int>((ref, id) async {
+final accountByIdProvider =
+    FutureProviderFamily<Account?, int>((ref, id) async {
   final repo = ref.watch(accountsRepositoryProvider);
   return repo.getAccountById(id);
 });
@@ -19,8 +20,7 @@ final accountByIdProvider = FutureProviderFamily<Account?, int>((ref, id) async 
 class AccountsNotifier extends StateNotifier<AsyncValue<List<Account>>> {
   final AccountsRepository _repository;
 
-  AccountsNotifier(this._repository)
-      : super(const AsyncValue.loading());
+  AccountsNotifier(this._repository) : super(const AsyncValue.loading());
 
   Future<void> loadAccounts() async {
     state = const AsyncValue.loading();

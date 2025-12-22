@@ -156,7 +156,8 @@ final accountsRepositoryProvider = Provider<AccountsRepository>((ref) {
 });
 
 /// Provides the installment payments repository instance
-final installmentPaymentsRepositoryProvider = Provider<InstallmentPaymentsRepository>((ref) {
+final installmentPaymentsRepositoryProvider =
+    Provider<InstallmentPaymentsRepository>((ref) {
   final dbHelper = ref.read(databaseHelperProvider);
   return InstallmentPaymentsRepository(dbHelper);
 });

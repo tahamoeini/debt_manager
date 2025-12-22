@@ -56,9 +56,8 @@ class AccountDetailScreen extends ConsumerWidget {
                             children: [
                               Text(
                                 account.name,
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .headlineSmall,
+                                style:
+                                    Theme.of(context).textTheme.headlineSmall,
                               ),
                               Text(
                                 account.typeLabel,

@@ -26,7 +26,8 @@ class AccountsListScreen extends ConsumerWidget {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Icon(Icons.account_balance, size: 64, color: Colors.grey),
+                  const Icon(Icons.account_balance,
+                      size: 64, color: Colors.grey),
                   const SizedBox(height: 16),
                   const Text(
                     'هیچ حسابی ثبت نشده است',

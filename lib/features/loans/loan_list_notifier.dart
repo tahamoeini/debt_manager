@@ -34,7 +34,8 @@ final loanListProvider = StateNotifierProvider.family<LoanListNotifier,
 
 /// Alias for loanListProvider with null direction (shows all loans)
 /// Wraps as AsyncValue.data for UI consumption
-final loansListNotifierProvider = Provider<AsyncValue<List<LoanSummary>>>((ref) {
+final loansListNotifierProvider =
+    Provider<AsyncValue<List<LoanSummary>>>((ref) {
   final loans = ref.watch(loanListProvider(null));
   return AsyncValue.data(loans);
 });

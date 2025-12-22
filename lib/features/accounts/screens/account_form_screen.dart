@@ -22,8 +22,7 @@ class _AccountFormScreenState extends ConsumerState<AccountFormScreen> {
   void initState() {
     super.initState();
     _nameCtrl = TextEditingController(text: widget.account?.name ?? '');
-    _notesCtrl =
-        TextEditingController(text: widget.account?.notes ?? '');
+    _notesCtrl = TextEditingController(text: widget.account?.notes ?? '');
     _balanceCtrl = TextEditingController(
       text: widget.account?.balance.toStringAsFixed(0) ?? '0',
     );

@@ -62,8 +62,8 @@ class ModernHomeDashboard extends ConsumerWidget {
                       );
                     }
 
-                    final totalBalance =
-                        accounts.fold<double>(0, (sum, acc) => sum + acc.balance);
+                    final totalBalance = accounts.fold<double>(
+                        0, (sum, acc) => sum + acc.balance);
 
                     return Column(
                       children: [
@@ -136,7 +136,8 @@ class ModernHomeDashboard extends ConsumerWidget {
                 const SizedBox(height: 12),
 
                 upcomingAsync.when(
-                  loading: () => const Center(child: CircularProgressIndicator()),
+                  loading: () =>
+                      const Center(child: CircularProgressIndicator()),
                   error: (err, stack) => Text('خطا: $err'),
                   data: (payments) {
                     if (payments.isEmpty) {
@@ -193,10 +194,12 @@ class ModernHomeDashboard extends ConsumerWidget {
                               const SizedBox(height: 12),
                               ...overduePayments.take(3).map((p) {
                                 return Padding(
-                                  padding: const EdgeInsets.symmetric(vertical: 4),
+                                  padding:
+                                      const EdgeInsets.symmetric(vertical: 4),
                                   child: Text(
                                     '• ${p.amount.toStringAsFixed(0)} ریال (تا ${p.dueDate})',
-                                    style: Theme.of(context).textTheme.bodySmall,
+                                    style:
+                                        Theme.of(context).textTheme.bodySmall,
                                   ),
                                 );
                               }),
@@ -324,13 +327,13 @@ class _UpcomingPaymentTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final daysUntilDue =
-        payment.dueDate.difference(Jalali.now()).inDays;
+    final daysUntilDue = payment.dueDate.difference(Jalali.now()).inDays;
 
     return Card(
       margin: const EdgeInsets.symmetric(vertical: 8),
       child: ListTile(
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        contentPadding:
+            const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         leading: CircleAvatar(
           backgroundColor: daysUntilDue <= 7 ? Colors.orange : Colors.blue,
           child: Text(
@@ -345,7 +348,8 @@ class _UpcomingPaymentTile extends StatelessWidget {
         ),
         trailing: Chip(
           label: Text(daysUntilDue <= 7 ? '⏰ فوری' : 'پیش‌رو'),
-          backgroundColor: daysUntilDue <= 7 ? Colors.orange.shade100 : Colors.blue.shade100,
+          backgroundColor:
+              daysUntilDue <= 7 ? Colors.orange.shade100 : Colors.blue.shade100,
         ),
       ),
     );

@@ -104,7 +104,11 @@ class InstallmentPaymentsRepository {
     final results = await database.query(
       'installment_payments',
       where: 'due_date BETWEEN ? AND ? AND status != ?',
-      whereArgs: [today.toString(), thirtyDaysLater.toString(), PaymentStatus.paid.index],
+      whereArgs: [
+        today.toString(),
+        thirtyDaysLater.toString(),
+        PaymentStatus.paid.index
+      ],
       orderBy: 'due_date ASC',
     );
 

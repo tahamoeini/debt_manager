@@ -30,19 +30,20 @@ class InstallmentPayment {
   });
 
   /// Is this payment overdue?
-  bool get isOverdue => 
-    status == PaymentStatus.pending && Jalali.now().toDateTime().isAfter(dueDate.toDateTime());
+  bool get isOverdue =>
+      status == PaymentStatus.pending &&
+      Jalali.now().toDateTime().isAfter(dueDate.toDateTime());
 
   /// Remaining amount to pay
   double get remainingAmount => (amount - amountPaid).abs();
 
   /// Display status in Persian
   String get statusLabel => switch (status) {
-    PaymentStatus.pending => 'در انتظار',
-    PaymentStatus.partial => 'جزئی',
-    PaymentStatus.paid => 'پرداخت شده',
-    PaymentStatus.overdue => 'تأخیر',
-  };
+        PaymentStatus.pending => 'در انتظار',
+        PaymentStatus.partial => 'جزئی',
+        PaymentStatus.paid => 'پرداخت شده',
+        PaymentStatus.overdue => 'تأخیر',
+      };
 
   InstallmentPayment copyWith({
     int? id,

@@ -38,7 +38,7 @@ class JalaliDateProvider {
         return Jalali(year, month, day);
       }
     } catch (_) {}
-    
+
     // Fallback: try to parse as ISO and convert
     try {
       final dt = DateTime.parse(jalaliString);
