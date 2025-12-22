@@ -393,10 +393,8 @@ class DatabaseHelper {
       final tables = await db.rawQuery(
         "SELECT name FROM sqlite_master WHERE type='table'",
       );
-      final names = tables
-          .map((r) => r['name'] as String?)
-          .whereType<String>()
-          .toSet();
+      final names =
+          tables.map((r) => r['name'] as String?).whereType<String>().toSet();
 
       if (!names.contains('accounts')) {
         await db.execute('''
@@ -1124,18 +1122,18 @@ class DatabaseHelper {
 
   Future<List<Account>> getAccounts() async {
     if (_isWeb) {
-        return _transactionStore
+      return _transactionStore
           .map((row) => Account(
-            id: row['id'] as int?,
-            name: row['name'] as String? ?? 'Unnamed',
-            type: row['type'] as String? ?? 'cash',
-            balance: row['balance'] is int
-              ? row['balance'] as int
-              : int.tryParse('${row['balance']}') ?? 0,
-            notes: row['notes'] as String?,
-            createdAt: row['created_at'] as String? ??
-              DateTime.now().toIso8601String(),
-            ))
+                id: row['id'] as int?,
+                name: row['name'] as String? ?? 'Unnamed',
+                type: row['type'] as String? ?? 'cash',
+                balance: row['balance'] is int
+                    ? row['balance'] as int
+                    : int.tryParse('${row['balance']}') ?? 0,
+                notes: row['notes'] as String?,
+                createdAt: row['created_at'] as String? ??
+                    DateTime.now().toIso8601String(),
+              ))
           .toList();
     }
 
