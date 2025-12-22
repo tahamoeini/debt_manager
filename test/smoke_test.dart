@@ -36,67 +36,6 @@ void main() {
   },
       skip:
           true); // Requires integration test environment with platform channels
-
-  testWidgets('Smoke test: Main navigation tabs exist', (tester) async {
-    // Expected tabs:
-    // 1. Loans (خانه)
-    // 2. Budget (بودجه)
-    // 3. Reports (گزارش‌ها)
-    // 4. Settings (تنظیمات)
-
-    // This would verify:
-    // await tester.pumpWidget(app);
-    // await tester.pumpAndSettle();
-    // expect(find.text('خانه'), findsOneWidget);
-    // expect(find.text('بودجه'), findsOneWidget);
-    // expect(find.text('گزارش‌ها'), findsOneWidget);
-    // expect(find.text('تنظیمات'), findsOneWidget);
-
-    expect(true, true); // Documented test scenario
-  }, skip: true); // Requires integration test environment
-
-  testWidgets('Smoke test: Lock screen redirect works', (tester) async {
-    // This would verify:
-    // 1. App starts with auth required
-    // 2. Redirects to /lock screen
-    // 3. After unlock, can access main content
-    // 4. Logout returns to /lock
-
-    // await tester.pumpWidget(app);
-    // await tester.pumpAndSettle();
-    // expect(find.byType(LockScreen), findsOneWidget);
-    //
-    // // Simulate unlock
-    // await tester.enterText(find.byType(TextField), '1234');
-    // await tester.tap(find.byType(ElevatedButton));
-    // await tester.pumpAndSettle();
-    //
-    // // Verify navigation to home
-    // expect(find.byType(LoansListScreen), findsOneWidget);
-
-    expect(true, true); // Documented test scenario
-  }, skip: true); // Requires integration test environment
-
-  testWidgets('Smoke test: Invalid route shows NotFound', (tester) async {
-    // This would verify:
-    // 1. Navigate to /invalid-route
-    // 2. Expect NotFound screen or redirect
-    // 3. Can navigate back to valid route
-
-    // await tester.pumpWidget(app);
-    // await tester.pumpAndSettle();
-    //
-    // // Navigate to invalid route
-    // final router = GoRouter.of(context);
-    // router.go('/invalid-route-12345');
-    // await tester.pumpAndSettle();
-    //
-    // // Verify handling
-    // expect(find.text('Not Found'), findsOneWidget);
-    // // OR expect redirect to /loans
-
-    expect(true, true); // Documented test scenario
-  }, skip: true); // Requires integration test environment
 }
 
 /// Integration Test Recommendations:
